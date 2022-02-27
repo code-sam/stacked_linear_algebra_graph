@@ -1,0 +1,1 @@
+// Trait for graph-traversal-step

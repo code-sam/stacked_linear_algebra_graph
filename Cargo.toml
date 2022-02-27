@@ -1,0 +1,23 @@
+[package]
+name = "cairn-knowledge-graph"
+version = "0.1.0"
+authors = ["code_sam <samdekker@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+graphblas_sparse_linear_algebra = {version = "0.8"}
+hashbrown = {version = "0.11", features = ["rayon"]}
+once_cell = {version = "1.8"}
+rayon = {version = "1.5"}
+
+[dev-dependencies]
+criterion = "0.3"
+rand = "0.8"
+rustc-hash = {version = "1.1"}
+
+[[bench]]
+name = "experiments"
+# name = "vector_hashmap_benchmark"
+harness = false
