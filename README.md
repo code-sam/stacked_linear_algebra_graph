@@ -8,12 +8,12 @@ The Cairn Knowledge Graph implements a [directed graph](https://en.wikipedia.org
 
 ### Data types
 A vertex can hold a value of the following types:
-    - unit, indicating the absence of a value
-    - string, containing [Unicode Scalar Values](https://www.unicode.org/glossary/#unicode_scalar_value),
-    - boolean,
-    - integer
-    - unsigned integer
-    - floating point, (IEEE 754-2008)
+- unit, indicating the absence of a value
+- string, containing [Unicode Scalar Values](https://www.unicode.org/glossary/#unicode_scalar_value),
+- boolean,
+- integer
+- unsigned integer
+- floating point, (IEEE 754-2008)
 
 ### ACID
 Cairn Knowledge Graph does currently not guarantee [ACID](https://en.wikipedia.org/wiki/ACID) database transaction properties.
