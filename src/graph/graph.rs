@@ -275,7 +275,7 @@ impl<'g> Graph {
         let to_vertex_index;
         match self
             .vertex_key_to_vertex_index_map
-            .get(edge.goes_to_vertex())
+            .get(edge.points_to_vertex())
         {
             Some(index) => to_vertex_index = index,
             None => {
