@@ -1,10 +1,10 @@
 [package]
 name = "cairn-knowledge-graph"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["code_sam <mail@samdekker.nl>"]
 description = "An embedded and in-memory knowledge graph for static specification analysis."
 edition = "2018"
-keywords = ["graph", "knowledge"]
+keywords = ["knowledge", "graph"]
 license = "CC-BY-NC-4.0"
 readme = "README.md"
 repository = "https://github.com/code-sam/cairn-knowledge-graph"
