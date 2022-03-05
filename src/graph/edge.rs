@@ -47,7 +47,7 @@ impl DirectedEdge {
     pub fn originates_from_vertex(&self) -> &VertexKey {
         &self.from_vertex
     }
-    pub fn goes_to_vertex(&self) -> &VertexKey {
+    pub fn points_to_vertex(&self) -> &VertexKey {
         &self.to_vertex
     }
 }
