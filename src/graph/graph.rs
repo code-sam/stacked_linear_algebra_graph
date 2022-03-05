@@ -27,6 +27,8 @@ use crate::util::indexed_data_store::{Index as IndexedDataStoreIndexValue, Index
 // pub type VertexIndex = ElementIndex;
 // pub type EdgeTypeIndex = IndexedDataStoreIndex;
 
+pub type ElementCount = ElementIndex;
+
 // Use a struct instead of a type to discourage using and/or generating indices that are not coming from the pblic API.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct VertexIndex {
@@ -86,7 +88,12 @@ impl EdgeTypeIndex {
 //     }
 // }
 
-// pub trait GraphTrait {}
+pub trait GraphTrait {
+    fn number_of_vertices(&self) -> Result<ElementCount, GraphComputingError>;
+    fn number_of_edge_types(&self) -> Result<ElementCount, GraphComputingError>;
+    // TODO: number of edges
+    // TODO: number of edges per edge type, etc
+}
 
 // pub struct Graph<VertexKey: Hash + Eq + PartialEq, EdgeType: Hash + Eq + PartialEq> {
 #[derive(Debug)]
@@ -105,13 +112,30 @@ pub struct Graph {
 
 // let mut map: FxHashMap<String, ElementIndex> = FxHashMap::default();
 
-// impl GraphTrait for Graph {}
+impl GraphTrait for Graph {
+    fn number_of_vertices(&self) -> Result<ElementCount, GraphComputingError> {
+        let number_of_vertices = self
+            .index_mask_with_all_vertices()
+            .number_of_stored_elements()?;
+        Ok(number_of_vertices)
+    }
+
+    fn number_of_edge_types(&self) -> Result<ElementCount, GraphComputingError> {
+        let number_of_edge_types = self
+            .index_mask_with_all_adjacency_matrices()
+            .number_of_stored_elements()?;
+        Ok(number_of_edge_types)
+    }
+
+    // TODO: number of edges
+    // TODO: number of edges for edge type
+}
 
 // impl Graph<VertexKey, EdgeKey> {
 impl<'g> Graph {
     pub fn new(
-        initial_vertex_capacity: usize,
-        initial_edge_type_capacity: usize,
+        initial_vertex_capacity: ElementCount,
+        initial_edge_type_capacity: ElementCount,
     ) -> Result<Self, GraphComputingError> {
         let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking)?;
 
@@ -408,23 +432,6 @@ impl<'g> Graph {
     pub(crate) fn index_mask_with_all_adjacency_matrices(&self) -> &SparseVector<bool> {
         self.adjacency_matrices.mask_with_valid_indices_ref()
     }
-
-    pub fn number_of_vertices(&self) -> Result<ElementIndex, GraphComputingError> {
-        let number_of_vertices = self
-            .index_mask_with_all_vertices()
-            .number_of_stored_elements()?;
-        Ok(number_of_vertices)
-    }
-
-    pub fn number_of_edge_types(&self) -> Result<ElementIndex, GraphComputingError> {
-        let number_of_edge_types = self
-            .index_mask_with_all_adjacency_matrices()
-            .number_of_stored_elements()?;
-        Ok(number_of_edge_types)
-    }
-
-    // TODO: number of edges
-    // TODO: number of edges for edge type
 }
 
 #[cfg(test)]
