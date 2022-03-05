@@ -1,4 +1,4 @@
-![test](https://github.com/code-sam/cairn_knowledge_graph/actions/workflows/test_main_branch.yml/badge.svg?branch=main)
+![test](https://github.com/code-sam/cairn-knowledge-graph/actions/workflows/test_main_branch.yml/badge.svg?branch=main)
 # Cairn Knowledge Graph
 An embedded and in-memory knowledge graph for static specification analysis.
 

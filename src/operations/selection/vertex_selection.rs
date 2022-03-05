@@ -269,6 +269,7 @@ mod tests {
     use graphblas_sparse_linear_algebra::value_types::sparse_vector::GetVectorElementValue;
 
     use crate::graph::edge::DirectedEdge;
+    use crate::graph::graph::GraphTrait;
     use crate::operations::add_edge::AddEdge;
     use crate::operations::add_vertex::AddVertex;
     use crate::operations::select_vertex::SelectVertex;
