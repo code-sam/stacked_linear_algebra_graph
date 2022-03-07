@@ -127,4 +127,4 @@ Cairn Knowledge Graph is inspired by [LAGraph](https://github.com/GraphBLAS/LAGr
 cairn_knowledge_graph is licensed under [Creative Commons Attribution Non Commercial 4.0 International](https://creativecommons.org/licenses/by-nc/4.0/legalcode). For other licensing options, please contact Sam Dekker.
 
 ## Contributing
-Awesome, contributions are welcome. cairn_knowledge_graph and your contribution may be relicensed and integrated into commercial software in the future. Therefore, you will be asked to agree to the [Contributor License Agreement](https://github.com/code-sam/cairn_knowledge_graph/blob/main/Contributor-License-Agreement.md) when you make a pull request.
+Awesome, contributions are welcome. cairn_knowledge_graph and your contribution may be relicensed and integrated into commercial software in the future. Therefore, you will be asked to agree to the [Contributor License Agreement](contributor-license-agreement.md) when you make a pull request.
