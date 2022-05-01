@@ -28,14 +28,3 @@ impl<'g> AddEdgeType for Graph {
         Ok(edge_type_index)
     }
 }
-
-// TODO
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-//     fn add_edge_type() {
-//
-//     }
-// }

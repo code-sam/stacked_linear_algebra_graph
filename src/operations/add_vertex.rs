@@ -43,17 +43,17 @@ impl AddVertex for Graph {
     /// Replacement deletes connected edges
     fn add_or_replace_vertex(
         &mut self,
-        vertex_to_add: Vertex,
+        new_vertex: Vertex,
     ) -> Result<VertexIndex, GraphComputingError> {
-        let key_ref_of_vertex_to_add = vertex_to_add.key_ref();
+        let key_ref_of_new_vertex = new_vertex.key_ref();
 
         let vertex_index: VertexIndex = self
             .vertex_store_mut_ref()
-            .push(vertex_to_add.clone())?
+            .push(new_vertex.clone())?
             .into();
 
         self.vertex_key_to_vertex_index_map_mut_ref()
-            .insert(key_ref_of_vertex_to_add.to_owned(), vertex_index.clone());
+            .insert(key_ref_of_new_vertex.to_owned(), vertex_index.clone());
 
         self.expand_adjacency_matrices_to_match_vertex_capacity()?;
         Ok(vertex_index)
