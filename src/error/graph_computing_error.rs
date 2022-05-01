@@ -17,7 +17,7 @@ pub enum GraphComputingError {
     OtherError(OtherError),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GraphComputingErrorType {
     SystemErrorType(SystemErrorType),
     LogicErrorType(LogicErrorType),
