@@ -334,7 +334,7 @@ impl<'g> Graph {
                 Err(_) => Err(LogicError::new(
                     // TODO: match actual error type
                     LogicErrorType::Other,
-                    String::from("Adjacency matrix not found at mapped index"),
+                    format!("No adjacency matrix at mapped edge type index [{}]", index.index()),
                     None,
                 )
                 .into()),
@@ -358,7 +358,7 @@ impl<'g> Graph {
                 Err(_) => Err(LogicError::new(
                     // TODO: match actual error type
                     LogicErrorType::Other,
-                    String::from("Adjacency matrix not found at mapped index"),
+                    format!("No adjacency matrix at mapped edge type index [{}]", index.index()),
                     None,
                 )
                 .into()),
@@ -369,14 +369,14 @@ impl<'g> Graph {
     pub(crate) fn vertex_index_to_vertex_key_ref(
         &self,
         vertex_index: VertexIndex,
-    ) -> Result<&str, GraphComputingError> {
+    ) -> Result<&VertexKeyRef, GraphComputingError> {
         match self.vertex_store.get_ref(vertex_index) {
             Ok(vertex) => return Ok(vertex.key_ref()),
             Err(_) => {
                 // TODO:match actual error type
                 return Err(LogicError::new(
                     LogicErrorType::VertexMustExist,
-                    String::from("A vertex was selected that does not exist"),
+                    format!("There is no vertex at index [{}]", vertex_index.index()),
                     None,
                 )
                 .into());
@@ -396,6 +396,24 @@ impl<'g> Graph {
             )
             .into()),
             Some(vertex_index) => Ok(vertex_index),
+        }
+    }
+
+    pub(crate) fn edge_type_index_to_edge_type_ref(
+        &self,
+        edge_type_index: EdgeTypeIndex
+    ) -> Result<&EdgeTypeRef, GraphComputingError> {
+        match self.adjacency_matrices.get_ref(edge_type_index) {
+            Ok(adjacency_matrix) => return Ok(adjacency_matrix.edge_type_ref()),
+            Err(_) => {
+                // TODO:match actual error type
+                return Err(LogicError::new(
+                    LogicErrorType::VertexMustExist,
+                    format!("There is no vertex at index [{}]", edge_type_index.index()),
+                    None,
+                )
+                .into());
+            }
         }
     }
 
@@ -515,4 +533,16 @@ mod tests {
             vertex_key_2
         );
     }
+
+    #[test]
+    fn test_convert_edge_type_index_to_edge_type_key_ref() {
+        let mut graph = Graph::new(10, 20).unwrap();
+
+        let edge_type_key_1 = String::from("Vertex_1");
+        let adjacency_matrix_1 = AdjacencyMatrix::new(graph.graphblas_context_ref(), edge_type_key_1.clone(), graph.vertex_capacity().unwrap()).unwrap();
+
+        let index_edge_type_1: EdgeTypeIndex = graph.adjacency_matrices_mut_ref().push(adjacency_matrix_1).unwrap().into();
+        assert_eq!(graph.edge_type_index_to_edge_type_ref(index_edge_type_1).unwrap(), edge_type_key_1.as_str())
+    }
+
 }
