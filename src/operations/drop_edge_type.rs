@@ -4,6 +4,7 @@ use crate::graph::edge::EdgeTypeRef;
 use crate::graph::graph::Graph;
 
 pub trait DropEdgeType {
+    /// Deletes the edge type, and all its edges
     fn drop_edge_type(&mut self, edge_type: &EdgeTypeRef) -> Result<(), GraphComputingError>;
 }
 
