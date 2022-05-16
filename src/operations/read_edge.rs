@@ -1,10 +1,13 @@
 use crate::error::GraphComputingError;
 
-use crate::graph::edge::DirectedEdge;
+use crate::graph::edge::{DirectedEdge, EdgeTypeRef};
 use crate::graph::graph::Graph;
 
 pub trait ReadEdge {
     fn is_edge(&self, edge: &DirectedEdge) -> Result<bool, GraphComputingError>;
+
+    // TODO: review placement of this function
+    fn is_edge_type(&self, edge_type: &EdgeTypeRef) -> Result<bool, GraphComputingError>;
 }
 
 impl ReadEdge for Graph {
@@ -26,17 +29,27 @@ impl ReadEdge for Graph {
     //         Err(error) => Ok(false), // TODO: match error type to decide if an error should be passed on instead
     //     }
     // }
+
+    fn is_edge_type(&self, edge_type: &EdgeTypeRef) -> Result<bool, GraphComputingError> {
+        Ok(self
+            .edge_type_to_edge_type_index_map_ref()
+            .contains_key(edge_type))
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    // use super::*;
+    use super::*;
 
-    // use crate::graph::vertex::VertexValue;
+    use crate::tests::standard_graph_for_testing::standard_graph_for_testing;
 
-    // TODO
-    // #[test]
-    // fn new_graph() {
-    //     let graph = Graph::new(10, 20);
-    // }
+    #[test]
+    fn test_is_edge_type() {
+        let graph = standard_graph_for_testing();
+
+        assert!(!graph
+            .is_edge_type(String::from("this_edge_type_does_not_exist").as_str())
+            .unwrap());
+        assert!(graph.is_edge_type(String::from("is_a").as_str()).unwrap());
+    }
 }

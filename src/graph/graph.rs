@@ -172,7 +172,7 @@ impl<'g> Graph {
         // allocate a dummy adjacency matrix to support self.expand_adjacency_matrices_to_match_target_capacity(),
         // TODO: research a more elegant alternative
         let dummy_edge_type = EdgeType::from("Dummy_at_init");
-        graph.add_edge_type(dummy_edge_type.clone())?;
+        graph.add_new_edge_type(dummy_edge_type.clone())?;
         graph.drop_edge_type(dummy_edge_type.as_str())?;
 
         Ok(graph)
@@ -334,7 +334,10 @@ impl<'g> Graph {
                 Err(_) => Err(LogicError::new(
                     // TODO: match actual error type
                     LogicErrorType::Other,
-                    format!("No adjacency matrix at mapped edge type index [{}]", index.index()),
+                    format!(
+                        "No adjacency matrix at mapped edge type index [{}]",
+                        index.index()
+                    ),
                     None,
                 )
                 .into()),
@@ -358,7 +361,10 @@ impl<'g> Graph {
                 Err(_) => Err(LogicError::new(
                     // TODO: match actual error type
                     LogicErrorType::Other,
-                    format!("No adjacency matrix at mapped edge type index [{}]", index.index()),
+                    format!(
+                        "No adjacency matrix at mapped edge type index [{}]",
+                        index.index()
+                    ),
                     None,
                 )
                 .into()),
@@ -401,7 +407,7 @@ impl<'g> Graph {
 
     pub(crate) fn edge_type_index_to_edge_type_ref(
         &self,
-        edge_type_index: EdgeTypeIndex
+        edge_type_index: EdgeTypeIndex,
     ) -> Result<&EdgeTypeRef, GraphComputingError> {
         match self.adjacency_matrices.get_ref(edge_type_index) {
             Ok(adjacency_matrix) => return Ok(adjacency_matrix.edge_type_ref()),
@@ -539,10 +545,23 @@ mod tests {
         let mut graph = Graph::new(10, 20).unwrap();
 
         let edge_type_key_1 = String::from("Vertex_1");
-        let adjacency_matrix_1 = AdjacencyMatrix::new(graph.graphblas_context_ref(), edge_type_key_1.clone(), graph.vertex_capacity().unwrap()).unwrap();
+        let adjacency_matrix_1 = AdjacencyMatrix::new(
+            graph.graphblas_context_ref(),
+            edge_type_key_1.clone(),
+            graph.vertex_capacity().unwrap(),
+        )
+        .unwrap();
 
-        let index_edge_type_1: EdgeTypeIndex = graph.adjacency_matrices_mut_ref().push(adjacency_matrix_1).unwrap().into();
-        assert_eq!(graph.edge_type_index_to_edge_type_ref(index_edge_type_1).unwrap(), edge_type_key_1.as_str())
+        let index_edge_type_1: EdgeTypeIndex = graph
+            .adjacency_matrices_mut_ref()
+            .push(adjacency_matrix_1)
+            .unwrap()
+            .into();
+        assert_eq!(
+            graph
+                .edge_type_index_to_edge_type_ref(index_edge_type_1)
+                .unwrap(),
+            edge_type_key_1.as_str()
+        )
     }
-
 }
