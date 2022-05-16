@@ -15,7 +15,7 @@ pub trait AddEdgeType {
     ) -> Result<EdgeTypeIndex, GraphComputingError>;
 
     /// If the EdgeType already exits, returns a duplicate of its EdgeTypeIndex
-    fn add_new_edge_type_or_return_existing_index(
+    fn add_new_edge_type_or_return_index(
         &mut self,
         edge_type: EdgeType,
     ) -> Result<EdgeTypeIndex, GraphComputingError>;
@@ -38,7 +38,7 @@ impl<'g> AddEdgeType for Graph {
         }
     }
 
-    fn add_new_edge_type_or_return_existing_index(
+    fn add_new_edge_type_or_return_index(
         &mut self,
         edge_type: EdgeType,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
@@ -93,11 +93,11 @@ mod tests {
 
         let some_edge_type = String::from("some_edge_type");
         let edge_type_index = graph
-            .add_new_edge_type_or_return_existing_index(some_edge_type.clone())
+            .add_new_edge_type_or_return_index(some_edge_type.clone())
             .unwrap();
 
         let the_same_edge_type_index = graph
-            .add_new_edge_type_or_return_existing_index(some_edge_type)
+            .add_new_edge_type_or_return_index(some_edge_type)
             .unwrap();
 
         assert_eq!(edge_type_index, the_same_edge_type_index)
