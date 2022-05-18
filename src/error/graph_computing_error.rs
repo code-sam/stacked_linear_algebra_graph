@@ -98,6 +98,7 @@ impl From<SparseLinearAlgebraError> for GraphComputingError {
             LogicErrorType => Self::LogicError(error.into()),
             OtherErrorType => Self::OtherError(error.into()),
             SystemErrorType => Self::SystemError(error.into()),
+            UserErrorType => Self::UserError(error.into()),
         }
     }
 }

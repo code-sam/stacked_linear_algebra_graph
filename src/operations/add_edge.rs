@@ -26,7 +26,7 @@ impl AddEdge for Graph {
             .get(edge.edge_type_ref())
         {
             None => {
-                edge_type_index = self.add_edge_type(edge.edge_type_ref().to_owned())?;
+                edge_type_index = self.add_new_edge_type(edge.edge_type_ref().to_owned())?; // TODO: review the use of add_NEW_edge_type
                 index_to_return = Some(edge_type_index.clone());
             }
             Some(index) => {

@@ -121,7 +121,7 @@ impl<T: Send + Sync> IndexedDataStore<T> {
 
         // new indices are popped from a stack. Indices of freed indices are pushed to the stack, and re-used.
         // benefit: no memory is allocated for unused indices
-        // downside: runtime cost; more complexity; no use of speedy pre-allocation
+        // downside: runtime cost; more complexity; no use of speedy pre-allocation; memory is never deallocated
         // let data = self.get_write_locked_data()?;
         if available_index < self.data.len() {
             self.mask_with_valid_indices
