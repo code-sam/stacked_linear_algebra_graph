@@ -1,8 +1,8 @@
 use crate::error::{GraphComputingError, SystemError, SystemErrorType, UserError, UserErrorType};
 
 use super::add_vertex::AddVertex;
-use crate::graph::graph::{Graph, VertexIndex};
-use crate::graph::vertex::{Vertex, VertexValue};
+use crate::graph::graph::Graph;
+use crate::graph::vertex::{Vertex, VertexIndex, VertexValue};
 
 pub trait UpdateVertex {
     fn update_or_add_vertex(

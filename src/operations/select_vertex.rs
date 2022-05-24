@@ -8,9 +8,9 @@ use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
 
 use crate::error::GraphComputingError;
 
-use crate::graph::edge::EdgeType;
-use crate::graph::graph::{EdgeTypeIndex, Graph, VertexIndex};
-use crate::graph::vertex::VertexKeyRef;
+use crate::graph::edge::{EdgeType, EdgeTypeIndex};
+use crate::graph::graph::Graph;
+use crate::graph::vertex::{VertexIndex, VertexKeyRef};
 use crate::operations::selection::vertex_selection::VertexSelection;
 
 use super::select_edge_type::EdgeTypeSelectorTrait;

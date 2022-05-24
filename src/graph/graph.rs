@@ -2,21 +2,23 @@ use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::{
     context::{Context as GraphblasContext, Mode as GraphblasMode},
-    util::ElementIndex,
+    util::ElementIndex as GraphblasElementIndex,
     value_types::sparse_vector::SparseVector,
 };
 use hashbrown::HashMap;
 
-use super::adjacency_matrix::{AdjacencyMatrix, EdgeCoordinate};
-use super::edge::{DirectedEdge, EdgeType, EdgeTypeRef};
-use super::vertex::{Vertex, VertexKey, VertexKeyRef};
+use super::edge::{
+    EdgeType, EdgeTypeIndex, EdgeTypeRef,
+};
+use super::vertex::{Vertex, VertexIndex, VertexKey, VertexKeyRef};
+use crate::graph::edge::adjacency_matrix::{AdjacencyMatrix};
 
 use crate::error::{
     GraphComputingError, LogicError, LogicErrorType, SystemError, SystemErrorType, UserError,
     UserErrorType,
 };
 use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
-use crate::util::indexed_data_store::{Index as IndexedDataStoreIndexValue, IndexedDataStore};
+use crate::util::indexed_data_store::{IndexedDataStore};
 
 // NOTE: by default, SuiteSparse:GraphBLAS uses Compressed Sparse Row (CSR) format.
 // Row operations should therefore be faster.
@@ -28,66 +30,10 @@ use crate::util::indexed_data_store::{Index as IndexedDataStoreIndexValue, Index
 // pub type EdgeTypeIndex = IndexedDataStoreIndex;
 
 pub type ElementCount = ElementIndex;
+pub(crate) type ElementIndex = GraphblasElementIndex;
 
-// Use a struct instead of a type to discourage using and/or generating indices that are not coming from the pblic API.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct VertexIndex {
-    index: ElementIndex,
-}
-
-impl VertexIndex {
-    pub(crate) fn new(index: ElementIndex) -> Self {
-        VertexIndex { index }
-    }
-    pub(crate) fn index(self) -> ElementIndex {
-        self.index
-    }
-    pub(crate) fn index_ref(&self) -> &ElementIndex {
-        &self.index
-    }
-}
-
-// TODO: Implementation leaks VertexIndex instantiation out of pub(crate) scope
-// impl From<ElementIndex> for VertexIndex {
-//     fn from(index: ElementIndex) -> Self {
-//         VertexIndex::new(index)
-//     }
-// }
-// impl From<VertexIndex> for ElementIndex {
-//     fn from(index: VertexIndex) -> Self {
-//         index.index()
-//     }
-// }
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct EdgeTypeIndex {
-    index: IndexedDataStoreIndexValue,
-}
-
-impl EdgeTypeIndex {
-    pub(crate) fn new(index: IndexedDataStoreIndexValue) -> Self {
-        EdgeTypeIndex { index }
-    }
-    pub(crate) fn index(self) -> ElementIndex {
-        self.index
-    }
-    pub(crate) fn index_ref(&self) -> &IndexedDataStoreIndexValue {
-        &self.index
-    }
-}
-
-// impl From<EdgeTypeIndex> for IndexedDataStoreIndex {
-//     fn from(index: EdgeTypeIndex) -> Self {
-//         Self {index: *index.index()}
-//     }
-// }
-
-// impl From<IndexedDataStoreIndex> for EdgeTypeIndex {
-//     fn from(index: IndexedDataStoreIndex) -> Self {
-//         Self {index: *index.index()}
-//     }
-// }
-
+// TODO: should the scope of this trait be expanded to include most of the methods implemented below?
+// For now, the design philosofy has been to only define user-exposed behaviour as a trait.
 pub trait GraphTrait {
     fn number_of_vertices(&self) -> Result<ElementCount, GraphComputingError>;
     fn number_of_edge_types(&self) -> Result<ElementCount, GraphComputingError>;
@@ -173,7 +119,7 @@ impl<'g> Graph {
         // TODO: research a more elegant alternative
         let dummy_edge_type = EdgeType::from("Dummy_at_init");
         graph.add_new_edge_type(dummy_edge_type.clone())?;
-        graph.drop_edge_type(dummy_edge_type.as_str())?;
+        graph.drop_edge_type_with_key(dummy_edge_type.as_str())?;
 
         Ok(graph)
     }
@@ -240,82 +186,6 @@ impl<'g> Graph {
         // } else {
         //     Ok(())
         // }
-    }
-
-    pub(crate) fn set_edge_in_adjacency_matrix(
-        &mut self,
-        edge_to_set: &DirectedEdge,
-        edge_type_index: EdgeTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        let edge_coordinate = self.get_edge_coordinate(edge_to_set)?;
-        match self.adjacency_matrices.get_mut_ref(edge_type_index) {
-            Ok(edge_type_adjacency_matrix) => {
-                edge_type_adjacency_matrix.add_edge(&edge_coordinate)?
-            }
-            Err(_) => {
-                // TODO: check actual error type
-                return Err(SystemError::new(
-                    SystemErrorType::IndexOutOfBounds,
-                    String::from("No adjacency matrix at expected index."),
-                    None,
-                )
-                .into());
-            }
-        }
-        Ok(())
-    }
-
-    // fn get_(&self) -> GraphSize {
-    //     let number_of_vertices = self.vertex_values.length();
-    //     GraphSize::new(number_of_vertices, number_of_vertices)
-    // }
-
-    pub(crate) fn get_edge_coordinate(
-        &self,
-        edge: &DirectedEdge,
-    ) -> Result<EdgeCoordinate, GraphComputingError> {
-        // let mut from_vertex_index = self
-        //     .vertex_key_to_vertex_index_map
-        //     .get(edge.originates_from_vertex());
-        let from_vertex_index;
-        match self
-            .vertex_key_to_vertex_index_map
-            .get(edge.originates_from_vertex())
-        {
-            Some(index) => from_vertex_index = index,
-            None => {
-                return Err(LogicError::new(
-                    LogicErrorType::VertexMustExist,
-                    String::from("Originating vertex must exist for edge"),
-                    None,
-                )
-                .into())
-            }
-        }
-        // let to_vertex_index = self
-        //     .vertex_key_to_vertex_index_map
-        //     .get(edge.goes_to_vertex())
-        //     .unwrap();
-        let to_vertex_index;
-        match self
-            .vertex_key_to_vertex_index_map
-            .get(edge.points_to_vertex())
-        {
-            Some(index) => to_vertex_index = index,
-            None => {
-                return Err(LogicError::new(
-                    LogicErrorType::VertexMustExist,
-                    String::from("Destination vertex must exist for edge"),
-                    None,
-                )
-                .into())
-            }
-        }
-
-        Ok(EdgeCoordinate::new(
-            *from_vertex_index.index_ref(),
-            *to_vertex_index.index_ref(),
-        ))
     }
 
     pub(crate) fn get_edge_adjacency_matrix_ref(
@@ -462,7 +332,6 @@ impl<'g> Graph {
 mod tests {
     use super::*;
 
-    use crate::graph::vertex::VertexValue;
     use crate::operations::add_vertex::AddVertex;
     use crate::operations::read_vertex_value::ReadVertexValue;
 

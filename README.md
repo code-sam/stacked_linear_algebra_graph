@@ -28,7 +28,7 @@ Applications can include the cairn_knowledge_graph crate as a dependency. Buildi
 ## Minimum example
 ```rust
 use cairn_knowledge_graph::error::GraphComputingError;
-use cairn_knowledge_graph::graph::edge::DirectedEdge;
+use cairn_knowledge_graph::graph::edge::DirectedEdgeDefinedByKeys;
 use cairn_knowledge_graph::graph::graph::Graph;
 use cairn_knowledge_graph::graph::vertex::{Vertex, VertexValue};
 use cairn_knowledge_graph::operations::add_edge::AddEdge;
@@ -39,12 +39,12 @@ use cairn_knowledge_graph::operations::selection::vertex_selection::VertexSelect
 
 macro_rules! add_new_edge {
   ($from_vertex:ident, $edge_type:ident, $to_vertex:ident, $graph:ident) => {
-     let edge = DirectedEdge::new(
+     let edge = DirectedEdgeDefinedByKeys::new(
          $from_vertex.clone().into(),
-         $to_vertex.clone().into(),
          $edge_type.clone(),
+         $to_vertex.clone().into(),
      );
-     $graph.add_edge(edge.clone()).unwrap();
+     $graph.add_edge_and_edge_type_using_keys(edge.clone()).unwrap();
   };
 }
  

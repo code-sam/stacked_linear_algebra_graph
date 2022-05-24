@@ -1,6 +1,6 @@
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::edge::EdgeType;
-use crate::graph::graph::{EdgeTypeIndex, Graph};
+use crate::graph::edge::{EdgeType, EdgeTypeIndex};
+use crate::graph::graph::Graph;
 
 use crate::operations::selection::edge_selection::EdgeSelection;
 

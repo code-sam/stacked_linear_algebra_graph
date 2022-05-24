@@ -1,7 +1,7 @@
 use crate::error::{GraphComputingError, UserError, UserErrorType};
 
-use crate::graph::graph::{Graph, VertexIndex};
-use crate::graph::vertex::Vertex;
+use crate::graph::graph::Graph;
+use crate::graph::vertex::{Vertex, VertexIndex};
 
 use super::update_vertex::UpdateVertex;
 
@@ -47,10 +47,8 @@ impl AddVertex for Graph {
     ) -> Result<VertexIndex, GraphComputingError> {
         let key_ref_of_new_vertex = new_vertex.key_ref();
 
-        let vertex_index: VertexIndex = self
-            .vertex_store_mut_ref()
-            .push(new_vertex.clone())?
-            .into();
+        let vertex_index: VertexIndex =
+            self.vertex_store_mut_ref().push(new_vertex.clone())?.into();
 
         self.vertex_key_to_vertex_index_map_mut_ref()
             .insert(key_ref_of_new_vertex.to_owned(), vertex_index.clone());

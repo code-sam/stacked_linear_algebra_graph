@@ -14,8 +14,8 @@ use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
 };
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::graph::{Graph, VertexIndex};
-use crate::graph::vertex::{Vertex, VertexValue};
+use crate::graph::graph::Graph;
+use crate::graph::vertex::{Vertex, VertexIndex, VertexValue};
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
@@ -268,7 +268,7 @@ mod tests {
 
     use graphblas_sparse_linear_algebra::value_types::sparse_vector::GetVectorElementValue;
 
-    use crate::graph::edge::DirectedEdge;
+    use crate::graph::edge::DirectedEdgeDefinedByKeys;
     use crate::graph::graph::GraphTrait;
     use crate::operations::add_edge::AddEdge;
     use crate::operations::add_vertex::AddVertex;
@@ -291,28 +291,34 @@ mod tests {
         let vertex_1 = Vertex::new(vertex_key_1, vertex_value_1);
         let vertex_2 = Vertex::new(vertex_key_2, vertex_value_2);
 
-        let edge_vertex1_vertex2 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            String::from("edge_type_1"),
-        );
-        let edge_vertex2_vertex1 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             String::from("edge_type_1"),
-        );
-        let edge_vertex1_vertex2_type2 = DirectedEdge::new(
-            vertex_1.clone().into(),
             vertex_2.clone().into(),
+        );
+        let edge_vertex2_vertex1 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            String::from("edge_type_1"),
+            vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex2_type2 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
             String::from("edge_type_2"),
+            vertex_2.clone().into(),
         );
 
         graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
 
         let vertex_mask =
             SparseVector::new(&graph.graphblas_context_ref(), &initial_vertex_capacity).unwrap();

@@ -47,6 +47,7 @@ impl<'g> OrOperator for VertexSelection<'g> {
     }
 
     /// The operator applies to all coordinates that the mask selects. Elements in the left-hand-side that the mask does not select remain unchanged.
+    // TODO: consider introducing a selection/exclusion mask for improved API clarity
     fn or_with_mask(
         &self,
         right_hand_side: &Self,

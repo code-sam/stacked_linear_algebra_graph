@@ -9,10 +9,10 @@ use graphblas_sparse_linear_algebra::value_types::sparse_matrix::Size;
 use graphblas_sparse_linear_algebra::value_types::sparse_vector::SparseVector;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::adjacency_matrix::AdjacencyMatrix;
-use crate::graph::edge::{EdgeType, EdgeTypeRef};
-use crate::graph::graph::{EdgeTypeIndex, Graph, VertexIndex};
-use crate::graph::vertex::{Vertex, VertexKeyRef};
+use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
+use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
+use crate::graph::graph::Graph;
+use crate::graph::vertex::{Vertex, VertexIndex, VertexKeyRef};
 
 use super::vertex_selection::VertexSelection;
 
@@ -233,7 +233,7 @@ fn check_adjancency_matrix_size(
 mod tests {
     use super::*;
 
-    use crate::graph::edge::DirectedEdge;
+    use crate::graph::edge::DirectedEdgeDefinedByKeys;
     use crate::graph::vertex::VertexValue;
     use crate::operations::add_edge::AddEdge;
     use crate::operations::add_vertex::AddVertex;
@@ -303,62 +303,82 @@ mod tests {
         let edge_type_2 = String::from("edge_type_2");
         let edge_type_3 = String::from("edge_type_3");
 
-        let edge_vertex1_vertex2_type1 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_1.clone(),
-        );
-        let edge_vertex2_vertex1_type1 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_1.clone(),
+            vertex_2.clone().into(),
         );
-        let edge_vertex1_vertex3_type1 = DirectedEdge::new(
+        let edge_vertex2_vertex1_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_1.clone(),
             vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
+            edge_type_1.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_3.clone().into(),
             edge_type_1.clone(),
-        );
-        let edge_vertex3_vertex2_type1 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
-            edge_type_1.clone(),
         );
 
-        let edge_vertex1_vertex2_type2 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_2.clone(),
-        );
-        let edge_vertex2_vertex1_type2 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type2 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_2.clone(),
-        );
-        let edge_vertex1_vertex3_type3 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_3.clone().into(),
-            edge_type_3.clone(),
-        );
-        let edge_vertex3_vertex2_type3 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
+        );
+        let edge_vertex2_vertex1_type2 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_2.clone(),
+            vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
             edge_type_3.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_3.clone().into(),
+            edge_type_3.clone(),
+            vertex_2.clone().into(),
         );
 
         graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_3.clone()).unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type3.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type3.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type3.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type3.clone())
+            .unwrap();
 
         let edge_type_1_adjacency_matrix_mask = graph
             .get_edge_adjacency_matrix_ref(edge_type_1.as_str())
@@ -430,62 +450,82 @@ mod tests {
         let edge_type_2 = String::from("edge_type_2");
         let edge_type_3 = String::from("edge_type_3");
 
-        let edge_vertex1_vertex2_type1 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_1.clone(),
-        );
-        let edge_vertex2_vertex1_type1 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_1.clone(),
+            vertex_2.clone().into(),
         );
-        let edge_vertex1_vertex3_type1 = DirectedEdge::new(
+        let edge_vertex2_vertex1_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_1.clone(),
             vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
+            edge_type_1.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_3.clone().into(),
             edge_type_1.clone(),
-        );
-        let edge_vertex3_vertex2_type1 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
-            edge_type_1.clone(),
         );
 
-        let edge_vertex1_vertex2_type2 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_2.clone(),
-        );
-        let edge_vertex2_vertex1_type2 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type2 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_2.clone(),
-        );
-        let edge_vertex1_vertex3_type3 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_3.clone().into(),
-            edge_type_3.clone(),
-        );
-        let edge_vertex3_vertex2_type3 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
+        );
+        let edge_vertex2_vertex1_type2 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_2.clone(),
+            vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
             edge_type_3.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_3.clone().into(),
+            edge_type_3.clone(),
+            vertex_2.clone().into(),
         );
 
         graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_3.clone()).unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type3.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type3.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type3.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type3.clone())
+            .unwrap();
 
         let edge_type_1_adjacency_matrix_mask = graph
             .get_edge_adjacency_matrix_ref(edge_type_1.as_str())
@@ -557,64 +597,84 @@ mod tests {
         let edge_type_2 = String::from("edge_type_2");
         let edge_type_3 = String::from("edge_type_3");
 
-        let edge_vertex1_vertex2_type1 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_1.clone(),
-        );
-        let edge_vertex2_vertex1_type1 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_1.clone(),
+            vertex_2.clone().into(),
         );
-        let edge_vertex1_vertex3_type1 = DirectedEdge::new(
+        let edge_vertex2_vertex1_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_1.clone(),
             vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
+            edge_type_1.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_3.clone().into(),
             edge_type_1.clone(),
-        );
-        let edge_vertex3_vertex2_type1 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
-            edge_type_1.clone(),
         );
 
-        let edge_vertex1_vertex2_type2 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_2.clone(),
-        );
-        let edge_vertex2_vertex1_type2 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type2 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_2.clone(),
-        );
-        let edge_vertex1_vertex3_type3 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_3.clone().into(),
-            edge_type_3.clone(),
-        );
-        let edge_vertex3_vertex2_type3 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
+        );
+        let edge_vertex2_vertex1_type2 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_2.clone(),
+            vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
             edge_type_3.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_3.clone().into(),
+            edge_type_3.clone(),
+            vertex_2.clone().into(),
         );
 
         graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_3.clone()).unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type1.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type1.clone())
+            .unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
 
-        graph.add_edge(edge_vertex1_vertex3_type3.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type3.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type3.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type3.clone())
+            .unwrap();
 
         let edge_type_1_adjacency_matrix_mask = graph
             .get_edge_adjacency_matrix_ref(edge_type_1.as_str())
@@ -687,62 +747,82 @@ mod tests {
         let edge_type_2 = String::from("edge_type_2");
         let edge_type_3 = String::from("edge_type_3");
 
-        let edge_vertex1_vertex2_type1 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_1.clone(),
-        );
-        let edge_vertex2_vertex1_type1 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_1.clone(),
+            vertex_2.clone().into(),
         );
-        let edge_vertex1_vertex3_type1 = DirectedEdge::new(
+        let edge_vertex2_vertex1_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_1.clone(),
             vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
+            edge_type_1.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_3.clone().into(),
             edge_type_1.clone(),
-        );
-        let edge_vertex3_vertex2_type1 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
-            edge_type_1.clone(),
         );
 
-        let edge_vertex1_vertex2_type2 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_2.clone(),
-        );
-        let edge_vertex2_vertex1_type2 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type2 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_2.clone(),
-        );
-        let edge_vertex1_vertex3_type3 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_3.clone().into(),
-            edge_type_3.clone(),
-        );
-        let edge_vertex3_vertex2_type3 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
+        );
+        let edge_vertex2_vertex1_type2 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_2.clone(),
+            vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
             edge_type_3.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_3.clone().into(),
+            edge_type_3.clone(),
+            vertex_2.clone().into(),
         );
 
         graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_3.clone()).unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type3.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type3.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type3.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type3.clone())
+            .unwrap();
 
         let edge_type_1_adjacency_matrix_mask = graph
             .get_edge_adjacency_matrix_ref(edge_type_1.as_str())
@@ -820,62 +900,82 @@ mod tests {
         let edge_type_2 = String::from("edge_type_2");
         let edge_type_3 = String::from("edge_type_3");
 
-        let edge_vertex1_vertex2_type1 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_1.clone(),
-        );
-        let edge_vertex2_vertex1_type1 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_1.clone(),
+            vertex_2.clone().into(),
         );
-        let edge_vertex1_vertex3_type1 = DirectedEdge::new(
+        let edge_vertex2_vertex1_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_1.clone(),
             vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
+            edge_type_1.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_3.clone().into(),
             edge_type_1.clone(),
-        );
-        let edge_vertex3_vertex2_type1 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
-            edge_type_1.clone(),
         );
 
-        let edge_vertex1_vertex2_type2 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_2.clone(),
-        );
-        let edge_vertex2_vertex1_type2 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type2 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_2.clone(),
-        );
-        let edge_vertex1_vertex3_type3 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_3.clone().into(),
-            edge_type_3.clone(),
-        );
-        let edge_vertex3_vertex2_type3 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
+        );
+        let edge_vertex2_vertex1_type2 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_2.clone(),
+            vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
             edge_type_3.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_3.clone().into(),
+            edge_type_3.clone(),
+            vertex_2.clone().into(),
         );
 
         graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_3.clone()).unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type3.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type3.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type3.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type3.clone())
+            .unwrap();
 
         let edge_type_1_adjacency_matrix_mask = graph
             .get_edge_adjacency_matrix_ref(edge_type_1.as_str())
@@ -950,64 +1050,84 @@ mod tests {
         let edge_type_2 = String::from("edge_type_2");
         let edge_type_3 = String::from("edge_type_3");
 
-        let edge_vertex1_vertex2_type1 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_1.clone(),
-        );
-        let edge_vertex2_vertex1_type1 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_1.clone(),
+            vertex_2.clone().into(),
         );
-        let edge_vertex1_vertex3_type1 = DirectedEdge::new(
+        let edge_vertex2_vertex1_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_1.clone(),
             vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type1 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
+            edge_type_1.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type1 = DirectedEdgeDefinedByKeys::new(
             vertex_3.clone().into(),
             edge_type_1.clone(),
-        );
-        let edge_vertex3_vertex2_type1 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
-            edge_type_1.clone(),
         );
 
-        let edge_vertex1_vertex2_type2 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_2.clone().into(),
-            edge_type_2.clone(),
-        );
-        let edge_vertex2_vertex1_type2 = DirectedEdge::new(
-            vertex_2.clone().into(),
+        let edge_vertex1_vertex2_type2 = DirectedEdgeDefinedByKeys::new(
             vertex_1.clone().into(),
             edge_type_2.clone(),
-        );
-        let edge_vertex1_vertex3_type3 = DirectedEdge::new(
-            vertex_1.clone().into(),
-            vertex_3.clone().into(),
-            edge_type_3.clone(),
-        );
-        let edge_vertex3_vertex2_type3 = DirectedEdge::new(
-            vertex_3.clone().into(),
             vertex_2.clone().into(),
+        );
+        let edge_vertex2_vertex1_type2 = DirectedEdgeDefinedByKeys::new(
+            vertex_2.clone().into(),
+            edge_type_2.clone(),
+            vertex_1.clone().into(),
+        );
+        let edge_vertex1_vertex3_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_1.clone().into(),
             edge_type_3.clone(),
+            vertex_3.clone().into(),
+        );
+        let edge_vertex3_vertex2_type3 = DirectedEdgeDefinedByKeys::new(
+            vertex_3.clone().into(),
+            edge_type_3.clone(),
+            vertex_2.clone().into(),
         );
 
         graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
         graph.add_or_replace_vertex(vertex_3.clone()).unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex3_type1.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type1.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type1.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type1.clone())
+            .unwrap();
 
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex2_vertex1_type2.clone()).unwrap();
-        graph.add_edge(edge_vertex1_vertex2_type2.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1_type2.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
+            .unwrap();
 
-        graph.add_edge(edge_vertex1_vertex3_type3.clone()).unwrap();
-        graph.add_edge(edge_vertex3_vertex2_type3.clone()).unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex1_vertex3_type3.clone())
+            .unwrap();
+        graph
+            .add_edge_and_edge_type_using_keys(edge_vertex3_vertex2_type3.clone())
+            .unwrap();
 
         let edge_type_1_adjacency_matrix_mask = graph
             .get_edge_adjacency_matrix_ref(edge_type_1.as_str())

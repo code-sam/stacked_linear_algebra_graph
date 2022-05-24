@@ -23,6 +23,7 @@ static GRAPHBLAS_VECTOR_AND_OPERATOR: Lazy<ElementWiseVectorMultiplicationMonoid
 pub trait AndOperator<RightHandSide = Self> {
     type Output;
     fn and(&self, right_hand_side: &RightHandSide) -> Result<Self::Output, GraphComputingError>;
+    // TODO: consider introducing a selection/exclusion mask for improved API clarity
     fn and_with_mask(
         &self,
         right_hand_side: &RightHandSide,

@@ -1,5 +1,37 @@
+use super::graph::ElementIndex;
+
 pub type VertexKey = String;
 pub type VertexKeyRef = str;
+
+// Use a struct instead of a type to discourage using and/or generating indices that are not coming from the pblic API.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct VertexIndex {
+    index: ElementIndex,
+}
+
+impl VertexIndex {
+    pub(crate) fn new(index: ElementIndex) -> Self {
+        VertexIndex { index }
+    }
+    pub(crate) fn index(self) -> ElementIndex {
+        self.index
+    }
+    pub(crate) fn index_ref(&self) -> &ElementIndex {
+        &self.index
+    }
+}
+
+// TODO: Implementation leaks VertexIndex instantiation out of pub(crate) scope
+// impl From<ElementIndex> for VertexIndex {
+//     fn from(index: ElementIndex) -> Self {
+//         VertexIndex::new(index)
+//     }
+// }
+// impl From<VertexIndex> for ElementIndex {
+//     fn from(index: VertexIndex) -> Self {
+//         index.index()
+//     }
+// }
 
 // REVIEW: implementation implies Vertices from different graphs can be equal.
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
