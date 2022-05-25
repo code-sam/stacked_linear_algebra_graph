@@ -3,9 +3,9 @@ use std::sync::Arc;
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
+use crate::graph::vertex::VertexIndex;
 
 use super::edge::{EdgeType, EdgeTypeRef};
-use super::graph::VertexIndex;
 
 use graphblas_sparse_linear_algebra::{
     context::Context,

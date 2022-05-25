@@ -5,14 +5,16 @@ use std::sync::Arc;
 use rayon::prelude::*;
 
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
+use graphblas_sparse_linear_algebra::util::ElementIndex;
 use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
     GetVectorElementValue, SetVectorElement, SparseVector, VectorElement,
 };
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::graph::{EdgeTypeIndex, VertexIndex};
+use crate::graph::edge::EdgeTypeIndex;
+use crate::graph::vertex::VertexIndex;
 
-pub type Index = usize;
+pub type Index = ElementIndex;
 
 pub(crate) trait IndexTrait {
     fn index_ref(&self) -> &Index;
@@ -174,11 +176,17 @@ impl<T: Send + Sync> IndexedDataStore<T> {
         Ok(&mut self.data[index.index()])
     }
 
+    pub(crate) fn is_valid_index<I: IndexTrait>(
+        &self,
+        index: &I,
+    ) -> Result<bool, GraphComputingError> {
+        Ok(self
+            .mask_with_valid_indices_ref()
+            .get_element_value(index.index_ref())?)
+    }
+
     fn check_index<I: IndexTrait>(&self, index: &I) -> Result<(), GraphComputingError> {
-        if self
-            .mask_with_valid_indices
-            .get_element_value(index.index_ref())?
-        {
+        if self.is_valid_index(index)? {
             return Ok(());
         } else {
             return Err(LogicError::new(

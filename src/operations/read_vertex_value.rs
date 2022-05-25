@@ -1,11 +1,12 @@
 use crate::error::GraphComputingError;
 use crate::error::{UserError, UserErrorType};
 
-use crate::graph::graph::{Graph, VertexIndex};
-use crate::graph::vertex::{VertexKey, VertexValue};
+use crate::graph::graph::Graph;
+use crate::graph::vertex::{VertexIndex, VertexKey, VertexValue};
 
 pub trait ReadVertexValue {
-    fn is_vertex(&self, vertex_key: &VertexKey) -> bool;
+    fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool;
+    fn is_valid_vertex_index(&self, vertex_key: &VertexIndex) -> Result<bool, GraphComputingError>;
     fn vertex_value(&self, vertex_key: &VertexKey) -> Result<&VertexValue, GraphComputingError>;
     fn vertex_value_by_index(
         &self,
@@ -34,11 +35,15 @@ impl ReadVertexValue for Graph {
         Ok(vertex.value_ref())
     }
 
-    fn is_vertex(&self, vertex_key: &VertexKey) -> bool {
+    fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool {
         match self.vertex_key_to_vertex_index_map_ref().get(vertex_key) {
             None => false,
             Some(_) => true,
         }
+    }
+
+    fn is_valid_vertex_index(&self, vertex_index: &VertexIndex) -> Result<bool, GraphComputingError> {
+        self.vertex_store_ref().is_valid_index(vertex_index)
     }
 }
 

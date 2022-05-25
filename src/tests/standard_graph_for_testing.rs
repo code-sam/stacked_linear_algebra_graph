@@ -1,4 +1,4 @@
-use crate::graph::edge::DirectedEdge;
+use crate::graph::edge::DirectedEdgeDefinedByKeys;
 use crate::graph::graph::Graph;
 use crate::graph::vertex::Vertex;
 use crate::operations::add_edge::AddEdge;
@@ -6,12 +6,14 @@ use crate::operations::add_vertex::AddVertex;
 
 macro_rules! add_new_edge {
     ($from_vertex:ident, $edge_type:ident, $to_vertex:ident, $graph:ident) => {
-        let edge = DirectedEdge::new(
+        let edge = DirectedEdgeDefinedByKeys::new(
             $from_vertex.clone().into(),
-            $to_vertex.clone().into(),
             $edge_type.clone(),
+            $to_vertex.clone().into(),
         );
-        $graph.add_edge(edge.clone()).unwrap();
+        $graph
+            .add_edge_and_edge_type_using_keys(edge.clone())
+            .unwrap();
     };
 }
 

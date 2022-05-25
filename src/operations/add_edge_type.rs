@@ -1,9 +1,8 @@
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 
-use crate::graph::adjacency_matrix::AdjacencyMatrix;
-use crate::graph::edge::EdgeType;
-use crate::graph::graph::EdgeTypeIndex;
+use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
+use crate::graph::edge::{EdgeType, EdgeTypeIndex};
 use crate::graph::graph::Graph;
 
 use crate::operations::read_edge::ReadEdge;
@@ -26,7 +25,7 @@ impl<'g> AddEdgeType for Graph {
         &mut self,
         edge_type: EdgeType,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if !self.is_edge_type(edge_type.as_str())? {
+        if !self.is_key_defined_edge_type_in_graph(edge_type.as_str())? {
             add_edge_type(self, edge_type)
         } else {
             Err(LogicError::new(
@@ -42,7 +41,7 @@ impl<'g> AddEdgeType for Graph {
         &mut self,
         edge_type: EdgeType,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if self.is_edge_type(edge_type.as_str())? {
+        if self.is_key_defined_edge_type_in_graph(edge_type.as_str())? {
             Ok(self
                 .try_edge_type_ref_to_edge_type_index_ref(edge_type.as_str())?
                 .clone())
@@ -56,7 +55,7 @@ fn add_edge_type(
     graph: &mut Graph,
     edge_type: EdgeType,
 ) -> Result<EdgeTypeIndex, GraphComputingError> {
-    if !graph.is_edge_type(edge_type.as_str())? {
+    if !graph.is_key_defined_edge_type_in_graph(edge_type.as_str())? {
         let new_adjacency_matrix = AdjacencyMatrix::new(
             &graph.graphblas_context_ref(),
             edge_type.clone(),
@@ -108,9 +107,7 @@ mod tests {
         let mut graph = Graph::new(5, 5).unwrap();
 
         let some_edge_type = String::from("some_edge_type");
-        let edge_type_index = graph
-            .add_new_edge_type(some_edge_type.clone())
-            .unwrap();
+        let edge_type_index = graph.add_new_edge_type(some_edge_type.clone()).unwrap();
 
         match graph.add_new_edge_type(some_edge_type) {
             Err(error) => match error.error_type() {
