@@ -82,7 +82,7 @@ impl AddEdge for Graph {
         edge: DirectedEdgeDefinedByIndices,
     ) -> Result<(), GraphComputingError> {
         let edge_coordinate = self.index_defined_edge_to_edge_coordinate(&edge)?;
-        self.set_edge_in_adjacency_matrix(&edge_coordinate, edge.edge_type_ref().clone())?;
+        self.set_edge_in_adjacency_matrix(&edge_coordinate, edge.edge_type().clone())?;
         Ok(())
     }
 }

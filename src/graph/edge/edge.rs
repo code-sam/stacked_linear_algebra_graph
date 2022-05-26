@@ -193,7 +193,7 @@ impl DirectedEdgeDefinedByIndices {
         }
     }
 
-    pub fn edge_type_ref(&self) -> &EdgeTypeIndex {
+    pub fn edge_type(&self) -> &EdgeTypeIndex {
         &self.edge_type
     }
     pub fn originates_from_vertex(&self) -> &VertexIndex {
