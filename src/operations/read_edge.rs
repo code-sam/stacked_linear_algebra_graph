@@ -18,7 +18,7 @@ pub trait ReadEdge {
     ) -> Result<bool, GraphComputingError>;
 
     // TODO: review placement of this function
-    fn is_key_defined_edge_type_in_graph(
+    fn is_edge_type_in_graph(
         &self,
         edge_type: &EdgeTypeRef,
     ) -> Result<bool, GraphComputingError>;
@@ -51,14 +51,14 @@ impl ReadEdge for Graph {
         let edge_coordinate = self.index_defined_edge_to_edge_coordinate(edge)?;
         match self
             .adjacency_matrices_ref()
-            .get_ref(edge.edge_type_ref().clone())
+            .get_ref(edge.edge_type().clone())
         {
             Ok(edge_adjacency_matrix) => edge_adjacency_matrix.is_edge(&edge_coordinate),
             Err(_) => Ok(false), // TODO: match error type to decide if an error should be passed on instead
         }
     }
 
-    fn is_key_defined_edge_type_in_graph(
+    fn is_edge_type_in_graph(
         &self,
         edge_type: &EdgeTypeRef,
     ) -> Result<bool, GraphComputingError> {
@@ -86,12 +86,12 @@ mod tests {
         let graph = standard_graph_for_testing();
 
         assert!(!graph
-            .is_key_defined_edge_type_in_graph(
+            .is_edge_type_in_graph(
                 String::from("this_edge_type_does_not_exist").as_str()
             )
             .unwrap());
         assert!(graph
-            .is_key_defined_edge_type_in_graph(String::from("is_a").as_str())
+            .is_edge_type_in_graph(String::from("is_a").as_str())
             .unwrap());
     }
 }
