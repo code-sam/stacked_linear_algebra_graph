@@ -35,6 +35,7 @@ impl UpdateVertex for Graph {
         }
     }
 
+    // TODO: is there a use-case for returning the VertexIndex?
     fn update_vertex(&mut self, vertex_to_update: Vertex) -> Result<(), GraphComputingError> {
         let vertex_index = self
             .vertex_key_to_vertex_index_map_mut_ref()
@@ -57,7 +58,6 @@ impl UpdateVertex for Graph {
         }
     }
 
-    // REVIEW: Should this be a public method?
     fn update_vertex_value_by_index(
         &mut self,
         vertex_index: VertexIndex,

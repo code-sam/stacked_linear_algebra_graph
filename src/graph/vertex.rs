@@ -33,7 +33,10 @@ impl VertexIndex {
 //     }
 // }
 
-// REVIEW: implementation implies Vertices from different graphs can be equal.
+// TODO: implementation implies Vertices from different graphs can be equal.
+// TODO: The implementation defines a Vertex coordindate defined by a key.
+// Whereas the coordinate can be a key, or an index. Is this struct a
+// consistent definition of a Vertex?
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub struct Vertex {
     key: VertexKey,
