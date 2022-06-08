@@ -21,8 +21,10 @@ rayon = {version = "1.5"}
 criterion = "0.3"
 rand = "0.8"
 rustc-hash = {version = "1.1"}
+nohash-hasher = "0.2"
 
 [[bench]]
-name = "experiments"
+# name = "experiments"
 # name = "vector_hashmap_benchmark"
+name = "sparse_vector_indexing_benchmark"
 harness = false
