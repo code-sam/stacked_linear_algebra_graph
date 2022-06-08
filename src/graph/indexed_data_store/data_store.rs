@@ -5,84 +5,12 @@ use std::sync::Arc;
 use rayon::prelude::*;
 
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
-use graphblas_sparse_linear_algebra::util::ElementIndex;
 use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
     GetVectorElementValue, SetVectorElement, SparseVector, VectorElement,
 };
 
+use super::index::{Index, IndexTrait, IndexedDataStoreIndex};
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::edge::EdgeTypeIndex;
-use crate::graph::vertex::VertexIndex;
-
-pub type Index = ElementIndex;
-
-pub(crate) trait IndexTrait {
-    fn index_ref(&self) -> &Index;
-    fn index(self) -> Index;
-}
-
-// TODO: review what the value of this abstraction is. What is the performance overhead, and is the overhead necessary?
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(crate) struct IndexedDataStoreIndex {
-    index: Index,
-}
-
-impl IndexedDataStoreIndex {
-    fn new(index: Index) -> Self {
-        Self { index }
-    }
-}
-
-impl IndexTrait for IndexedDataStoreIndex {
-    fn index_ref(&self) -> &Index {
-        &self.index
-    }
-    fn index(self) -> Index {
-        self.index
-    }
-}
-
-impl IndexTrait for VertexIndex {
-    fn index(self) -> Index {
-        self.index()
-    }
-    fn index_ref(&self) -> &Index {
-        self.index_ref()
-    }
-}
-impl From<VertexIndex> for IndexedDataStoreIndex {
-    fn from(vertex_index: VertexIndex) -> Self {
-        Self {
-            index: vertex_index.index(),
-        }
-    }
-}
-impl From<IndexedDataStoreIndex> for VertexIndex {
-    fn from(index: IndexedDataStoreIndex) -> Self {
-        Self::new(index.index())
-    }
-}
-
-impl IndexTrait for EdgeTypeIndex {
-    fn index(self) -> Index {
-        self.index()
-    }
-    fn index_ref(&self) -> &Index {
-        self.index_ref()
-    }
-}
-impl From<EdgeTypeIndex> for IndexedDataStoreIndex {
-    fn from(index: EdgeTypeIndex) -> Self {
-        Self {
-            index: index.index(),
-        }
-    }
-}
-impl From<IndexedDataStoreIndex> for EdgeTypeIndex {
-    fn from(index: IndexedDataStoreIndex) -> Self {
-        Self::new(index.index())
-    }
-}
 
 // Note: benchmark before allowing parallel operations on self.data
 // up to 2x better read performance than HashMap (approaching Vec)
@@ -208,7 +136,7 @@ impl<T: Send + Sync> IndexedDataStore<T> {
         &self.mask_with_valid_indices
     }
 
-    // Apply function to all stored elements
+    /// Apply function to all stored elements
     pub(crate) fn map_mut_all<F>(&mut self, function_to_apply: F) -> Result<(), GraphComputingError>
     where
         F: Fn(&mut T) -> Result<(), GraphComputingError> + Send + Sync,
@@ -254,9 +182,9 @@ impl<T: Send + Sync> IndexedDataStore<T> {
     }
 
     // includes freed elements
-    pub(crate) fn get_number_stored_elements(&self) -> Index {
-        self.data.len()
-    }
+    // pub(crate) fn get_number_stored_elements(&self) -> Index {
+    //     self.data.len()
+    // }
 
     pub(crate) fn get_number_of_stored_and_reusable_elements(
         &self,

@@ -1,7 +1,6 @@
 pub mod error;
 pub mod graph;
 pub mod operations;
-mod util;
 
 #[cfg(test)]
 mod tests;

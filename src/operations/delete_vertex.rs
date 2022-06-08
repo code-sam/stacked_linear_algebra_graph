@@ -16,7 +16,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 use crate::graph::graph::Graph;
-use crate::graph::vertex::VertexKey;
+use crate::graph::vertex::{VertexIndex, VertexKey};
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
@@ -30,9 +30,13 @@ static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRow<bool, bool>> =
     Lazy::new(|| InsertVectorIntoRow::<bool, bool>::new(&DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS, None));
 
 pub trait DeleteVertex {
-    fn delete_vertex_and_connected_edges(
+    fn delete_vertex_and_connected_edges_by_key(
         &mut self,
         vertex_key: VertexKey,
+    ) -> Result<(), GraphComputingError>;
+    fn delete_vertex_and_connected_edges_by_index(
+        &mut self,
+        vertex_index: VertexIndex,
     ) -> Result<(), GraphComputingError>;
     // fn delete_selected_vertices_and_connected_edges(
     //     &mut self,
@@ -41,7 +45,7 @@ pub trait DeleteVertex {
 }
 
 impl DeleteVertex for Graph {
-    fn delete_vertex_and_connected_edges(
+    fn delete_vertex_and_connected_edges_by_key(
         &mut self,
         vertex_key: VertexKey,
     ) -> Result<(), GraphComputingError> {
@@ -50,7 +54,26 @@ impl DeleteVertex for Graph {
             Some(index) => vertex_index = index.clone(),
             None => return Ok(()),
         }
+        self.delete_vertex_and_connected_edges(vertex_index, vertex_key)
+    }
 
+    fn delete_vertex_and_connected_edges_by_index(
+        &mut self,
+        vertex_index: VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_key = self
+            .vertex_index_to_vertex_key_ref(vertex_index.clone())?
+            .to_owned();
+        self.delete_vertex_and_connected_edges(vertex_index, vertex_key)
+    }
+}
+
+impl Graph {
+    fn delete_vertex_and_connected_edges(
+        &mut self,
+        vertex_index: VertexIndex,
+        vertex_key: VertexKey,
+    ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref().free(vertex_index.clone())?;
         self.vertex_key_to_vertex_index_map_mut_ref()
             .remove_entry(&vertex_key);
@@ -81,36 +104,7 @@ impl DeleteVertex for Graph {
         // TODO: some matrices may have been freed and do not need to be updated, potentially saving time.
         self.adjacency_matrices_mut_ref()
             .map_mut_all(delete_connected_edges)
-        // self.edge_type_to_edge_type_index_map
-        //     .par_values()
-        //     .for_each(|edge_type_index| {
-        //         let adjacency_matrix = self
-        //             .adjacency_matrices
-        //             .get_mut(edge_type_index)
-        //             .unwrap().unwrap() // REVIEW: should this throw an error instead of panicing?
-        //             .as_mut_sparse_matrix();
-
-        //         insert_column_operator.apply(
-        //             adjacency_matrix,
-        //             &ElementIndexSelector::All,
-        //             edge_type_index,
-        //             &empty_column,
-        //         );
-        //         insert_row_operator.apply(
-        //             adjacency_matrix,
-        //             &ElementIndexSelector::All,
-        //             edge_type_index,
-        //             &empty_column,
-        //         );
-        //     });
-        // Ok(())
-        // REVIEW: should edge_types that have no connections after deleting a vertex be deleted as well?
-        // => probably not, it's simply an unsed edge_type, which may be deleted in a separate operation
     }
-
-    // fn delete_vertex_by_index(&mut self, vertex_index: VertexIndex) {
-    //     unimplemented!()
-    // }
 }
 
 #[cfg(test)]
@@ -163,14 +157,12 @@ mod tests {
             .unwrap();
 
         graph
-            .delete_vertex_and_connected_edges(vertex_key_1.clone())
+            .delete_vertex_and_connected_edges_by_key(vertex_key_1.clone())
             .unwrap();
 
-        assert!(
-            !graph
-                .is_key_defined_edge_in_graph(&edge_vertex1_vertex2)
-                .unwrap()
-        );
+        assert!(!graph
+            .is_key_defined_edge_in_graph(&edge_vertex1_vertex2)
+            .unwrap());
         assert!(!graph
             .is_key_defined_edge_in_graph(&edge_vertex2_vertex1)
             .unwrap());

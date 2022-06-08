@@ -42,7 +42,10 @@ impl ReadVertexValue for Graph {
         }
     }
 
-    fn is_valid_vertex_index(&self, vertex_index: &VertexIndex) -> Result<bool, GraphComputingError> {
+    fn is_valid_vertex_index(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<bool, GraphComputingError> {
         self.vertex_store_ref().is_valid_index(vertex_index)
     }
 }

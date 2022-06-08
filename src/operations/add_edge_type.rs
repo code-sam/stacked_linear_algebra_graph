@@ -25,7 +25,7 @@ impl<'g> AddEdgeType for Graph {
         &mut self,
         edge_type: EdgeType,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if !self.is_key_defined_edge_type_in_graph(edge_type.as_str())? {
+        if !self.is_edge_type_in_graph(edge_type.as_str())? {
             add_edge_type(self, edge_type)
         } else {
             Err(LogicError::new(
@@ -41,7 +41,7 @@ impl<'g> AddEdgeType for Graph {
         &mut self,
         edge_type: EdgeType,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if self.is_key_defined_edge_type_in_graph(edge_type.as_str())? {
+        if self.is_edge_type_in_graph(edge_type.as_str())? {
             Ok(self
                 .try_edge_type_ref_to_edge_type_index_ref(edge_type.as_str())?
                 .clone())
@@ -55,7 +55,7 @@ fn add_edge_type(
     graph: &mut Graph,
     edge_type: EdgeType,
 ) -> Result<EdgeTypeIndex, GraphComputingError> {
-    if !graph.is_key_defined_edge_type_in_graph(edge_type.as_str())? {
+    if !graph.is_edge_type_in_graph(edge_type.as_str())? {
         let new_adjacency_matrix = AdjacencyMatrix::new(
             &graph.graphblas_context_ref(),
             edge_type.clone(),

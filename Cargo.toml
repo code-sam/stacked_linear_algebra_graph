@@ -1,6 +1,6 @@
 [package]
 name = "cairn-knowledge-graph"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["code_sam <mail@samdekker.nl>"]
 description = "An embedded and in-memory knowledge graph for static specification analysis."
 edition = "2021"
@@ -21,8 +21,10 @@ rayon = {version = "1.5"}
 criterion = "0.3"
 rand = "0.8"
 rustc-hash = {version = "1.1"}
+nohash-hasher = "0.2"
 
 [[bench]]
-name = "experiments"
+# name = "experiments"
 # name = "vector_hashmap_benchmark"
+name = "sparse_vector_indexing_benchmark"
 harness = false

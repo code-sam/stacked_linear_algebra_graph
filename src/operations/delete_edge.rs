@@ -37,7 +37,7 @@ impl DeleteEdge for Graph {
             self.index_defined_edge_to_edge_coordinate(edge_to_delete)?;
         let adjacency_matrix_of_edge_to_delete = self
             .adjacency_matrices_mut_ref()
-            .get_mut_ref(edge_to_delete.edge_type_ref().clone())?;
+            .get_mut_ref(edge_to_delete.edge_type().clone())?;
         adjacency_matrix_of_edge_to_delete.delete_edge(&edge_coordinate_to_delete)?;
         Ok(())
     }
