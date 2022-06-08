@@ -7,18 +7,16 @@ use graphblas_sparse_linear_algebra::{
 };
 use hashbrown::HashMap;
 
-use super::edge::{
-    EdgeType, EdgeTypeIndex, EdgeTypeRef,
-};
+use super::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
 use super::vertex::{Vertex, VertexIndex, VertexKey, VertexKeyRef};
-use crate::graph::edge::adjacency_matrix::{AdjacencyMatrix};
+use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 
 use crate::error::{
     GraphComputingError, LogicError, LogicErrorType, SystemError, SystemErrorType, UserError,
     UserErrorType,
 };
+use crate::graph::indexed_data_store::data_store::IndexedDataStore;
 use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
-use crate::util::indexed_data_store::{IndexedDataStore};
 
 // NOTE: by default, SuiteSparse:GraphBLAS uses Compressed Sparse Row (CSR) format.
 // Row operations should therefore be faster.

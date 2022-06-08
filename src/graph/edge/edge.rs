@@ -1,16 +1,9 @@
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-
-use crate::graph::graph::ElementIndex;
-use crate::graph::graph::{Graph};
+use crate::graph::graph::Graph;
 use crate::graph::vertex::{VertexIndex, VertexKey};
 
-use crate::util::indexed_data_store::Index as IndexedDataStoreIndex;
-
 use super::adjacency_matrix::EdgeCoordinate;
-
-// TODO: change to EdgeTypeKey?
-pub type EdgeType = String;
-pub type EdgeTypeRef = str;
+use super::edge_type::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
 
 // pub enum Edge {
 //     Directed(DirectedEdge),
@@ -18,48 +11,6 @@ pub type EdgeTypeRef = str;
 
 // TODO: add constructor with indices
 // TODO: consider modelling a DirectedEdge as an enum. Each variant can model a different state/representation. E.g. defintion by keys, by indices, with existing vertices, with new vertices, etc.
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct EdgeTypeIndex {
-    index: IndexedDataStoreIndex,
-}
-
-impl EdgeTypeIndex {
-    pub(crate) fn new(index: IndexedDataStoreIndex) -> Self {
-        EdgeTypeIndex { index }
-    }
-    pub(crate) fn index(self) -> ElementIndex {
-        self.index
-    }
-    pub(crate) fn index_ref(&self) -> &IndexedDataStoreIndex {
-        &self.index
-    }
-}
-
-// impl From<EdgeTypeIndex> for IndexedDataStoreIndex {
-//     fn from(index: EdgeTypeIndex) -> Self {
-//         Self {index: *index.index()}
-//     }
-// }
-
-// impl From<IndexedDataStoreIndex> for EdgeTypeIndex {
-//     fn from(index: IndexedDataStoreIndex) -> Self {
-//         Self {index: *index.index()}
-//     }
-// }
-
-// pub trait DirectedEdgeTrait {
-//     fn edge_type_ref(&self) -> &EdgeTypeRef;
-//     fn edge_type_index(&self) -> &EdgeTypeIndex;
-
-//     // fn originates_from_vertex(&self) -> &Vertex; // TODO: would this be useful?
-//     fn originates_from_vertex_with_key(&self) -> &VertexKey;
-//     fn originates_from_vertex_with_index(&self) -> &VertexIndex;
-
-//     // fn points_to_vertex(&self) -> &Vertex;
-//     fn points_to_vertex_with_key(&self) -> &VertexKey;
-//     fn points_to_vertex_with_index(&self) -> &VertexIndex;
-// }
 
 // enum DirectedEdge {
 //     DefinedByIndicesAndKeys(DirectedEdgeDefinedByIndicesAndKeys),

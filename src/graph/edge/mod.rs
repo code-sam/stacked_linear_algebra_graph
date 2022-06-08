@@ -1,4 +1,5 @@
 mod edge;
+mod edge_type;
 
 pub(crate) mod adjacency_matrix;
 
@@ -6,3 +7,4 @@ pub(crate) mod adjacency_matrix;
 // As long as mod edge remains the only public mod in this module,
 // further decomposition of the tree is not useful.
 pub use edge::*;
+pub use edge_type::*;
