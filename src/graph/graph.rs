@@ -8,11 +8,11 @@ use graphblas_sparse_linear_algebra::{
 use hashbrown::HashMap;
 
 use super::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
-use super::vertex::{Vertex, VertexIndex, VertexKey, VertexKeyRef};
+use super::vertex::{Vertex, VertexIndex, VertexKey};
 use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 
 use crate::error::{
-    GraphComputingError, LogicError, LogicErrorType, SystemError, SystemErrorType, UserError,
+    GraphComputingError, LogicError, LogicErrorType, UserError,
     UserErrorType,
 };
 use crate::graph::indexed_data_store::data_store::IndexedDataStore;
@@ -35,6 +35,7 @@ pub(crate) type ElementIndex = GraphblasElementIndex;
 pub trait GraphTrait {
     fn number_of_vertices(&self) -> Result<ElementCount, GraphComputingError>;
     fn number_of_edge_types(&self) -> Result<ElementCount, GraphComputingError>;
+    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;
     // TODO: number of edges
     // TODO: number of edges per edge type, etc
 }
@@ -69,6 +70,10 @@ impl GraphTrait for Graph {
             .index_mask_with_all_adjacency_matrices()
             .number_of_stored_elements()?;
         Ok(number_of_edge_types)
+    }
+
+    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
+        Ok(self.vertex_store.get_capacity()?)
     }
 
     // TODO: number of edges
@@ -240,82 +245,9 @@ impl<'g> Graph {
         }
     }
 
-    pub(crate) fn vertex_index_to_vertex_key_ref(
-        &self,
-        vertex_index: VertexIndex,
-    ) -> Result<&VertexKeyRef, GraphComputingError> {
-        match self.vertex_store.get_ref(vertex_index) {
-            Ok(vertex) => return Ok(vertex.key_ref()),
-            Err(_) => {
-                // TODO:match actual error type
-                return Err(LogicError::new(
-                    LogicErrorType::VertexMustExist,
-                    format!("There is no vertex at index [{}]", vertex_index.index()),
-                    None,
-                )
-                .into());
-            }
-        }
-    }
-
-    pub(crate) fn try_vertex_key_ref_to_vertex_index_ref(
-        &self,
-        key: &VertexKeyRef,
-    ) -> Result<&VertexIndex, GraphComputingError> {
-        match self.vertex_key_to_vertex_index_map_ref().get(key) {
-            None => Err(SystemError::new(
-                SystemErrorType::KeyNotFound,
-                format!("Could not map vertex key '{}' to a vertex index", key),
-                None,
-            )
-            .into()),
-            Some(vertex_index) => Ok(vertex_index),
-        }
-    }
-
-    pub(crate) fn edge_type_index_to_edge_type_ref(
-        &self,
-        edge_type_index: EdgeTypeIndex,
-    ) -> Result<&EdgeTypeRef, GraphComputingError> {
-        match self.adjacency_matrices.get_ref(edge_type_index) {
-            Ok(adjacency_matrix) => return Ok(adjacency_matrix.edge_type_ref()),
-            Err(_) => {
-                // TODO:match actual error type
-                return Err(LogicError::new(
-                    LogicErrorType::VertexMustExist,
-                    format!("There is no vertex at index [{}]", edge_type_index.index()),
-                    None,
-                )
-                .into());
-            }
-        }
-    }
-
-    pub(crate) fn try_edge_type_ref_to_edge_type_index_ref(
-        &self,
-        key: &EdgeTypeRef,
-    ) -> Result<&EdgeTypeIndex, GraphComputingError> {
-        match self.edge_type_to_edge_type_index_map_ref().get(key) {
-            None => Err(SystemError::new(
-                SystemErrorType::KeyNotFound,
-                format!(
-                    "Could not map edge type key '{}' to an edge type index",
-                    key
-                ),
-                None,
-            )
-            .into()),
-            Some(edge_type_index) => Ok(edge_type_index),
-        }
-    }
-
     // fn get_adjacency_matrix_target_capacity(&self) -> Result<VertexIndex, GraphComputingError> {
     //     Ok(self.vertex_values.get_capacity()?)
     // }
-
-    pub(crate) fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
-        Ok(self.vertex_store.get_capacity()?)
-    }
 
     pub(crate) fn index_mask_with_all_vertices(&self) -> &SparseVector<bool> {
         self.vertex_store.mask_with_valid_indices_ref()
@@ -370,65 +302,7 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_convert_vertex_index_to_vertex_key_ref() {
-        let mut graph = Graph::new(10, 20).unwrap();
-
-        let vertex_key_1 = String::from("Vertex_1");
-        let vertex_value_1 = String::from("Property_1");
-        let vertex_1 = Vertex::new(vertex_key_1.clone(), vertex_value_1.into());
-        graph.add_or_replace_vertex(vertex_1).unwrap();
-
-        let vertex_key_2 = String::from("Vertex_2");
-        let vertex_value_2 = String::from("Property_2");
-        let vertex_2 = Vertex::new(vertex_key_2.clone(), vertex_value_2.into());
-        graph.add_or_replace_vertex(vertex_2).unwrap();
-
-        let index_vertex_1 = graph
-            .vertex_key_to_vertex_index_map
-            .get(vertex_key_1.as_str())
-            .unwrap();
-        assert_eq!(
-            graph
-                .vertex_index_to_vertex_key_ref(index_vertex_1.clone())
-                .unwrap(),
-            vertex_key_1
-        );
-
-        let index_vertex_2 = graph
-            .vertex_key_to_vertex_index_map
-            .get(vertex_key_2.as_str())
-            .unwrap();
-        assert_eq!(
-            graph
-                .vertex_index_to_vertex_key_ref(index_vertex_2.clone())
-                .unwrap(),
-            vertex_key_2
-        );
-    }
-
-    #[test]
-    fn test_convert_edge_type_index_to_edge_type_key_ref() {
-        let mut graph = Graph::new(10, 20).unwrap();
-
-        let edge_type_key_1 = String::from("Vertex_1");
-        let adjacency_matrix_1 = AdjacencyMatrix::new(
-            graph.graphblas_context_ref(),
-            edge_type_key_1.clone(),
-            graph.vertex_capacity().unwrap(),
-        )
-        .unwrap();
-
-        let index_edge_type_1: EdgeTypeIndex = graph
-            .adjacency_matrices_mut_ref()
-            .push(adjacency_matrix_1)
-            .unwrap()
-            .into();
-        assert_eq!(
-            graph
-                .edge_type_index_to_edge_type_ref(index_edge_type_1)
-                .unwrap(),
-            edge_type_key_1.as_str()
-        )
-    }
+    // TODO: Test vertex capacity
+    // TODO: test number of stored vertices
+    // TODO: test number of stored edge types
 }

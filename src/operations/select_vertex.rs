@@ -9,8 +9,8 @@ use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::{EdgeType, EdgeTypeIndex};
-use crate::graph::graph::Graph;
-use crate::graph::vertex::{VertexIndex, VertexKeyRef};
+use crate::graph::graph::{Graph, GraphTrait};
+use crate::graph::vertex::{VertexIndex, VertexKeyAndIndexConversion, VertexKeyRef};
 use crate::operations::selection::vertex_selection::VertexSelection;
 
 use super::select_edge_type::EdgeTypeSelectorTrait;
@@ -67,7 +67,7 @@ impl SelectVertex for Graph {
     ) -> Result<VertexSelection, GraphComputingError> {
         let mut vertex_mask =
             SparseVector::<bool>::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
-        match self.try_vertex_key_ref_to_vertex_index_ref(vertex_key) {
+        match self.vertex_key_ref_to_vertex_index_ref(vertex_key) {
             Ok(index) => vertex_mask.set_element(VectorElement::new(index.index(), true))?,
             Err(_) => (),
         };
@@ -94,7 +94,7 @@ impl SelectVertex for Graph {
         (0..vertex_keys.len())
             .into_iter()
             .for_each(|vertex_key_index| {
-                match self.try_vertex_key_ref_to_vertex_index_ref(vertex_keys[vertex_key_index]) {
+                match self.vertex_key_ref_to_vertex_index_ref(vertex_keys[vertex_key_index]) {
                     Ok(vertex_index) => vertex_indices[vertex_key_index] = vertex_index.index(),
                     Err(_) => mask_values[vertex_key_index] = false,
                 }

@@ -11,8 +11,8 @@ use graphblas_sparse_linear_algebra::value_types::sparse_vector::SparseVector;
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
-use crate::graph::graph::Graph;
-use crate::graph::vertex::{Vertex, VertexIndex, VertexKeyRef};
+use crate::graph::graph::{Graph, GraphTrait};
+use crate::graph::vertex::{Vertex, VertexIndex, VertexKeyAndIndexConversion, VertexKeyRef};
 
 use super::vertex_selection::VertexSelection;
 
@@ -165,7 +165,7 @@ impl<'g> EdgeSelection<'g> {
     ) -> Result<VertexSelection<'g>, GraphComputingError> {
         let to_vertex_index = self
             .graph
-            .try_vertex_key_ref_to_vertex_index_ref(to_vertex_key)?;
+            .vertex_key_ref_to_vertex_index_ref(to_vertex_key)?;
         self.select_vertices_connected_to_vertex_by_index(to_vertex_index)
     }
     pub fn select_vertices_connected_to_vertex_by_index(
@@ -193,7 +193,7 @@ impl<'g> EdgeSelection<'g> {
     ) -> Result<VertexSelection<'g>, GraphComputingError> {
         let from_vertex_index = self
             .graph
-            .try_vertex_key_ref_to_vertex_index_ref(from_vertex_key)?;
+            .vertex_key_ref_to_vertex_index_ref(from_vertex_key)?;
         self.select_vertices_connected_from_vertex_by_index(from_vertex_index)
     }
     pub fn select_vertices_connected_from_vertex_by_index(

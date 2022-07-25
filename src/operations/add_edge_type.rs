@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 
 use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
-use crate::graph::edge::{EdgeType, EdgeTypeIndex};
+use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeKeyAndIndexConversion};
 use crate::graph::graph::Graph;
 
 use crate::operations::read_edge::ReadEdge;
@@ -43,7 +43,7 @@ impl<'g> AddEdgeType for Graph {
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
         if self.is_edge_type_in_graph(edge_type.as_str())? {
             Ok(self
-                .try_edge_type_ref_to_edge_type_index_ref(edge_type.as_str())?
+                .edge_type_ref_to_edge_type_index_ref(edge_type.as_str())?
                 .clone())
         } else {
             add_edge_type(self, edge_type)
