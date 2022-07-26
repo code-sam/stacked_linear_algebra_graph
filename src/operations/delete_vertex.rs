@@ -16,7 +16,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 use crate::graph::graph::Graph;
-use crate::graph::vertex::{VertexIndex, VertexKey};
+use crate::graph::vertex::{VertexIndex, VertexKey, VertexKeyAndIndexConversion};
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());

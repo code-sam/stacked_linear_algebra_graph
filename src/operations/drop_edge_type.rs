@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 
-use crate::graph::edge::{EdgeTypeIndex, EdgeTypeRef};
+use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKeyAndIndexConversion, EdgeTypeRef};
 use crate::graph::graph::Graph;
 
 pub trait DropEdgeType {

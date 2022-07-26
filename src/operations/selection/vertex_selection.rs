@@ -14,7 +14,7 @@ use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
 };
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::graph::Graph;
+use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::vertex::{Vertex, VertexIndex, VertexValue};
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
@@ -270,6 +270,7 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeDefinedByKeys;
     use crate::graph::graph::GraphTrait;
+    use crate::graph::vertex::VertexKeyAndIndexConversion;
     use crate::operations::add_edge::AddEdge;
     use crate::operations::add_vertex::AddVertex;
     use crate::operations::select_vertex::SelectVertex;
@@ -349,7 +350,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("1".into())
+            .vertex_key_ref_to_vertex_index_ref("1".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -359,7 +360,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("0".into())
+            .vertex_key_ref_to_vertex_index_ref("0".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -369,7 +370,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("-1".into())
+            .vertex_key_ref_to_vertex_index_ref("-1".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -379,7 +380,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("-1.1".into())
+            .vertex_key_ref_to_vertex_index_ref("-1.1".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -416,7 +417,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("1".into())
+            .vertex_key_ref_to_vertex_index_ref("1".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -426,7 +427,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("1_duplicate".into())
+            .vertex_key_ref_to_vertex_index_ref("1_duplicate".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -436,7 +437,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("0".into())
+            .vertex_key_ref_to_vertex_index_ref("0".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -446,7 +447,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("2".into())
+            .vertex_key_ref_to_vertex_index_ref("2".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -456,7 +457,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("-1".into())
+            .vertex_key_ref_to_vertex_index_ref("-1".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask
@@ -466,7 +467,7 @@ mod tests {
         );
 
         let index = graph
-            .try_vertex_key_ref_to_vertex_index_ref("-1.1".into())
+            .vertex_key_ref_to_vertex_index_ref("-1.1".into())
             .unwrap();
         assert_eq!(
             negative_selection_as_full_mask

@@ -1,6 +1,6 @@
 [package]
 name = "cairn-knowledge-graph"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["code_sam <mail@samdekker.nl>"]
 description = "An embedded and in-memory knowledge graph for static specification analysis."
 edition = "2021"

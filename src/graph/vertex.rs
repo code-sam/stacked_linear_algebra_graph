@@ -1,3 +1,8 @@
+use crate::error::GraphComputingError;
+use crate::error::{LogicError, LogicErrorType};
+use crate::error::{SystemError, SystemErrorType};
+use crate::graph::graph::Graph;
+
 use super::graph::ElementIndex;
 
 pub type VertexKey = String;
@@ -164,3 +169,94 @@ implement_from_type!(u64, UnsignedInteger64Bit);
 implement_from_type!(u128, UnsignedInteger128Bit);
 implement_from_type!(f32, FloatingPoint32Bit);
 implement_from_type!(f64, FloatingPoint64Bit);
+
+pub trait VertexKeyAndIndexConversion {
+    fn vertex_index_to_vertex_key_ref(
+        &self,
+        vertex_index: VertexIndex,
+    ) -> Result<&VertexKeyRef, GraphComputingError>;
+
+    fn vertex_key_ref_to_vertex_index_ref(
+        &self,
+        key: &VertexKeyRef,
+    ) -> Result<&VertexIndex, GraphComputingError>;
+}
+
+impl VertexKeyAndIndexConversion for Graph {
+    fn vertex_index_to_vertex_key_ref(
+        &self,
+        vertex_index: VertexIndex,
+    ) -> Result<&VertexKeyRef, GraphComputingError> {
+        match self.vertex_store_ref().get_ref(vertex_index) {
+            Ok(vertex) => return Ok(vertex.key_ref()),
+            Err(_) => {
+                // TODO:match actual error type
+                return Err(LogicError::new(
+                    LogicErrorType::VertexMustExist,
+                    format!("There is no vertex at index [{}]", vertex_index.index()),
+                    None,
+                )
+                .into());
+            }
+        }
+    }
+
+    fn vertex_key_ref_to_vertex_index_ref(
+        &self,
+        key: &VertexKeyRef,
+    ) -> Result<&VertexIndex, GraphComputingError> {
+        match self.vertex_key_to_vertex_index_map_ref().get(key) {
+            None => Err(SystemError::new(
+                SystemErrorType::KeyNotFound,
+                format!("Could not map vertex key '{}' to a vertex index", key),
+                None,
+            )
+            .into()),
+            Some(vertex_index) => Ok(vertex_index),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::operations::add_vertex::AddVertex;
+
+    #[test]
+    fn test_convert_vertex_index_to_vertex_key_ref() {
+        let mut graph = Graph::new(10, 20).unwrap();
+
+        let vertex_key_1 = String::from("Vertex_1");
+        let vertex_value_1 = String::from("Property_1");
+        let vertex_1 = Vertex::new(vertex_key_1.clone(), vertex_value_1.into());
+        graph.add_or_replace_vertex(vertex_1).unwrap();
+
+        let vertex_key_2 = String::from("Vertex_2");
+        let vertex_value_2 = String::from("Property_2");
+        let vertex_2 = Vertex::new(vertex_key_2.clone(), vertex_value_2.into());
+        graph.add_or_replace_vertex(vertex_2).unwrap();
+
+        let index_vertex_1 = graph
+            .vertex_key_to_vertex_index_map_ref()
+            .get(vertex_key_1.as_str())
+            .unwrap();
+        assert_eq!(
+            graph
+                .vertex_index_to_vertex_key_ref(index_vertex_1.clone())
+                .unwrap(),
+            vertex_key_1
+        );
+
+        let index_vertex_2 = graph
+            .vertex_key_to_vertex_index_map_ref()
+            .get(vertex_key_2.as_str())
+            .unwrap();
+        assert_eq!(
+            graph
+                .vertex_index_to_vertex_key_ref(index_vertex_2.clone())
+                .unwrap(),
+            vertex_key_2
+        );
+    }
+}

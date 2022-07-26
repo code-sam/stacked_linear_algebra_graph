@@ -57,6 +57,7 @@ impl<'g> EdgeTypeSelectorTrait<'g> for Graph {
 mod tests {
     use super::*;
 
+    use crate::graph::edge::EdgeTypeKeyAndIndexConversion;
     use crate::graph::vertex::Vertex;
     use crate::tests::standard_graph_for_testing::standard_graph_for_testing;
 
@@ -76,7 +77,7 @@ mod tests {
         let graph = standard_graph_for_testing();
 
         let edge_type_index = graph
-            .try_edge_type_ref_to_edge_type_index_ref(&"equal_to")
+            .edge_type_ref_to_edge_type_index_ref(&"equal_to")
             .unwrap();
         let selection = graph
             .select_edge_type_by_index(edge_type_index.clone())

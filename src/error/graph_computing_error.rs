@@ -7,7 +7,7 @@ use super::other_error::{OtherError, OtherErrorType};
 use super::system_error::{SystemError, SystemErrorType};
 use super::user_error::{UserError, UserErrorType};
 
-use graphblas_sparse_linear_algebra::error::SparseLinearAlgebraError;
+use graphblas_sparse_linear_algebra::error::{SparseLinearAlgebraError, SparseLinearAlgebraErrorType};
 
 #[derive(Debug)]
 pub enum GraphComputingError {
@@ -95,10 +95,9 @@ impl From<GraphComputingError> for std::fmt::Error {
 impl From<SparseLinearAlgebraError> for GraphComputingError {
     fn from(error: SparseLinearAlgebraError) -> Self {
         match error.error_type() {
-            LogicErrorType => Self::LogicError(error.into()),
-            OtherErrorType => Self::OtherError(error.into()),
-            SystemErrorType => Self::SystemError(error.into()),
-            UserErrorType => Self::UserError(error.into()),
+            SparseLinearAlgebraErrorType::LogicErrorType(_) => Self::LogicError(error.into()),
+            SparseLinearAlgebraErrorType::OtherErrorType(_) => Self::OtherError(error.into()),
+            SparseLinearAlgebraErrorType::SystemErrorType(_) => Self::SystemError(error.into()),
         }
     }
 }
