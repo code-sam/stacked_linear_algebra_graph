@@ -7,7 +7,9 @@ use super::other_error::{OtherError, OtherErrorType};
 use super::system_error::{SystemError, SystemErrorType};
 use super::user_error::{UserError, UserErrorType};
 
-use graphblas_sparse_linear_algebra::error::{SparseLinearAlgebraError, SparseLinearAlgebraErrorType};
+use graphblas_sparse_linear_algebra::error::{
+    SparseLinearAlgebraError, SparseLinearAlgebraErrorType,
+};
 
 #[derive(Debug)]
 pub enum GraphComputingError {

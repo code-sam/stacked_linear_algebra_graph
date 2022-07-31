@@ -16,7 +16,7 @@ use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 // up to 2x better read performance than HashMap (approaching Vec)
 // about 5x better write performance than Hashmap (approaching Vec)
 // pub struct IndexedDataStore<T: Copy> {
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct IndexedDataStore<T>
 where
     T: Send + Sync,
