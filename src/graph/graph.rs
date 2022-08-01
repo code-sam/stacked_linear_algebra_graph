@@ -11,10 +11,7 @@ use super::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
 use super::vertex::{Vertex, VertexIndex, VertexKey};
 use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 
-use crate::error::{
-    GraphComputingError, LogicError, LogicErrorType, UserError,
-    UserErrorType,
-};
+use crate::error::{GraphComputingError, LogicError, LogicErrorType, UserError, UserErrorType};
 use crate::graph::indexed_data_store::data_store::IndexedDataStore;
 use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
@@ -41,7 +38,7 @@ pub trait GraphTrait {
 }
 
 // pub struct Graph<VertexKey: Hash + Eq + PartialEq, EdgeType: Hash + Eq + PartialEq> {
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Graph {
     graphblas_context: Arc<GraphblasContext>,
 
