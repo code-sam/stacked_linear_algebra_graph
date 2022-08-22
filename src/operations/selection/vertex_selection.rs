@@ -63,20 +63,21 @@ impl<'g> VertexSelection<'g> {
         vertex_mask: SparseVector<bool>,
     ) -> Result<Self, GraphComputingError> {
         #[cfg(debug_assertions)]
-        let graph_vertex_capacity = graph.vertex_capacity()?;
-        if vertex_mask.length()? != graph_vertex_capacity {
-            return Err(LogicError::new(
-                LogicErrorType::DimensionMismatch,
-                format!(
-                    "Length of vertex_mask {:?}, does not match the graph's vertex capacity {:?}",
-                    vertex_mask.length()?,
-                    graph_vertex_capacity
-                ),
-                None,
-            )
-            .into());
+        {
+            let graph_vertex_capacity = graph.vertex_capacity()?;
+            if vertex_mask.length()? != graph_vertex_capacity {
+                return Err(LogicError::new(
+                    LogicErrorType::DimensionMismatch,
+                    format!(
+                        "Length of vertex_mask {:?}, does not match the graph's vertex capacity {:?}",
+                        vertex_mask.length()?,
+                        graph_vertex_capacity
+                    ),
+                    None,
+                )
+                .into());
+            }
         }
-
         Ok(Self { graph, vertex_mask })
     }
 
