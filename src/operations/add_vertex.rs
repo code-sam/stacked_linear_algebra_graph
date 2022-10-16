@@ -1,67 +1,80 @@
 use crate::error::{GraphComputingError, UserError, UserErrorType};
 
-use crate::graph::graph::Graph;
+use crate::graph::graph::graph::Graph;
+use crate::graph::native_data_type::NativeDataType;
 use crate::graph::vertex::{Vertex, VertexIndex};
 
-use super::update_vertex::UpdateVertex;
+// use super::update_vertex::UpdateVertex;
 
-pub trait AddVertex {
-    fn add_new_vertex(&mut self, vertex: Vertex) -> Result<VertexIndex, GraphComputingError>;
-    fn add_or_replace_vertex(&mut self, vertex: Vertex)
-        -> Result<VertexIndex, GraphComputingError>;
+pub trait AddVertex<T: NativeDataType> {
+    // fn add_new_vertex(&mut self, vertex: Vertex<T>) -> Result<VertexIndex, GraphComputingError>;
+    // fn add_or_replace_vertex(
+    //     &mut self,
+    //     vertex: Vertex<T>,
+    // ) -> Result<VertexIndex, GraphComputingError>;
     fn add_or_update_vertex(
         &mut self,
-        vertex: Vertex,
+        vertex: Vertex<T>,
     ) -> Result<Option<VertexIndex>, GraphComputingError>;
 }
 
-impl AddVertex for Graph {
+impl<T: NativeDataType> AddVertex<T> for Graph {
     // TODO: use try_insert() once it is stable
-    fn add_new_vertex(
-        &mut self,
-        vertex_to_add: Vertex,
-    ) -> Result<VertexIndex, GraphComputingError> {
-        let key_ref_of_vertex_to_add = vertex_to_add.key_ref();
-        if !self
-            .vertex_key_to_vertex_index_map_ref()
-            .contains_key(key_ref_of_vertex_to_add)
-        {
-            self.add_or_replace_vertex(vertex_to_add)
-        } else {
-            Err(UserError::new(
-                UserErrorType::VertexAlreadyExists,
-                format!(
-                    "A vertex with key '{}' already exists",
-                    key_ref_of_vertex_to_add
-                ),
-                None,
-            )
-            .into())
-        }
-    }
+    // fn add_new_vertex(
+    //     &mut self,
+    //     vertex_to_add: Vertex<T>,
+    // ) -> Result<VertexIndex, GraphComputingError> {
+    //     let key_ref_of_vertex_to_add = vertex_to_add.key_ref();
+    //     if !self
+    //         .vertex_key_to_vertex_index_map_ref()
+    //         .contains_key(key_ref_of_vertex_to_add)
+    //     {
+    //         self.add_or_replace_vertex(vertex_to_add)
+    //     } else {
+    //         Err(UserError::new(
+    //             UserErrorType::VertexAlreadyExists,
+    //             format!(
+    //                 "A vertex with key '{}' already exists",
+    //                 key_ref_of_vertex_to_add
+    //             ),
+    //             None,
+    //         )
+    //         .into())
+    //     }
+    // }
 
     /// Replacement deletes connected edges
-    fn add_or_replace_vertex(
-        &mut self,
-        new_vertex: Vertex,
-    ) -> Result<VertexIndex, GraphComputingError> {
-        let key_ref_of_new_vertex = new_vertex.key_ref();
+    // fn add_or_replace_vertex(
+    //     &mut self,
+    //     new_vertex: Vertex<T>,
+    // ) -> Result<VertexIndex, GraphComputingError> {
+    //     let key_ref_of_new_vertex = new_vertex.key_ref();
 
-        let vertex_index: VertexIndex =
-            self.vertex_store_mut_ref().push(new_vertex.clone())?.into();
+    //     let vertex_index: VertexIndex =
+    //         self.vertex_store_mut_ref().push(new_vertex.clone())?.into();
 
-        self.vertex_key_to_vertex_index_map_mut_ref()
-            .insert(key_ref_of_new_vertex.to_owned(), vertex_index.clone());
+    //     self.vertex_key_to_vertex_index_map_mut_ref()
+    //         .insert(key_ref_of_new_vertex.to_owned(), vertex_index.clone());
 
-        self.expand_adjacency_matrices_to_match_vertex_capacity()?;
-        Ok(vertex_index)
-    }
+    //     self.expand_adjacency_matrices_to_match_vertex_capacity()?;
+    //     Ok(vertex_index)
+    // }
 
     fn add_or_update_vertex(
         &mut self,
-        vertex: Vertex,
+        vertex: Vertex<T>,
     ) -> Result<Option<VertexIndex>, GraphComputingError> {
-        self.update_or_add_vertex(vertex)
+        let vertex_index = self
+            .vertex_key_to_vertex_index_map_mut_ref()
+            .get(vertex.key_ref());
+        match vertex_index {
+            Some(&vertex_index) => {
+                self.vertex_store_mut_ref().update(vertex_index, vertex)?;
+                Ok(None)
+            }
+            // REVIEW: why add_or_replace? Is this expected?
+            None => Ok(Some(self.add_or_replace_vertex(vertex)?)),
+        }
     }
 }
 
@@ -70,9 +83,9 @@ mod tests {
     use super::*;
 
     use crate::operations::add_vertex::AddVertex;
-    use crate::operations::read_vertex_value::ReadVertexValue;
-    use crate::operations::select_edge_type::EdgeTypeSelectorTrait;
-    use crate::tests::standard_graph_for_testing::standard_graph_for_testing;
+    // use crate::operations::read_vertex_value::ReadVertexValue;
+    // use crate::operations::select_edge_type::EdgeTypeSelectorTrait;
+    // use crate::tests::standard_graph_for_testing::standard_graph_for_testing;
 
     #[test]
     fn add_vertex() {
@@ -106,15 +119,15 @@ mod tests {
         }
     }
 
-    #[test]
-    fn add_or_replace_vertex() {
-        let mut graph = standard_graph_for_testing();
+    // #[test]
+    // fn add_or_replace_vertex() {
+    //     let mut graph = standard_graph_for_testing();
 
-        let vertex = Vertex::new(String::from("1").into(), String::from("replaced").into());
-        graph.add_or_replace_vertex(vertex.clone()).unwrap();
+    //     let vertex = Vertex::new(String::from("1").into(), String::from("replaced").into());
+    //     graph.add_or_replace_vertex(vertex.clone()).unwrap();
 
-        let edge_selection = graph.select_edge_type(String::from("is_a").into()).unwrap();
-        let from_vertices = edge_selection.get_from_vertices().unwrap();
-        assert!(!from_vertices.contains(&vertex));
-    }
+    //     let edge_selection = graph.select_edge_type(String::from("is_a").into()).unwrap();
+    //     let from_vertices = edge_selection.get_from_vertices().unwrap();
+    //     assert!(!from_vertices.contains(&vertex));
+    // }
 }

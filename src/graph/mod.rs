@@ -1,4 +1,5 @@
-pub mod edge;
+// pub mod edge;
 pub mod graph;
-pub(crate) mod indexed_data_store;
+pub mod index;
+pub mod native_data_type;
 pub mod vertex;

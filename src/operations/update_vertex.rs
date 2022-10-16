@@ -1,42 +1,44 @@
 use crate::error::{GraphComputingError, SystemError, SystemErrorType, UserError, UserErrorType};
 
 use super::add_vertex::AddVertex;
-use crate::graph::graph::Graph;
-use crate::graph::vertex::{Vertex, VertexIndex, VertexValue};
+use crate::graph::graph::graph::Graph;
+use crate::graph::native_data_type::NativeDataType;
+use crate::graph::vertex::{Vertex, VertexIndex};
 
-pub trait UpdateVertex {
+pub trait UpdateVertex<T: NativeDataType> {
     fn update_or_add_vertex(
         &mut self,
-        vertex_to_set: Vertex,
+        vertex: Vertex<T>,
     ) -> Result<Option<VertexIndex>, GraphComputingError>; // REVIEW update vs set
-    fn update_vertex(&mut self, vertex_to_update: Vertex) -> Result<(), GraphComputingError>;
+    fn update_vertex_value(&mut self, vertex_to_update: Vertex<T>) -> Result<(), GraphComputingError>;
     fn update_vertex_value_by_index(
         &mut self,
-        vertex_index: VertexIndex,
-        vertex_value: VertexValue,
+        vertex_index: &VertexIndex,
+        vertex_value: T,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl UpdateVertex for Graph {
+impl<T: NativeDataType> UpdateVertex<T> for Graph {
     fn update_or_add_vertex(
         &mut self,
-        vertex_to_set: Vertex,
+        vertex: Vertex<T>,
     ) -> Result<Option<VertexIndex>, GraphComputingError> {
+        // TODO: use AddVertex trait implementation
         let vertex_index = self
             .vertex_key_to_vertex_index_map_mut_ref()
-            .get(vertex_to_set.key_ref());
+            .get(vertex.key_ref());
         match vertex_index {
             Some(&vertex_index) => {
                 self.vertex_store_mut_ref()
-                    .update(vertex_index, vertex_to_set)?;
+                    .update(vertex_index, vertex)?;
                 Ok(None)
             }
-            None => Ok(Some(self.add_or_replace_vertex(vertex_to_set)?)),
+            None => Ok(Some(self.add_or_replace_vertex(vertex)?)),
         }
     }
 
     // TODO: is there a use-case for returning the VertexIndex?
-    fn update_vertex(&mut self, vertex_to_update: Vertex) -> Result<(), GraphComputingError> {
+    fn update_vertex_value(&mut self, vertex_to_update: Vertex) -> Result<(), GraphComputingError> {
         let vertex_index = self
             .vertex_key_to_vertex_index_map_mut_ref()
             .get(vertex_to_update.key_ref());

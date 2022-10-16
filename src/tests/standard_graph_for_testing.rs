@@ -1,8 +1,14 @@
+// use once_cell::sync::Lazy;
+
 use crate::graph::edge::DirectedEdgeDefinedByKeys;
-use crate::graph::graph::Graph;
+use crate::graph::graph::graph::Graph;
 use crate::graph::vertex::Vertex;
 use crate::operations::add_edge::AddEdge;
 use crate::operations::add_vertex::AddVertex;
+
+// pub static STANDARD_GRAPH_FOR_TESTING: Lazy<Graph> =
+//     // REVIEW: what is the effect of a shared context between graphs?
+//     Lazy::new(|| create_test_graph());
 
 macro_rules! add_new_edge {
     ($from_vertex:ident, $edge_type:ident, $to_vertex:ident, $graph:ident) => {

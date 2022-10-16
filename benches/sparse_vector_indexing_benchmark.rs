@@ -2,7 +2,7 @@
 use std::collections::VecDeque;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use rustc_hash::{FxHashMap, FxHashSet, FxHasher};
 
@@ -132,14 +132,24 @@ fn bench_no_hash_hashmap() {
     let mut data: HashMap<usize, i32, BuildHasherDefault<NoHashHasher<i32>>> =
         HashMap::with_hasher(BuildHasherDefault::default());
 
+    let mut rng = rand::thread_rng();
+    // let bernoulli_dist = Bernoulli::new(0.2).unwrap();
+
+    let mut valid_indices = Vec::new();
+
     for i in 0..100000 {
+        // generate random sparse structure
+        // if bernoulli_dist.sample(&mut rng) {
         data.insert(i, i as i32);
+        valid_indices.push(i);
+        // }
     }
 
-    let random_distribution = Uniform::from(0..data.len());
-    let mut rng = rand::thread_rng();
+    let random_distribution = Uniform::from(0..valid_indices.len());
+
     for _i in 0..100000 {
         let value = data.get(&random_distribution.sample(&mut rng)).unwrap();
+        // let value = data.get(&valid_indices[random_distribution.sample(&mut rng)]).unwrap();
         // println!("{}",value)
     }
 }

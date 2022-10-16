@@ -12,12 +12,14 @@ use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
 use super::index::{Index, IndexTrait, IndexedDataStoreIndex};
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 
+pub(crate) trait IndexedDataStoreTrait {}
+
 // Note: benchmark before allowing parallel operations on self.data
 // up to 2x better read performance than HashMap (approaching Vec)
 // about 5x better write performance than Hashmap (approaching Vec)
 // pub struct IndexedDataStore<T: Copy> {
 #[derive(Clone, Debug)]
-pub struct IndexedDataStore<T>
+pub(crate) struct IndexedDataStore<T>
 where
     T: Send + Sync,
 {
@@ -27,6 +29,8 @@ where
     _graphblas_context: Arc<GraphBLASContext>,
     mask_with_valid_indices: SparseVector<bool>,
 }
+
+impl<T: Send + Sync> IndexedDataStoreTrait for IndexedDataStore<T> {}
 
 impl<T: Send + Sync> IndexedDataStore<T> {
     pub(crate) fn with_capacity(
@@ -113,7 +117,7 @@ impl<T: Send + Sync> IndexedDataStore<T> {
             .get_element_value(index.index_ref())?)
     }
 
-    fn check_index<I: IndexTrait>(&self, index: &I) -> Result<(), GraphComputingError> {
+    pub(crate) fn check_index<I: IndexTrait>(&self, index: &I) -> Result<(), GraphComputingError> {
         if self.is_valid_index(index)? {
             return Ok(());
         } else {
@@ -198,7 +202,7 @@ impl<T: Send + Sync> IndexedDataStore<T> {
         Ok(self.data.capacity())
     }
 
-    fn get_available_index(&mut self) -> Result<Index, GraphComputingError> {
+    pub(crate) fn get_available_index(&mut self) -> Result<Index, GraphComputingError> {
         match self.indices_available_for_reuse.pop_front() {
             None => self.get_number_of_stored_and_reusable_elements(),
             Some(index) => Ok(index),

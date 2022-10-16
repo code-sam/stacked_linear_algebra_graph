@@ -1,5 +1,5 @@
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::graph::Graph;
+use crate::graph::graph::graph::Graph;
 use crate::graph::vertex::{VertexIndex, VertexKey};
 
 use super::adjacency_matrix::EdgeCoordinate;

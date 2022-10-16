@@ -1,10 +1,10 @@
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 use crate::error::{SystemError, SystemErrorType};
-use crate::graph::graph::ElementIndex;
-use crate::graph::graph::Graph;
+use crate::graph::index::{ElementIndex, Index};
+use crate::graph::graph::graph::Graph;
 
-use crate::graph::indexed_data_store::index::Index as IndexedDataStoreIndex;
+// use crate::graph::indexed_data_store::index::Index as IndexedDataStoreIndex;
 
 // TODO: change to EdgeTypeKey?
 pub type EdgeType = String;

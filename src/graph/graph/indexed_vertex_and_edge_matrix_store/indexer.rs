@@ -7,8 +7,8 @@ use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
     GetVectorElementValue, SetVectorElement, SparseVector, VectorElement,
 };
 
-use super::index::{Index, IndexTrait, IndexedDataStoreIndex};
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
+use crate::graph::index::{ElementCount, Index, IndexTrait, IndexedDataStoreIndex};
 
 // + Debug required for free(). Can this additional bound be added to the method itself?
 pub(crate) trait IndexerTrait<I: IndexTrait + Debug> {
@@ -17,11 +17,12 @@ pub(crate) trait IndexerTrait<I: IndexTrait + Debug> {
     // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
     fn free(&mut self, index: I) -> Result<(), GraphComputingError>;
     fn is_valid_index(&self, index: &I) -> Result<bool, GraphComputingError>;
-    fn check_index_validity(&self, index: &I) -> Result<(), GraphComputingError>;
+    fn try_index_validity(&self, index: &I) -> Result<(), GraphComputingError>;
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;
     fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError>;
 }
 
+#[derive(Clone, Debug)]
 pub(crate) struct Indexer {
     _graphblas_context: Arc<GraphBLASContext>,
     // _is_index_or_available_for_reuse keeps the size of the index vector and it's automatic resizing
@@ -66,10 +67,7 @@ impl IndexerTrait<IndexedDataStoreIndex> for Indexer {
             .get_element_value(index.index_ref())?)
     }
 
-    fn check_index_validity(
-        &self,
-        index: &IndexedDataStoreIndex,
-    ) -> Result<(), GraphComputingError> {
+    fn try_index_validity(&self, index: &IndexedDataStoreIndex) -> Result<(), GraphComputingError> {
         if self.is_valid_index(index)? {
             return Ok(());
         } else {
@@ -98,17 +96,15 @@ impl IndexerTrait<IndexedDataStoreIndex> for Indexer {
 }
 
 impl Indexer {
-    pub(crate) fn new(
-        graphblas_context: Arc<GraphBLASContext>,
-    ) -> Result<Self, GraphComputingError> {
+    pub fn new(graphblas_context: &Arc<GraphBLASContext>) -> Result<Self, GraphComputingError> {
         let default_initial_capacity = 256;
-        Self::with_initial_capacity(&default_initial_capacity, graphblas_context)
+        Self::with_initial_capacity(graphblas_context, &default_initial_capacity)
     }
 
     /// Sets a minimum capacity of 1, if initial_capacity = 0
-    pub(crate) fn with_initial_capacity(
-        initial_capacity: &Index,
-        graphblas_context: Arc<GraphBLASContext>,
+    pub fn with_initial_capacity(
+        graphblas_context: &Arc<GraphBLASContext>,
+        initial_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
         // NOTE: setting and enforcing this minimum improves performance,
         // as the minimum is guaranteed once and no longer needs checkungupon capacity expansion.
@@ -157,8 +153,8 @@ mod tests {
     fn new_indexer() {
         let initial_capacity = 10;
         let mut indexer = Indexer::with_initial_capacity(
+            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
             &10,
-            GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
         )
         .unwrap();
 
@@ -223,8 +219,8 @@ mod tests {
     fn new_store_with_zero_capacity() {
         let initial_capacity = 2;
         let mut indexer = Indexer::with_initial_capacity(
+            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
             &10,
-            GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
         )
         .unwrap();
 
