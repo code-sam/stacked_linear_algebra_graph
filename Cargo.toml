@@ -12,14 +12,14 @@ repository = "https://github.com/code-sam/cairn-knowledge-graph"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-graphblas_sparse_linear_algebra = {version = "0.10"}
-hashbrown = {version = "0.11", features = ["rayon"]}
-once_cell = {version = "1.8"}
+graphblas_sparse_linear_algebra = {version = "0.18"}
+hashbrown = {version = "0.13", features = ["rayon"]}
+once_cell = {version = "1.17"}
 paste = {version = "1.0"}
-rayon = {version = "1.5"}
+rayon = {version = "1.6"}
 
 [dev-dependencies]
-criterion = "0.3"
+criterion = "0.4"
 rand = "0.8"
 rustc-hash = {version = "1.1"}
 nohash-hasher = "0.2"

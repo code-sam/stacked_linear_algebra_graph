@@ -1,6 +1,6 @@
 // pub mod add_edge;
 // pub mod add_edge_type;
-// pub mod add_vertex;
+pub mod add_vertex;
 // pub mod delete_edge;
 // pub mod delete_vertex;
 // pub mod drop_edge_type;

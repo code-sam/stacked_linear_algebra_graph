@@ -5,7 +5,7 @@ use crate::error::{SystemError, SystemErrorType};
 use crate::graph::graph::graph::Graph;
 use crate::graph::index::ElementIndex;
 
-use crate::graph::native_data_type::NativeDataType;
+use crate::graph::value_type::ValueType;
 
 pub type VertexKey = String;
 pub type VertexKeyRef = str;
@@ -40,7 +40,7 @@ impl VertexIndex {
 //     }
 // }
 
-pub trait VertexTrait<T: NativeDataType> {
+pub trait VertexTrait<T: ValueType> {
     fn new(key: VertexKey, value: T) -> Self;
     // pub fn key(&self) -> &VertexKey;
     fn key_ref(&self) -> &VertexKeyRef;
@@ -55,30 +55,30 @@ pub trait VertexTrait<T: NativeDataType> {
 // Whereas the coordinate can be a key, or an index. Is this struct a
 // consistent definition of a Vertex?
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-pub struct Vertex<T: NativeDataType> {
+pub struct Vertex<T: ValueType> {
     key: VertexKey,
     value: T,
 }
 
-impl<T: NativeDataType> From<Vertex<T>> for VertexKey {
+impl<T: ValueType> From<Vertex<T>> for VertexKey {
     fn from(vertex: Vertex<T>) -> Self {
         vertex.key_ref().to_owned()
     }
 }
 
-/// ```
-/// # use cairn_knowledge_graph::graph::vertex::Vertex;
-/// let vertex: Vertex = (String::from("Vertex key"), 1u8).into();
-/// assert_eq!(vertex.key_ref().to_owned(), String::from("Vertex key"));
-/// assert_eq!(vertex.value(), 1u8);
-/// ```
-impl<T: NativeDataType> From<(VertexKey, T)> for Vertex<T> {
+// / ```
+// / # use cairn_knowledge_graph::graph::vertex::Vertex;
+// / let vertex: Vertex = (String::from("Vertex key"), 1u8).into();
+// / assert_eq!(vertex.key_ref().to_owned(), String::from("Vertex key"));
+// / assert_eq!(vertex.value(), 1u8);
+// / ```
+impl<T: ValueType> From<(VertexKey, T)> for Vertex<T> {
     fn from(as_tuple: (VertexKey, T)) -> Self {
         Vertex::new(as_tuple.0, as_tuple.1)
     }
 }
 
-impl<T: NativeDataType> VertexTrait<T> for Vertex<T> {
+impl<T: ValueType> VertexTrait<T> for Vertex<T> {
     fn new(key: VertexKey, value: T) -> Self {
         Self { key, value }
     }
@@ -109,69 +109,6 @@ impl<T: NativeDataType> VertexTrait<T> for Vertex<T> {
     //     self.value = VertexValue::None;
     // }
 }
-
-// #[derive(Clone, Debug, PartialEq, PartialOrd)]
-// pub enum VertexValueType {
-//     None, // TODO: is this useful, necessary, and a good idea?
-//     String,
-//     Boolean,
-//     Integer8Bit,
-//     Integer16Bit,
-//     Integer32Bit,
-//     Integer64Bit,
-//     Integer128Bit,
-//     UnsignedInteger8Bit,
-//     UnsignedInteger16Bit,
-//     UnsignedInteger32Bit,
-//     UnsignedInteger64Bit,
-//     UnsignedInteger128Bit,
-//     FloatingPoint32Bit,
-//     FloatingPoint64Bit,
-// }
-
-// #[derive(Clone, Debug, PartialEq, PartialOrd)]
-// pub enum VertexValue {
-//     None, // REVIEW: is None useful, necessary, and a good idea? Is Unit a better name?
-//     String(String),
-//     Boolean(bool),
-//     Integer8Bit(i8),
-//     Integer16Bit(i16),
-//     Integer32Bit(i32),
-//     Integer64Bit(i64),
-//     Integer128Bit(i128),
-//     UnsignedInteger8Bit(u8),
-//     UnsignedInteger16Bit(u16),
-//     UnsignedInteger32Bit(u32),
-//     UnsignedInteger64Bit(u64),
-//     UnsignedInteger128Bit(u128),
-//     FloatingPoint32Bit(f32),
-//     FloatingPoint64Bit(f64),
-// }
-
-// macro_rules! implement_from_type {
-//     ($value_type:ty, $vertex_property_enum_value:ident) => {
-//         impl From<$value_type> for VertexValue {
-//             fn from(item: $value_type) -> Self {
-//                 VertexValue::$vertex_property_enum_value(item)
-//             }
-//         }
-//     };
-// }
-
-// implement_from_type!(String, String);
-// implement_from_type!(bool, Boolean);
-// implement_from_type!(i8, Integer8Bit);
-// implement_from_type!(i16, Integer16Bit);
-// implement_from_type!(i32, Integer32Bit);
-// implement_from_type!(i64, Integer64Bit);
-// implement_from_type!(i128, Integer128Bit);
-// implement_from_type!(u8, UnsignedInteger8Bit);
-// implement_from_type!(u16, UnsignedInteger16Bit);
-// implement_from_type!(u32, UnsignedInteger32Bit);
-// implement_from_type!(u64, UnsignedInteger64Bit);
-// implement_from_type!(u128, UnsignedInteger128Bit);
-// implement_from_type!(f32, FloatingPoint32Bit);
-// implement_from_type!(f64, FloatingPoint64Bit);
 
 pub trait VertexKeyAndIndexConversion {
     fn vertex_index_to_vertex_key_ref(

@@ -65,7 +65,6 @@ pub(crate) struct AdjacencyMatrix {
     sparse_matrix: SparseMatrix<bool>,
 }
 
-// TODO: consider the use of a GraphBLAS iso-matrix (currently not supported by graphblas_sparse_linear_algebra)
 impl AdjacencyMatrix {
     pub(crate) fn new(
         graphblas_context: &Arc<Context>,

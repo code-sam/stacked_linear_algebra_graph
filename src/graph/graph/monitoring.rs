@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::{
+    collections::sparse_vector::SparseVector,
     context::{Context as GraphblasContext, Mode as GraphblasMode},
-    util::ElementIndex as GraphblasElementIndex,
-    value_types::sparse_vector::SparseVector,
+    index::ElementIndex as GraphblasElementIndex,
 };
 
 use super::graph::Graph;
@@ -11,9 +11,9 @@ use crate::error::{GraphComputingError, LogicError, LogicErrorType, UserError, U
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
 use crate::graph::index::ElementCount;
 // use crate::graph::indexed_data_store::data_store::IndexedDataStore;
-use crate::graph::graph::indexed_vertex_and_edge_matrix_store::indexed_vertex_and_edge_matrix_store::{
-    IndexedVertexAndEdgeMatrixStore, IndexedVertexAndEdgeMatrixStoreTrait,
-};
+// use crate::graph::graph::indexed_vertex_and_adjacency_matrix_store::indexed_vertex_and_adjacency_matrix_store::{
+//     IndexedVertexAndAdjacencyMatrixStore, IndexedVertexAndAdjacencyMatrixStoreTrait,
+// };
 use crate::graph::vertex::{Vertex, VertexIndex, VertexKey};
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 

@@ -24,6 +24,7 @@ pub enum UserErrorType {
     EdgeTypeDoesNotExist,
     IndexOutOfBounds,
     VertexAlreadyExists,
+    KeyAlreadyExists,
     VertexKeyNotFound,
     Other,
 }

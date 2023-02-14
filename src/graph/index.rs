@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 
-use graphblas_sparse_linear_algebra::util::ElementIndex as GraphblasElementIndex;
+use graphblas_sparse_linear_algebra::index::ElementIndex as GraphblasElementIndex;
 
 // use crate::graph::edge::EdgeTypeIndex;
 use crate::graph::vertex::VertexIndex;
 
-// DESIGN NOTE: The IndexedDataStoreIndex is relatively private to signal that a user is not expected to generate index values on his/her own.
+// DESIGN NOTE: The IndexedDataStoreIndex is relatively private to signal that users should not generate index values on their own.
 // However, the current implementation does not include cryptographic signing, or similar, to prevent a user from
 // generating IndexedDataStoreIndex instances by forging them in memory.
 

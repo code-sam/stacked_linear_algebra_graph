@@ -2,13 +2,15 @@ use std::collections::VecDeque;
 use std::fmt::Debug;
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
-use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
-    GetVectorElementValue, SetVectorElement, SparseVector, VectorElement,
+use graphblas_sparse_linear_algebra::collections::sparse_vector::{
+    GetVectorElementValue, SetVectorElement, SparseVector, SparseVectorTrait, VectorElement,
 };
+use graphblas_sparse_linear_algebra::collections::Collection;
+use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
+use hashbrown::HashMap;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::index::{ElementCount, Index, IndexTrait, IndexedDataStoreIndex};
+use crate::graph::index::{ElementCount, Index, IndexTrait, IndexedDataStoreIndex, ElementIndex};
 
 // + Debug required for free(). Can this additional bound be added to the method itself?
 pub(crate) trait IndexerTrait<I: IndexTrait + Debug> {
@@ -31,6 +33,7 @@ pub(crate) struct Indexer {
     // is_index_or_available_for_reuse: Vec<bool>,
     indices_available_for_reuse: VecDeque<Index>,
     mask_with_valid_indices: SparseVector<bool>,
+    key_to_index_map: HashMap<String, ElementIndex>,
 }
 
 // TODO: probably, Indexer needs a generic type annotation, and then be implemented for IndexedDataStoreIndex
@@ -64,7 +67,7 @@ impl IndexerTrait<IndexedDataStoreIndex> for Indexer {
     fn is_valid_index(&self, index: &IndexedDataStoreIndex) -> Result<bool, GraphComputingError> {
         Ok(self
             .mask_with_valid_indices_ref()
-            .get_element_value(index.index_ref())?)
+            .get_element_value_or_default(index.index_ref())?)
     }
 
     fn try_index_validity(&self, index: &IndexedDataStoreIndex) -> Result<(), GraphComputingError> {
@@ -107,14 +110,20 @@ impl Indexer {
         initial_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
         // NOTE: setting and enforcing this minimum improves performance,
-        // as the minimum is guaranteed once and no longer needs checkungupon capacity expansion.
+        // as the minimum is guaranteed once and no longer needs checking upon capacity expansion.
         // However, the API is slightly misleading for initial_capacity = 0.
         let minimum_initial_capacity = 1;
         let initial_capacity = std::cmp::max(initial_capacity.clone(), minimum_initial_capacity);
+
+        let mut key_to_index_map: HashMap<String, ElementIndex> =
+        HashMap::default();
+        key_to_index_map.reserve(initial_capacity);
+
         Ok(Self {
             _graphblas_context: graphblas_context.clone(),
             indices_available_for_reuse: VecDeque::new(),
             mask_with_valid_indices: SparseVector::new(&graphblas_context, &initial_capacity)?,
+            key_to_index_map
         })
     }
 
@@ -131,11 +140,6 @@ impl Indexer {
             + self.indices_available_for_reuse.len())
     }
 
-    // includes freed elements
-    // pub(crate) fn get_number_stored_elements(&self) -> Index {
-    //     self.data.len()
-    // }
-
     // Method is implementation-specific, and therefore not part of the IndexerTrait
     fn capacity(&self) -> Result<Index, GraphComputingError> {
         Ok(self.mask_with_valid_indices.length()?)
@@ -146,8 +150,8 @@ impl Indexer {
 mod tests {
     use super::*;
 
+    use graphblas_sparse_linear_algebra::collections::sparse_vector::GetVectorElementValue;
     use graphblas_sparse_linear_algebra::context::Mode as GraphBLASMode;
-    use graphblas_sparse_linear_algebra::value_types::sparse_vector::GetVectorElementValue;
 
     #[test]
     fn new_indexer() {
@@ -187,7 +191,7 @@ mod tests {
             mask_with_valid_indices
                 .get_element_value(index.index_ref())
                 .unwrap(),
-            true
+            Some(true)
         );
 
         indexer.free(index.clone()).unwrap();
@@ -211,7 +215,7 @@ mod tests {
             mask_with_valid_indices
                 .get_element_value(index.index_ref())
                 .unwrap(),
-            false
+            None
         );
     }
 
@@ -273,13 +277,13 @@ mod tests {
             mask_with_valid_indices
                 .get_element_value(indices[33].index_ref())
                 .unwrap(),
-            true
+            Some(true)
         );
         assert_eq!(
             mask_with_valid_indices
                 .get_element_value(indices[20].index_ref())
                 .unwrap(),
-            false
+            None
         );
     }
 }

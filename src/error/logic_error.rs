@@ -25,6 +25,10 @@ pub enum LogicErrorType {
     EdgeTypeAlreadyExists,
     EdgeTypeMustExist,
     IndexOutOfBounds,
+    InvalidCharacter,
+    InvalidIndex,
+    InvalidKey,
+    KeyAlreadyExists,
     VertexMustExist,
     Other,
 }

@@ -5,6 +5,7 @@ use std::fmt;
 use graphblas_sparse_linear_algebra::error::{
     SparseLinearAlgebraError, SparseLinearAlgebraErrorType,
 };
+use std::collections::TryReserveError;
 
 #[derive(Debug)]
 pub struct SystemError {
@@ -16,6 +17,7 @@ pub struct SystemError {
 #[derive(Debug)]
 pub enum SystemErrorSource {
     SparseLinearAlgebra(SparseLinearAlgebraError),
+    TryReserveError(TryReserveError),
     PoisonedData,
 }
 
@@ -27,6 +29,7 @@ pub enum SystemErrorType {
     UnsupportedGraphBlasErrorValue,
     UninitialisedContext,
     ContextAlreadyInitialized,
+    CannotReserveMemory,
     PoisonedData,
     IndexOutOfBounds,
     Other,
@@ -58,6 +61,7 @@ impl error::Error for SystemError {
         match self.source {
             Some(ref error) => match error {
                 SystemErrorSource::SparseLinearAlgebra(error) => Some(error),
+                SystemErrorSource::TryReserveError(error) => Some(error),
                 SystemErrorSource::PoisonedData => None,
             },
             None => None,
@@ -85,6 +89,16 @@ impl From<SparseLinearAlgebraError> for SystemError {
             error_type: SystemErrorType::SparseLinearAlgebra(error.error_type()),
             explanation: String::new(),
             source: Some(SystemErrorSource::SparseLinearAlgebra(error)),
+        }
+    }
+}
+
+impl From<TryReserveError> for SystemError {
+    fn from(error: TryReserveError) -> Self {
+        Self {
+            error_type: SystemErrorType::CannotReserveMemory,
+            explanation: String::new(),
+            source: Some(SystemErrorSource::TryReserveError(error)),
         }
     }
 }

@@ -4,39 +4,36 @@ use std::sync::Arc;
 
 use rayon::prelude::*;
 
-use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
-use graphblas_sparse_linear_algebra::value_types::sparse_matrix::{
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     MatrixElement, SetMatrixElement, SparseMatrix,
 };
-use graphblas_sparse_linear_algebra::value_types::sparse_vector::{
+use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     GetVectorElementValue, SetVectorElement, SparseVector, VectorElement,
 };
-use graphblas_sparse_linear_algebra::value_types::value_type::{BuiltInValueType, ValueType};
+use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
+use graphblas_sparse_linear_algebra::value_type::{ValueType as StoreNativeDataType};
 
-use super::indexer::{Indexer, IndexerTrait};
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 // use crate::graph::edge::EdgeTypeIndex;
 use crate::graph::index::{ElementCount, Index, IndexTrait, IndexedDataStoreIndex};
-use crate::graph::native_data_type::{
-    implement_macro_with_typed_variable_for_all_native_data_types, NativeDataType,
+use crate::graph::data_type::{
+    implement_macro_with_typed_variable_for_all_native_data_types, NativeDataType as GraphNativeDataType,
 };
 use crate::graph::vertex::{Vertex, VertexIndex};
 
-pub(crate) trait IndexedVertexAndEdgeMatrixStoreTrait<T: NativeDataType> {
-    // pub(crate) trait IndexedVertexAndEdgeMatrixStoreTrait<T: NativeDataType, I: IndexTrait + Debug> {
-    /// Replacement deletes connected edges
-    fn add_new_vertex_value(&mut self, vertex_value: T) -> Result<Index, GraphComputingError>;
-    // fn update_vertex_value(&mut self, vertex_index: VertexIndex, vertex_value: T) -> Result<(), GraphComputingError>;
+use super::data_type::{ConvertScalarToGraphType, ConvertScalarToStoreImplementationType};
+use super::indexer::{Indexer, IndexerTrait};
+// use super::native_store_data_type::NativeDataType as StoreNativeDataType;
 
-    // TODO: these types of methods should, where possible and efficient, only be present in the operations module.
-    // fn new_vertex(&mut self, value: T) -> Result<VertexIndex, GraphComputingError>;
-
-    // REVIEW: is the edge value optional, or in a specialised method?
-    // fn new_edge(&mut self, edge_type_index: EdgeTypeIndex, edge: IndexDefinedDirectedEdge) -> Result<(), GraphComputingError>;
-}
+// pub(crate) trait VerticesAndEdges<T: > {
+//     fn vertices_ref(&self) -> &SparseMatrix<T>;
+//     fn vertices_mut_ref(&mut self) -> &mut SparseMatrix<T>;
+//     fn edges_ref(&self) -> &Vec<SparseMatrix<T>>;
+//     fn edges_ref(&mut self) -> &mut Vec<SparseMatrix<T>>;
+// }
 
 #[derive(Clone, Debug)]
-pub(crate) struct IndexedVertexAndEdgeMatrixStore {
+pub(crate) struct IndexedMatrixStore {
     vertex_indexer: Indexer,
     edge_type_indexer: Indexer,
 
@@ -69,21 +66,102 @@ pub(crate) struct IndexedVertexAndEdgeMatrixStore {
     edges_u16: Vec<SparseMatrix<u16>>,
     edges_u32: Vec<SparseMatrix<u32>>,
     edges_u64: Vec<SparseMatrix<u64>>,
-    edges_f32: Vec<SparseMatrix<u32>>,
-    edges_f64: Vec<SparseMatrix<u32>>,
+    edges_f32: Vec<SparseMatrix<f32>>,
+    edges_f64: Vec<SparseMatrix<f64>>,
     edges_isize: Vec<SparseMatrix<isize>>,
     edges_usize: Vec<SparseMatrix<usize>>,
     edges_char: Vec<SparseMatrix<u32>>,  // REVIEW
     edges_unit: Vec<SparseMatrix<bool>>, // REVIEW
 }
 
-impl IndexedVertexAndEdgeMatrixStoreTrait<bool> for IndexedVertexAndEdgeMatrixStore {
-    fn add_new_vertex_value(&mut self, vertex_value: bool) -> Result<Index, GraphComputingError> {
-        let claimed_index = self.vertex_indexer.claim_available_index()?;
-        SetVertexValue::<bool>::set_vertex_value(self, claimed_index.index(), vertex_value);
+pub(crate) trait GetVertices<G: GraphNativeDataType, S: StoreNativeDataType> {
+    fn vertices_ref(&self) -> &SparseMatrix<S>;
+    fn vertices_mut_ref(&mut self) -> &mut SparseMatrix<S>;
+}
+
+macro_rules! implement_get_vertices {
+    ($graph_data_type:ty, $store_data_type:ty, $field_name:ident) => {
+        impl GetVertices<$graph_data_type, $store_data_type> for IndexedMatrixStore {
+            fn vertices_ref(&self) -> &SparseMatrix<$store_data_type> {
+                &self.$field_name
+            }
+            fn vertices_mut_ref(&mut self) -> &mut SparseMatrix<$store_data_type> {
+                &mut self.$field_name
+            }
+        }
+    };
+}
+
+implement_get_vertices!(bool, bool, vertices_bool);
+implement_get_vertices!(i8, i8, vertices_i8);
+implement_get_vertices!(i16, i16, vertices_i16);
+implement_get_vertices!(i32, i32, vertices_i32);
+implement_get_vertices!(i64, i64, vertices_i64);
+implement_get_vertices!(u8, u8, vertices_u8);
+implement_get_vertices!(u16, u16, vertices_u16);
+implement_get_vertices!(u32, u32, vertices_u32);
+implement_get_vertices!(u64, u64, vertices_u64);
+implement_get_vertices!(f32, f32, vertices_f32);
+implement_get_vertices!(f64, f64, vertices_f64);
+implement_get_vertices!(isize, isize, vertices_isize);
+implement_get_vertices!(usize, usize, vertices_usize);
+implement_get_vertices!(char, u32, vertices_char);
+implement_get_vertices!((), bool, vertices_unit);
+
+pub(crate) trait GetEdges<G: GraphNativeDataType, S: StoreNativeDataType> {
+    fn edges_ref(&self) -> &Vec<SparseMatrix<S>>;
+    fn edges_mut_ref(&mut self) -> &mut Vec<SparseMatrix<S>>;
+}
+
+macro_rules! implement_get_edges {
+    ($graph_data_type:ty, $store_data_type:ty, $field_name:ident) => {
+        impl GetEdges<$graph_data_type, $store_data_type> for IndexedMatrixStore {
+            fn edges_ref(&self) -> &Vec<SparseMatrix<$store_data_type>> {
+                &self.$field_name
+            }
+            fn edges_mut_ref(&mut self) -> &mut Vec<SparseMatrix<$store_data_type>> {
+                &mut self.$field_name
+            }
+        }
+    };
+}
+
+implement_get_edges!(bool, bool, edges_bool);
+implement_get_edges!(i8, i8, edges_i8);
+implement_get_edges!(i16, i16, edges_i16);
+implement_get_edges!(i32, i32, edges_i32);
+implement_get_edges!(i64, i64, edges_i64);
+implement_get_edges!(u8, u8, edges_u8);
+implement_get_edges!(u16, u16, edges_u16);
+implement_get_edges!(u32, u32, edges_u32);
+implement_get_edges!(u64, u64, edges_u64);
+implement_get_edges!(f32, f32, edges_f32);
+implement_get_edges!(f64, f64, edges_f64);
+implement_get_edges!(isize, isize, edges_isize);
+implement_get_edges!(usize, usize, edges_usize);
+implement_get_edges!(char, u32, edges_char);
+implement_get_edges!((), bool, edges_unit);
+
+// pub(crate) trait VertexData<T: GraphNativeDataType> {
+    // pub(crate) trait IndexedVertexAndEdgeMatrixStoreTrait<T: NativeDataType, I: IndexTrait + Debug> {
+    /// Replacement deletes connected edges
+    // fn add_new_vertex_value(&mut self, vertex_value: T) -> Result<Index, GraphComputingError>;
+    // fn update_vertex_value(&mut self, vertex_index: VertexIndex, vertex_value: T) -> Result<(), GraphComputingError>;
+
+    // TODO: these types of methods should, where possible and efficient, only be present in the operations module.
+    // fn new_vertex(&mut self, value: T) -> Result<VertexIndex, GraphComputingError>;
+
+    // REVIEW: is the edge value optional, or in a specialised method?
+    // fn new_edge(&mut self, edge_type_index: EdgeTypeIndex, edge: IndexDefinedDirectedEdge) -> Result<(), GraphComputingError>;
+// }
+
+// impl VertexData<bool> for IndexedVertexAndAdjacencyMatrixStore {
+    // fn add_new_vertex_value(&mut self, vertex_value: bool) -> Result<Index, GraphComputingError> {
+        // let claimed_index = self.vertex_indexer.claim_available_index()?;
+        // SetVertexValue::<bool>::set_vertex_value(self, claimed_index.index(), vertex_value);
         // self.set_vertex_value();
 
-        Ok(claimed_index.index())
+        // Ok(claimed_index.index())
 
         // if available_index < self.data.len() {
         //     self.mask_with_valid_indices
@@ -118,34 +196,90 @@ impl IndexedVertexAndEdgeMatrixStoreTrait<bool> for IndexedVertexAndEdgeMatrixSt
         //     }
         // }
         // return Ok(IndexedDataStoreIndex::new(available_index));
+    // }
+// }
+
+// pub(crate) trait VertexData<S: StoreNativeDataType, T: GraphNativeDataType + ConvertScalarToStoreImplementationType<T, S>> {
+//     fn set_vertex_value(&mut self, index: Index, value: T) -> Result<(), GraphComputingError>;
+// }
+
+// impl<S: StoreNativeDataType, G: GraphNativeDataType + ConvertScalarToStoreImplementationType<T, S>> VertexData<S, G> for IndexedMatrixStore {
+//     fn set_vertex_value(&mut self, index: Index, value: G) -> Result<(), GraphComputingError> {
+//         let implementation_value: S = value.to_implementation_type();
+//         self.vertices_mut_ref().set_element((1,1,implementation_value).into())?;
+//         // GetVertices::<G, S>::vertices_mut_ref(self).set_element((index, index, implementation_value).into())?;
+//         self.vertices_mut_ref().set_element((index, index, implementation_value).into())?;
+//         Ok(())
+//     }
+// }
+
+pub(crate) trait VertexData<S: StoreNativeDataType, G: GraphNativeDataType + ConvertScalarToStoreImplementationType<G, S>> {
+    fn set_vertex_value(&mut self, index: Index, value: G) -> Result<(), GraphComputingError>;
+}
+
+// impl<S: StoreNativeDataType, G: GraphNativeDataType + ConvertScalarToStoreImplementationType<G, S>> VertexData<S, G> for IndexedMatrixStore {
+//     fn set_vertex_value(&mut self, index: Index, value: G) -> Result<(), GraphComputingError> {
+//         let implementation_value: S = value.to_implementation_type();
+//         let element = (index, index, implementation_value).into();
+//         self.vertices_mut_ref().set_element(element)?;
+//         self.vertices_mut_ref().set_element((1,1,implementation_value).into())?;
+//         // GetVertices::<G, S>::vertices_mut_ref(self).set_element((index, index, implementation_value).into())?;
+//         self.vertices_mut_ref().set_element((index, index, implementation_value).into())?;
+//         Ok(())
+//     }
+// }
+
+impl VertexData<bool, bool> for IndexedMatrixStore {
+    fn set_vertex_value(&mut self, index: Index, value: bool) -> Result<(), GraphComputingError> {
+        let implementation_value = value.to_implementation_type();
+        // let element = (index, index, implementation_value).into();
+        // self.vertices_mut_ref().set_element(element)?;
+        // self.vertices_mut_ref().set_element((1,1,implementation_value).into())?;
+        GetVertices::<bool, bool>::vertices_mut_ref(self).set_element((index, index, implementation_value).into())?;
+        // self.vertices_mut_ref().set_element((index, index, implementation_value).into())?;
+        Ok(())
     }
 }
 
-trait SetVertexValue<T: NativeDataType> {
-    fn set_vertex_value(&mut self, index: Index, value: T) -> Result<(), GraphComputingError>;
+// impl<S: StoreNativeDataType + SetMatrixElement<S>, T: GraphNativeDataType + ConvertScalarToStoreImplementationType<T, S>> VertexData<S, T> for IndexedMatrixStore {
+//     fn set_vertex_value(&mut self, index: Index, value: T) -> Result<(), GraphComputingError> {
+//         let implementation_value: S = value.to_implementation_type();
+//         self.vertices_mut_ref().set_element((index, index, implementation_value).into())?;
+//         Ok(())
+//     }
+// }
+
+// macro_rules! implement_set_vertex_value {
+//     ($type_identifier: ty, $typed_postfix: ident) => {
+//         paste::paste! {
+//             impl SetVertexValue<$type_identifier> for IndexedVertexAndEdgeMatrixStore {
+//                 fn set_vertex_value(
+//                     &mut self,
+//                     index: Index,
+//                     value: $type_identifier,
+//                 ) -> Result<(), GraphComputingError> {
+//                     self.[<vertices_ $typed_postfix>]
+//                         .set_element((index, index, value).into())?;
+//                     Ok(())
+//                 }
+//             }
+//         }
+//     };
+// }
+
+// implement_macro_with_typed_variable_for_all_native_data_types!(implement_set_vertex_value);
+
+pub(crate) trait Indexing<I: IndexTrait> {
+    fn vertex_indexer_ref(&self) -> &Indexer;
 }
 
-macro_rules! implement_set_vertex_value {
-    ($type_identifier: ty, $typed_postfix: ident) => {
-        paste::paste! {
-            impl SetVertexValue<$type_identifier> for IndexedVertexAndEdgeMatrixStore {
-                fn set_vertex_value(
-                    &mut self,
-                    index: Index,
-                    value: $type_identifier,
-                ) -> Result<(), GraphComputingError> {
-                    self.[<vertices_ $typed_postfix>]
-                        .set_element((index, index, value).into())?;
-                    Ok(())
-                }
-            }
-        }
-    };
+impl<I: IndexTrait> Indexing<I> for IndexedMatrixStore {
+    fn vertex_indexer_ref(&self) -> &Indexer {
+        todo!()
+    }
 }
 
-implement_macro_with_typed_variable_for_all_native_data_types!(implement_set_vertex_value);
-
-impl IndexedVertexAndEdgeMatrixStore {
+impl IndexedMatrixStore {
     // pub fn new(
     //     graphblas_context: &Arc<GraphBLASContext>,
     //     initial_capacity: &ElementCount,
@@ -207,8 +341,8 @@ impl IndexedVertexAndEdgeMatrixStore {
             edges_u16: Vec::<SparseMatrix<u16>>::with_capacity(initial_edge_type_capacity.clone()),
             edges_u32: Vec::<SparseMatrix<u32>>::with_capacity(initial_edge_type_capacity.clone()),
             edges_u64: Vec::<SparseMatrix<u64>>::with_capacity(initial_edge_type_capacity.clone()),
-            edges_f32: Vec::<SparseMatrix<u32>>::with_capacity(initial_edge_type_capacity.clone()),
-            edges_f64: Vec::<SparseMatrix<u32>>::with_capacity(initial_edge_type_capacity.clone()),
+            edges_f32: Vec::<SparseMatrix<f32>>::with_capacity(initial_edge_type_capacity.clone()),
+            edges_f64: Vec::<SparseMatrix<f64>>::with_capacity(initial_edge_type_capacity.clone()),
             edges_isize: Vec::<SparseMatrix<isize>>::with_capacity(
                 initial_edge_type_capacity.clone(),
             ),

@@ -2,24 +2,33 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::{
+    collections::sparse_vector::SparseVector,
     context::{Context as GraphblasContext, Mode as GraphblasMode},
-    util::ElementIndex as GraphblasElementIndex,
-    value_types::sparse_vector::SparseVector,
+    index::ElementIndex as GraphblasElementIndex,
 };
 use hashbrown::HashMap;
 
-use crate::error::{GraphComputingError, LogicError, LogicErrorType, UserError, UserErrorType};
+use crate::{
+    error::{GraphComputingError, LogicError, LogicErrorType, UserError, UserErrorType},
+    graph::{vertex::{VertexKeyRef, VertexTrait}, value_type::implement_macro_for_all_native_value_types},
+};
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
 // use crate::graph::indexed_data_store::data_store::IndexedDataStore;
-use crate::graph::graph::indexed_vertex_and_edge_matrix_store::indexed_vertex_and_edge_matrix_store::{
-    IndexedVertexAndEdgeMatrixStore, IndexedVertexAndEdgeMatrixStoreTrait,
-};
+// use crate::graph::graph::indexed_matrix_store::indexed_matrix_store::{
+//     IndexedMatrixStore, VertexData,
+// };
 use crate::graph::index::{ElementCount, IndexTrait};
-use crate::graph::vertex::{Vertex, VertexIndex, VertexKey};
+use crate::graph::vertex::{Vertex, VertexKey};
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
-use crate::graph::native_data_type::NativeDataType;
+use crate::graph::value_type::NativeDataType;
+use crate::graph::value_type::ValueType;
+
+use super::{
+    indexer::{Index, Indexer, IndexerTrait},
+    vertex_store::{VertexStore, Indexing, SetVertexData},
+};
 
 // NOTE: by default, SuiteSparse:GraphBLAS uses Compressed Sparse Row (CSR) format.
 // Row operations should therefore be faster.
@@ -30,16 +39,16 @@ use crate::graph::native_data_type::NativeDataType;
 // pub type VertexIndex = ElementIndex;
 // pub type EdgeTypeIndex = IndexedDataStoreIndex;
 
-pub trait GraphTrait {
-    // Should support sharing data between multiple graphs. REVIEW: is this really useful?
-    // This exposes the GraphBLAS implementation in the public API. If implemented, consider to
-    // wrap the GraphBLAS context into some more generic and crate-specified data struct.
-    // fn in_context(
-    //     graphblas_context: Arc<GraphblasContext>
-    //     initial_vertex_capacity: ElementCount,
-    //     initial_edge_type_capacity: ElementCount,
-    // ) -> Result<Self, GraphComputingError>;
-}
+// pub trait GraphTrait {
+// Should support sharing data between multiple graphs. REVIEW: is this really useful?
+// This exposes the GraphBLAS implementation in the public API. If implemented, consider to
+// wrap the GraphBLAS context into some more generic and crate-specified data struct.
+// fn in_context(
+//     graphblas_context: Arc<GraphblasContext>
+//     initial_vertex_capacity: ElementCount,
+//     initial_edge_type_capacity: ElementCount,
+// ) -> Result<Self, GraphComputingError>;
+// }
 
 // pub(crate) trait IndexedVerticesAndEdgeMatrices<T: NativeDataType, I: IndexTrait + Debug> {
 //     fn indexed_vertices_and_edge_matrices_mut_ref(
@@ -47,45 +56,84 @@ pub trait GraphTrait {
 //     ) -> &mut impl IndexedVertexAndEdgeMatrixStoreTrait<T, I>;
 // }
 
-// pub(crate) trait KeyIndexMapping {}
+pub type VertexIndex = Index;
+pub type EdgeTypeIndex = Index;
+
+pub(crate) trait GraphTrait<T: ValueType> {
+    // fn update_vertex_value_by_index(&mut self, index: &VertexIndex, value: T) -> Result<(), GraphComputingError>;
+
+    fn vertex_store_ref(&self) -> &VertexStore<T>;
+    fn vertex_store_mut_ref(&mut self) -> &mut VertexStore<T>;
+
+    // Encapsulate indexer-related capabilities to enable generality over how the indexer in implemented
+    // (i.e. possibly by Arc<RwLock<Indexer>>)
+    // fn contains_vertex_key(&self, key: &VertexKeyRef) -> bool;
+    // fn vertex_key_to_index(&self, key: &VertexKeyRef) -> Option<&VertexIndex>;
+}
+
+impl<T: ValueType> GraphTrait<T> for Graph<T> {
+    // fn contains_vertex_key(&self, key: &VertexKeyRef) -> bool {
+    //     self.vertex_store.is_valid_key(key)
+    // }
+
+    // fn vertex_key_to_index(&self, key: &VertexKeyRef) -> Option<&VertexIndex> {
+    //     self.vertex_indexer.index_for_key(key)
+    // }
+
+    fn vertex_store_ref(&self) -> &VertexStore<T> {
+        &self.vertex_store
+    }
+
+    fn vertex_store_mut_ref(&mut self) -> &mut VertexStore<T> {
+        &mut self.vertex_store
+    }
+
+    // pub(crate) fn vertex_key_to_vertex_index_map_ref(&self) -> &HashMap<VertexKey, VertexIndex> {
+    //     &self.vertex_key_to_vertex_index_map
+    // }
+    // pub(crate) fn vertex_key_to_vertex_index_map_mut_ref(
+    //     &mut self,
+    // ) -> &mut HashMap<VertexKey, VertexIndex> {
+    //     &mut self.vertex_key_to_vertex_index_map
+    // }
+
+    // fn update_vertex_value_by_index(&mut self, index: &VertexIndex, value: T) -> Result<(), GraphComputingError> {
+    //     self.indexed_matrix_store.set_vertex_value(index.index(), value)?;
+    //     Ok(())
+    // }
+}
 
 // pub struct Graph<VertexKey: Hash + Eq + PartialEq, EdgeType: Hash + Eq + PartialEq> {
 #[derive(Clone, Debug)]
-pub struct Graph {
+pub struct Graph<T: ValueType> {
     graphblas_context: Arc<GraphblasContext>,
-    indexed_vertices_and_edge_matrices: IndexedVertexAndEdgeMatrixStore, // Consider renaming to IndexedVertexAndEdgeMatrixStore
+    vertex_store: VertexStore<T>,
 
+    // vertex_indexer: Indexer,
+    // edge_type_indexer: Indexer,
     // vertex_store: IndexedDataStore<Vertex>,
-    vertex_key_to_vertex_index_map: HashMap<VertexKey, VertexIndex>, // maps a vertex key to a Vertex
-                                                                     // vertex_set: FxHashSet<String>,
-                                                                     // edge_types: IndexedDataStore<EdgeType>,
-                                                                     // adjacency_matrices: IndexedDataStore<AdjacencyMatrix>,
-                                                                     // edges: IndexedDataStore<Vec<DirectedEdge>>, // first dimension over edge_type, second over adjacency_matrix element index
-                                                                     // edge_type_to_edge_type_index_map: HashMap<EdgeType, EdgeTypeIndex>, // maps an edge type key to an adjacency matrix
-                                                                     // edge_set: FxHashSet<String>,                // TODO: type, unique connections
+    // vertex_key_to_vertex_index_map: HashMap<VertexKey, VertexIndex>, // maps a vertex key to a Vertex
+    // vertex_set: FxHashSet<String>,
+    // edge_types: IndexedDataStore<EdgeType>,
+    // adjacency_matrices: IndexedDataStore<AdjacencyMatrix>,
+    // edges: IndexedDataStore<Vec<DirectedEdge>>, // first dimension over edge_type, second over adjacency_matrix element index
+    // edge_type_to_edge_type_index_map: HashMap<EdgeType, EdgeTypeIndex>, // maps an edge type key to an adjacency matrix
+    // edge_set: FxHashSet<String>,                // TODO: type, unique connections
 }
 
 // let mut map: FxHashMap<String, ElementIndex> = FxHashMap::default();
 
-// impl Graph<VertexKey, EdgeKey> {
-impl GraphTrait for Graph {}
-
-impl Graph {
+impl<T: ValueType> Graph<T> {
     // pub fn new(
     //     initial_vertex_capacity: ElementCount,
     //     initial_edge_type_capacity: ElementCount,
     // ) -> Result<Self, GraphComputingError> {}
 
     pub fn with_initial_capacity(
+        graphblas_context: Arc<GraphblasContext>,
         initial_vertex_capacity: ElementCount,
         initial_edge_type_capacity: ElementCount,
     ) -> Result<Self, GraphComputingError> {
-        let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking)?;
-
-        let mut vertex_key_to_vertex_index_map: HashMap<VertexKey, VertexIndex> =
-            HashMap::default();
-        vertex_key_to_vertex_index_map.reserve(initial_vertex_capacity);
-
         // let mut edge_type_to_edge_type_index_map: HashMap<EdgeType, EdgeTypeIndex> =
         // HashMap::default();
         // edge_type_to_edge_type_index_map.reserve(initial_edge_type_capacity);
@@ -93,16 +141,21 @@ impl Graph {
         // let mut edge_set: FxHashSet<EdgeKey> = FxHashSet::default();
         // edge_set.reserve(initial_edge_capacity);
 
-        let mut graph: Graph = Self {
+        let mut graph: Graph<T> = Self {
             graphblas_context: graphblas_context.clone(),
 
-            indexed_vertices_and_edge_matrices:
-                IndexedVertexAndEdgeMatrixStore::with_initial_capacity(
-                    &graphblas_context,
-                    &initial_vertex_capacity,
-                    &initial_edge_type_capacity,
-                )?,
-            vertex_key_to_vertex_index_map,
+            vertex_store: VertexStore::with_initial_capacity(
+                &graphblas_context,
+                &initial_vertex_capacity,
+            )?,
+            // vertex_indexer: Indexer::with_initial_capacity(
+            //     &graphblas_context,
+            //     &initial_vertex_capacity,
+            // )?,
+            // edge_type_indexer: Indexer::with_initial_capacity(
+            //     &graphblas_context,
+            //     &initial_edge_type_capacity,
+            // )?,
             // edge_type_to_edge_type_index_map,
         };
 
@@ -115,17 +168,22 @@ impl Graph {
         Ok(graph)
     }
 
-    pub(crate) fn indexed_vertices_and_edge_matrices_ref(
-        &self,
-    ) -> &IndexedVertexAndEdgeMatrixStore {
-        &self.indexed_vertices_and_edge_matrices
-    }
+    // TODO: consider to introduce a sepate data type, like GraphWithSharedInders,
+    // to avoid Mutex or RwLock overhead if functionality not required.
+    // pub fn with_indexers() -> Result<Self, GraphComputingError> {}
 
-    pub(crate) fn indexed_vertices_and_edge_matrices_mut_ref(
-        &mut self,
-    ) -> &mut IndexedVertexAndEdgeMatrixStore {
-        &mut self.indexed_vertices_and_edge_matrices
-    }
+    // pub(crate) fn indexed_vertex_and_edge_matrices_ref(
+    //     &self,
+    // ) -> &IndexedVertexAndAdjacencyMatrixStore {
+    //     &self.indexed_vertices_and_edge_matrices
+    // }
+
+    // pub(crate) fn indexed_vertices_and_edge_matrices_mut_ref(
+    //     &mut self,
+    // ) -> &mut IndexedVertexAndAdjacencyMatrixStore {
+    //     &mut self.indexed_vertices_and_edge_matrices
+    // }
+
     // pub(crate) fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
     //     &self.graphblas_context
     // }
@@ -139,15 +197,6 @@ impl Graph {
     // pub(crate) fn vertex_store_mut_ref(&mut self) -> &mut IndexedDataStore<Vertex> {
     //     &mut self.vertex_store
     // }
-
-    pub(crate) fn vertex_key_to_vertex_index_map_ref(&self) -> &HashMap<VertexKey, VertexIndex> {
-        &self.vertex_key_to_vertex_index_map
-    }
-    pub(crate) fn vertex_key_to_vertex_index_map_mut_ref(
-        &mut self,
-    ) -> &mut HashMap<VertexKey, VertexIndex> {
-        &mut self.vertex_key_to_vertex_index_map
-    }
 
     // pub(crate) fn adjacency_matrices_ref(&self) -> &IndexedDataStore<AdjacencyMatrix> {
     //     &self.adjacency_matrices
@@ -264,12 +313,12 @@ mod tests {
     // use crate::operations::add_vertex::AddVertex;
     // use crate::operations::read_vertex_value::ReadVertexValue;
 
-    #[test]
-    fn new_graph() {
-        let graph = Graph::with_initial_capacity(10, 20).unwrap();
-        // assert_eq!(graph.number_of_vertices().unwrap(), 0);
-        // assert_eq!(graph.number_of_edge_types().unwrap(), 0); // TODO: fix this
-    }
+    // #[test]
+    // fn new_graph() {
+    //     let graph = Graph::with_initial_capacity(10, 20).unwrap();
+    //     // assert_eq!(graph.number_of_vertices().unwrap(), 0);
+    //     // assert_eq!(graph.number_of_edge_types().unwrap(), 0); // TODO: fix this
+    // }
 
     // #[test]
     // fn graph_isolation() {
