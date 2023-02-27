@@ -1,54 +1,37 @@
 use crate::error::GraphComputingError;
 use crate::error::{UserError, UserErrorType};
 
-use crate::graph::graph::Graph;
-use crate::graph::vertex::{VertexIndex, VertexKey, VertexValue};
+use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
+use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
+use crate::graph::vertex::VertexKey;
+use crate::graph::vertex_store::operations::ReadVertex;
 
-pub trait ReadVertexValue {
-    fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool;
-    fn is_valid_vertex_index(&self, vertex_key: &VertexIndex) -> Result<bool, GraphComputingError>;
-    fn vertex_value(&self, vertex_key: &VertexKey) -> Result<&VertexValue, GraphComputingError>;
-    fn vertex_value_by_index(
-        &self,
-        vertex_index: VertexIndex,
-    ) -> Result<&VertexValue, GraphComputingError>;
+pub trait ReadVertexValue<T: ValueType> {
+    fn vertex_value_by_key(&self, vertex_key: &VertexKey) -> Result<T, GraphComputingError>;
+    fn vertex_value_by_index(&self, vertex_index: VertexIndex) -> Result<T, GraphComputingError>;
 }
 
-impl ReadVertexValue for Graph {
-    fn vertex_value(&self, vertex_key: &VertexKey) -> Result<&VertexValue, GraphComputingError> {
-        match self.vertex_key_to_vertex_index_map_ref().get(vertex_key) {
-            None => Err(UserError::new(
-                UserErrorType::VertexKeyNotFound,
-                format!("No vertex found for key \"{}\")", vertex_key),
-                None,
-            )
-            .into()),
-            Some(&vertex_index) => self.vertex_value_by_index(vertex_index),
+macro_rules! implement_read_vertex {
+    ($value_type:ty) => {
+        impl ReadVertexValue<$value_type> for Graph<$value_type> {
+            fn vertex_value_by_key(
+                &self,
+                vertex_key: &VertexKey,
+            ) -> Result<$value_type, GraphComputingError> {
+                self.vertex_store_ref().vertex_value_by_key(vertex_key)
+            }
+
+            fn vertex_value_by_index(
+                &self,
+                vertex_index: VertexIndex,
+            ) -> Result<$value_type, GraphComputingError> {
+                self.vertex_store_ref().vertex_value_by_index(vertex_index)
+            }
         }
-    }
-
-    fn vertex_value_by_index(
-        &self,
-        vertex_index: VertexIndex,
-    ) -> Result<&VertexValue, GraphComputingError> {
-        let vertex = self.vertex_store_ref().get_ref(vertex_index)?;
-        Ok(vertex.value_ref())
-    }
-
-    fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool {
-        match self.vertex_key_to_vertex_index_map_ref().get(vertex_key) {
-            None => false,
-            Some(_) => true,
-        }
-    }
-
-    fn is_valid_vertex_index(
-        &self,
-        vertex_index: &VertexIndex,
-    ) -> Result<bool, GraphComputingError> {
-        self.vertex_store_ref().is_valid_index(vertex_index)
-    }
+    };
 }
+
+implement_macro_for_all_native_value_types!(implement_read_vertex);
 
 #[cfg(test)]
 mod tests {

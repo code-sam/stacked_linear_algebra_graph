@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 use crate::error::{SystemError, SystemErrorType};
 
-use crate::graph::graph::graph::Graph;
+use crate::graph::graph::Graph;
 use crate::graph::index::ElementIndex;
 
 use crate::graph::value_type::ValueType;
@@ -49,6 +49,9 @@ pub trait VertexTrait<T: ValueType> {
     fn update_value(&mut self, new_value: T);
     fn update_key(&mut self, new_key: VertexKey);
 }
+
+// TODO: reconsider use case of vertex mutability
+// TODO: introduce and differentiate key- and index defined Vertex
 
 // TODO: implementation implies Vertices from different graphs can be equal.
 // TODO: The implementation defines a Vertex coordindate defined by a key.
@@ -110,17 +113,17 @@ impl<T: ValueType> VertexTrait<T> for Vertex<T> {
     // }
 }
 
-pub trait VertexKeyAndIndexConversion {
-    fn vertex_index_to_vertex_key_ref(
-        &self,
-        vertex_index: VertexIndex,
-    ) -> Result<&VertexKeyRef, GraphComputingError>;
+// pub trait VertexKeyAndIndexConversion {
+//     fn vertex_index_to_vertex_key_ref(
+//         &self,
+//         vertex_index: VertexIndex,
+//     ) -> Result<&VertexKeyRef, GraphComputingError>;
 
-    fn vertex_key_ref_to_vertex_index_ref(
-        &self,
-        key: &VertexKeyRef,
-    ) -> Result<&VertexIndex, GraphComputingError>;
-}
+//     fn vertex_key_ref_to_vertex_index_ref(
+//         &self,
+//         key: &VertexKeyRef,
+//     ) -> Result<&VertexIndex, GraphComputingError>;
+// }
 
 // impl VertexKeyAndIndexConversion for Graph {
 //     fn vertex_index_to_vertex_key_ref(

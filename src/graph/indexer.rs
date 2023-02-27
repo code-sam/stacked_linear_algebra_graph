@@ -62,7 +62,8 @@ impl IndexerTrait for Indexer {
         let index = self.claim_available_index()?;
         match self.key_to_index_map.insert(key.to_owned(), index) {
             Some(superseded_index) => {
-                self.mask_with_valid_indices.drop_element(superseded_index.clone())?;
+                self.mask_with_valid_indices
+                    .drop_element(superseded_index.clone())?;
                 // self.index_to_key_map[index] = String::from("INVALID_INDEX");
                 self.indices_available_for_reuse.push_back(superseded_index);
             }
@@ -75,7 +76,7 @@ impl IndexerTrait for Indexer {
         } else {
             self.index_to_key_map[index] = key.to_owned();
         }
-        
+
         Ok(index)
     }
 
@@ -422,16 +423,25 @@ mod tests {
 
         assert!(!indexer.is_valid_key("1"));
         assert!(!indexer.is_valid_index(&1).unwrap());
-        assert_eq!(indexer.mask_with_valid_indices_ref().number_of_stored_elements().unwrap(), 9);
+        assert_eq!(
+            indexer
+                .mask_with_valid_indices_ref()
+                .number_of_stored_elements()
+                .unwrap(),
+            9
+        );
 
         for i in 0..n_indices {
-            indices.push(indexer.add_or_replace_key(format!("{}", i).as_str()).unwrap());
+            indices.push(
+                indexer
+                    .add_or_replace_key(format!("{}", i).as_str())
+                    .unwrap(),
+            );
         }
 
         assert_eq!(indexer.key_for_index(&1).unwrap(), "0");
         assert_eq!(indexer.index_for_key("5"), Some(&4));
         assert_eq!(indexer.key_for_index(&0).unwrap(), "1");
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 10);
-        
     }
 }

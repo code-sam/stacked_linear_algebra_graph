@@ -24,6 +24,7 @@ pub enum LogicErrorType {
     DimensionMismatch,
     EdgeTypeAlreadyExists,
     EdgeTypeMustExist,
+    EdgeMustExist,
     IndexOutOfBounds,
     InvalidCharacter,
     InvalidIndex,

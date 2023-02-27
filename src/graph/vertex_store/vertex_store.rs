@@ -14,9 +14,11 @@ use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
 };
-use crate::graph::vertex::{VertexKeyRef, Vertex, VertexTrait};
+use crate::graph::vertex::{Vertex, VertexKeyRef, VertexTrait};
 
-use super::indexer::{Indexer, IndexerTrait};
+use crate::graph::indexer::{Indexer as VertexIndexer, IndexerTrait};
+
+pub type SparseVertexMatrix<T: ValueType> = SparseMatrix<T>;
 
 #[derive(Clone, Debug)]
 pub(crate) struct VertexStore<T: ValueType> {
@@ -24,8 +26,8 @@ pub(crate) struct VertexStore<T: ValueType> {
     // Using diagonal matrices may bring advantages for combined processing with edge data.
     // The underlying GraphBLAS implementation must however be optimized for diagional matrices,
     // especially in terms of access speed. TODO: bench access speed to diagonal matrices.
-    vertices: SparseMatrix<T>,
-    indexer: Indexer
+    vertices: SparseVertexMatrix<T>,
+    indexer: VertexIndexer,
 }
 
 // pub(crate) trait VertexStoreTrait<T: ValueType> {
@@ -45,55 +47,40 @@ impl<T: ValueType> VertexStore<T> {
             inital_vertex_capacity.clone(),
         );
         Ok(Self {
-            vertices: SparseMatrix::new(context, &size)?,
-            indexer: Indexer::with_initial_capacity(context, inital_vertex_capacity)?
+            vertices: SparseVertexMatrix::new(context, &size)?,
+            indexer: VertexIndexer::with_initial_capacity(context, inital_vertex_capacity)?,
         })
     }
 }
 
-pub(crate) trait SetCapacity {
+pub(super) trait VertexStoreTrait<T: ValueType> {
     fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
+
+    fn indexer_ref(&self) -> &VertexIndexer;
+    fn indexer_mut_ref(&mut self) -> &mut VertexIndexer;
+
+    fn vertex_matrix_ref(&self) -> &SparseVertexMatrix<T>;
+    fn vertex_matrix_mut_ref(&mut self) -> &mut SparseVertexMatrix<T>;
 }
 
-pub(crate) trait SparseVertexMatrix<T: ValueType> {
-    fn vertices_ref(&self) -> &SparseMatrix<T>;
-    fn vertices_mut_ref(&mut self) -> &mut SparseMatrix<T>;
-}
-
-pub(crate) trait SetVertexData<T: ValueType> {
-    fn add_new_vertex(&mut self, vertex: Vertex<T>) -> Result<Index, GraphComputingError>;
-    fn add_or_replace_vertex(
-        &mut self,
-        vertex: Vertex<T>,
-    ) -> Result<Index, GraphComputingError>;
-    fn add_or_update_vertex(
-        &mut self,
-        vertex: Vertex<T>,
-    ) -> Result<Option<Index>, GraphComputingError>;
-
-    fn update_vertex_value(&mut self, index: Index, value: T) -> Result<(), GraphComputingError>;
-}
-
-pub(crate) trait Indexing {
-    fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn is_valid_key(&self, key: &VertexKeyRef) -> bool;
-//     fn indexer_ref(&self) -> &Indexer;
-//     fn indexer_mut_ref(&mut self) -> &mut Indexer;
-}
-
-impl<T: ValueType> SetCapacity for VertexStore<T> {
+impl<T: ValueType> VertexStoreTrait<T> for VertexStore<T> {
     fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
         let target_size = Size::new(new_capacity.clone(), new_capacity.clone());
         self.vertices.resize(&target_size)?;
         Ok(())
     }
-}
 
-impl<T: ValueType> SparseVertexMatrix<T> for VertexStore<T> {
-    fn vertices_ref(&self) -> &SparseMatrix<T> {
+    fn indexer_ref(&self) -> &VertexIndexer {
+        &self.indexer
+    }
+    fn indexer_mut_ref(&mut self) -> &mut VertexIndexer {
+        &mut self.indexer
+    }
+
+    fn vertex_matrix_ref(&self) -> &SparseVertexMatrix<T> {
         &self.vertices
     }
-    fn vertices_mut_ref(&mut self) -> &mut SparseMatrix<T> {
+    fn vertex_matrix_mut_ref(&mut self) -> &mut SparseVertexMatrix<T> {
         &mut self.vertices
     }
 }
@@ -104,73 +91,6 @@ impl<T: ValueType> SparseVertexMatrix<T> for VertexStore<T> {
 //         Ok(())
 //     }
 // }
-
-macro_rules! implement_set_vertex_data {
-    ($value_type:ty) => {
-        impl SetVertexData<$value_type> for VertexStore<$value_type> {
-            fn add_new_vertex(&mut self, vertex: Vertex<$value_type>) -> Result<Index, GraphComputingError> {
-                let index = self.indexer.add_new_key(vertex.key_ref())?;
-                self.vertices.set_element((index, index, vertex.value_ref().clone()).into())?;
-                Ok(index)
-            }
-
-            fn add_or_replace_vertex(
-                &mut self,
-                vertex: Vertex<$value_type>,
-            ) -> Result<Index, GraphComputingError> {
-                let index = self.indexer.add_or_replace_key(vertex.key_ref())?;
-                self.vertices.set_element((index, index, vertex.value_ref().clone()).into())?;
-                Ok(index)
-            }
-
-            fn add_or_update_vertex(
-                &mut self,
-                vertex: Vertex<$value_type>,
-            ) -> Result<Option<Index>, GraphComputingError> {
-                match self.indexer.index_for_key(vertex.key_ref()) {
-                    Some(index_ref) => {
-                        let index = index_ref.clone();
-                        self.vertices.set_element((index, index, vertex.value_ref().clone()).into())?;
-                        Ok(Some(index))
-                    },
-                    None => {
-                        // REVIEW: can this arm be made faster with the knowledge that the vertex is new?
-                        Ok(Some(self.add_new_vertex(vertex)?))
-                    }
-                }
-            }
-
-            fn update_vertex_value(
-                &mut self,
-                index: Index,
-                value: $value_type,
-            ) -> Result<(), GraphComputingError> {
-                self.indexer.try_index_validity(&index)?;
-                self.vertices.set_element((index, index, value).into())?;
-                Ok(())
-            }
-        }
-    };
-}
-
-implement_macro_for_all_native_value_types!(implement_set_vertex_data);
-
-impl<T: ValueType> Indexing for VertexStore<T> {
-    fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError> {
-        self.indexer.is_valid_index(index)
-    }
-
-    fn is_valid_key(&self, key: &VertexKeyRef) -> bool {
-        self.indexer.is_valid_key(key)
-    }
-//     fn indexer_ref(&self) -> &Indexer {
-//         &self.indexer
-//     }
-
-//     fn indexer_mut_ref(&mut self) -> &mut Indexer {
-//         self
-//     }
-}
 
 // macro_rules! set_sparse_matrix_capacity {
 //     ($vertices_typed:ident) => {
@@ -283,17 +203,17 @@ mod tests {
         context::{Context as GraphblasContext, Mode as GraphblasMode},
         index::ElementIndex as GraphblasElementIndex,
     };
-    
-    #[test]
-    fn add_new_vertex() {
-        let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking).unwrap();
 
-        let mut store = VertexStore::<u8>::with_initial_capacity(&graphblas_context, &10).unwrap();
-        
-        let vertex_1 = Vertex::new(String::from("key"), 1u8);
+    // #[test]
+    // fn add_new_vertex() {
+    //     let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking).unwrap();
 
-        let index_1 = store.add_new_vertex(vertex_1.clone()).unwrap();
-        assert!(store.is_valid_index(&index_1).unwrap());
-        assert!(store.is_valid_key(vertex_1.key_ref()));
-    }
+    //     let mut store = VertexStore::<u8>::with_initial_capacity(&graphblas_context, &10).unwrap();
+
+    //     let vertex_1 = Vertex::new(String::from("key"), 1u8);
+
+    //     let index_1 = store.add_new_vertex(vertex_1.clone()).unwrap();
+    //     assert!(store.is_valid_index(&index_1).unwrap());
+    //     assert!(store.is_valid_key(vertex_1.key_ref()));
+    // }
 }

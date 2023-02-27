@@ -10,7 +10,11 @@ use hashbrown::HashMap;
 
 use crate::{
     error::{GraphComputingError, LogicError, LogicErrorType, UserError, UserErrorType},
-    graph::{vertex::{VertexKeyRef, VertexTrait}, value_type::implement_macro_for_all_native_value_types},
+    graph::{
+        edge_store::EdgeStore,
+        value_type::implement_macro_for_all_native_value_types,
+        vertex::{VertexKeyRef, VertexTrait},
+    },
 };
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
@@ -25,9 +29,11 @@ use crate::graph::vertex::{Vertex, VertexKey};
 use crate::graph::value_type::NativeDataType;
 use crate::graph::value_type::ValueType;
 
-use super::{
+use crate::graph::vertex_store::operations::AddVertex;
+use crate::graph::vertex_store::operations::Indexing;
+use crate::graph::{
     indexer::{Index, Indexer, IndexerTrait},
-    vertex_store::{VertexStore, Indexing, SetVertexData},
+    vertex_store::VertexStore,
 };
 
 // NOTE: by default, SuiteSparse:GraphBLAS uses Compressed Sparse Row (CSR) format.
@@ -56,6 +62,7 @@ use super::{
 //     ) -> &mut impl IndexedVertexAndEdgeMatrixStoreTrait<T, I>;
 // }
 
+// TODO: is this the best place to define these?
 pub type VertexIndex = Index;
 pub type EdgeTypeIndex = Index;
 
@@ -64,6 +71,9 @@ pub(crate) trait GraphTrait<T: ValueType> {
 
     fn vertex_store_ref(&self) -> &VertexStore<T>;
     fn vertex_store_mut_ref(&mut self) -> &mut VertexStore<T>;
+
+    fn edge_store_ref(&self) -> &EdgeStore<T>;
+    fn edge_store_mut_ref(&mut self) -> &mut EdgeStore<T>;
 
     // Encapsulate indexer-related capabilities to enable generality over how the indexer in implemented
     // (i.e. possibly by Arc<RwLock<Indexer>>)
@@ -88,6 +98,14 @@ impl<T: ValueType> GraphTrait<T> for Graph<T> {
         &mut self.vertex_store
     }
 
+    fn edge_store_ref(&self) -> &EdgeStore<T> {
+        &self.edge_store
+    }
+
+    fn edge_store_mut_ref(&mut self) -> &mut EdgeStore<T> {
+        &mut self.edge_store
+    }
+
     // pub(crate) fn vertex_key_to_vertex_index_map_ref(&self) -> &HashMap<VertexKey, VertexIndex> {
     //     &self.vertex_key_to_vertex_index_map
     // }
@@ -108,7 +126,7 @@ impl<T: ValueType> GraphTrait<T> for Graph<T> {
 pub struct Graph<T: ValueType> {
     graphblas_context: Arc<GraphblasContext>,
     vertex_store: VertexStore<T>,
-
+    edge_store: EdgeStore<T>,
     // vertex_indexer: Indexer,
     // edge_type_indexer: Indexer,
     // vertex_store: IndexedDataStore<Vertex>,
@@ -147,6 +165,11 @@ impl<T: ValueType> Graph<T> {
             vertex_store: VertexStore::with_initial_capacity(
                 &graphblas_context,
                 &initial_vertex_capacity,
+            )?,
+            edge_store: EdgeStore::with_initial_capacity(
+                &graphblas_context,
+                &initial_vertex_capacity,
+                &initial_edge_type_capacity,
             )?,
             // vertex_indexer: Indexer::with_initial_capacity(
             //     &graphblas_context,
