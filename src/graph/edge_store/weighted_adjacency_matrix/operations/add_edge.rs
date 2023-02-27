@@ -3,6 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::SetMatrixElemen
 
 use crate::error::GraphComputingError;
 use crate::graph::edge::EdgeCoordinateDefinedByIndices;
+use crate::graph::edge::EdgeCoordinateDefinedByIndicesTrait;
 use crate::graph::edge::EdgeDefinedByIndices;
 use crate::graph::edge::EdgeDefinedByIndicesTrait;
 use crate::graph::edge::EdgeDefinedByKeys;

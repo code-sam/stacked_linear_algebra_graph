@@ -1,7 +1,9 @@
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::error::{UserError, UserErrorType};
 
-use crate::graph::edge::{EdgeCoordinateDefinedByIndices, EdgeCoordinateDefinedByKeys};
+use crate::graph::edge::{
+    EdgeCoordinateDefinedByIndices, EdgeCoordinateDefinedByKeys, EdgeCoordinateDefinedByKeysTrait,
+};
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 use crate::graph::indexer::IndexerTrait;
