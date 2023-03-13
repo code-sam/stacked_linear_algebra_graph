@@ -91,12 +91,12 @@ pub(crate) trait WeightedAdjacencyMatrixTrait<T: ValueType> {
     fn graphblas_context_ref(&self) -> &Arc<Context>;
 
     // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
-    fn get_vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;
+    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;
 
     // TODO: this probably needs a lifetime, or a clone
     // pub fn size_ref(&self) -> Result<&Size, GraphComputingError>;
 
-    fn resize(&mut self, target_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError>;
+    fn resize(&mut self, new_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError>;
     fn size(&self) -> Result<Size, GraphComputingError>;
     fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError>;
 
@@ -114,7 +114,7 @@ impl<T: ValueType> WeightedAdjacencyMatrixTrait<T> for WeightedAdjacencyMatrix<T
     }
 
     // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
-    fn get_vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
+    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
         Ok(self.sparse_matrix.row_height()?)
     }
 
@@ -123,10 +123,10 @@ impl<T: ValueType> WeightedAdjacencyMatrixTrait<T> for WeightedAdjacencyMatrix<T
     //     Ok(&self.sparse_matrix.size()?)
     // }
 
-    fn resize(&mut self, target_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError> {
+    fn resize(&mut self, new_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError> {
         Ok(self
             .sparse_matrix
-            .resize(&Size::new(target_vertex_capacity, target_vertex_capacity))?)
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?)
     }
 
     fn size(&self) -> Result<Size, GraphComputingError> {

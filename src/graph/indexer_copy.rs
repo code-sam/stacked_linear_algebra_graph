@@ -19,38 +19,17 @@ pub type Index = ElementIndex;
 pub type Key = String;
 pub type KeyRef = str;
 
-pub(crate) struct NewIndex {
-    index: Index,
-    new_index_capacity: Option<ElementCount>,
-}
-
-impl NewIndex {
-    fn new(index: Index, new_index_capacity: Option<ElementCount>) -> Self {
-        Self {
-            index,
-            new_index_capacity,
-        }
-    }
-}
-
-pub(crate) trait NewIndexTrait {
-    fn index(&self) -> Index;
-    fn new_index_capacity(&self) -> Option<ElementCount>;
-}
-
-impl NewIndexTrait for NewIndex {
-    fn index(&self) -> Index {
-        self.index
-    }
-
-    fn new_index_capacity(&self) -> Option<ElementCount> {
-        self.new_index_capacity
-    }
-}
-
 pub(crate) trait IndexerTrait {
-    fn add_new_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError>;
-    fn add_or_replace_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError>;
+    fn add_new_key(
+        &mut self,
+        key: &KeyRef,
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Index, GraphComputingError>;
+    fn add_or_replace_key(
+        &mut self,
+        key: &KeyRef,
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Index, GraphComputingError>;
 
     // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
     fn free_index(&mut self, index: Index) -> Result<(), GraphComputingError>;
@@ -90,9 +69,13 @@ pub(crate) struct Indexer {
 // TODO: probably, Indexer needs a generic type annotation, and then be implemented for IndexedDataStoreIndex
 // TODO: drop type annotation altogether. Moving Index struct higher up towards the client would be better.
 impl IndexerTrait for Indexer {
-    fn add_or_replace_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError> {
-        let index = self.claim_available_index()?;
-        match self.key_to_index_map.insert(key.to_owned(), index.index()) {
+    fn add_or_replace_key(
+        &mut self,
+        key: &KeyRef,
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Index, GraphComputingError> {
+        let index = self.claim_available_index(do_after_resize)?;
+        match self.key_to_index_map.insert(key.to_owned(), index) {
             Some(superseded_index) => {
                 self.mask_with_valid_indices
                     .drop_element(superseded_index.clone())?;
@@ -102,14 +85,18 @@ impl IndexerTrait for Indexer {
             None => {}
         }
 
-        self.update_index_to_key_map(index.index(), key);
+        self.update_index_to_key_map(index, key);
 
         Ok(index)
     }
 
-    fn add_new_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError> {
-        let index = self.claim_available_index()?;
-        match self.key_to_index_map.insert(key.to_owned(), index.index()) {
+    fn add_new_key(
+        &mut self,
+        key: &KeyRef,
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Index, GraphComputingError> {
+        let index = self.claim_available_index(do_after_resize)?;
+        match self.key_to_index_map.insert(key.to_owned(), index) {
             Some(superseded_index) => {
                 // roll-back
                 self.key_to_index_map
@@ -124,7 +111,7 @@ impl IndexerTrait for Indexer {
             None => {}
         }
 
-        self.update_index_to_key_map(index.index(), key);
+        self.update_index_to_key_map(index, key);
 
         Ok(index)
     }
@@ -264,7 +251,10 @@ impl Indexer {
         })
     }
 
-    fn claim_available_index(&mut self) -> Result<NewIndex, GraphComputingError> {
+    fn claim_available_index(
+        &mut self,
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Index, GraphComputingError> {
         let available_index = match self.indices_available_for_reuse.pop_front() {
             None => self.mask_with_valid_indices.number_of_stored_elements()?,
             Some(index) => index,
@@ -274,18 +264,13 @@ impl Indexer {
         // benefit: no memory is allocated for unused indices
         // downside: runtime cost; more complexity; no use of speedy pre-allocation; memory is never deallocated
         // let data = self.get_write_locked_data()?;
-        let new_index;
         if available_index >= self.capacity()? {
             let new_capacity = self.expand_capacity()?;
-            new_index = NewIndex::new(available_index, Some(new_capacity));
-        } else {
-            new_index = NewIndex::new(available_index, None);
+            do_after_resize(new_capacity)?;
         }
-
         self.mask_with_valid_indices
             .set_element(VectorElement::from_pair(available_index, true))?;
-
-        Ok(new_index)
+        Ok(available_index)
     }
 
     fn expand_capacity(&mut self) -> Result<Index, GraphComputingError> {
@@ -341,7 +326,9 @@ mod tests {
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 0);
 
-        let index = indexer.add_new_key("key1").unwrap();
+        let index = indexer
+            .add_new_key("key1", dummy_function_after_resize)
+            .unwrap();
         let mask_with_valid_indices = indexer.mask_with_valid_indices_ref();
 
         assert_eq!(
@@ -351,7 +338,7 @@ mod tests {
             1
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 1);
-        assert_eq!(indexer.is_valid_index(&index.index()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(&index).unwrap(), true);
         assert_eq!(indexer.is_valid_key("key1"), true);
 
         assert_eq!(
@@ -360,13 +347,11 @@ mod tests {
         );
         assert_eq!(mask_with_valid_indices.length().unwrap(), initial_capacity);
         assert_eq!(
-            mask_with_valid_indices
-                .get_element_value(&index.index())
-                .unwrap(),
+            mask_with_valid_indices.get_element_value(&index).unwrap(),
             Some(true)
         );
 
-        indexer.free_index(index.index().clone()).unwrap();
+        indexer.free_index(index.clone()).unwrap();
         let mask_with_valid_indices = indexer.mask_with_valid_indices_ref();
 
         assert_eq!(
@@ -376,7 +361,7 @@ mod tests {
             1
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 0);
-        assert_eq!(indexer.is_valid_index(&index.index()).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(&index).unwrap(), false);
 
         assert_eq!(
             mask_with_valid_indices.number_of_stored_elements().unwrap(),
@@ -384,9 +369,7 @@ mod tests {
         );
         assert_eq!(mask_with_valid_indices.length().unwrap(), initial_capacity);
         assert_eq!(
-            mask_with_valid_indices
-                .get_element_value(&index.index())
-                .unwrap(),
+            mask_with_valid_indices.get_element_value(&index).unwrap(),
             None
         );
     }
@@ -402,12 +385,16 @@ mod tests {
         let mut indices = Vec::new();
         let n_indices = 100;
         for i in 0..n_indices {
-            indices.push(indexer.add_new_key(format!("{}", i).as_str()).unwrap());
+            indices.push(
+                indexer
+                    .add_new_key(format!("{}", i).as_str(), dummy_function_after_resize)
+                    .unwrap(),
+            );
         }
 
-        indexer.free_index(indices[2].index().clone()).unwrap();
-        indexer.free_index(indices[20].index().clone()).unwrap();
-        indexer.free_index(indices[92].index().clone()).unwrap();
+        indexer.free_index(indices[2].clone()).unwrap();
+        indexer.free_index(indices[20].clone()).unwrap();
+        indexer.free_index(indices[92].clone()).unwrap();
 
         assert_eq!(
             indexer
@@ -415,14 +402,14 @@ mod tests {
                 .unwrap(),
             n_indices
         );
-        assert_eq!(indexer.is_valid_index(&indices[0].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[10].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[33].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[77].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[99].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[2].index()).unwrap(), false);
-        assert_eq!(indexer.is_valid_index(&indices[20].index()).unwrap(), false);
-        assert_eq!(indexer.is_valid_index(&indices[92].index()).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(&indices[0]).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(&indices[10]).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(&indices[33]).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(&indices[77]).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(&indices[99]).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(&indices[2]).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(&indices[20]).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(&indices[92]).unwrap(), false);
 
         assert_eq!(
             indexer
@@ -440,13 +427,13 @@ mod tests {
         );
         assert_eq!(
             mask_with_valid_indices
-                .get_element_value(&indices[33].index())
+                .get_element_value(&indices[33])
                 .unwrap(),
             Some(true)
         );
         assert_eq!(
             mask_with_valid_indices
-                .get_element_value(&indices[20].index())
+                .get_element_value(&indices[20])
                 .unwrap(),
             None
         );
@@ -463,7 +450,11 @@ mod tests {
         let mut indices = Vec::new();
         let n_indices = 10;
         for i in 0..n_indices {
-            indices.push(indexer.add_new_key(format!("{}", i).as_str()).unwrap());
+            indices.push(
+                indexer
+                    .add_new_key(format!("{}", i).as_str(), dummy_function_after_resize)
+                    .unwrap(),
+            );
         }
 
         for i in 0..20 {
@@ -486,7 +477,7 @@ mod tests {
         for i in 0..n_indices {
             indices.push(
                 indexer
-                    .add_or_replace_key(format!("{}", i).as_str())
+                    .add_or_replace_key(format!("{}", i).as_str(), dummy_function_after_resize)
                     .unwrap(),
             );
         }
@@ -508,7 +499,11 @@ mod tests {
         let mut indices = Vec::new();
         let n_indices = 100;
         for i in 0..n_indices {
-            indices.push(indexer.add_new_key(format!("{}", i).as_str()).unwrap());
+            indices.push(
+                indexer
+                    .add_new_key(format!("{}", i).as_str(), dummy_function_after_resize)
+                    .unwrap(),
+            );
             assert_eq!(
                 indexer
                     .mask_with_valid_indices_ref()
@@ -552,5 +547,9 @@ mod tests {
                 .unwrap(),
             98
         );
+    }
+
+    fn dummy_function_after_resize(new_size: ElementCount) -> Result<(), GraphComputingError> {
+        Ok(())
     }
 }

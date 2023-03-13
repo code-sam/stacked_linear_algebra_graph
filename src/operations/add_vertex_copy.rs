@@ -2,7 +2,6 @@ use crate::error::{GraphComputingError, UserError, UserErrorType};
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 use crate::graph::index::ElementCount;
-use crate::graph::indexer::{NewIndex, NewIndexTrait};
 use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, NativeDataType};
 use crate::graph::vertex::{Vertex, VertexTrait};
@@ -81,46 +80,39 @@ macro_rules! implement_add_vertex {
                 &mut self,
                 vertex: Vertex<$value_type>,
             ) -> Result<VertexIndex, GraphComputingError> {
-                let new_index = self.vertex_store_mut_ref().add_new_vertex(vertex)?;
-                match new_index.new_index_capacity() {
-                    Some(new_capacity) => self
-                        .edge_store_mut_ref()
-                        .resize_adjacency_matrices(new_capacity)?,
-                    None => (),
-                }
-                Ok(new_index.index())
+                self.vertex_store_mut_ref().add_new_vertex(
+                    vertex,
+                    |vertex_capacity: ElementCount| {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(vertex_capacity)
+                    },
+                )
             }
 
             fn add_or_replace_vertex(
                 &mut self,
                 vertex: Vertex<$value_type>,
             ) -> Result<VertexIndex, GraphComputingError> {
-                let new_index = self.vertex_store_mut_ref().add_or_replace_vertex(vertex)?;
-                match new_index.new_index_capacity() {
-                    Some(new_capacity) => self
-                        .edge_store_mut_ref()
-                        .resize_adjacency_matrices(new_capacity)?,
-                    None => (),
-                }
-                Ok(new_index.index())
+                self.vertex_store_mut_ref().add_or_replace_vertex(
+                    vertex,
+                    |vertex_capacity: ElementCount| {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(vertex_capacity)
+                    },
+                )
             }
 
             fn add_or_update_vertex(
                 &mut self,
                 vertex: Vertex<$value_type>,
             ) -> Result<Option<VertexIndex>, GraphComputingError> {
-                match self.vertex_store_mut_ref().add_or_update_vertex(vertex)? {
-                    Some(new_index) => {
-                        match new_index.new_index_capacity() {
-                            Some(new_capacity) => self
-                                .edge_store_mut_ref()
-                                .resize_adjacency_matrices(new_capacity)?,
-                            None => (),
-                        }
-                        Ok(Some(new_index.index()))
-                    }
-                    None => Ok(None),
-                }
+                self.vertex_store_mut_ref().add_or_update_vertex(
+                    vertex,
+                    |vertex_capacity: ElementCount| {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(vertex_capacity)
+                    },
+                )
             }
         }
     };

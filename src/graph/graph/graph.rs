@@ -22,14 +22,15 @@ use crate::{
 // use crate::graph::graph::indexed_matrix_store::indexed_matrix_store::{
 //     IndexedMatrixStore, VertexData,
 // };
+use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::index::{ElementCount, IndexTrait};
 use crate::graph::vertex::{Vertex, VertexKey};
+use crate::graph::vertex_store::operations::AddVertex;
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
 use crate::graph::value_type::NativeDataType;
 use crate::graph::value_type::ValueType;
 
-use crate::graph::vertex_store::operations::AddVertex;
 use crate::graph::vertex_store::operations::Indexing;
 use crate::graph::{
     indexer::{Index, Indexer, IndexerTrait},
@@ -120,6 +121,22 @@ impl<T: ValueType> GraphTrait<T> for Graph<T> {
     //     Ok(())
     // }
 }
+
+// TODO: placed in Graph module to enable per-field mutable borrow.
+// impl Graph<bool> {
+//     fn add_new_vertex(
+//         &mut self,
+//         vertex: Vertex<bool>,
+//     ) -> Result<VertexIndex, GraphComputingError> {
+//         self.vertex_store.add_new_vertex(
+//             vertex,
+//             |vertex_capacity: ElementCount| {
+//                 self.edge_store
+//                     .resize_adjacency_matrices(vertex_capacity)
+//             },
+//         )
+//     }
+// }
 
 // pub struct Graph<VertexKey: Hash + Eq + PartialEq, EdgeType: Hash + Eq + PartialEq> {
 #[derive(Clone, Debug)]

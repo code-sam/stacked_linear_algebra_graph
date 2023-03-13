@@ -42,22 +42,22 @@ impl<T: ValueType> Indexing for VertexStore<T> {
     }
 
     fn try_index_validity(&self, index: &VertexIndex) -> Result<(), GraphComputingError> {
-        self.try_index_validity(index)
+        self.indexer_ref().try_index_validity(index)
     }
 
     fn try_key_validity(&self, key: &VertexKeyRef) -> Result<(), GraphComputingError> {
-        self.try_key_validity(key)
+        self.indexer_ref().try_key_validity(key)
     }
 
     fn index_for_key(&self, key: &VertexKeyRef) -> Option<&Index> {
-        self.index_for_key(key)
+        self.indexer_ref().index_for_key(key)
     }
 
     fn try_index_for_key(&self, key: &VertexKeyRef) -> Result<&Index, GraphComputingError> {
-        self.try_index_for_key(key)
+        self.indexer_ref().try_index_for_key(key)
     }
 
     fn key_for_index(&self, index: &VertexIndex) -> Result<Key, GraphComputingError> {
-        self.key_for_index(index)
+        self.indexer_ref().key_for_index(index)
     }
 }

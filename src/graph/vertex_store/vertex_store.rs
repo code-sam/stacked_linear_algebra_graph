@@ -4,6 +4,9 @@ use std::sync::Arc;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     MatrixElement, SetMatrixElement, Size, SparseMatrix, SparseMatrixTrait,
 };
+use graphblas_sparse_linear_algebra::collections::sparse_vector::{
+    SparseVector, SparseVectorTrait,
+};
 use graphblas_sparse_linear_algebra::context::Context;
 
 use crate::error::GraphComputingError;
@@ -19,14 +22,11 @@ use crate::graph::vertex::{Vertex, VertexKeyRef, VertexTrait};
 use crate::graph::indexer::{Indexer as VertexIndexer, IndexerTrait};
 
 pub type SparseVertexMatrix<T: ValueType> = SparseMatrix<T>;
+pub type SparseVertexVector<T: ValueType> = SparseVector<T>;
 
 #[derive(Clone, Debug)]
 pub(crate) struct VertexStore<T: ValueType> {
-    // TODO: should vertices be kept as a SparseVector or diagonal SparseMatrices? What's more efficient?
-    // Using diagonal matrices may bring advantages for combined processing with edge data.
-    // The underlying GraphBLAS implementation must however be optimized for diagional matrices,
-    // especially in terms of access speed. TODO: bench access speed to diagonal matrices.
-    vertices: SparseVertexMatrix<T>,
+    vertices: SparseVertexVector<T>,
     indexer: VertexIndexer,
 }
 
@@ -42,12 +42,8 @@ impl<T: ValueType> VertexStore<T> {
         context: &Arc<Context>,
         inital_vertex_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
-        let size = Size::new(
-            inital_vertex_capacity.clone(),
-            inital_vertex_capacity.clone(),
-        );
         Ok(Self {
-            vertices: SparseVertexMatrix::new(context, &size)?,
+            vertices: SparseVertexVector::new(context, inital_vertex_capacity)?,
             indexer: VertexIndexer::with_initial_capacity(context, inital_vertex_capacity)?,
         })
     }
@@ -59,14 +55,13 @@ pub(super) trait VertexStoreTrait<T: ValueType> {
     fn indexer_ref(&self) -> &VertexIndexer;
     fn indexer_mut_ref(&mut self) -> &mut VertexIndexer;
 
-    fn vertex_matrix_ref(&self) -> &SparseVertexMatrix<T>;
-    fn vertex_matrix_mut_ref(&mut self) -> &mut SparseVertexMatrix<T>;
+    fn vertex_vector_ref(&self) -> &SparseVertexVector<T>;
+    fn vertex_vector_mut_ref(&mut self) -> &mut SparseVertexVector<T>;
 }
 
 impl<T: ValueType> VertexStoreTrait<T> for VertexStore<T> {
     fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-        let target_size = Size::new(new_capacity.clone(), new_capacity.clone());
-        self.vertices.resize(&target_size)?;
+        self.vertices.resize(*new_capacity)?;
         Ok(())
     }
 
@@ -77,10 +72,10 @@ impl<T: ValueType> VertexStoreTrait<T> for VertexStore<T> {
         &mut self.indexer
     }
 
-    fn vertex_matrix_ref(&self) -> &SparseVertexMatrix<T> {
+    fn vertex_vector_ref(&self) -> &SparseVertexVector<T> {
         &self.vertices
     }
-    fn vertex_matrix_mut_ref(&mut self) -> &mut SparseVertexMatrix<T> {
+    fn vertex_vector_mut_ref(&mut self) -> &mut SparseVertexVector<T> {
         &mut self.vertices
     }
 }

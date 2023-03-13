@@ -11,7 +11,6 @@ use crate::error::GraphComputingError;
 use crate::graph::index::ElementCount;
 use crate::graph::index::Index;
 use crate::graph::indexer::{Indexer, IndexerTrait};
-use crate::graph::indexer::{NewIndex, NewIndexTrait};
 use crate::graph::value_type::NativeDataType as GraphNativeDataType;
 use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{
@@ -21,13 +20,21 @@ use crate::graph::vertex::{Vertex, VertexKeyRef, VertexTrait};
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 
 pub(crate) trait AddVertex<T: ValueType> {
-    fn add_new_vertex(&mut self, vertex: Vertex<T>) -> Result<NewIndex, GraphComputingError>;
-    fn add_or_replace_vertex(&mut self, vertex: Vertex<T>)
-        -> Result<NewIndex, GraphComputingError>;
+    fn add_new_vertex(
+        &mut self,
+        vertex: Vertex<T>,
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Index, GraphComputingError>;
+    fn add_or_replace_vertex(
+        &mut self,
+        vertex: Vertex<T>,
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Index, GraphComputingError>;
     fn add_or_update_vertex(
         &mut self,
         vertex: Vertex<T>,
-    ) -> Result<Option<NewIndex>, GraphComputingError>;
+        do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+    ) -> Result<Option<Index>, GraphComputingError>;
 }
 
 // TODO: review expansion of vertex matrix
@@ -37,29 +44,34 @@ macro_rules! implement_set_vertex_data {
             fn add_new_vertex(
                 &mut self,
                 vertex: Vertex<$value_type>,
-            ) -> Result<NewIndex, GraphComputingError> {
-                let index = self.indexer_mut_ref().add_new_key(vertex.key_ref())?; // TODO
+                do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+            ) -> Result<Index, GraphComputingError> {
+                let index = self
+                    .indexer_mut_ref()
+                    .add_new_key(vertex.key_ref(), do_after_resize)?; // TODO
                 self.vertex_vector_mut_ref()
-                    .set_element((index.index(), vertex.value_ref().clone()).into())?;
+                    .set_element((index, vertex.value_ref().clone()).into())?;
                 Ok(index)
             }
 
             fn add_or_replace_vertex(
                 &mut self,
                 vertex: Vertex<$value_type>,
-            ) -> Result<NewIndex, GraphComputingError> {
+                do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+            ) -> Result<Index, GraphComputingError> {
                 let index = self
                     .indexer_mut_ref()
-                    .add_or_replace_key(vertex.key_ref())?; // TODO
+                    .add_or_replace_key(vertex.key_ref(), do_after_resize)?; // TODO
                 self.vertex_vector_mut_ref()
-                    .set_element((index.index(), vertex.value_ref().clone()).into())?;
+                    .set_element((index, vertex.value_ref().clone()).into())?;
                 Ok(index)
             }
 
             fn add_or_update_vertex(
                 &mut self,
                 vertex: Vertex<$value_type>,
-            ) -> Result<Option<NewIndex>, GraphComputingError> {
+                do_after_resize: impl FnOnce(ElementCount) -> Result<(), GraphComputingError>,
+            ) -> Result<Option<Index>, GraphComputingError> {
                 match self.indexer_ref().index_for_key(vertex.key_ref()) {
                     Some(index_ref) => {
                         let index = index_ref.clone();
@@ -69,7 +81,7 @@ macro_rules! implement_set_vertex_data {
                     }
                     None => {
                         // REVIEW: can this arm be made faster with the knowledge that the vertex is new?
-                        Ok(Some(self.add_new_vertex(vertex)?))
+                        Ok(Some(self.add_new_vertex(vertex, do_after_resize)?))
                     }
                 }
             }
