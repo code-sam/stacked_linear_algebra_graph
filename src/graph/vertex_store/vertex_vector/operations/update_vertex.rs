@@ -16,7 +16,7 @@ use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
 };
-use crate::graph::vertex::{Vertex, VertexKeyRef, VertexTrait};
+use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait, VertexKeyRef};
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 
 pub(crate) trait UpdateVertex<T: ValueType> {
@@ -30,7 +30,7 @@ pub(crate) trait UpdateVertex<T: ValueType> {
 
 macro_rules! implement_set_vertex_data {
     ($value_type:ty) => {
-        impl UpdateVertex<$value_type> for VertexStore<$value_type> {
+        impl UpdateVertex<$value_type> for VertexStore {
             fn update_vertex_value(
                 &mut self,
                 index: Index,

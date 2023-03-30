@@ -7,110 +7,186 @@ use crate::graph::index::ElementIndex;
 
 use crate::graph::value_type::ValueType;
 
+use super::graph::{VertexIndex, VertexTypeIndex};
+use super::value_type::implement_macro_for_all_native_value_types;
+
 pub type VertexKey = String;
 pub type VertexKeyRef = str;
 
-// Use a struct instead of a type to discourage using and/or generating indices that are not coming from the pblic API.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct VertexIndex {
-    index: ElementIndex,
-}
+pub type VertexTypeKey = String;
+pub type VertexTypeKeyRef = str;
 
-impl VertexIndex {
-    pub(crate) fn new(index: ElementIndex) -> Self {
-        VertexIndex { index }
-    }
-    pub(crate) fn index(self) -> ElementIndex {
-        self.index
-    }
-    pub(crate) fn index_ref(&self) -> &ElementIndex {
-        &self.index
-    }
-}
-
-// TODO: Implementation leaks VertexIndex instantiation out of pub(crate) scope
-// impl From<ElementIndex> for VertexIndex {
-//     fn from(index: ElementIndex) -> Self {
-//         VertexIndex::new(index)
-//     }
-// }
-// impl From<VertexIndex> for ElementIndex {
-//     fn from(index: VertexIndex) -> Self {
-//         index.index()
-//     }
-// }
-
-pub trait VertexTrait<T: ValueType> {
-    fn new(key: VertexKey, value: T) -> Self;
-    // pub fn key(&self) -> &VertexKey;
+pub trait VertexDefinedByKeyTrait<T: ValueType> {
+    fn type_key_ref(&self) -> &VertexTypeKeyRef;
     fn key_ref(&self) -> &VertexKeyRef;
     fn value_ref(&self) -> &T;
-    // pub fn value(self) -> T;
-    fn update_value(&mut self, new_value: T);
-    fn update_key(&mut self, new_key: VertexKey);
 }
 
-// TODO: reconsider use case of vertex mutability
-// TODO: introduce and differentiate key- and index defined Vertex
+pub trait VertexDefinedByIndexTrait<T: ValueType> {
+    fn type_index_ref(&self) -> &VertexTypeIndex;
+    fn index_ref(&self) -> &VertexIndex;
+    fn value_ref(&self) -> &T;
+}
 
-// TODO: implementation implies Vertices from different graphs can be equal.
-// TODO: The implementation defines a Vertex coordindate defined by a key.
-// Whereas the coordinate can be a key, or an index. Is this struct a
-// consistent definition of a Vertex?
+pub trait VertexDefinedByTypeIndexAndVertexKeyTrait<T: ValueType> {
+    fn type_index_ref(&self) -> &VertexTypeIndex;
+    fn key_ref(&self) -> &VertexTypeKeyRef;
+    fn value_ref(&self) -> &T;
+}
+
+pub trait VertexDefinedByTypeKeyAndVertexIndexTrait<T: ValueType> {
+    fn type_key_ref(&self) -> &VertexTypeKeyRef;
+    fn index_ref(&self) -> &VertexIndex;
+    fn value_ref(&self) -> &T;
+}
+
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-pub struct Vertex<T: ValueType> {
+pub struct VertexDefinedByKey<T: ValueType> {
     key: VertexKey,
+    vertex_type: VertexTypeKey,
     value: T,
 }
 
-impl<T: ValueType> From<Vertex<T>> for VertexKey {
-    fn from(vertex: Vertex<T>) -> Self {
-        vertex.key_ref().to_owned()
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+pub struct VertexDefinedByIndex<T: ValueType> {
+    index: VertexIndex,
+    vertex_type: VertexTypeIndex,
+    value: T,
+}
+
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+pub struct VertexDefinedByTypeIndexAndVertexKey<T: ValueType> {
+    key: VertexKey,
+    vertex_type: VertexTypeIndex,
+    value: T,
+}
+
+pub struct VertexDefinedByTypeKeyAndVertexIndex<T: ValueType> {
+    index: VertexIndex,
+    vertex_type: VertexTypeKey,
+    value: T,
+}
+
+macro_rules! implement_vertex_defined_by_key_trait {
+    ($value_type:ty) => {
+        impl VertexDefinedByKeyTrait<$value_type> for VertexDefinedByKey<$value_type> {
+            fn type_key_ref(&self) -> &VertexTypeKeyRef {
+                self.vertex_type.as_str()
+            }
+            fn key_ref(&self) -> &VertexKeyRef {
+                self.key.as_str()
+            }
+            fn value_ref(&self) -> &$value_type {
+                &self.value
+            }
+        }
+    };
+}
+implement_macro_for_all_native_value_types!(implement_vertex_defined_by_key_trait);
+
+macro_rules! implement_vertex_defined_by_index_trait {
+    ($value_type:ty) => {
+        impl VertexDefinedByIndexTrait<$value_type> for VertexDefinedByIndex<$value_type> {
+            fn type_index_ref(&self) -> &VertexTypeIndex {
+                &self.vertex_type
+            }
+
+            fn index_ref(&self) -> &VertexIndex {
+                &self.index
+            }
+
+            fn value_ref(&self) -> &$value_type {
+                &self.value
+            }
+        }
+    };
+}
+implement_macro_for_all_native_value_types!(implement_vertex_defined_by_index_trait);
+
+macro_rules! implement_vertex_defined_by_type_index_and_vertex_key_trait {
+    ($value_type:ty) => {
+        impl VertexDefinedByTypeIndexAndVertexKeyTrait<$value_type>
+            for VertexDefinedByTypeIndexAndVertexKey<$value_type>
+        {
+            fn type_index_ref(&self) -> &VertexTypeIndex {
+                &self.vertex_type
+            }
+
+            fn key_ref(&self) -> &VertexKeyRef {
+                &self.key
+            }
+
+            fn value_ref(&self) -> &$value_type {
+                &self.value
+            }
+        }
+    };
+}
+implement_macro_for_all_native_value_types!(
+    implement_vertex_defined_by_type_index_and_vertex_key_trait
+);
+
+macro_rules! implement_vertex_defined_by_type_key_and_vertex_index_trait {
+    ($value_type:ty) => {
+        impl VertexDefinedByTypeKeyAndVertexIndexTrait<$value_type>
+            for VertexDefinedByTypeKeyAndVertexIndex<$value_type>
+        {
+            fn type_key_ref(&self) -> &VertexTypeKeyRef {
+                &self.vertex_type
+            }
+
+            fn index_ref(&self) -> &VertexIndex {
+                &self.index
+            }
+
+            fn value_ref(&self) -> &$value_type {
+                &self.value
+            }
+        }
+    };
+}
+implement_macro_for_all_native_value_types!(
+    implement_vertex_defined_by_type_key_and_vertex_index_trait
+);
+
+impl<T: ValueType + Clone> VertexDefinedByKey<T> {
+    pub fn new(vertex_type: &VertexTypeKeyRef, key: &VertexKeyRef, value: &T) -> Self {
+        Self {
+            key: key.to_owned(),
+            vertex_type: vertex_type.to_owned(),
+            value: value.clone(),
+        }
     }
 }
 
-// / ```
-// / # use cairn_knowledge_graph::graph::vertex::Vertex;
-// / let vertex: Vertex = (String::from("Vertex key"), 1u8).into();
-// / assert_eq!(vertex.key_ref().to_owned(), String::from("Vertex key"));
-// / assert_eq!(vertex.value(), 1u8);
-// / ```
-impl<T: ValueType> From<(VertexKey, T)> for Vertex<T> {
-    fn from(as_tuple: (VertexKey, T)) -> Self {
-        Vertex::new(as_tuple.0, as_tuple.1)
+impl<T: ValueType + Clone> VertexDefinedByIndex<T> {
+    pub fn new(vertex_type: &VertexTypeIndex, index: &VertexIndex, value: &T) -> Self {
+        Self {
+            index: index.clone(),
+            vertex_type: vertex_type.clone(),
+            value: value.clone(),
+        }
     }
 }
 
-impl<T: ValueType> VertexTrait<T> for Vertex<T> {
-    fn new(key: VertexKey, value: T) -> Self {
-        Self { key, value }
+impl<T: ValueType + Clone> VertexDefinedByTypeIndexAndVertexKey<T> {
+    pub fn new(vertex_type: &VertexTypeIndex, key: &VertexKeyRef, value: &T) -> Self {
+        Self {
+            key: key.to_string(),
+            vertex_type: vertex_type.clone(),
+            value: value.clone(),
+        }
     }
-    // pub fn key(&self) -> &VertexKey {
-    //     &self.key
-    // }
-    fn key_ref(&self) -> &VertexKeyRef {
-        &self.key
-    }
-    fn value_ref(&self) -> &T {
-        &self.value
-    }
-    // pub fn value(self) -> T {
-    //     self.value
-    // }
+}
 
-    fn update_value(&mut self, new_value: T) {
-        self.value = new_value;
+impl<T: ValueType + Clone> VertexDefinedByTypeKeyAndVertexIndex<T> {
+    pub fn new(vertex_type: &VertexTypeKeyRef, index: &VertexIndex, value: &T) -> Self {
+        Self {
+            index: index.clone(),
+            vertex_type: vertex_type.to_string(),
+            value: value.clone(),
+        }
     }
-    fn update_key(&mut self, new_key: VertexKey) {
-        self.key = new_key;
-    }
-
-    // TO REVIEW: converting Vertex to an enum would make the vertex immutable, but introduce runtime cost
-    // It should not be possible to access/reach a deleted vertex
-    // pub(crate) fn mark_as_removed(&mut self) {
-    //     self.key = String::from("_deleted");
-    //     self.value = VertexValue::None;
-    // }
 }
 
 // pub trait VertexKeyAndIndexConversion {

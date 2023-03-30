@@ -17,26 +17,33 @@ use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
 };
-use crate::graph::vertex::{Vertex, VertexKeyRef, VertexTrait};
+use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait, VertexKeyRef, VertexDefinedByIndex};
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 
+use crate::graph::vertex_store::{VertexVector, VertexVectorTrait};
+
 pub(crate) trait AddVertex<T: ValueType> {
-    fn add_new_vertex(&mut self, vertex: Vertex<T>) -> Result<NewIndex, GraphComputingError>;
-    fn add_or_replace_vertex(&mut self, vertex: Vertex<T>)
-        -> Result<NewIndex, GraphComputingError>;
+    fn add_new_vertex(
+        &mut self,
+        vertex: VertexDefinedByIndex<T>,
+    ) -> Result<NewIndex, GraphComputingError>;
+    fn add_or_replace_vertex(
+        &mut self,
+        vertex: VertexDefinedByIndex<T>,
+    ) -> Result<NewIndex, GraphComputingError>;
     fn add_or_update_vertex(
         &mut self,
-        vertex: Vertex<T>,
+        vertex: VertexDefinedByIndex<T>,
     ) -> Result<Option<NewIndex>, GraphComputingError>;
 }
 
 // TODO: review expansion of vertex matrix
 macro_rules! implement_set_vertex_data {
     ($value_type:ty) => {
-        impl AddVertex<$value_type> for VertexStore<$value_type> {
+        impl AddVertex<$value_type> for VertexVector {
             fn add_new_vertex(
                 &mut self,
-                vertex: Vertex<$value_type>,
+                vertex: VertexDefinedByIndex<$value_type>,
             ) -> Result<NewIndex, GraphComputingError> {
                 let index = self.indexer_mut_ref().add_new_key(vertex.key_ref())?; // TODO
                 self.vertex_vector_mut_ref()
@@ -46,7 +53,7 @@ macro_rules! implement_set_vertex_data {
 
             fn add_or_replace_vertex(
                 &mut self,
-                vertex: Vertex<$value_type>,
+                vertex: VertexDefinedByKey<$value_type>,
             ) -> Result<NewIndex, GraphComputingError> {
                 let index = self
                     .indexer_mut_ref()
@@ -58,7 +65,7 @@ macro_rules! implement_set_vertex_data {
 
             fn add_or_update_vertex(
                 &mut self,
-                vertex: Vertex<$value_type>,
+                vertex: VertexDefinedByKey<$value_type>,
             ) -> Result<Option<NewIndex>, GraphComputingError> {
                 match self.indexer_ref().index_for_key(vertex.key_ref()) {
                     Some(index_ref) => {

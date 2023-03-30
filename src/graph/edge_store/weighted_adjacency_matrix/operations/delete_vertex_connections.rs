@@ -11,7 +11,9 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::{WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait};
+use crate::graph::edge_store::{
+    WeightedAdjacencyMatrix, WeightedAdjacencyMatrixSparseMatrixTrait, WeightedAdjacencyMatrixTrait,
+};
 use crate::graph::graph::VertexIndex;
 use crate::graph::value_type::{
     implement_1_type_macro_with_2_typed_indentifiers_for_all_value_types,
@@ -53,7 +55,7 @@ implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
     INSERT_VECTOR_INTO_ROW_OPERATOR
 );
 
-pub(crate) trait DeleteVertexConnections {
+pub(crate) trait DeleteVertexConnections<T: ValueType> {
     fn delete_vertex_connections_unchecked(
         &mut self,
         vertex_index: &VertexIndex,
@@ -64,7 +66,7 @@ macro_rules! implement_delete_vertex_connections {
     ($insert_vector_into_column_operator_identifier:ident,
         $insert_vector_into_row_operator_identifier:ident,
         $value_type:ty) => {
-        impl DeleteVertexConnections for WeightedAdjacencyMatrix<$value_type> {
+        impl DeleteVertexConnections<$value_type> for WeightedAdjacencyMatrix {
             fn delete_vertex_connections_unchecked(
                 &mut self,
                 vertex_index: &VertexIndex,

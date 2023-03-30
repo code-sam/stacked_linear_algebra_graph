@@ -1,7 +1,8 @@
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 
-use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
+use crate::graph::edge_store::WeightedAdjacencyMatrix;
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeKeyAndIndexConversion};
 use crate::graph::graph::Graph;
 

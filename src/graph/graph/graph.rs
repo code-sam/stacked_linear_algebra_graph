@@ -13,7 +13,7 @@ use crate::{
     graph::{
         edge_store::EdgeStore,
         value_type::implement_macro_for_all_native_value_types,
-        vertex::{VertexKeyRef, VertexTrait},
+        vertex::{VertexDefinedByKeyTrait, VertexKeyRef},
     },
 };
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
@@ -23,15 +23,15 @@ use crate::{
 //     IndexedMatrixStore, VertexData,
 // };
 use crate::graph::edge_store::EdgeStoreTrait;
-use crate::graph::index::{ElementCount, IndexTrait};
-use crate::graph::vertex::{Vertex, VertexKey};
-use crate::graph::vertex_store::operations::AddVertex;
+use crate::graph::index::ElementCount;
+use crate::graph::vertex::{VertexDefinedByKey, VertexKey};
+use crate::graph::vertex_store::vertex_operations::AddVertex;
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
 use crate::graph::value_type::NativeDataType;
 use crate::graph::value_type::ValueType;
 
-use crate::graph::vertex_store::operations::Indexing;
+// use crate::graph::vertex_store::vertex_operations::Indexing;
 use crate::graph::{
     indexer::{Index, Indexer, IndexerTrait},
     vertex_store::VertexStore,
@@ -65,16 +65,17 @@ use crate::graph::{
 
 // TODO: is this the best place to define these?
 pub type VertexIndex = Index;
+pub type VertexTypeIndex = Index;
 pub type EdgeTypeIndex = Index;
 
-pub(crate) trait GraphTrait<T: ValueType> {
+pub(crate) trait GraphTrait {
     // fn update_vertex_value_by_index(&mut self, index: &VertexIndex, value: T) -> Result<(), GraphComputingError>;
 
-    fn vertex_store_ref(&self) -> &VertexStore<T>;
-    fn vertex_store_mut_ref(&mut self) -> &mut VertexStore<T>;
+    fn vertex_store_ref(&self) -> &VertexStore;
+    fn vertex_store_mut_ref(&mut self) -> &mut VertexStore;
 
-    fn edge_store_ref(&self) -> &EdgeStore<T>;
-    fn edge_store_mut_ref(&mut self) -> &mut EdgeStore<T>;
+    fn edge_store_ref(&self) -> &EdgeStore;
+    fn edge_store_mut_ref(&mut self) -> &mut EdgeStore;
 
     // Encapsulate indexer-related capabilities to enable generality over how the indexer in implemented
     // (i.e. possibly by Arc<RwLock<Indexer>>)
@@ -82,7 +83,7 @@ pub(crate) trait GraphTrait<T: ValueType> {
     // fn vertex_key_to_index(&self, key: &VertexKeyRef) -> Option<&VertexIndex>;
 }
 
-impl<T: ValueType> GraphTrait<T> for Graph<T> {
+impl GraphTrait for Graph {
     // fn contains_vertex_key(&self, key: &VertexKeyRef) -> bool {
     //     self.vertex_store.is_valid_key(key)
     // }
@@ -91,19 +92,19 @@ impl<T: ValueType> GraphTrait<T> for Graph<T> {
     //     self.vertex_indexer.index_for_key(key)
     // }
 
-    fn vertex_store_ref(&self) -> &VertexStore<T> {
+    fn vertex_store_ref(&self) -> &VertexStore {
         &self.vertex_store
     }
 
-    fn vertex_store_mut_ref(&mut self) -> &mut VertexStore<T> {
+    fn vertex_store_mut_ref(&mut self) -> &mut VertexStore {
         &mut self.vertex_store
     }
 
-    fn edge_store_ref(&self) -> &EdgeStore<T> {
+    fn edge_store_ref(&self) -> &EdgeStore {
         &self.edge_store
     }
 
-    fn edge_store_mut_ref(&mut self) -> &mut EdgeStore<T> {
+    fn edge_store_mut_ref(&mut self) -> &mut EdgeStore {
         &mut self.edge_store
     }
 
@@ -140,10 +141,10 @@ impl<T: ValueType> GraphTrait<T> for Graph<T> {
 
 // pub struct Graph<VertexKey: Hash + Eq + PartialEq, EdgeType: Hash + Eq + PartialEq> {
 #[derive(Clone, Debug)]
-pub struct Graph<T: ValueType> {
+pub struct Graph {
     graphblas_context: Arc<GraphblasContext>,
-    vertex_store: VertexStore<T>,
-    edge_store: EdgeStore<T>,
+    vertex_store: VertexStore,
+    edge_store: EdgeStore,
     // vertex_indexer: Indexer,
     // edge_type_indexer: Indexer,
     // vertex_store: IndexedDataStore<Vertex>,
@@ -158,7 +159,7 @@ pub struct Graph<T: ValueType> {
 
 // let mut map: FxHashMap<String, ElementIndex> = FxHashMap::default();
 
-impl<T: ValueType> Graph<T> {
+impl Graph {
     // pub fn new(
     //     initial_vertex_capacity: ElementCount,
     //     initial_edge_type_capacity: ElementCount,
@@ -166,8 +167,9 @@ impl<T: ValueType> Graph<T> {
 
     pub fn with_initial_capacity(
         graphblas_context: Arc<GraphblasContext>,
-        initial_vertex_capacity: ElementCount,
-        initial_edge_type_capacity: ElementCount,
+        initial_vertex_type_capacity: &ElementCount,
+        initial_vertex_capacity: &ElementCount,
+        initial_edge_type_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
         // let mut edge_type_to_edge_type_index_map: HashMap<EdgeType, EdgeTypeIndex> =
         // HashMap::default();
@@ -176,12 +178,13 @@ impl<T: ValueType> Graph<T> {
         // let mut edge_set: FxHashSet<EdgeKey> = FxHashSet::default();
         // edge_set.reserve(initial_edge_capacity);
 
-        let mut graph: Graph<T> = Self {
+        let mut graph: Graph = Self {
             graphblas_context: graphblas_context.clone(),
 
             vertex_store: VertexStore::with_initial_capacity(
                 &graphblas_context,
-                &initial_vertex_capacity,
+                initial_vertex_type_capacity,
+                initial_vertex_capacity,
             )?,
             edge_store: EdgeStore::with_initial_capacity(
                 &graphblas_context,

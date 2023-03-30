@@ -9,6 +9,7 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::reduce::{MonoidReducer, MonoidVectorReducer};
 use once_cell::sync::Lazy;
 
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait;
 use crate::graph::edge_store::WeightedAdjacencyMatrixTrait;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
 use crate::{error::GraphComputingError, graph::edge_store::WeightedAdjacencyMatrix};
@@ -24,13 +25,19 @@ pub(crate) trait VertexMasking<T: ValueType> {
 
 macro_rules! implement_vertex_indexing {
     ($value_type:ty) => {
-        impl VertexMasking<$value_type> for WeightedAdjacencyMatrix<$value_type> {
+        impl VertexMasking<$value_type> for WeightedAdjacencyMatrix {
             fn mask_vertices_with_outgoing_edges(
                 &self,
             ) -> Result<SparseVector<bool>, GraphComputingError> {
                 let mut from_vertex_vector_mask = SparseVector::new(
-                    self.sparse_matrix_ref().context_ref(),
-                    &self.sparse_matrix_ref().row_height()?,
+                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    )
+                    .context_ref(),
+                    &WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    )
+                    .row_height()?,
                 )?;
                 // TODO: think about caching for performance optimization
                 let GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION =
@@ -48,8 +55,14 @@ macro_rules! implement_vertex_indexing {
                 &self,
             ) -> Result<SparseVector<bool>, GraphComputingError> {
                 let mut to_vertex_vector_mask = SparseVector::new(
-                    self.sparse_matrix_ref().context_ref(),
-                    &self.sparse_matrix_ref().row_height()?,
+                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    )
+                    .context_ref(),
+                    &WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    )
+                    .row_height()?,
                 )?;
                 let GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION =
                     MonoidReducer::<$value_type, bool>::new(
@@ -66,8 +79,14 @@ macro_rules! implement_vertex_indexing {
             // TODO: wrap mask into a business struct
             fn mask_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError> {
                 let mut vertex_vector_mask = SparseVector::new(
-                    self.sparse_matrix_ref().context_ref(),
-                    &self.sparse_matrix_ref().row_height()?,
+                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    )
+                    .context_ref(),
+                    &WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    )
+                    .row_height()?,
                 )?;
                 let GRAPHBLAS_VECTOR_OR_OPERATOR =
                     ElementWiseVectorAdditionMonoidOperator::<bool>::new(
@@ -76,8 +95,8 @@ macro_rules! implement_vertex_indexing {
                         None,
                     );
                 GRAPHBLAS_VECTOR_OR_OPERATOR.apply(
-                    &self.mask_vertices_with_incoming_edges()?,
-                    &self.mask_vertices_with_outgoing_edges()?,
+                    &VertexMasking::<$value_type>::mask_vertices_with_incoming_edges(self)?,
+                    &VertexMasking::<$value_type>::mask_vertices_with_outgoing_edges(self)?,
                     &mut vertex_vector_mask,
                 )?;
                 Ok(vertex_vector_mask)
@@ -85,5 +104,4 @@ macro_rules! implement_vertex_indexing {
         }
     };
 }
-
 implement_macro_for_all_native_value_types!(implement_vertex_indexing);

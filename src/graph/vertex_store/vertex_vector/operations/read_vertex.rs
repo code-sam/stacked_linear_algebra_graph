@@ -22,7 +22,7 @@ pub(crate) trait ReadVertex<T: ValueType> {
 
 macro_rules! implement_set_vertex_data {
     ($value_type:ty) => {
-        impl ReadVertex<$value_type> for VertexStore<$value_type> {
+        impl ReadVertex<$value_type> for VertexStore {
             fn vertex_value_by_key(
                 &self,
                 key: &VertexKey,

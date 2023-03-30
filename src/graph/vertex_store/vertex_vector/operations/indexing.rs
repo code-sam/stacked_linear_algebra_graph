@@ -15,7 +15,7 @@ use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
 };
-use crate::graph::vertex::{Vertex, VertexKeyRef, VertexTrait};
+use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait, VertexKeyRef};
 use crate::graph::vertex_store::{VertexStore, VertexStoreTrait};
 
 use crate::graph::indexer::{Indexer, IndexerTrait, Key, KeyRef};
@@ -32,7 +32,7 @@ pub(crate) trait Indexing {
     fn key_for_index(&self, index: &VertexIndex) -> Result<Key, GraphComputingError>;
 }
 
-impl<T: ValueType> Indexing for VertexStore<T> {
+impl Indexing for VertexStore {
     fn is_valid_index(&self, index: &VertexIndex) -> Result<bool, GraphComputingError> {
         self.indexer_ref().is_valid_index(index)
     }

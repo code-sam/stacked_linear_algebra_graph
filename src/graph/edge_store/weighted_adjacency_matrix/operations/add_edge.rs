@@ -7,7 +7,9 @@ use crate::graph::edge::EdgeCoordinateDefinedByIndicesTrait;
 use crate::graph::edge::EdgeDefinedByIndices;
 use crate::graph::edge::EdgeDefinedByIndicesTrait;
 use crate::graph::edge::EdgeDefinedByKeys;
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    WeightedAdjacencyMatrixSparseMatrixTrait, WeightedAdjacencyMatrixTrait,
+};
 use crate::graph::edge_store::WeightedAdjacencyMatrix;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
 
@@ -20,7 +22,7 @@ pub(crate) trait AddEdge<T: ValueType> {
 
 macro_rules! implement_add_edge {
     ($value_type:ty) => {
-        impl AddEdge<$value_type> for WeightedAdjacencyMatrix<$value_type> {
+        impl AddEdge<$value_type> for WeightedAdjacencyMatrix {
             fn add_edge_defined_by_indices_unchecked(
                 &mut self,
                 edge: &EdgeDefinedByIndices<$value_type>,

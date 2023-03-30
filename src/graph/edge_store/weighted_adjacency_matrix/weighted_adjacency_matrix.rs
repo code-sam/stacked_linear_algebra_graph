@@ -8,10 +8,14 @@ use graphblas_sparse_linear_algebra::operators::reduce::MonoidVectorReducer;
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
-use crate::graph::vertex::VertexIndex;
+use crate::graph::index::ElementCount;
+use crate::graph::value_type::{
+    implement_1_type_macro_with_typed_indentifier_for_all_value_types,
+    implement_macro_for_all_native_value_types, ValueType,
+};
 
 use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKey, EdgeTypeKeyRef};
+use crate::graph::vertex::{VertexTypeKey, VertexTypeKeyRef};
 
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::{
@@ -19,7 +23,7 @@ use graphblas_sparse_linear_algebra::{
         Size, SparseMatrix,
     },
     collections::sparse_vector::{GetVectorElementList, SparseVector},
-    context::Context,
+    context::Context as GraphBLASContext,
     index::ElementIndex,
     operators::{
         element_wise_addition::ElementWiseVectorAdditionMonoidOperator,
@@ -64,31 +68,85 @@ static GRAPHBLAS_OPERATOR_OPTIONS_TRANSPOSE_INPUT0: Lazy<OperatorOptions> =
 //     });
 
 #[derive(Clone, Debug)]
-pub(crate) struct WeightedAdjacencyMatrix<T: ValueType> {
+pub(crate) struct WeightedAdjacencyMatrix {
     edge_type: EdgeTypeKey,
-    sparse_matrix: SparseMatrix<T>,
+    sparse_matrix_bool: SparseMatrix<bool>,
+    sparse_matrix_i8: SparseMatrix<i8>,
+    sparse_matrix_i16: SparseMatrix<i16>,
+    sparse_matrix_i32: SparseMatrix<i32>,
+    sparse_matrix_i64: SparseMatrix<i64>,
+    sparse_matrix_u8: SparseMatrix<u8>,
+    sparse_matrix_u16: SparseMatrix<u16>,
+    sparse_matrix_u32: SparseMatrix<u32>,
+    sparse_matrix_u64: SparseMatrix<u64>,
+    sparse_matrix_f32: SparseMatrix<f32>,
+    sparse_matrix_f64: SparseMatrix<f64>,
+    sparse_matrix_isize: SparseMatrix<isize>,
+    sparse_matrix_usize: SparseMatrix<usize>,
 }
 
-impl<T: ValueType> WeightedAdjacencyMatrix<T> {
+impl WeightedAdjacencyMatrix {
     pub(crate) fn new(
-        graphblas_context: &Arc<Context>,
-        edge_type: EdgeTypeKey,
-        vertex_capacity: ElementIndex,
+        graphblas_context: &Arc<GraphBLASContext>,
+        edge_type: &EdgeTypeKeyRef,
+        initial_vertex_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
-        let sparse_matrix = SparseMatrix::new(
-            &graphblas_context,
-            &Size::new(vertex_capacity, vertex_capacity),
-        )?;
+        let size = (*initial_vertex_capacity, *initial_vertex_capacity).into();
         Ok(Self {
-            edge_type,
-            sparse_matrix,
+            edge_type: edge_type.to_owned(),
+            sparse_matrix_bool: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_i8: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_i16: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_i32: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_i64: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_u8: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_u16: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_u32: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_u64: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_f32: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_f64: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_isize: SparseMatrix::new(graphblas_context, &size)?,
+            sparse_matrix_usize: SparseMatrix::new(graphblas_context, &size)?,
         })
     }
+
+    // TODO: this approach should work once Type Alias Impl Trait (TAIT) is stable
+    // https://github.com/rust-lang/rust/issues/63063
+    // fn apply_to_adjacency_matrices_of_all_value_types<T: ValueType, F: Fn(&SparseMatrix<T>) -> Result<(), GraphComputingError>>(&self, f: F) -> Result<(), GraphComputingError> {
+    //     f(&self.sparse_matrix_bool)?;
+    //     Ok(())
+    // }
 }
+
+pub(crate) trait WeightedAdjacencyMatrixSparseMatrixTrait<T: ValueType> {
+    fn sparse_matrix_ref(&self) -> &SparseMatrix<T>;
+    fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<T>;
+    fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError>;
+}
+
+macro_rules! implement_weighted_adjacency_matrix_sparse_matrix_trait {
+    ($typed_sparse_vector:ident, $value_type: ty) => {
+        impl WeightedAdjacencyMatrixSparseMatrixTrait<$value_type> for WeightedAdjacencyMatrix {
+            fn sparse_matrix_ref(&self) -> &SparseMatrix<$value_type> {
+                &self.$typed_sparse_vector
+            }
+            fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<$value_type> {
+                &mut self.$typed_sparse_vector
+            }
+            fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError> {
+                Ok(self.$typed_sparse_vector.number_of_stored_elements()?)
+            }
+        }
+    };
+}
+implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
+    implement_weighted_adjacency_matrix_sparse_matrix_trait,
+    sparse_matrix
+);
 
 pub(crate) trait WeightedAdjacencyMatrixTrait<T: ValueType> {
     fn edge_type_ref(&self) -> &EdgeTypeKeyRef;
-    fn graphblas_context_ref(&self) -> &Arc<Context>;
+    fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext>;
 
     // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
     fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;
@@ -98,24 +156,20 @@ pub(crate) trait WeightedAdjacencyMatrixTrait<T: ValueType> {
 
     fn resize(&mut self, new_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError>;
     fn size(&self) -> Result<Size, GraphComputingError>;
-    fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError>;
-
-    fn sparse_matrix_ref(&self) -> &SparseMatrix<T>;
-    fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<T>;
 }
 
-impl<T: ValueType> WeightedAdjacencyMatrixTrait<T> for WeightedAdjacencyMatrix<T> {
+impl WeightedAdjacencyMatrixTrait<bool> for WeightedAdjacencyMatrix {
     fn edge_type_ref(&self) -> &EdgeTypeKeyRef {
         &self.edge_type.as_str()
     }
 
-    fn graphblas_context_ref(&self) -> &Arc<Context> {
-        self.sparse_matrix.context_ref()
+    fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext> {
+        self.sparse_matrix_bool.context_ref()
     }
 
     // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
     fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
-        Ok(self.sparse_matrix.row_height()?)
+        Ok(self.sparse_matrix_bool.row_height()?)
     }
 
     // TODO: this probably needs a lifetime, or a clone
@@ -123,40 +177,60 @@ impl<T: ValueType> WeightedAdjacencyMatrixTrait<T> for WeightedAdjacencyMatrix<T
     //     Ok(&self.sparse_matrix.size()?)
     // }
 
+    // TODO: find a more generic solution, e.g. by using TAITs as soon as they are stable
+    // https://github.com/rust-lang/rust/issues/63063
     fn resize(&mut self, new_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError> {
-        Ok(self
-            .sparse_matrix
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?)
+        self.sparse_matrix_bool
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_i8
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_i16
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_i32
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_i64
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_u8
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_u16
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_u32
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_u64
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_f32
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_f64
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_isize
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        self.sparse_matrix_usize
+            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
+        Ok(())
     }
 
     fn size(&self) -> Result<Size, GraphComputingError> {
-        Ok(self.sparse_matrix.size()?)
-    }
-
-    fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError> {
-        Ok(self.sparse_matrix.number_of_stored_elements()?)
-    }
-
-    fn sparse_matrix_ref(&self) -> &SparseMatrix<T> {
-        &self.sparse_matrix
-    }
-
-    fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<T> {
-        &mut self.sparse_matrix
+        // Size is the same for all types
+        Ok(self.sparse_matrix_bool.size()?)
     }
 }
 
-macro_rules! implement_display {
-    ($value_type:ty) => {
-        impl std::fmt::Display for WeightedAdjacencyMatrix<$value_type> {
-            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                writeln! {f, "Edge type: {}", self.edge_type};
-                return writeln! {f, "Adjancency matrix: {}", self.sparse_matrix};
-            }
-        }
-    };
-}
-implement_macro_for_all_native_value_types!(implement_display);
+// macro_rules! implement_display {
+// ($value_type:ty) => {
+// impl std::fmt::Display for WeightedAdjacencyMatrix {
+//     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+//         writeln! {f, "Edge type: {}", self.edge_type};
+//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_bool};
+//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i8};
+//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i16};
+//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i32};
+//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i64};
+//         return writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_usize};
+//     }
+// }
+// };
+// }
+// implement_macro_for_all_native_value_types!(implement_display);
 
 // #[cfg(test)]
 // mod tests {

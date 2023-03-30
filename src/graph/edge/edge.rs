@@ -2,8 +2,7 @@ use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::graph::Graph;
 use crate::graph::graph::GraphTrait;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::{VertexIndex, VertexKey};
-use crate::graph::vertex_store::operations::Indexing;
+use crate::graph::vertex::VertexKey;
 
 use super::{EdgeCoordinateDefinedByIndices, EdgeCoordinateDefinedByKeys};
 use super::{EdgeTypeIndex, EdgeTypeKey, EdgeTypeKeyRef};

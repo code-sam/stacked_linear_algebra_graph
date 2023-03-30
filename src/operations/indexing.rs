@@ -9,7 +9,8 @@ use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::VertexKey;
-use crate::graph::vertex_store::operations::Indexing as VertexStoreIndexing;
+use crate::graph::vertex_store::VertexStoreTrait;
+// use crate::graph::vertex_store::vertex_operations::Indexing as VertexStoreIndexing;
 
 pub trait Indexing {
     fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool;
@@ -26,16 +27,20 @@ pub trait Indexing {
 }
 
 // TODO: where applicable, move implementations down to store level
-impl<T: ValueType> Indexing for Graph<T> {
+impl Indexing for Graph {
     fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool {
-        self.vertex_store_ref().is_valid_key(vertex_key)
+        self.vertex_store_ref()
+            .element_indexer_ref()
+            .is_valid_key(vertex_key)
     }
 
     fn is_valid_vertex_index(
         &self,
         vertex_index: &VertexIndex,
     ) -> Result<bool, GraphComputingError> {
-        self.vertex_store_ref().is_valid_index(vertex_index)
+        self.vertex_store_ref()
+            .element_indexer_ref()
+            .is_valid_index(vertex_index)
     }
 
     fn key_defined_to_index_defined_edge_coordinate(
@@ -45,6 +50,7 @@ impl<T: ValueType> Indexing for Graph<T> {
         let from_vertex_index;
         match self
             .vertex_store_ref()
+            .element_indexer_ref()
             .index_for_key(edge_coordinate.originates_from_vertex())
         {
             Some(index) => from_vertex_index = index,
@@ -64,6 +70,7 @@ impl<T: ValueType> Indexing for Graph<T> {
         let to_vertex_index;
         match self
             .vertex_store_ref()
+            .element_indexer_ref()
             .index_for_key(edge_coordinate.points_to_vertex())
         {
             Some(index) => to_vertex_index = index,

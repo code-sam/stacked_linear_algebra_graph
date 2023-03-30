@@ -7,11 +7,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     SparseVector, SparseVectorTrait,
 };
-use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::context::Context;
 
 use crate::error::GraphComputingError;
-use crate::graph::graph::VertexTypeIndex;
 use crate::graph::index::ElementCount;
 use crate::graph::index::Index;
 use crate::graph::value_type::NativeDataType as GraphNativeDataType;
@@ -19,95 +17,66 @@ use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
 };
-use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait, VertexKeyRef};
+use crate::graph::vertex::{Vertex, VertexKeyRef, VertexTrait};
 
-use crate::graph::indexer::{Indexer, IndexerTrait};
+use crate::graph::indexer::{Indexer as VertexIndexer, IndexerTrait};
 
-use super::VertexVector;
-
-pub(crate) type VertexTypeIndexer = Indexer;
-pub(crate) type VertexElementIndexer = Indexer;
+pub type SparseVertexMatrix<T: ValueType> = SparseMatrix<T>;
+pub type SparseVertexVector<T: ValueType> = SparseVector<T>;
 
 #[derive(Clone, Debug)]
-pub(crate) struct VertexStore {
-    graphblas_context: Arc<GraphblasContext>,
-    type_indexer: VertexTypeIndexer,
-    vertex_vectors: Vec<VertexVector>,
-    element_indexer: VertexElementIndexer,
+pub(crate) struct VertexStore<T: ValueType> {
+    vertices: SparseVertexVector<T>,
+    indexer: VertexIndexer,
 }
 
-impl VertexStore {
+// pub(crate) trait VertexStoreTrait<T: ValueType> {
+//     fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
+
+//     fn vertices_ref(&self) -> &SparseMatrix<T>;
+//     fn vertices_mut_ref(&mut self) -> &mut SparseMatrix<T>;
+// }
+
+impl<T: ValueType> VertexStore<T> {
     pub(crate) fn with_initial_capacity(
         context: &Arc<Context>,
-        inital_vertex_type_capacity: &ElementCount,
         inital_vertex_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
         Ok(Self {
-            graphblas_context: context.clone(),
-            type_indexer: VertexTypeIndexer::with_initial_capacity(
-                context,
-                inital_vertex_type_capacity,
-            )?,
-            vertex_vectors: Vec::with_capacity(*inital_vertex_type_capacity),
-            element_indexer: VertexElementIndexer::with_initial_capacity(
-                context,
-                inital_vertex_capacity,
-            )?,
+            vertices: SparseVertexVector::new(context, inital_vertex_capacity)?,
+            indexer: VertexIndexer::with_initial_capacity(context, inital_vertex_capacity)?,
         })
     }
 }
 
-pub(crate) trait VertexStoreTrait {
-    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
-    // fn set_vertex_vector_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
-    // fn set_vertex_type_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
+pub(super) trait VertexStoreTrait<T: ValueType> {
+    fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
 
-    fn type_indexer_ref(&self) -> &VertexTypeIndexer;
-    fn type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer;
+    fn indexer_ref(&self) -> &VertexIndexer;
+    fn indexer_mut_ref(&mut self) -> &mut VertexIndexer;
 
-    fn element_indexer_ref(&self) -> &VertexElementIndexer;
-    fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer;
-
-    fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector];
-    fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector];
-    fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector>;
+    fn vertex_vector_ref(&self) -> &SparseVertexVector<T>;
+    fn vertex_vector_mut_ref(&mut self) -> &mut SparseVertexVector<T>;
 }
 
-impl VertexStoreTrait for VertexStore {
-    // TODO: implementation requires synchronization with adjacency matrices
-    // fn set_vertex_vector_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-    //     self.vertices.resize(*new_capacity)?;
-    //     Ok(())
-    // }
-
-    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
-        &self.graphblas_context
+impl<T: ValueType> VertexStoreTrait<T> for VertexStore<T> {
+    fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
+        self.vertices.resize(*new_capacity)?;
+        Ok(())
     }
 
-    fn type_indexer_ref(&self) -> &VertexTypeIndexer {
-        &self.type_indexer
+    fn indexer_ref(&self) -> &VertexIndexer {
+        &self.indexer
     }
-    fn type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer {
-        &mut self.type_indexer
-    }
-
-    fn element_indexer_ref(&self) -> &VertexElementIndexer {
-        &self.element_indexer
-    }
-    fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer {
-        &mut self.element_indexer
+    fn indexer_mut_ref(&mut self) -> &mut VertexIndexer {
+        &mut self.indexer
     }
 
-    fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector] {
-        self.vertex_vectors.as_slice()
+    fn vertex_vector_ref(&self) -> &SparseVertexVector<T> {
+        &self.vertices
     }
-
-    fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector] {
-        self.vertex_vectors.as_mut_slice()
-    }
-
-    fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector> {
-        &mut self.vertex_vectors
+    fn vertex_vector_mut_ref(&mut self) -> &mut SparseVertexVector<T> {
+        &mut self.vertices
     }
 }
 

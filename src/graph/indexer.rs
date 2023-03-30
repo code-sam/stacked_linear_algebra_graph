@@ -12,7 +12,7 @@ use graphblas_sparse_linear_algebra::index::ElementIndex;
 use hashbrown::HashMap;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType, UserError, UserErrorType};
-use crate::graph::index::{ElementCount, IndexTrait, IndexedDataStoreIndex};
+use crate::graph::index::ElementCount;
 
 pub type Index = ElementIndex;
 
@@ -34,13 +34,13 @@ impl NewIndex {
 }
 
 pub(crate) trait NewIndexTrait {
-    fn index(&self) -> Index;
+    fn index_ref(&self) -> &Index;
     fn new_index_capacity(&self) -> Option<ElementCount>;
 }
 
 impl NewIndexTrait for NewIndex {
-    fn index(&self) -> Index {
-        self.index
+    fn index_ref(&self) -> &Index {
+        &self.index
     }
 
     fn new_index_capacity(&self) -> Option<ElementCount> {
@@ -92,7 +92,10 @@ pub(crate) struct Indexer {
 impl IndexerTrait for Indexer {
     fn add_or_replace_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError> {
         let index = self.claim_available_index()?;
-        match self.key_to_index_map.insert(key.to_owned(), index.index()) {
+        match self
+            .key_to_index_map
+            .insert(key.to_owned(), *index.index_ref())
+        {
             Some(superseded_index) => {
                 self.mask_with_valid_indices
                     .drop_element(superseded_index.clone())?;
@@ -102,14 +105,17 @@ impl IndexerTrait for Indexer {
             None => {}
         }
 
-        self.update_index_to_key_map(index.index(), key);
+        self.update_index_to_key_map(*index.index_ref(), key);
 
         Ok(index)
     }
 
     fn add_new_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError> {
         let index = self.claim_available_index()?;
-        match self.key_to_index_map.insert(key.to_owned(), index.index()) {
+        match self
+            .key_to_index_map
+            .insert(key.to_owned(), *index.index_ref())
+        {
             Some(superseded_index) => {
                 // roll-back
                 self.key_to_index_map
@@ -124,7 +130,7 @@ impl IndexerTrait for Indexer {
             None => {}
         }
 
-        self.update_index_to_key_map(index.index(), key);
+        self.update_index_to_key_map(*index.index_ref(), key);
 
         Ok(index)
     }
@@ -273,7 +279,6 @@ impl Indexer {
         // new indices are popped from a stack. Indices of freed indices are pushed to the stack, and re-used.
         // benefit: no memory is allocated for unused indices
         // downside: runtime cost; more complexity; no use of speedy pre-allocation; memory is never deallocated
-        // let data = self.get_write_locked_data()?;
         let new_index;
         if available_index >= self.capacity()? {
             let new_capacity = self.expand_capacity()?;
@@ -351,7 +356,7 @@ mod tests {
             1
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 1);
-        assert_eq!(indexer.is_valid_index(&index.index()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(&index.index_ref()).unwrap(), true);
         assert_eq!(indexer.is_valid_key("key1"), true);
 
         assert_eq!(
@@ -361,12 +366,12 @@ mod tests {
         assert_eq!(mask_with_valid_indices.length().unwrap(), initial_capacity);
         assert_eq!(
             mask_with_valid_indices
-                .get_element_value(&index.index())
+                .get_element_value(&index.index_ref())
                 .unwrap(),
             Some(true)
         );
 
-        indexer.free_index(index.index().clone()).unwrap();
+        indexer.free_index(index.index_ref().clone()).unwrap();
         let mask_with_valid_indices = indexer.mask_with_valid_indices_ref();
 
         assert_eq!(
@@ -376,7 +381,7 @@ mod tests {
             1
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 0);
-        assert_eq!(indexer.is_valid_index(&index.index()).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(&index.index_ref()).unwrap(), false);
 
         assert_eq!(
             mask_with_valid_indices.number_of_stored_elements().unwrap(),
@@ -385,7 +390,7 @@ mod tests {
         assert_eq!(mask_with_valid_indices.length().unwrap(), initial_capacity);
         assert_eq!(
             mask_with_valid_indices
-                .get_element_value(&index.index())
+                .get_element_value(&index.index_ref())
                 .unwrap(),
             None
         );
@@ -405,9 +410,9 @@ mod tests {
             indices.push(indexer.add_new_key(format!("{}", i).as_str()).unwrap());
         }
 
-        indexer.free_index(indices[2].index().clone()).unwrap();
-        indexer.free_index(indices[20].index().clone()).unwrap();
-        indexer.free_index(indices[92].index().clone()).unwrap();
+        indexer.free_index(indices[2].index_ref().clone()).unwrap();
+        indexer.free_index(indices[20].index_ref().clone()).unwrap();
+        indexer.free_index(indices[92].index_ref().clone()).unwrap();
 
         assert_eq!(
             indexer
@@ -415,14 +420,38 @@ mod tests {
                 .unwrap(),
             n_indices
         );
-        assert_eq!(indexer.is_valid_index(&indices[0].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[10].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[33].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[77].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[99].index()).unwrap(), true);
-        assert_eq!(indexer.is_valid_index(&indices[2].index()).unwrap(), false);
-        assert_eq!(indexer.is_valid_index(&indices[20].index()).unwrap(), false);
-        assert_eq!(indexer.is_valid_index(&indices[92].index()).unwrap(), false);
+        assert_eq!(
+            indexer.is_valid_index(&indices[0].index_ref()).unwrap(),
+            true
+        );
+        assert_eq!(
+            indexer.is_valid_index(&indices[10].index_ref()).unwrap(),
+            true
+        );
+        assert_eq!(
+            indexer.is_valid_index(&indices[33].index_ref()).unwrap(),
+            true
+        );
+        assert_eq!(
+            indexer.is_valid_index(&indices[77].index_ref()).unwrap(),
+            true
+        );
+        assert_eq!(
+            indexer.is_valid_index(&indices[99].index_ref()).unwrap(),
+            true
+        );
+        assert_eq!(
+            indexer.is_valid_index(&indices[2].index_ref()).unwrap(),
+            false
+        );
+        assert_eq!(
+            indexer.is_valid_index(&indices[20].index_ref()).unwrap(),
+            false
+        );
+        assert_eq!(
+            indexer.is_valid_index(&indices[92].index_ref()).unwrap(),
+            false
+        );
 
         assert_eq!(
             indexer
@@ -440,13 +469,13 @@ mod tests {
         );
         assert_eq!(
             mask_with_valid_indices
-                .get_element_value(&indices[33].index())
+                .get_element_value(&indices[33].index_ref())
                 .unwrap(),
             Some(true)
         );
         assert_eq!(
             mask_with_valid_indices
-                .get_element_value(&indices[20].index())
+                .get_element_value(&indices[20].index_ref())
                 .unwrap(),
             None
         );

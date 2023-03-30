@@ -14,7 +14,7 @@ use crate::graph::index::ElementCount;
 // use crate::graph::graph::indexed_vertex_and_adjacency_matrix_store::indexed_vertex_and_adjacency_matrix_store::{
 //     IndexedVertexAndAdjacencyMatrixStore, IndexedVertexAndAdjacencyMatrixStoreTrait,
 // };
-use crate::graph::vertex::{Vertex, VertexIndex, VertexKey};
+use crate::graph::vertex::{VertexDefinedByKey, VertexKey};
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
 pub trait GraphMonitoring {

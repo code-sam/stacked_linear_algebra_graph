@@ -6,6 +6,8 @@ use graphblas_sparse_linear_algebra::{
     value_type::ValueType,
 };
 
+use crate::graph::edge_store::vertex_mask::VertexMasking;
+use crate::graph::edge_store::WeightedAdjacencyMatrixSparseMatrixTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -20,9 +22,7 @@ use crate::{
     graph::edge::AdjacencyMatrixCoordinate,
 };
 
-use super::vertex_mask::VertexMasking;
-
-pub(crate) trait Indexing {
+pub(crate) trait Indexing<T: ValueType> {
     fn is_edge(&self, coordinate: &AdjacencyMatrixCoordinate) -> Result<bool, GraphComputingError>;
     fn try_is_edge(
         &self,
@@ -45,12 +45,16 @@ pub(crate) trait Indexing {
 
 macro_rules! implement_indexing {
     ($value_type:ty) => {
-        impl Indexing for WeightedAdjacencyMatrix<$value_type> {
+        impl Indexing<$value_type> for WeightedAdjacencyMatrix {
             fn is_edge(
                 &self,
                 coordinate: &AdjacencyMatrixCoordinate,
             ) -> Result<bool, GraphComputingError> {
-                match self.sparse_matrix_ref().get_element_value(coordinate)? {
+                match WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                    self,
+                )
+                .get_element_value(coordinate)?
+                {
                     Some(_) => Ok(true),
                     None => Ok(false),
                 }
@@ -60,7 +64,11 @@ macro_rules! implement_indexing {
                 &self,
                 coordinate: &AdjacencyMatrixCoordinate,
             ) -> Result<(), GraphComputingError> {
-                match self.sparse_matrix_ref().get_element_value(coordinate)? {
+                match WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                    self,
+                )
+                .get_element_value(coordinate)?
+                {
                     Some(_) => Ok(()),
                     None => Err(LogicError::new(
                         LogicErrorType::EdgeMustExist,
@@ -74,7 +82,11 @@ macro_rules! implement_indexing {
             fn adjacency_matrix_coordinates(
                 &self,
             ) -> Result<Vec<AdjacencyMatrixCoordinate>, GraphComputingError> {
-                let matrix_element_list = self.sparse_matrix_ref().get_element_list()?;
+                let matrix_element_list =
+                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    )
+                    .get_element_list()?;
                 let element_indices_vertices_with_outgoing_edges =
                     matrix_element_list.row_indices_ref();
                 let element_indices_vertices_with_incoming_edges =
@@ -95,29 +107,30 @@ macro_rules! implement_indexing {
             fn indices_of_vertices_with_outgoing_edges(
                 &self,
             ) -> Result<Vec<VertexIndex>, GraphComputingError> {
-                Ok(self
-                    .mask_vertices_with_outgoing_edges()?
-                    .get_element_list()?
-                    .indices_ref()
-                    .to_vec())
+                Ok(
+                    VertexMasking::<$value_type>::mask_vertices_with_outgoing_edges(self)?
+                        .get_element_list()?
+                        .indices_ref()
+                        .to_vec(),
+                )
             }
 
             fn indices_of_vertices_with_incoming_edges(
                 &self,
             ) -> Result<Vec<VertexIndex>, GraphComputingError> {
-                Ok(self
-                    .mask_vertices_with_incoming_edges()?
-                    .get_element_list()?
-                    .indices_ref()
-                    .to_vec())
+                Ok(
+                    VertexMasking::<$value_type>::mask_vertices_with_incoming_edges(self)?
+                        .get_element_list()?
+                        .indices_ref()
+                        .to_vec(),
+                )
             }
 
             ///
             fn indices_of_connected_vertices(
                 &self,
             ) -> Result<Vec<VertexIndex>, GraphComputingError> {
-                Ok(self
-                    .mask_connected_vertices()?
+                Ok(VertexMasking::<$value_type>::mask_connected_vertices(self)?
                     .get_element_list()?
                     .indices_ref()
                     .to_vec())
