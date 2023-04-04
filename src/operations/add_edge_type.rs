@@ -1,32 +1,32 @@
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 
-use crate::graph::edge_store::WeightedAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
-use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeKeyAndIndexConversion};
-use crate::graph::graph::Graph;
+use crate::graph::edge_store::{WeightedAdjacencyMatrix, EdgeStoreTrait};
+use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKeyRef};
+use crate::graph::graph::{Graph, GraphTrait};
+use crate::graph::indexer::IndexerTrait;
 
-use crate::operations::read_edge::ReadEdge;
+// use crate::operations::ReadEdge;
 
 pub trait AddEdgeType {
     fn add_new_edge_type(
         &mut self,
-        edge_type_key: EdgeType,
+        edge_type_key: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError>;
 
     /// If the EdgeType already exits, returns a duplicate of its EdgeTypeIndex
     fn add_new_edge_type_or_return_index(
         &mut self,
-        edge_type: EdgeType,
+        edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError>;
 }
 
 impl<'g> AddEdgeType for Graph {
     fn add_new_edge_type(
         &mut self,
-        edge_type: EdgeType,
+        edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if !self.is_edge_type_in_graph(edge_type.as_str())? {
+        if !self.edge_store_ref().edge_type_indexer_ref().is_valid_key(edge_type) {
             add_edge_type(self, edge_type)
         } else {
             Err(LogicError::new(
@@ -40,12 +40,10 @@ impl<'g> AddEdgeType for Graph {
 
     fn add_new_edge_type_or_return_index(
         &mut self,
-        edge_type: EdgeType,
+        edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if self.is_edge_type_in_graph(edge_type.as_str())? {
-            Ok(self
-                .edge_type_ref_to_edge_type_index_ref(edge_type.as_str())?
-                .clone())
+        if !self.edge_store_ref().edge_type_indexer_ref().is_valid_key(edge_type) {
+            Ok(self.edge_store_ref().add)
         } else {
             add_edge_type(self, edge_type)
         }

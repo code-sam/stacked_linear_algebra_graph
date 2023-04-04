@@ -22,6 +22,7 @@ pub(crate) struct EdgeStore {
     graphblas_context: Arc<GraphblasContext>,
     adjacency_matrices: Vec<WeightedAdjacencyMatrix>,
     edge_type_indexer: EdgeTypeIndexer,
+    adjacency_matrix_size: ElementCount,
 }
 
 impl EdgeStore {
@@ -39,41 +40,19 @@ impl EdgeStore {
             adjacency_matrices: Vec::<WeightedAdjacencyMatrix>::with_capacity(
                 initial_edge_type_capacity.clone(),
             ),
+            adjacency_matrix_size: *initial_vertex_capacity
         })
     }
 }
 
 pub(crate) trait EdgeStoreTrait {
+    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
+    fn adjacency_matrix_size_ref(&self) -> &ElementCount;
+    fn adjacency_matrix_size_mut_ref(&mut self) -> &mut ElementCount;
+
     fn adjacency_matrices_ref(&self) -> &[WeightedAdjacencyMatrix];
     fn adjacency_matrices_mut_ref(&mut self) -> &mut [WeightedAdjacencyMatrix];
     fn adjacency_matrices_mut(&mut self) -> &mut Vec<WeightedAdjacencyMatrix>;
-
-    fn try_adjacency_matrix_ref(
-        &self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError>;
-    fn try_adjacency_matrix_mut_ref(
-        &mut self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError>;
-
-    fn adjacency_matrix_ref_unchecked(
-        &self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> &WeightedAdjacencyMatrix;
-    fn adjacency_matrix_mut_ref_unchecked(
-        &mut self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> &mut WeightedAdjacencyMatrix;
-
-    fn adjacency_matrix_ref_for_key(
-        &self,
-        edge_type_key: &EdgeTypeKeyRef,
-    ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError>;
-    fn adjacency_matrix_mut_ref_for_key(
-        &mut self,
-        edge_type_key: &EdgeTypeKeyRef,
-    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError>;
 
     fn edge_type_indexer_ref(&self) -> &EdgeTypeIndexer;
     fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer;
@@ -86,6 +65,17 @@ pub(crate) trait EdgeStoreTrait {
 }
 
 impl EdgeStoreTrait for EdgeStore {
+    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
+        &self.graphblas_context
+    }
+    fn adjacency_matrix_size_ref(&self) -> &ElementCount {
+        &self.adjacency_matrix_size
+    }
+    fn adjacency_matrix_size_mut_ref(&mut self) -> &mut ElementCount {
+        &mut self.adjacency_matrix_size
+    }
+
+
     fn adjacency_matrices_ref(&self) -> &[WeightedAdjacencyMatrix] {
         self.adjacency_matrices.as_slice()
     }
@@ -104,65 +94,6 @@ impl EdgeStoreTrait for EdgeStore {
 
     fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer {
         &mut self.edge_type_indexer
-    }
-
-    fn adjacency_matrix_ref_unchecked(
-        &self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> &WeightedAdjacencyMatrix {
-        &self.adjacency_matrices[*edge_type_index]
-    }
-
-    fn adjacency_matrix_mut_ref_unchecked(
-        &mut self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> &mut WeightedAdjacencyMatrix {
-        &mut self.adjacency_matrices[*edge_type_index]
-    }
-
-    fn adjacency_matrix_ref_for_key(
-        &self,
-        edge_type_key: &EdgeTypeKeyRef,
-    ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
-        Ok(&self.adjacency_matrices[*self.edge_type_indexer.try_index_for_key(edge_type_key)?])
-    }
-
-    fn adjacency_matrix_mut_ref_for_key(
-        &mut self,
-        edge_type_key: &EdgeTypeKeyRef,
-    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
-        Ok(&mut self.adjacency_matrices
-            [*self.edge_type_indexer.try_index_for_key(edge_type_key)?])
-    }
-
-    fn try_adjacency_matrix_ref(
-        &self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
-        match self.adjacency_matrices.get(*edge_type_index) {
-            Some(adjacency_matrix) => Ok(adjacency_matrix),
-            None => Err(LogicError::new(
-                LogicErrorType::EdgeTypeMustExist,
-                format!("No edge type for edge type index: {}", edge_type_index),
-                None,
-            )
-            .into()),
-        }
-    }
-
-    fn try_adjacency_matrix_mut_ref(
-        &mut self,
-        edge_type_index: &EdgeTypeIndex,
-    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
-        match self.adjacency_matrices.get_mut(*edge_type_index) {
-            Some(adjacency_matrix) => Ok(adjacency_matrix),
-            None => Err(LogicError::new(
-                LogicErrorType::EdgeTypeMustExist,
-                format!("No edge type for edge type index: {}", edge_type_index),
-                None,
-            )
-            .into()),
-        }
     }
 
     fn resize_adjacency_matrices(
@@ -188,6 +119,21 @@ impl EdgeStore {
         F: Fn(&mut WeightedAdjacencyMatrix) -> Result<(), GraphComputingError> + Send + Sync,
     {
         self.adjacency_matrices
+            .as_mut_slice()
+            .into_par_iter()
+            .try_for_each(function_to_apply)?;
+        Ok(())
+    }
+
+    pub(crate) fn map_mut_all_valid_adjacency_matrices<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut WeightedAdjacencyMatrix) -> Result<(), GraphComputingError> + Send + Sync,
+    {
+        self.adjacency_matrices
+        self.edge_type_indexer.mask_with_valid_indices_ref().
             .as_mut_slice()
             .into_par_iter()
             .try_for_each(function_to_apply)?;

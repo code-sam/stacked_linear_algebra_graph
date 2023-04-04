@@ -31,52 +31,6 @@ pub trait AddVertex<T: ValueType> {
     ) -> Result<Option<VertexIndex>, GraphComputingError>;
 }
 
-// impl<T: ValueType> AddVertex<T> for Graph<T> {
-// fn add_new_vertex(
-//     &mut self,
-//     vertex_to_add: Vertex<T>,
-// ) -> Result<VertexIndex, GraphComputingError> {
-//     let key_ref_of_vertex_to_add = vertex_to_add.key_ref();
-//     if !self.is_vertex_key(key_ref_of_vertex_to_add)
-//     {
-//         // GraphData::add_or_replace_vertex(&self, vertex_to_add)
-//         self.add_or_replace_vertex(vertex_to_add)
-//     } else {
-//         Err(UserError::new(
-//             UserErrorType::VertexAlreadyExists,
-//             format!(
-//                 "A vertex with key '{}' already exists",
-//                 key_ref_of_vertex_to_add
-//             ),
-//             None,
-//         )
-//         .into())
-//     }
-// }
-
-/// Replacement deletes connected edges
-// fn add_or_replace_vertex(
-//     &mut self,
-//     new_vertex: Vertex<T>,
-// ) -> Result<VertexIndex, GraphComputingError> {
-//     self.add_or_replace_vertex(new_vertex)
-// }
-
-// fn add_or_update_vertex(
-//     &mut self,
-//     vertex: Vertex<T>,
-// ) -> Result<Option<VertexIndex>, GraphComputingError> {
-//     match self.vertex_index(vertex.key_ref()) {
-//         Some(&vertex_index) => {
-//             self.update_vertex_value_by_index(&vertex_index, vertex.value_ref().clone())?;
-//             Ok(None)
-//         }
-//         // TODO: does add_or_replace_vertex() perform redundant checks and/or work?
-//         None => Ok(Some(self.add_or_replace_vertex(vertex)?)),
-//     }
-// }
-// }
-
 macro_rules! implement_add_vertex {
     ($value_type:ty) => {
         impl AddVertex<$value_type> for Graph {

@@ -1,6 +1,5 @@
-// pub mod add_edge;
-// pub mod add_edge_type;
-// mod add_edge_type;
+mod add_edge;
+mod add_edge_type;
 mod add_vertex;
 mod add_vertex_type;
 // pub mod delete_edge;
@@ -14,7 +13,7 @@ mod read_vertex_value;
 // pub mod selection;
 // pub mod update_vertex;
 
-// pub use add_edge_type::AddEdgeType;
+pub use add_edge_type::AddEdgeType;
 pub use add_vertex::AddVertex;
 pub use add_vertex_type::AddVertexType;
 pub use indexing::Indexing;
