@@ -62,8 +62,8 @@ pub(crate) trait VertexStoreTrait {
     // fn set_vertex_vector_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
     // fn set_vertex_type_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
 
-    fn type_indexer_ref(&self) -> &VertexTypeIndexer;
-    fn type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer;
+    fn vertex_type_indexer_ref(&self) -> &VertexTypeIndexer;
+    fn vertex_type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer;
 
     fn element_indexer_ref(&self) -> &VertexElementIndexer;
     fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer;
@@ -84,10 +84,10 @@ impl VertexStoreTrait for VertexStore {
         &self.graphblas_context
     }
 
-    fn type_indexer_ref(&self) -> &VertexTypeIndexer {
+    fn vertex_type_indexer_ref(&self) -> &VertexTypeIndexer {
         &self.type_indexer
     }
-    fn type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer {
+    fn vertex_type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer {
         &mut self.type_indexer
     }
 

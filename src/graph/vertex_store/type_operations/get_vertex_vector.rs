@@ -42,7 +42,7 @@ impl GetVertexVector for VertexStore {
         &self,
         vertex_type_index: &VertexTypeIndex,
     ) -> Result<&VertexVector, GraphComputingError> {
-        self.type_indexer_ref()
+        self.vertex_type_indexer_ref()
             .try_index_validity(vertex_type_index)?;
         Ok(self.vertex_vector_by_index_ref_unchecked(vertex_type_index))
     }
@@ -50,7 +50,7 @@ impl GetVertexVector for VertexStore {
         &mut self,
         vertex_type_index: &VertexTypeIndex,
     ) -> Result<&mut VertexVector, GraphComputingError> {
-        self.type_indexer_ref()
+        self.vertex_type_indexer_ref()
             .try_index_validity(vertex_type_index)?;
         Ok(self.vertex_vector_by_index_mut_ref_unchecked(vertex_type_index))
     }
@@ -73,7 +73,8 @@ impl GetVertexVector for VertexStore {
         vertex_key_ref: &VertexTypeKeyRef,
     ) -> Result<&VertexVector, GraphComputingError> {
         Ok(self.vertex_vector_by_index_ref_unchecked(
-            self.type_indexer_ref().try_index_for_key(vertex_key_ref)?,
+            self.vertex_type_indexer_ref()
+                .try_index_for_key(vertex_key_ref)?,
         ))
     }
 
@@ -83,7 +84,7 @@ impl GetVertexVector for VertexStore {
     ) -> Result<&mut VertexVector, GraphComputingError> {
         Ok(self.vertex_vector_by_index_mut_ref_unchecked(
             &self
-                .type_indexer_ref()
+                .vertex_type_indexer_ref()
                 .try_index_for_key(vertex_key_ref)?
                 .clone(),
         ))

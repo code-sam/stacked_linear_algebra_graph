@@ -166,7 +166,6 @@ impl Graph {
     // ) -> Result<Self, GraphComputingError> {}
 
     pub fn with_initial_capacity(
-        graphblas_context: Arc<GraphblasContext>,
         initial_vertex_type_capacity: &ElementCount,
         initial_vertex_capacity: &ElementCount,
         initial_edge_type_capacity: &ElementCount,
@@ -178,7 +177,9 @@ impl Graph {
         // let mut edge_set: FxHashSet<EdgeKey> = FxHashSet::default();
         // edge_set.reserve(initial_edge_capacity);
 
-        let mut graph: Graph = Self {
+        let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking)?;
+
+        let graph: Graph = Self {
             graphblas_context: graphblas_context.clone(),
 
             vertex_store: VertexStore::with_initial_capacity(

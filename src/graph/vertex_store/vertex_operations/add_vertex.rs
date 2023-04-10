@@ -73,7 +73,7 @@ macro_rules! implement_add_vertex_element {
                 vertex: VertexDefinedByKey<$value_type>,
             ) -> Result<NewVertexIndex, GraphComputingError> {
                 let type_index = *self
-                    .type_indexer_ref()
+                    .vertex_type_indexer_ref()
                     .try_index_for_key(vertex.type_key_ref())?;
                 let vertex_index = self
                     .element_indexer_mut_ref()
@@ -102,7 +102,7 @@ macro_rules! implement_add_vertex_element {
                 vertex: VertexDefinedByKey<$value_type>,
             ) -> Result<NewVertexIndex, GraphComputingError> {
                 let type_index = *self
-                    .type_indexer_ref()
+                    .vertex_type_indexer_ref()
                     .try_index_for_key(vertex.type_key_ref())?;
                 let vertex_index = self
                     .element_indexer_mut_ref()
@@ -131,7 +131,7 @@ macro_rules! implement_add_vertex_element {
                 vertex: VertexDefinedByKey<$value_type>,
             ) -> Result<Option<NewVertexIndex>, GraphComputingError> {
                 let type_index = *self
-                    .type_indexer_ref()
+                    .vertex_type_indexer_ref()
                     .try_index_for_key(vertex.type_key_ref())?;
                 // TODO: do not clone self.element_indexer_ref()
                 match self

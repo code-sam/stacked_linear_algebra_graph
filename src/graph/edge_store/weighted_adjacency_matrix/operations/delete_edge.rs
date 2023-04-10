@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge::AdjacencyMatrixCoordinate;
-use crate::graph::edge_store::{
+use crate::graph::edge_store::weighted_adjacency_matrix::{
     WeightedAdjacencyMatrix, WeightedAdjacencyMatrixSparseMatrixTrait, WeightedAdjacencyMatrixTrait,
 };
 use crate::graph::graph::VertexIndex;

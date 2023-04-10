@@ -6,12 +6,15 @@ use graphblas_sparse_linear_algebra::{
     value_type::ValueType,
 };
 
-use crate::graph::edge_store::vertex_mask::VertexMasking;
-use crate::graph::edge_store::WeightedAdjacencyMatrixSparseMatrixTrait;
+use crate::graph::edge_store::weighted_adjacency_matrix::operations::vertex_mask::VertexMasking;
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::{EdgeStore, WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait},
+        edge_store::{
+            weighted_adjacency_matrix::{WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait},
+            EdgeStore,
+        },
         graph::VertexIndex,
         index::ElementIndex,
         value_type::implement_macro_for_all_native_value_types,

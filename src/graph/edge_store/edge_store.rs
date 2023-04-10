@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use graphblas_sparse_linear_algebra::collections::sparse_vector::GetElementIndices;
 use graphblas_sparse_linear_algebra::error::SparseLinearAlgebraError;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
@@ -40,7 +41,7 @@ impl EdgeStore {
             adjacency_matrices: Vec::<WeightedAdjacencyMatrix>::with_capacity(
                 initial_edge_type_capacity.clone(),
             ),
-            adjacency_matrix_size: *initial_vertex_capacity
+            adjacency_matrix_size: *initial_vertex_capacity,
         })
     }
 }
@@ -74,7 +75,6 @@ impl EdgeStoreTrait for EdgeStore {
     fn adjacency_matrix_size_mut_ref(&mut self) -> &mut ElementCount {
         &mut self.adjacency_matrix_size
     }
-
 
     fn adjacency_matrices_ref(&self) -> &[WeightedAdjacencyMatrix] {
         self.adjacency_matrices.as_slice()
@@ -132,11 +132,13 @@ impl EdgeStore {
     where
         F: Fn(&mut WeightedAdjacencyMatrix) -> Result<(), GraphComputingError> + Send + Sync,
     {
-        self.adjacency_matrices
-        self.edge_type_indexer.mask_with_valid_indices_ref().
-            .as_mut_slice()
-            .into_par_iter()
-            .try_for_each(function_to_apply)?;
+        // TODO: would par_iter() give better performance?
+        self.edge_type_indexer
+            .valid_indices()?
+            .into_iter()
+            .try_for_each(|i: usize| {
+                function_to_apply(&mut self.adjacency_matrices_mut_ref()[i])
+            })?;
         Ok(())
     }
 }

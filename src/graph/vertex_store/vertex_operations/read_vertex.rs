@@ -50,7 +50,9 @@ macro_rules! implement_set_vertex_data {
                 vertex_type_key: &VertexTypeKeyRef,
                 vertex_key: &VertexKeyRef,
             ) -> Result<$value_type, GraphComputingError> {
-                let type_index = self.type_indexer_ref().try_index_for_key(vertex_type_key)?;
+                let type_index = self
+                    .vertex_type_indexer_ref()
+                    .try_index_for_key(vertex_type_key)?;
                 let vertex_index = self.element_indexer_ref().try_index_for_key(vertex_key)?;
                 self.vertex_value_by_index_unchecked(type_index, vertex_index)
             }
@@ -60,7 +62,7 @@ macro_rules! implement_set_vertex_data {
                 vertex_type_index: &VertexTypeIndex,
                 vertex_key: &VertexKeyRef,
             ) -> Result<$value_type, GraphComputingError> {
-                self.type_indexer_ref()
+                self.vertex_type_indexer_ref()
                     .try_index_validity(vertex_type_index);
                 let vertex_index = self.element_indexer_ref().try_index_for_key(vertex_key)?;
                 self.vertex_value_by_index_unchecked(vertex_type_index, vertex_index)

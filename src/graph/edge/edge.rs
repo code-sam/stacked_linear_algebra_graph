@@ -4,27 +4,30 @@ use crate::graph::graph::GraphTrait;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::VertexKey;
 
-use super::{EdgeCoordinateDefinedByIndices, EdgeCoordinateDefinedByKeys};
+use super::{DirectedEdgeCoordinateDefinedByIndices, DirectedEdgeCoordinateDefinedByKeys};
 use super::{EdgeTypeIndex, EdgeTypeKey, EdgeTypeKeyRef};
 
-pub struct EdgeDefinedByIndices<T: ValueType> {
-    coordinate: EdgeCoordinateDefinedByIndices,
+#[derive(Clone, Debug)]
+pub struct WeightedDirectedEdgeDefinedByIndices<T: ValueType> {
+    coordinate: DirectedEdgeCoordinateDefinedByIndices,
     weight: T,
 }
 
-impl<T: ValueType> EdgeDefinedByIndices<T> {
-    pub fn new(coordinate: EdgeCoordinateDefinedByIndices, weight: T) -> Self {
+impl<T: ValueType> WeightedDirectedEdgeDefinedByIndices<T> {
+    pub fn new(coordinate: DirectedEdgeCoordinateDefinedByIndices, weight: T) -> Self {
         Self { coordinate, weight }
     }
 }
 
-pub trait EdgeDefinedByIndicesTrait<T: ValueType> {
-    fn coordinate_ref(&self) -> &EdgeCoordinateDefinedByIndices;
+pub trait WeightedDirectedEdgeDefinedByIndicesTrait<T: ValueType> {
+    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByIndices;
     fn weight_ref(&self) -> &T;
 }
 
-impl<T: ValueType> EdgeDefinedByIndicesTrait<T> for EdgeDefinedByIndices<T> {
-    fn coordinate_ref(&self) -> &EdgeCoordinateDefinedByIndices {
+impl<T: ValueType> WeightedDirectedEdgeDefinedByIndicesTrait<T>
+    for WeightedDirectedEdgeDefinedByIndices<T>
+{
+    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByIndices {
         &self.coordinate
     }
 
@@ -33,24 +36,27 @@ impl<T: ValueType> EdgeDefinedByIndicesTrait<T> for EdgeDefinedByIndices<T> {
     }
 }
 
-pub struct EdgeDefinedByKeys<T: ValueType> {
-    coordinate: EdgeCoordinateDefinedByKeys,
+#[derive(Clone, Debug)]
+pub struct WeightedDirectedEdgeDefinedByKeys<T: ValueType> {
+    coordinate: DirectedEdgeCoordinateDefinedByKeys,
     weight: T,
 }
 
-impl<T: ValueType> EdgeDefinedByKeys<T> {
-    pub fn new(coordinate: EdgeCoordinateDefinedByKeys, weight: T) -> Self {
+impl<T: ValueType> WeightedDirectedEdgeDefinedByKeys<T> {
+    pub fn new(coordinate: DirectedEdgeCoordinateDefinedByKeys, weight: T) -> Self {
         Self { coordinate, weight }
     }
 }
 
-pub trait EdgeDefinedByKeysTrait<T: ValueType> {
-    fn coordinate_ref(&self) -> &EdgeCoordinateDefinedByKeys;
+pub trait WeightedDirectedEdgeDefinedByKeysTrait<T: ValueType> {
+    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByKeys;
     fn weight_ref(&self) -> &T;
 }
 
-impl<T: ValueType> EdgeDefinedByKeysTrait<T> for EdgeDefinedByKeys<T> {
-    fn coordinate_ref(&self) -> &EdgeCoordinateDefinedByKeys {
+impl<T: ValueType> WeightedDirectedEdgeDefinedByKeysTrait<T>
+    for WeightedDirectedEdgeDefinedByKeys<T>
+{
+    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByKeys {
         &self.coordinate
     }
 

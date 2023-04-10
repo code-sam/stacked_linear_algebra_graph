@@ -10,9 +10,12 @@ use graphblas_sparse_linear_algebra::operators::reduce::{MonoidReducer, MonoidVe
 use once_cell::sync::Lazy;
 
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait;
-use crate::graph::edge_store::WeightedAdjacencyMatrixTrait;
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
-use crate::{error::GraphComputingError, graph::edge_store::WeightedAdjacencyMatrix};
+use crate::{
+    error::GraphComputingError,
+    graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix,
+};
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());

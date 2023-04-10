@@ -1,4 +1,13 @@
-use crate::{graph::{index::ElementCount, edge_store::{EdgeStore, WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait, EdgeStoreTrait}}, error::GraphComputingError};
+use crate::{
+    error::GraphComputingError,
+    graph::{
+        edge_store::{
+            weighted_adjacency_matrix::{WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait},
+            EdgeStore, EdgeStoreTrait,
+        },
+        index::ElementCount,
+    },
+};
 
 pub(crate) trait ResizeAdjacencyMatrices {
     ///

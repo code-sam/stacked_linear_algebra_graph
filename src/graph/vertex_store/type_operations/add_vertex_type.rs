@@ -22,7 +22,7 @@ impl AddVertexType for VertexStore {
         &mut self,
         key: &VertexTypeKeyRef,
     ) -> Result<VertexTypeIndex, GraphComputingError> {
-        let new_type_index = self.type_indexer_mut_ref().add_new_key(key)?;
+        let new_type_index = self.vertex_type_indexer_mut_ref().add_new_key(key)?;
         if let Some(new_capacity) = new_type_index.new_index_capacity() {
             let current_capacity = self.vertex_vector_for_all_vertex_types_ref().len();
             self.vertex_vector_for_all_vertex_types_mut()

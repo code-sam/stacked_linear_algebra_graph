@@ -1,8 +1,11 @@
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 
-use crate::graph::edge_store::{WeightedAdjacencyMatrix, EdgeStoreTrait};
 use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKeyRef};
+use crate::graph::edge_store::operations::add_edge_type::AddEdgeType as AddEdgeTypeToStore;
+use crate::graph::edge_store::{
+    weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStoreTrait,
+};
 use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::indexer::IndexerTrait;
 
@@ -15,7 +18,7 @@ pub trait AddEdgeType {
     ) -> Result<EdgeTypeIndex, GraphComputingError>;
 
     /// If the EdgeType already exits, returns a duplicate of its EdgeTypeIndex
-    fn add_new_edge_type_or_return_index(
+    fn add_new_edge_type_or_return_existing_index(
         &mut self,
         edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError>;
@@ -26,60 +29,21 @@ impl<'g> AddEdgeType for Graph {
         &mut self,
         edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if !self.edge_store_ref().edge_type_indexer_ref().is_valid_key(edge_type) {
-            add_edge_type(self, edge_type)
-        } else {
-            Err(LogicError::new(
-                LogicErrorType::EdgeTypeAlreadyExists,
-                format!("Edge type \"{}\" already exists", edge_type),
-                None,
-            )
-            .into())
-        }
+        self.edge_store_mut_ref().add_new_edge_type(edge_type)
     }
 
-    fn add_new_edge_type_or_return_index(
+    fn add_new_edge_type_or_return_existing_index(
         &mut self,
         edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        if !self.edge_store_ref().edge_type_indexer_ref().is_valid_key(edge_type) {
-            Ok(self.edge_store_ref().add)
-        } else {
-            add_edge_type(self, edge_type)
-        }
-    }
-}
-
-fn add_edge_type(
-    graph: &mut Graph,
-    edge_type: EdgeType,
-) -> Result<EdgeTypeIndex, GraphComputingError> {
-    if !graph.is_edge_type_in_graph(edge_type.as_str())? {
-        let new_adjacency_matrix = AdjacencyMatrix::new(
-            &graph.graphblas_context_ref(),
-            edge_type.clone(),
-            graph.vertex_store_ref().get_capacity()?,
-        )?;
-        let edge_type_index: EdgeTypeIndex = graph
-            .adjacency_matrices_mut_ref()
-            .push(new_adjacency_matrix)?
-            .into();
-        graph
-            .edge_type_to_edge_type_index_map_mut_ref()
-            .insert(edge_type, edge_type_index.clone());
-        Ok(edge_type_index)
-    } else {
-        Err(LogicError::new(
-            LogicErrorType::EdgeTypeAlreadyExists,
-            format!("Edge type \"{}\" already exists", edge_type),
-            None,
-        )
-        .into())
+        self.add_new_edge_type_or_return_existing_index(edge_type)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use graphblas_sparse_linear_algebra::context::CallGraphBlasContext;
+
     use super::*;
 
     use crate::error::GraphComputingErrorType;
@@ -87,15 +51,15 @@ mod tests {
 
     #[test]
     fn add_new_edge_type_or_return_existing_index() {
-        let mut graph = Graph::new(5, 5).unwrap();
+        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let some_edge_type = String::from("some_edge_type");
         let edge_type_index = graph
-            .add_new_edge_type_or_return_index(some_edge_type.clone())
+            .add_new_edge_type_or_return_existing_index(some_edge_type.as_str())
             .unwrap();
 
         let the_same_edge_type_index = graph
-            .add_new_edge_type_or_return_index(some_edge_type)
+            .add_new_edge_type_or_return_existing_index(some_edge_type.as_str())
             .unwrap();
 
         assert_eq!(edge_type_index, the_same_edge_type_index)
@@ -103,12 +67,12 @@ mod tests {
 
     #[test]
     fn add_new_edge_type() {
-        let mut graph = Graph::new(5, 5).unwrap();
+        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let some_edge_type = String::from("some_edge_type");
-        let edge_type_index = graph.add_new_edge_type(some_edge_type.clone()).unwrap();
+        let edge_type_index = graph.add_new_edge_type(some_edge_type.as_str()).unwrap();
 
-        match graph.add_new_edge_type(some_edge_type) {
+        match graph.add_new_edge_type(some_edge_type.as_str()) {
             Err(error) => match error.error_type() {
                 GraphComputingErrorType::LogicErrorType(LogicErrorType::EdgeTypeAlreadyExists) => {
                     assert!(true)

@@ -110,9 +110,7 @@ mod tests {
 
     #[test]
     fn add_or_replace_vertex() {
-        let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking).unwrap();
-
-        let mut graph = Graph::with_initial_capacity(graphblas_context, &1, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
         let vertex_type_key = String::from("A type");
         let vertex_key = String::from("A key");
         let vertex_property = 1u8;
@@ -148,9 +146,7 @@ mod tests {
 
     #[test]
     fn add_or_update_vertex() {
-        let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking).unwrap();
-
-        let mut graph = Graph::with_initial_capacity(graphblas_context, &1, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
         let vertex_type_key = String::from("A type");
         let vertex_key = String::from("A key");
         let vertex_property = 1u8;
@@ -188,9 +184,7 @@ mod tests {
 
     #[test]
     fn add_vertex() {
-        let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking).unwrap();
-
-        let mut graph = Graph::with_initial_capacity(graphblas_context, &1, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
         let vertex_type_key = String::from("A type");
         let vertex_key = String::from("A key");
         let vertex_property = 1u8;

@@ -1,6 +1,14 @@
-use crate::{graph::{edge::{EdgeTypeIndex, EdgeTypeKeyRef}, edge_store::{WeightedAdjacencyMatrix, EdgeStore, EdgeStoreTrait}}, error::{GraphComputingError, LogicError, LogicErrorType}};
-use crate::graph::indexer::IndexerTrait;
 use crate::graph::indexer::Indexer as EdgeTypeIndexer;
+use crate::graph::indexer::IndexerTrait;
+use crate::{
+    error::{GraphComputingError, LogicError, LogicErrorType},
+    graph::{
+        edge::{EdgeTypeIndex, EdgeTypeKeyRef},
+        edge_store::{
+            weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, EdgeStoreTrait,
+        },
+    },
+};
 
 pub(crate) trait GetAdjacencyMatrix {
     fn try_adjacency_matrix_ref(
@@ -29,7 +37,6 @@ pub(crate) trait GetAdjacencyMatrix {
         &mut self,
         edge_type_key: &EdgeTypeKeyRef,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError>;
-
 }
 
 impl GetAdjacencyMatrix for EdgeStore {
@@ -51,15 +58,19 @@ impl GetAdjacencyMatrix for EdgeStore {
         &self,
         edge_type_key: &EdgeTypeKeyRef,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
-        Ok(&self.adjacency_matrices_ref()[*self.edge_type_indexer_ref().try_index_for_key(edge_type_key)?])
+        Ok(&self.adjacency_matrices_ref()[*self
+            .edge_type_indexer_ref()
+            .try_index_for_key(edge_type_key)?])
     }
 
     fn adjacency_matrix_mut_ref_for_key(
         &mut self,
         edge_type_key: &EdgeTypeKeyRef,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
-        Ok(&mut self.adjacency_matrices_mut_ref()
-            [*self.edge_type_indexer_ref().try_index_for_key(edge_type_key)?])
+        let index = *self
+            .edge_type_indexer_ref()
+            .try_index_for_key(edge_type_key)?;
+        Ok(&mut self.adjacency_matrices_mut_ref()[index])
     }
 
     fn try_adjacency_matrix_ref(

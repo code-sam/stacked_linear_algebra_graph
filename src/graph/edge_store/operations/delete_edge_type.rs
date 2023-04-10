@@ -1,23 +1,38 @@
-use crate::{graph::{edge::{EdgeTypeKeyRef, EdgeTypeIndex}, edge_store::EdgeStore, indexer::{IndexerTrait, NewIndexTrait}}, error::GraphComputingError};
 use crate::graph::edge_store::edge_store::EdgeStoreTrait;
+use crate::{
+    error::GraphComputingError,
+    graph::{
+        edge::{EdgeTypeIndex, EdgeTypeKeyRef},
+        edge_store::EdgeStore,
+        indexer::{IndexerTrait, NewIndexTrait},
+    },
+};
 
 pub(crate) trait DeleteType {
-    fn add_new_edge_type_with_key(
+    fn delete_edge_type_with_key(
         &mut self,
         key: &EdgeTypeKeyRef,
     ) -> Result<(), GraphComputingError>;
-    fn add_new_edge_type_with_index(
+    fn delete_edge_type_with_index(
         &mut self,
-        key: &EdgeTypeKeyRef,
+        index: &EdgeTypeIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl DeleteType for EdgeStore {
-    fn add_new_edge_type(
+    fn delete_edge_type_with_key(
         &mut self,
         key: &EdgeTypeKeyRef,
     ) -> Result<(), GraphComputingError> {
-        let new_type_index = self.edge_type_indexer_mut_ref().dele(key)?;
-        Ok(())
+        let index = *self.edge_type_indexer_ref().try_index_for_key(key)?;
+        self.edge_type_indexer_mut_ref().free_index_unchecked(index)
+    }
+
+    fn delete_edge_type_with_index(
+        &mut self,
+        index: &EdgeTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.edge_type_indexer_mut_ref()
+            .free_index_unchecked(*index)
     }
 }

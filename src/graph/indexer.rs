@@ -4,7 +4,8 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    GetVectorElementValue, SetVectorElement, SparseVector, SparseVectorTrait, VectorElement,
+    GetElementIndices, GetVectorElementValue, SetVectorElement, SparseVector, SparseVectorTrait,
+    VectorElement,
 };
 use graphblas_sparse_linear_algebra::collections::Collection;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
@@ -72,6 +73,7 @@ pub(crate) trait IndexerTrait {
 
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;
     fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError>;
+    fn valid_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError>;
 }
 
 #[derive(Clone, Debug)]
@@ -230,6 +232,11 @@ impl IndexerTrait for Indexer {
     // downside: slower push() and free() operations
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool> {
         &self.mask_with_valid_indices
+    }
+
+    fn valid_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
+        // self.key_to_index_map.values().into_iter().collect()
+        Ok(self.mask_with_valid_indices.element_indices()?)
     }
 
     fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError> {
@@ -581,5 +588,30 @@ mod tests {
                 .unwrap(),
             98
         );
+    }
+
+    #[test]
+    fn test_valid_indices() {
+        let mut indexer = Indexer::with_initial_capacity(
+            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
+            &0,
+        )
+        .unwrap();
+
+        let n_indices = 10;
+        for i in 0..n_indices {
+            indexer.add_new_key(format!("{}", i).as_str());
+        }
+
+        indexer.free_index(0).unwrap();
+        indexer.free_index(3).unwrap();
+        indexer.free_index(4).unwrap();
+
+        indexer.add_new_key("11").unwrap();
+
+        assert_eq!(
+            indexer.valid_indices().unwrap(),
+            vec![0, 1, 2, 5, 6, 7, 8, 9]
+        )
     }
 }

@@ -9,83 +9,81 @@ use super::{EdgeTypeKey, EdgeTypeKeyRef};
 
 pub type AdjacencyMatrixCoordinate = Coordinate;
 
-// TODO: Wikipedia uses head and tail for tp and from respectively
-
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct EdgeCoordinateDefinedByIndices {
+pub struct DirectedEdgeCoordinateDefinedByIndices {
     edge_type: EdgeTypeIndex,
-    from_vertex: VertexIndex,
-    to_vertex: VertexIndex,
+    tail: VertexIndex,
+    head: VertexIndex,
 }
 
-impl EdgeCoordinateDefinedByIndices {
-    pub fn new(edge_type: EdgeTypeIndex, from_vertex: VertexIndex, to_vertex: VertexIndex) -> Self {
+impl DirectedEdgeCoordinateDefinedByIndices {
+    pub fn new(edge_type: EdgeTypeIndex, tail: VertexIndex, head: VertexIndex) -> Self {
         // TODO: review if a self-connected edge is allowed
         Self {
             edge_type,
-            from_vertex,
-            to_vertex,
+            tail,
+            head,
         }
     }
 }
 
-pub trait EdgeCoordinateDefinedByIndicesTrait {
+pub trait DirectedEdgeCoordinateDefinedByIndicesTrait {
     fn edge_type(&self) -> &EdgeTypeIndex;
-    fn originates_from_vertex(&self) -> &VertexIndex;
-    fn points_to_vertex(&self) -> &VertexIndex;
+    fn tail(&self) -> &VertexIndex;
+    fn head(&self) -> &VertexIndex;
     // TODO: consider caching
-    fn adjacency_matrix_coordinate_ref(&self) -> AdjacencyMatrixCoordinate;
+    fn adjacency_matrix_coordinate(&self) -> AdjacencyMatrixCoordinate;
 }
 
-impl EdgeCoordinateDefinedByIndicesTrait for EdgeCoordinateDefinedByIndices {
+impl DirectedEdgeCoordinateDefinedByIndicesTrait for DirectedEdgeCoordinateDefinedByIndices {
     fn edge_type(&self) -> &EdgeTypeIndex {
         &self.edge_type
     }
-    fn originates_from_vertex(&self) -> &VertexIndex {
-        &self.from_vertex
+    fn tail(&self) -> &VertexIndex {
+        &self.tail
     }
-    fn points_to_vertex(&self) -> &VertexIndex {
-        &self.to_vertex
+    fn head(&self) -> &VertexIndex {
+        &self.head
     }
     // TODO: consider caching
-    fn adjacency_matrix_coordinate_ref(&self) -> AdjacencyMatrixCoordinate {
-        AdjacencyMatrixCoordinate::new(self.from_vertex, self.to_vertex)
+    fn adjacency_matrix_coordinate(&self) -> AdjacencyMatrixCoordinate {
+        AdjacencyMatrixCoordinate::new(self.tail, self.head)
     }
 }
 
-impl EdgeCoordinateDefinedByKeys {
-    pub fn new(from_vertex: VertexKey, edge_type: EdgeTypeKey, to_vertex: VertexKey) -> Self {
+impl DirectedEdgeCoordinateDefinedByKeys {
+    pub fn new(edge_type: EdgeTypeKey, tail: VertexKey, head: VertexKey) -> Self {
         // TODO: review if a self-connected edge is allowed
         Self {
             edge_type,
-            from_vertex,
-            to_vertex,
+            tail,
+            head,
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct EdgeCoordinateDefinedByKeys {
+pub struct DirectedEdgeCoordinateDefinedByKeys {
     edge_type: EdgeTypeKey,
-    from_vertex: VertexKey,
-    to_vertex: VertexKey,
+    tail: VertexKey,
+    head: VertexKey,
 }
 
-pub trait EdgeCoordinateDefinedByKeysTrait {
+pub trait DirectedEdgeCoordinateDefinedByKeysTrait {
     fn edge_type_ref(&self) -> &EdgeTypeKeyRef;
-    fn originates_from_vertex(&self) -> &VertexKey;
-    fn points_to_vertex(&self) -> &VertexKey;
+    fn tail(&self) -> &VertexKey;
+    fn head(&self) -> &VertexKey;
 }
 
-impl EdgeCoordinateDefinedByKeysTrait for EdgeCoordinateDefinedByKeys {
+impl DirectedEdgeCoordinateDefinedByKeysTrait for DirectedEdgeCoordinateDefinedByKeys {
     fn edge_type_ref(&self) -> &EdgeTypeKeyRef {
         &self.edge_type.as_str()
     }
-    fn originates_from_vertex(&self) -> &VertexKey {
-        &self.from_vertex
+    fn tail(&self) -> &VertexKey {
+        &self.tail
     }
-    fn points_to_vertex(&self) -> &VertexKey {
-        &self.to_vertex
+    fn head(&self) -> &VertexKey {
+        &self.head
     }
 }
 
