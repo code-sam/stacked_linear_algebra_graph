@@ -11,17 +11,43 @@ pub trait ReadVertexValue<T: ValueType> {
         &self,
         vertex_type_key: &VertexTypeKeyRef,
         vertex_key: &VertexKeyRef,
+    ) -> Result<Option<T>, GraphComputingError>;
+
+    fn vertex_value_or_default_by_key(
+        &self,
+        vertex_type_key: &VertexTypeKeyRef,
+        vertex_key: &VertexKeyRef,
     ) -> Result<T, GraphComputingError>;
+
+    fn try_vertex_value_by_key(
+        &self,
+        vertex_type_key: &VertexTypeKeyRef,
+        vertex_key: &VertexKeyRef,
+    ) -> Result<T, GraphComputingError>;
+
     fn vertex_value_by_index(
         &self,
         vertex_type_index: &VertexTypeIndex,
         vertex_index: &VertexIndex,
-    ) -> Result<T, GraphComputingError>;
-    fn vertex_value_by_vertex_type_index_and_vertex_key(
+    ) -> Result<Option<T>, GraphComputingError>;
+
+    fn vertex_value_or_default_by_index(
         &self,
         vertex_type_index: &VertexTypeIndex,
-        vertex_key: &VertexKeyRef,
+        vertex_index: &VertexIndex,
     ) -> Result<T, GraphComputingError>;
+
+    fn try_vertex_value_by_index(
+        &self,
+        vertex_type_index: &VertexTypeIndex,
+        vertex_index: &VertexIndex,
+    ) -> Result<T, GraphComputingError>;
+
+    // fn vertex_value_by_vertex_type_index_and_vertex_key(
+    //     &self,
+    //     vertex_type_index: &VertexTypeIndex,
+    //     vertex_key: &VertexKeyRef,
+    // ) -> Result<T, GraphComputingError>;
 }
 
 macro_rules! implement_read_vertex {
@@ -31,27 +57,63 @@ macro_rules! implement_read_vertex {
                 &self,
                 vertex_type_key: &VertexTypeKeyRef,
                 vertex_key: &VertexKeyRef,
-            ) -> Result<$value_type, GraphComputingError> {
+            ) -> Result<Option<$value_type>, GraphComputingError> {
                 self.vertex_store_ref()
                     .vertex_value_by_key(vertex_type_key, vertex_key)
             }
 
-            fn vertex_value_by_vertex_type_index_and_vertex_key(
+            fn vertex_value_or_default_by_key(
                 &self,
-                vertex_type_index: &VertexTypeIndex,
+                vertex_type_key: &VertexTypeKeyRef,
                 vertex_key: &VertexKeyRef,
             ) -> Result<$value_type, GraphComputingError> {
                 self.vertex_store_ref()
-                    .vertex_value_by_type_index_and_vertex_key(vertex_type_index, vertex_key)
+                    .vertex_value_or_default_by_key(vertex_type_key, vertex_key)
             }
+
+            fn try_vertex_value_by_key(
+                &self,
+                vertex_type_key: &VertexTypeKeyRef,
+                vertex_key: &VertexKeyRef,
+            ) -> Result<$value_type, GraphComputingError> {
+                self.vertex_store_ref()
+                    .try_vertex_value_by_key(vertex_type_key, vertex_key)
+            }
+
+            // fn vertex_value_by_vertex_type_index_and_vertex_key(
+            //     &self,
+            //     vertex_type_index: &VertexTypeIndex,
+            //     vertex_key: &VertexKeyRef,
+            // ) -> Result<$value_type, GraphComputingError> {
+            //     self.vertex_store_ref()
+            //         .vertex_value_by_type_index_and_vertex_key(vertex_type_index, vertex_key)
+            // }
 
             fn vertex_value_by_index(
                 &self,
                 vertex_type_index: &VertexTypeIndex,
                 vertex_index: &VertexIndex,
-            ) -> Result<$value_type, GraphComputingError> {
+            ) -> Result<Option<$value_type>, GraphComputingError> {
                 self.vertex_store_ref()
                     .vertex_value_by_index(vertex_type_index, vertex_index)
+            }
+
+            fn vertex_value_or_default_by_index(
+                &self,
+                vertex_type_index: &VertexTypeIndex,
+                vertex_index: &VertexIndex,
+            ) -> Result<$value_type, GraphComputingError> {
+                self.vertex_store_ref()
+                    .vertex_value_or_default_by_index(vertex_type_index, vertex_index)
+            }
+
+            fn try_vertex_value_by_index(
+                &self,
+                vertex_type_index: &VertexTypeIndex,
+                vertex_index: &VertexIndex,
+            ) -> Result<$value_type, GraphComputingError> {
+                self.vertex_store_ref()
+                    .try_vertex_value_by_index(vertex_type_index, vertex_index)
             }
         }
     };

@@ -134,11 +134,11 @@ mod tests {
 
         assert_ne!(index1, index2);
         let value_1: u8 = graph
-            .vertex_value_by_key(vertex_type_key.as_str(), vertex_key.as_str())
+            .try_vertex_value_by_key(vertex_type_key.as_str(), vertex_key.as_str())
             .unwrap();
         assert_eq!(value_1, vertex_property_2);
         let value_2: u8 = graph
-            .vertex_value_by_index(&vertex_type_index, &index2)
+            .try_vertex_value_by_index(&vertex_type_index, &index2)
             .unwrap();
         assert_eq!(value_2, vertex_property_2);
         assert!(!graph.is_valid_vertex_index(&index1).unwrap());
@@ -173,11 +173,11 @@ mod tests {
 
         assert_eq!(None, index2);
         let value_2: u8 = graph
-            .vertex_value_by_key(vertex_type_key.as_str(), &vertex_key)
+            .try_vertex_value_by_key(vertex_type_key.as_str(), &vertex_key)
             .unwrap();
         assert_eq!(value_2, vertex_property_2);
         let value_2: u8 = graph
-            .vertex_value_by_index(&vertex_type_index, &index1)
+            .try_vertex_value_by_index(&vertex_type_index, &index1)
             .unwrap();
         assert_eq!(value_2, vertex_property_2);
     }
@@ -201,7 +201,7 @@ mod tests {
         graph.add_new_vertex(vertex_to_add.clone()).unwrap();
 
         let value: u8 = graph
-            .vertex_value_by_key(vertex_type_key.as_str(), vertex_key.as_str())
+            .try_vertex_value_by_key(vertex_type_key.as_str(), vertex_key.as_str())
             .unwrap();
         assert_eq!(value, vertex_to_add.value_ref().clone());
 
@@ -213,7 +213,7 @@ mod tests {
         let index = graph.add_new_vertex(another_vertex_to_add.clone()).unwrap();
 
         let value: u8 = graph
-            .vertex_value_by_index(&vertex_type_index, &index)
+            .try_vertex_value_by_index(&vertex_type_index, &index)
             .unwrap();
         assert_eq!(value, another_vertex_to_add.clone().value_ref().clone());
 

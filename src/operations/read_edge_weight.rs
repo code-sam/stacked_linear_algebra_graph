@@ -60,7 +60,7 @@ macro_rules! implement_read_edge_weight {
                     .adjacency_matrix_ref_unchecked(edge_coordinate.edge_type())
                     .edge_weight_unchecked(&edge_coordinate.adjacency_matrix_coordinate())
             }
-        
+
             fn key_defined_edge_weight(
                 &self,
                 edge_coordinate: &DirectedEdgeCoordinateDefinedByKeys,
@@ -79,9 +79,12 @@ macro_rules! implement_read_edge_weight {
                     .try_index_for_key(edge_coordinate.head())?;
                 self.edge_store_ref()
                     .adjacency_matrix_ref_unchecked(edge_type_index)
-                    .edge_weight_unchecked(&AdjacencyMatrixCoordinate::new(*tail_index, *head_index))
+                    .edge_weight_unchecked(&AdjacencyMatrixCoordinate::new(
+                        *tail_index,
+                        *head_index,
+                    ))
             }
-        
+
             fn try_index_defined_edge_weight(
                 &self,
                 edge_coordinate: &DirectedEdgeCoordinateDefinedByIndices,
@@ -91,7 +94,7 @@ macro_rules! implement_read_edge_weight {
                     .adjacency_matrix_ref_unchecked(edge_coordinate.edge_type())
                     .try_edge_weight_unchecked(&edge_coordinate.adjacency_matrix_coordinate())
             }
-        
+
             fn try_key_defined_edge_weight(
                 &self,
                 edge_coordinate: &DirectedEdgeCoordinateDefinedByKeys,
@@ -110,9 +113,12 @@ macro_rules! implement_read_edge_weight {
                     .try_index_for_key(edge_coordinate.head())?;
                 self.edge_store_ref()
                     .adjacency_matrix_ref_unchecked(edge_type_index)
-                    .try_edge_weight_unchecked(&AdjacencyMatrixCoordinate::new(*tail_index, *head_index))
+                    .try_edge_weight_unchecked(&AdjacencyMatrixCoordinate::new(
+                        *tail_index,
+                        *head_index,
+                    ))
             }
-        
+
             /// Requires valid coordinate
             fn index_defined_edge_weight_or_default(
                 &self,
@@ -121,9 +127,11 @@ macro_rules! implement_read_edge_weight {
                 self.try_index_defined_edge_coordinate_validity(edge_coordinate)?;
                 self.edge_store_ref()
                     .adjacency_matrix_ref_unchecked(edge_coordinate.edge_type())
-                    .edge_weight_or_default_unchecked(&edge_coordinate.adjacency_matrix_coordinate())
+                    .edge_weight_or_default_unchecked(
+                        &edge_coordinate.adjacency_matrix_coordinate(),
+                    )
             }
-        
+
             /// Requires valid coordinate
             fn key_defined_edge_weight_or_default(
                 &self,
@@ -143,7 +151,10 @@ macro_rules! implement_read_edge_weight {
                     .try_index_for_key(edge_coordinate.head())?;
                 self.edge_store_ref()
                     .adjacency_matrix_ref_unchecked(edge_type_index)
-                    .edge_weight_or_default_unchecked(&AdjacencyMatrixCoordinate::new(*tail_index, *head_index))
+                    .edge_weight_or_default_unchecked(&AdjacencyMatrixCoordinate::new(
+                        *tail_index,
+                        *head_index,
+                    ))
             }
         }
     };

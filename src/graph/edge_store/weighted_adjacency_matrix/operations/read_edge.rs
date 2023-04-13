@@ -68,7 +68,11 @@ macro_rules! implement_delete_edge {
                     Some(weight) => Ok(weight),
                     None => Err(LogicError::new(
                         LogicErrorType::EdgeMustExist,
-                        format!("No edge exists at coordinate: {:?}", coordinate),
+                        format!(
+                            "No edge exists at coordinate: {:?} for value type: {}",
+                            coordinate,
+                            std::any::type_name::<$value_type>()
+                        ),
                         None,
                     )
                     .into()),

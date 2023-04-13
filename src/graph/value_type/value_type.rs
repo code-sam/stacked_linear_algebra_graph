@@ -18,3 +18,10 @@ pub(crate) use graphblas_sparse_linear_algebra::value_type::ValueType;
 // impl NativeDataType for usize {}
 // impl NativeDataType for f32 {}
 // impl NativeDataType for f64 {}
+
+#[derive(Clone, Debug)]
+pub enum NativeValueType {
+    Boolean,
+    Integer8Bit,
+    Integer16Bit,
+}

@@ -25,7 +25,7 @@ use crate::{
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::index::ElementCount;
 use crate::graph::vertex::{VertexDefinedByKey, VertexKey};
-use crate::graph::vertex_store::vertex_operations::AddVertex;
+// use crate::graph::vertex_store::vertex_operations::AddVertex;
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
 use crate::graph::value_type::NativeDataType;
