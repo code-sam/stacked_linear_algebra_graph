@@ -83,7 +83,7 @@ macro_rules! implement_add_edge {
                     &tail_index,
                     &head_index,
                     edge.weight_ref(),
-                );
+                )?;
                 Ok(())
             }
 
@@ -102,7 +102,7 @@ macro_rules! implement_add_edge {
                     &tail_index,
                     &head_index,
                     edge.weight_ref(),
-                );
+                )?;
                 Ok(())
             }
 
@@ -155,7 +155,7 @@ macro_rules! implement_add_edge {
                     .into());
                 }
 
-                adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge);
+                adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
                 Ok(())
             }
 
@@ -170,7 +170,7 @@ macro_rules! implement_add_edge {
                     .edge_store_mut_ref()
                     .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type())?;
 
-                adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge);
+                adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
                 Ok(())
             }
         }
@@ -193,9 +193,9 @@ mod tests {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let vertex_type_1_key = String::from("vertex_type_1");
-        let vertex_type_2_key = String::from("vertex_type_2");
+        let _vertex_type_2_key = String::from("vertex_type_2");
 
-        let vertex_type_index = graph
+        let _vertex_type_index = graph
             .add_new_vertex_type(vertex_type_1_key.as_str())
             .unwrap();
         let vertex_1 = VertexDefinedByKey::new(
@@ -209,10 +209,10 @@ mod tests {
             &2u8,
         );
 
-        let vertex1_index = graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
-        let vertex2_index = graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
+        let _vertex1_index = graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
+        let _vertex2_index = graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
 
-        let edge_vertex1_vertex2 = WeightedDirectedEdgeDefinedByKeys::new(
+        let _edge_vertex1_vertex2 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
                 String::from("edge_type_1"),
                 String::from("vertex_1"),
@@ -220,7 +220,7 @@ mod tests {
             ),
             1u8,
         );
-        let edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
+        let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
                 String::from("edge_type_1"),
                 String::from("vertex_2"),
@@ -229,7 +229,7 @@ mod tests {
             2u8,
         );
 
-        let edge_vertex2_vertex1_type2 = WeightedDirectedEdgeDefinedByKeys::new(
+        let _edge_vertex2_vertex1_type2 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
                 String::from("edge_type_2"),
                 String::from("vertex_2"),
@@ -238,7 +238,7 @@ mod tests {
             2u8,
         );
 
-        let edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
+        let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
                 String::from("edge_type_2"),
                 String::from("vertex_2"),
@@ -246,7 +246,7 @@ mod tests {
             ),
             3u8,
         );
-        let edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
+        let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
                 String::from("edge_type_2"),
                 String::from("vertex_1"),

@@ -36,14 +36,12 @@ impl<'g> AddEdgeType for Graph {
         &mut self,
         edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        self.add_new_edge_type_or_return_existing_index(edge_type)
+        self.edge_store_mut_ref().add_new_edge_type_or_return_existing_index(edge_type)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use graphblas_sparse_linear_algebra::context::CallGraphBlasContext;
-
     use super::*;
 
     use crate::error::GraphComputingErrorType;
@@ -70,11 +68,13 @@ mod tests {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let some_edge_type = String::from("some_edge_type");
-        let edge_type_index = graph.add_new_edge_type(some_edge_type.as_str()).unwrap();
+        let _edge_type_index = graph.add_new_edge_type(some_edge_type.as_str()).unwrap();
+
+        println!("{:?}", graph.add_new_edge_type(some_edge_type.as_str()));
 
         match graph.add_new_edge_type(some_edge_type.as_str()) {
             Err(error) => match error.error_type() {
-                GraphComputingErrorType::LogicErrorType(LogicErrorType::EdgeTypeAlreadyExists) => {
+                GraphComputingErrorType::LogicErrorType(LogicErrorType::KeyAlreadyExists) => {
                     assert!(true)
                 }
                 _ => assert!(false),

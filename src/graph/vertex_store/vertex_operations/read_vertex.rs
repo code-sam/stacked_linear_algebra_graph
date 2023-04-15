@@ -15,6 +15,7 @@ use crate::graph::vertex::VertexKeyRef;
 use crate::graph::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
+use crate::graph::vertex_store::vertex_vector::SparseVertexVector;
 use crate::graph::vertex_store::VertexVectorTrait;
 
 pub(crate) trait ReadVertex<T: ValueType> {

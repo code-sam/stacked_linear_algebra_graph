@@ -7,6 +7,7 @@ use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, NativeDataType};
 use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
 use crate::graph::vertex_store::vertex_operations::AddVertex as AddVertexToStore;
+use crate::graph::vertex_store::VertexStoreTrait;
 // use crate::graph::vertex_store::vertex_operations::Indexing;
 
 // use super::update_vertex::UpdateVertex;
@@ -42,9 +43,9 @@ macro_rules! implement_add_vertex {
                     .vertex_store_mut_ref()
                     .add_new_key_defined_vertex(vertex)?;
                 match new_index.new_index_capacity() {
-                    Some(new_capacity) => self
-                        .edge_store_mut_ref()
-                        .resize_adjacency_matrices(new_capacity)?,
+                    Some(new_capacity) => {
+                        self.update_vertex_capacity(&new_capacity)?;
+                    },
                     None => (),
                 }
                 Ok(*new_index.index_ref())
@@ -58,9 +59,9 @@ macro_rules! implement_add_vertex {
                     .vertex_store_mut_ref()
                     .add_or_replace_key_defined_vertex(vertex)?;
                 match new_index.new_index_capacity() {
-                    Some(new_capacity) => self
-                        .edge_store_mut_ref()
-                        .resize_adjacency_matrices(new_capacity)?,
+                    Some(new_capacity) => {
+                        self.update_vertex_capacity(&new_capacity)?;
+                    }
                     None => (),
                 }
                 Ok(*new_index.index_ref())
@@ -76,9 +77,9 @@ macro_rules! implement_add_vertex {
                 {
                     Some(new_index) => {
                         match new_index.new_index_capacity() {
-                            Some(new_capacity) => self
-                                .edge_store_mut_ref()
-                                .resize_adjacency_matrices(new_capacity)?,
+                            Some(new_capacity) => {
+                                self.update_vertex_capacity(&new_capacity)?;
+                            },
                             None => (),
                         }
                         Ok(Some(*new_index.index_ref()))

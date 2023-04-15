@@ -502,11 +502,19 @@ mod tests {
             indices.push(indexer.add_new_key(format!("{}", i).as_str()).unwrap());
         }
 
-        for i in 0..20 {
-            indexer.free_key("1");
+        for _i in 0..20 {
+            match indexer.free_key("1") {
+                // deleting the same key multiple times will result in errors, this error is not tested.
+                Ok(_) => (),
+                Err(_) => ()
+            }
         }
-        for i in 0..20 {
-            indexer.free_index(1);
+        for _i in 0..20 {
+            match indexer.free_index(1) {
+                // deleting the same key multiple times will result in errors, this error is not tested.
+                Ok(_) => (),
+                Err(_) => ()
+            }
         }
 
         assert!(!indexer.is_valid_key("1"));
@@ -600,7 +608,7 @@ mod tests {
 
         let n_indices = 10;
         for i in 0..n_indices {
-            indexer.add_new_key(format!("{}", i).as_str());
+            indexer.add_new_key(format!("{}", i).as_str()).unwrap();
         }
 
         indexer.free_index(0).unwrap();

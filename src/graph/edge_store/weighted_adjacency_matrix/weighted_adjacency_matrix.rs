@@ -70,6 +70,7 @@ static GRAPHBLAS_OPERATOR_OPTIONS_TRANSPOSE_INPUT0: Lazy<OperatorOptions> =
 #[derive(Clone, Debug)]
 pub(crate) struct WeightedAdjacencyMatrix {
     edge_type: EdgeTypeKey,
+    graphblas_context: Arc<GraphBLASContext>,
     sparse_matrix_bool: SparseMatrix<bool>,
     sparse_matrix_i8: SparseMatrix<i8>,
     sparse_matrix_i16: SparseMatrix<i16>,
@@ -94,6 +95,7 @@ impl WeightedAdjacencyMatrix {
         let size = (*initial_vertex_capacity, *initial_vertex_capacity).into();
         Ok(Self {
             edge_type: edge_type.to_owned(),
+            graphblas_context: graphblas_context.clone(),
             sparse_matrix_bool: SparseMatrix::new(graphblas_context, &size)?,
             sparse_matrix_i8: SparseMatrix::new(graphblas_context, &size)?,
             sparse_matrix_i16: SparseMatrix::new(graphblas_context, &size)?,
@@ -164,7 +166,7 @@ impl WeightedAdjacencyMatrixTrait<bool> for WeightedAdjacencyMatrix {
     }
 
     fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext> {
-        self.sparse_matrix_bool.context_ref()
+        &self.graphblas_context
     }
 
     // The API suggests a design problem. Returning a ref would be safer, but technically not possible.

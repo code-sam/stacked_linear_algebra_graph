@@ -9,6 +9,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 };
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::context::Context;
+use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
 use crate::error::GraphComputingError;
 use crate::graph::graph::VertexTypeIndex;
@@ -23,7 +24,7 @@ use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait, VertexKe
 
 use crate::graph::indexer::{Indexer, IndexerTrait};
 
-use super::VertexVector;
+use super::{VertexVector, VertexVectorTrait};
 
 pub(crate) type VertexTypeIndexer = Indexer;
 pub(crate) type VertexElementIndexer = Indexer;
@@ -31,7 +32,7 @@ pub(crate) type VertexElementIndexer = Indexer;
 #[derive(Clone, Debug)]
 pub(crate) struct VertexStore {
     graphblas_context: Arc<GraphblasContext>,
-    type_indexer: VertexTypeIndexer,
+    vertex_type_indexer: VertexTypeIndexer,
     vertex_vectors: Vec<VertexVector>,
     element_indexer: VertexElementIndexer,
 }
@@ -44,7 +45,7 @@ impl VertexStore {
     ) -> Result<Self, GraphComputingError> {
         Ok(Self {
             graphblas_context: context.clone(),
-            type_indexer: VertexTypeIndexer::with_initial_capacity(
+            vertex_type_indexer: VertexTypeIndexer::with_initial_capacity(
                 context,
                 inital_vertex_type_capacity,
             )?,
@@ -71,6 +72,11 @@ pub(crate) trait VertexStoreTrait {
     fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector];
     fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector];
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector>;
+
+    fn resize_vertex_vectors(
+        &mut self,
+        new_vertex_capacity: ElementCount,
+    ) -> Result<(), GraphComputingError>;
 }
 
 impl VertexStoreTrait for VertexStore {
@@ -85,10 +91,10 @@ impl VertexStoreTrait for VertexStore {
     }
 
     fn vertex_type_indexer_ref(&self) -> &VertexTypeIndexer {
-        &self.type_indexer
+        &self.vertex_type_indexer
     }
     fn vertex_type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer {
-        &mut self.type_indexer
+        &mut self.vertex_type_indexer
     }
 
     fn element_indexer_ref(&self) -> &VertexElementIndexer {
@@ -108,6 +114,50 @@ impl VertexStoreTrait for VertexStore {
 
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector> {
         &mut self.vertex_vectors
+    }
+
+    fn resize_vertex_vectors(
+        &mut self,
+        new_vertex_capacity: ElementCount,
+    ) -> Result<(), GraphComputingError> {
+        self.map_mut_all_vertex_vectors(|vertex_vector: &mut VertexVector| {
+            vertex_vector.resize(new_vertex_capacity)
+            // .sparse_matrix_mut_ref()
+            // .resize(&(new_vertex_capacity, new_vertex_capacity).into())
+        })?;
+        Ok(())
+    }
+}
+
+impl VertexStore {
+    /// Apply function to all vertex vectors
+    pub(crate) fn map_mut_all_vertex_vectors<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
+    {
+        self.vertex_vectors
+            .as_mut_slice()
+            .into_par_iter()
+            .try_for_each(function_to_apply)?;
+        Ok(())
+    }
+
+    pub(crate) fn map_mut_all_valid_vertex_vectors<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.vertex_type_indexer
+            .valid_indices()?
+            .into_iter()
+            .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
+        Ok(())
     }
 }
 
