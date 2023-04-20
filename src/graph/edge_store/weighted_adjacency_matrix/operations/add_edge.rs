@@ -36,8 +36,8 @@ macro_rules! implement_add_edge {
                 self.sparse_matrix_mut_ref()
                     .set_element(MatrixElement::new(
                         (
-                            edge.coordinate_ref().tail().clone(),
-                            edge.coordinate_ref().head().clone(),
+                            edge.coordinate_ref().tail_ref().clone(),
+                            edge.coordinate_ref().head_ref().clone(),
                         )
                             .into(),
                         edge.weight_ref().clone(),

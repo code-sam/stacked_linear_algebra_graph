@@ -60,8 +60,10 @@ macro_rules! implement_add_edge {
                 &mut self,
                 edge: WeightedDirectedEdgeDefinedByKeys<$value_type>,
             ) -> Result<(), GraphComputingError> {
-                let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail())?;
-                let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head())?;
+                let tail_index =
+                    *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
+                let head_index =
+                    *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
 
                 let adjacency_matrix = self
                     .edge_store_mut_ref()
@@ -91,8 +93,10 @@ macro_rules! implement_add_edge {
                 &mut self,
                 edge: WeightedDirectedEdgeDefinedByKeys<$value_type>,
             ) -> Result<(), GraphComputingError> {
-                let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail())?;
-                let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head())?;
+                let tail_index =
+                    *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
+                let head_index =
+                    *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
 
                 let adjacency_matrix = self
                     .edge_store_mut_ref()
@@ -116,8 +120,10 @@ macro_rules! implement_add_edge {
                     .edge_store_mut_ref()
                     .add_new_edge_type(edge.coordinate_ref().edge_type_ref())?;
 
-                let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail())?;
-                let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head())?;
+                let tail_index =
+                    *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
+                let head_index =
+                    *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
 
                 self.edge_store_mut_ref()
                     .adjacency_matrix_mut_ref_unchecked(&edge_type_index)
@@ -133,18 +139,18 @@ macro_rules! implement_add_edge {
                 &mut self,
                 edge: WeightedDirectedEdgeDefinedByIndices<$value_type>,
             ) -> Result<(), GraphComputingError> {
-                self.try_vertex_index_validity(edge.coordinate_ref().tail())?;
-                self.try_vertex_index_validity(edge.coordinate_ref().head())?;
+                self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
+                self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
 
                 let adjacency_matrix = self
                     .edge_store_mut_ref()
-                    .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type())?;
+                    .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type_ref())?;
 
                 if Indexing::<$value_type>::is_edge(
                     adjacency_matrix,
                     &AdjacencyMatrixCoordinate::new(
-                        *edge.coordinate_ref().tail(),
-                        *edge.coordinate_ref().head(),
+                        *edge.coordinate_ref().tail_ref(),
+                        *edge.coordinate_ref().head_ref(),
                     ),
                 )? {
                     return Err(LogicError::new(
@@ -163,12 +169,12 @@ macro_rules! implement_add_edge {
                 &mut self,
                 edge: WeightedDirectedEdgeDefinedByIndices<$value_type>,
             ) -> Result<(), GraphComputingError> {
-                self.try_vertex_index_validity(edge.coordinate_ref().tail())?;
-                self.try_vertex_index_validity(edge.coordinate_ref().head())?;
+                self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
+                self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
 
                 let adjacency_matrix = self
                     .edge_store_mut_ref()
-                    .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type())?;
+                    .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type_ref())?;
 
                 adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
                 Ok(())

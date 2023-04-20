@@ -16,8 +16,8 @@ use crate::graph::vertex_store::VertexStoreTrait;
 // use crate::graph::vertex_store::vertex_operations::Indexing as VertexStoreIndexing;
 
 pub trait Indexing {
-    fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool;
-    fn is_valid_vertex_type_key(&self, vertex_type_key: &VertexTypeKey) -> bool;
+    fn is_valid_vertex_key(&self, vertex_key: &VertexKeyRef) -> bool;
+    fn is_valid_vertex_type_key(&self, vertex_type_key: &VertexTypeKeyRef) -> bool;
     fn is_valid_edge_type_key(&self, edge_type_key: &EdgeTypeKeyRef) -> bool;
 
     fn is_valid_vertex_index(&self, vertex_key: &VertexIndex) -> Result<bool, GraphComputingError>;
@@ -126,7 +126,7 @@ pub trait Indexing {
 
 // TODO: where applicable, move implementations down to store level
 impl Indexing for Graph {
-    fn is_valid_vertex_key(&self, vertex_key: &VertexKey) -> bool {
+    fn is_valid_vertex_key(&self, vertex_key: &VertexKeyRef) -> bool {
         self.vertex_store_ref()
             .element_indexer_ref()
             .is_valid_key(vertex_key)
@@ -149,7 +149,7 @@ impl Indexing for Graph {
         match self
             .vertex_store_ref()
             .element_indexer_ref()
-            .index_for_key(edge_coordinate.tail())
+            .index_for_key(edge_coordinate.tail_ref())
         {
             Some(index) => tail_vertex_index = index,
             None => {
@@ -157,7 +157,7 @@ impl Indexing for Graph {
                     LogicErrorType::VertexMustExist,
                     format!(
                         "No vertex found for tail-vertex with key: {}",
-                        edge_coordinate.tail()
+                        edge_coordinate.tail_ref()
                     ),
                     None,
                 )
@@ -169,7 +169,7 @@ impl Indexing for Graph {
         match self
             .vertex_store_ref()
             .element_indexer_ref()
-            .index_for_key(edge_coordinate.head())
+            .index_for_key(edge_coordinate.head_ref())
         {
             Some(index) => head_vertex_index = index,
             None => {
@@ -177,7 +177,7 @@ impl Indexing for Graph {
                     LogicErrorType::VertexMustExist,
                     format!(
                         "No vertex found for head-vertex with key: {}",
-                        edge_coordinate.head()
+                        edge_coordinate.head_ref()
                     ),
                     None,
                 )
@@ -212,7 +212,7 @@ impl Indexing for Graph {
         ))
     }
 
-    fn is_valid_vertex_type_key(&self, vertex_type_key: &VertexTypeKey) -> bool {
+    fn is_valid_vertex_type_key(&self, vertex_type_key: &VertexTypeKeyRef) -> bool {
         self.vertex_store_ref()
             .vertex_type_indexer_ref()
             .is_valid_key(vertex_type_key)
@@ -384,17 +384,17 @@ impl Indexing for Graph {
         edge: &DirectedEdgeCoordinateDefinedByKeys,
     ) -> bool {
         self.is_valid_edge_type_key(edge.edge_type_ref())
-            && self.is_valid_vertex_key(edge.tail())
-            && self.is_valid_vertex_key(edge.head())
+            && self.is_valid_vertex_key(edge.tail_ref())
+            && self.is_valid_vertex_key(edge.head_ref())
     }
 
     fn is_valid_index_defined_edge_coordinate(
         &self,
         edge: &DirectedEdgeCoordinateDefinedByIndices,
     ) -> Result<bool, GraphComputingError> {
-        Ok(self.is_valid_edge_type_index(edge.edge_type())?
-            && self.is_valid_vertex_index(edge.tail())?
-            && self.is_valid_vertex_index(edge.head())?)
+        Ok(self.is_valid_edge_type_index(edge.edge_type_ref())?
+            && self.is_valid_vertex_index(edge.tail_ref())?
+            && self.is_valid_vertex_index(edge.head_ref())?)
     }
 
     fn try_key_defined_edge_coordinate_validity(
@@ -402,8 +402,8 @@ impl Indexing for Graph {
         edge: &DirectedEdgeCoordinateDefinedByKeys,
     ) -> Result<(), GraphComputingError> {
         self.try_edge_type_key_validity(edge.edge_type_ref())?;
-        self.try_vertex_key_validity(edge.tail())?;
-        self.try_vertex_key_validity(edge.head())?;
+        self.try_vertex_key_validity(edge.tail_ref())?;
+        self.try_vertex_key_validity(edge.head_ref())?;
         Ok(())
     }
 
@@ -411,9 +411,9 @@ impl Indexing for Graph {
         &self,
         edge: &DirectedEdgeCoordinateDefinedByIndices,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_type_index_validity(edge.edge_type())?;
-        self.try_vertex_index_validity(edge.tail())?;
-        self.try_vertex_index_validity(edge.head())?;
+        self.try_edge_type_index_validity(edge.edge_type_ref())?;
+        self.try_vertex_index_validity(edge.tail_ref())?;
+        self.try_vertex_index_validity(edge.head_ref())?;
         Ok(())
     }
 

@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
 
 use crate::graph::{
     graph::{EdgeTypeIndex, VertexIndex},
-    vertex::VertexKey,
+    vertex::{VertexKey, VertexKeyRef},
 };
 
 use super::{EdgeTypeKey, EdgeTypeKeyRef};
@@ -28,21 +28,21 @@ impl DirectedEdgeCoordinateDefinedByIndices {
 }
 
 pub trait DirectedEdgeCoordinateDefinedByIndicesTrait {
-    fn edge_type(&self) -> &EdgeTypeIndex;
-    fn tail(&self) -> &VertexIndex;
-    fn head(&self) -> &VertexIndex;
+    fn edge_type_ref(&self) -> &EdgeTypeIndex;
+    fn tail_ref(&self) -> &VertexIndex;
+    fn head_ref(&self) -> &VertexIndex;
     // TODO: consider caching
     fn adjacency_matrix_coordinate(&self) -> AdjacencyMatrixCoordinate;
 }
 
 impl DirectedEdgeCoordinateDefinedByIndicesTrait for DirectedEdgeCoordinateDefinedByIndices {
-    fn edge_type(&self) -> &EdgeTypeIndex {
+    fn edge_type_ref(&self) -> &EdgeTypeIndex {
         &self.edge_type
     }
-    fn tail(&self) -> &VertexIndex {
+    fn tail_ref(&self) -> &VertexIndex {
         &self.tail
     }
-    fn head(&self) -> &VertexIndex {
+    fn head_ref(&self) -> &VertexIndex {
         &self.head
     }
     // TODO: consider caching
@@ -71,19 +71,19 @@ pub struct DirectedEdgeCoordinateDefinedByKeys {
 
 pub trait DirectedEdgeCoordinateDefinedByKeysTrait {
     fn edge_type_ref(&self) -> &EdgeTypeKeyRef;
-    fn tail(&self) -> &VertexKey;
-    fn head(&self) -> &VertexKey;
+    fn tail_ref(&self) -> &VertexKeyRef;
+    fn head_ref(&self) -> &VertexKeyRef;
 }
 
 impl DirectedEdgeCoordinateDefinedByKeysTrait for DirectedEdgeCoordinateDefinedByKeys {
     fn edge_type_ref(&self) -> &EdgeTypeKeyRef {
-        &self.edge_type.as_str()
+        self.edge_type.as_str()
     }
-    fn tail(&self) -> &VertexKey {
-        &self.tail
+    fn tail_ref(&self) -> &VertexKeyRef {
+        self.tail.as_str()
     }
-    fn head(&self) -> &VertexKey {
-        &self.head
+    fn head_ref(&self) -> &VertexKeyRef {
+        self.head.as_str()
     }
 }
 

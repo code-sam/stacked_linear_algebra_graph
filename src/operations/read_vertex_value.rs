@@ -106,7 +106,7 @@ macro_rules! implement_read_vertex {
                 self.vertex_store_ref()
                     .vertex_value_or_default_by_index(vertex_type_index, vertex_index)
             }
-            
+
             fn try_vertex_value_by_index(
                 &self,
                 vertex_type_index: &VertexTypeIndex,
