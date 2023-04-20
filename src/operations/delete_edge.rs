@@ -1,26 +1,28 @@
+use graphblas_sparse_linear_algebra::value_type::ValueType;
+
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::{
-    DirectedEdgeDefinedByIndices, DirectedEdgeDefinedByKeys, EdgeToEdgeCoordinate,
+    DirectedEdgeCoordinateDefinedByIndices, DirectedEdgeCoordinateDefinedByKeys,
 };
 use crate::graph::graph::Graph;
 
-pub trait DeleteEdge {
+pub trait DeleteEdge<T: ValueType> {
     fn delete_edge_defined_by_keys(
         &mut self,
-        edge_to_delete: &DirectedEdgeDefinedByKeys,
+        edge_to_delete: &DirectedEdgeCoordinateDefinedByKeys,
     ) -> Result<(), GraphComputingError>;
     fn delete_edge_defined_by_indices(
         &mut self,
-        edge_to_delete: &DirectedEdgeDefinedByIndices,
+        edge_to_delete: &DirectedEdgeCoordinateDefinedByIndices,
     ) -> Result<(), GraphComputingError>;
     // fn delete_selected_edges(&mut self, edge_selection_to_delete: &EdgeSelection) -> Result<(), GraphComputingError>;
 }
 
-impl DeleteEdge for Graph {
+impl DeleteEdge<T: ValueType> for Graph {
     fn delete_edge_defined_by_keys(
         &mut self,
-        edge_to_delete: &DirectedEdgeDefinedByKeys,
+        edge_to_delete: &DirectedEdgeCoordinateDefinedByKeys,
     ) -> Result<(), GraphComputingError> {
         let edge_coordinate_to_delete = self.key_defined_edge_to_edge_coordinate(edge_to_delete)?;
         let adjacency_matrix_of_edge_to_delete =
@@ -31,7 +33,7 @@ impl DeleteEdge for Graph {
 
     fn delete_edge_defined_by_indices(
         &mut self,
-        edge_to_delete: &DirectedEdgeDefinedByIndices,
+        edge_to_delete: &DirectedEdgeCoordinateDefinedByIndices,
     ) -> Result<(), GraphComputingError> {
         let edge_coordinate_to_delete =
             self.index_defined_edge_to_edge_coordinate(edge_to_delete)?;

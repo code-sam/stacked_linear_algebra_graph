@@ -13,7 +13,8 @@ use crate::{
     graph::{
         edge_store::EdgeStore,
         value_type::implement_macro_for_all_native_value_types,
-        vertex::{VertexDefinedByKeyTrait, VertexKeyRef}, vertex_store::VertexStoreTrait,
+        vertex::{VertexDefinedByKeyTrait, VertexKeyRef},
+        vertex_store::VertexStoreTrait,
     },
 };
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
@@ -77,7 +78,10 @@ pub(crate) trait GraphTrait {
     fn edge_store_ref(&self) -> &EdgeStore;
     fn edge_store_mut_ref(&mut self) -> &mut EdgeStore;
 
-    fn update_vertex_capacity(&mut self, vertex_capacity: &ElementCount) -> Result<(), GraphComputingError>;
+    fn update_vertex_capacity(
+        &mut self,
+        vertex_capacity: &ElementCount,
+    ) -> Result<(), GraphComputingError>;
 
     // Encapsulate indexer-related capabilities to enable generality over how the indexer in implemented
     // (i.e. possibly by Arc<RwLock<Indexer>>)
@@ -110,14 +114,15 @@ impl GraphTrait for Graph {
         &mut self.edge_store
     }
 
-    fn update_vertex_capacity(&mut self, vertex_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-            self
-                .vertex_store_mut_ref()
-                .resize_vertex_vectors(*vertex_capacity)?;
-            self
-                .edge_store_mut_ref()
-                .resize_adjacency_matrices(*vertex_capacity)?;
-            Ok(())
+    fn update_vertex_capacity(
+        &mut self,
+        vertex_capacity: &ElementCount,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store_mut_ref()
+            .resize_vertex_vectors(*vertex_capacity)?;
+        self.edge_store_mut_ref()
+            .resize_adjacency_matrices(*vertex_capacity)?;
+        Ok(())
     }
 
     // pub(crate) fn vertex_key_to_vertex_index_map_ref(&self) -> &HashMap<VertexKey, VertexIndex> {

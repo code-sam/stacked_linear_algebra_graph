@@ -4,7 +4,7 @@ use crate::{
     graph::{
         edge::{EdgeTypeIndex, EdgeTypeKeyRef},
         edge_store::EdgeStore,
-        indexer::{IndexerTrait, NewIndexTrait},
+        indexer::{AssignedIndexTrait, IndexerTrait},
     },
 };
 

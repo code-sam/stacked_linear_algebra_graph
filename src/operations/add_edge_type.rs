@@ -36,7 +36,8 @@ impl<'g> AddEdgeType for Graph {
         &mut self,
         edge_type: &EdgeTypeKeyRef,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        self.edge_store_mut_ref().add_new_edge_type_or_return_existing_index(edge_type)
+        self.edge_store_mut_ref()
+            .add_new_edge_type_or_return_existing_index(edge_type)
     }
 }
 

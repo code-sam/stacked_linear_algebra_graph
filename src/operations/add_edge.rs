@@ -67,7 +67,7 @@ macro_rules! implement_add_edge {
                     .edge_store_mut_ref()
                     .adjacency_matrix_mut_ref_for_key(edge.coordinate_ref().edge_type_ref())?;
 
-                if Indexing::<bool>::is_edge(
+                if Indexing::<$value_type>::is_edge(
                     adjacency_matrix,
                     &AdjacencyMatrixCoordinate::new(tail_index, head_index),
                 )? {
@@ -140,7 +140,7 @@ macro_rules! implement_add_edge {
                     .edge_store_mut_ref()
                     .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type())?;
 
-                if Indexing::<bool>::is_edge(
+                if Indexing::<$value_type>::is_edge(
                     adjacency_matrix,
                     &AdjacencyMatrixCoordinate::new(
                         *edge.coordinate_ref().tail(),
@@ -209,8 +209,14 @@ mod tests {
             &2u8,
         );
 
-        let _vertex1_index = graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
-        let _vertex2_index = graph.add_or_replace_vertex(vertex_2.clone()).unwrap();
+        let _vertex1_index = graph
+            .add_or_update_vertex(vertex_1.clone())
+            .unwrap()
+            .unwrap();
+        let _vertex2_index = graph
+            .add_or_update_vertex(vertex_2.clone())
+            .unwrap()
+            .unwrap();
 
         let _edge_vertex1_vertex2 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(

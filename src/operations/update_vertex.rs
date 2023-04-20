@@ -66,7 +66,7 @@ impl<T: NativeDataType> UpdateVertex<T> for Graph {
         vertex_value: T,
     ) -> Result<(), GraphComputingError> {
         let vertex_to_update = self.vertex_store_mut_ref().get_mut_ref(vertex_index);
-
+        
         match vertex_to_update {
             Ok(vertex) => vertex.update_value(vertex_value),
             Err(_) => {

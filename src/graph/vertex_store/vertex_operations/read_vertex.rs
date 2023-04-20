@@ -176,13 +176,13 @@ macro_rules! implement_set_vertex_data {
                     .sparse_vector_ref()
                     .get_element_value(vertex_index)? {
                         Some(weight) => Ok(weight),
-                    None => Err(LogicError::new(
-                        LogicErrorType::EdgeMustExist,
-                        format!("No vertex value exists at vertex index: {:?}, for vertex type index: {:?}, and value type: {}",
-                            vertex_index, vertex_type_index, std::any::type_name::<$value_type>()),
-                        None,
-                    )
-                    .into()),
+                        None => Err(LogicError::new(
+                            LogicErrorType::EdgeMustExist,
+                            format!("No vertex value exists at vertex index: {:?}, for vertex type index: {:?}, and value type: {}",
+                                vertex_index, vertex_type_index, std::any::type_name::<$value_type>()),
+                            None,
+                        )
+                        .into()),
                     }
             }
 
@@ -218,13 +218,13 @@ macro_rules! implement_set_vertex_data {
                     .sparse_vector_ref()
                     .get_element_value(vertex_index)? {
                         Some(weight) => Ok(weight),
-                    None => Err(LogicError::new(
-                        LogicErrorType::EdgeMustExist,
-                        format!("No vertex value exists at vertex index: {:?}, for vertex type index: {:?}, and value type: {}",
-                            vertex_index, vertex_type_index, std::any::type_name::<$value_type>()),
-                        None,
-                    )
-                    .into()),
+                        None => Err(LogicError::new(
+                            LogicErrorType::EdgeMustExist,
+                            format!("No vertex value exists at vertex index: {:?}, for vertex type index: {:?}, and value type: {}",
+                                vertex_index, vertex_type_index, std::any::type_name::<$value_type>()),
+                            None,
+                        )
+                        .into()),
                     }
             }
 

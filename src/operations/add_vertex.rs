@@ -2,7 +2,7 @@ use crate::error::{GraphComputingError, UserError, UserErrorType};
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 use crate::graph::index::ElementCount;
-use crate::graph::indexer::{NewIndex, NewIndexTrait};
+use crate::graph::indexer::{AssignedIndex, AssignedIndexTrait};
 use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, NativeDataType};
 use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
@@ -20,11 +20,11 @@ pub trait AddVertex<T: ValueType> {
         vertex: VertexDefinedByKey<T>,
     ) -> Result<VertexIndex, GraphComputingError>;
 
-    /// Replacement deletes connected edges
-    fn add_or_replace_vertex(
-        &mut self,
-        vertex: VertexDefinedByKey<T>,
-    ) -> Result<VertexIndex, GraphComputingError>;
+    // /// Replacement deletes connected edges
+    // fn add_or_replace_vertex(
+    //     &mut self,
+    //     vertex: VertexDefinedByKey<T>,
+    // ) -> Result<VertexIndex, GraphComputingError>;
 
     fn add_or_update_vertex(
         &mut self,
@@ -45,27 +45,27 @@ macro_rules! implement_add_vertex {
                 match new_index.new_index_capacity() {
                     Some(new_capacity) => {
                         self.update_vertex_capacity(&new_capacity)?;
-                    },
-                    None => (),
-                }
-                Ok(*new_index.index_ref())
-            }
-
-            fn add_or_replace_vertex(
-                &mut self,
-                vertex: VertexDefinedByKey<$value_type>,
-            ) -> Result<VertexIndex, GraphComputingError> {
-                let new_index = self
-                    .vertex_store_mut_ref()
-                    .add_or_replace_key_defined_vertex(vertex)?;
-                match new_index.new_index_capacity() {
-                    Some(new_capacity) => {
-                        self.update_vertex_capacity(&new_capacity)?;
                     }
                     None => (),
                 }
                 Ok(*new_index.index_ref())
             }
+
+            // fn add_or_replace_vertex(
+            //     &mut self,
+            //     vertex: VertexDefinedByKey<$value_type>,
+            // ) -> Result<VertexIndex, GraphComputingError> {
+            //     let new_index = self
+            //         .vertex_store_mut_ref()
+            //         .add_or_replace_key_defined_vertex(vertex)?;
+            //     match new_index.new_index_capacity() {
+            //         Some(new_capacity) => {
+            //             self.update_vertex_capacity(&new_capacity)?;
+            //         }
+            //         None => (),
+            //     }
+            //     Ok(*new_index.index_ref())
+            // }
 
             fn add_or_update_vertex(
                 &mut self,
@@ -79,7 +79,7 @@ macro_rules! implement_add_vertex {
                         match new_index.new_index_capacity() {
                             Some(new_capacity) => {
                                 self.update_vertex_capacity(&new_capacity)?;
-                            },
+                            }
                             None => (),
                         }
                         Ok(Some(*new_index.index_ref()))
@@ -109,46 +109,52 @@ mod tests {
     // use crate::operations::select_edge_type::EdgeTypeSelectorTrait;
     // use crate::tests::standard_graph_for_testing::standard_graph_for_testing;
 
-    #[test]
-    fn add_or_replace_vertex() {
-        let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
-        let vertex_type_key = String::from("A type");
-        let vertex_key = String::from("A key");
-        let vertex_property = 1u8;
+    // #[test]
+    // fn add_or_replace_vertex() {
+    //     let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
+    //     let vertex_type_key = String::from("A type");
+    //     let vertex_key = String::from("A key");
+    //     let vertex_property = 1u8;
 
-        let vertex_to_add = VertexDefinedByKey::new(
-            vertex_type_key.as_str(),
-            vertex_key.as_str(),
-            &vertex_property,
-        );
-        let vertex_type_index = graph.add_new_vertex_type(vertex_type_key.as_str()).unwrap();
-        let index1 = graph.add_or_replace_vertex(vertex_to_add.clone()).unwrap();
+    //     let vertex_to_add = VertexDefinedByKey::new(
+    //         vertex_type_key.as_str(),
+    //         vertex_key.as_str(),
+    //         &vertex_property,
+    //     );
+    //     let vertex_type_index = graph.add_new_vertex_type(vertex_type_key.as_str()).unwrap();
+    //     let index1 = graph
+    //         .add_or_update_vertex(vertex_to_add.clone())
+    //         .unwrap()
+    //         .unwrap();
 
-        let vertex_property_2 = 2u8;
-        let vertex_to_add_2 = VertexDefinedByKey::new(
-            vertex_type_key.as_str(),
-            vertex_key.as_str(),
-            &vertex_property_2,
-        );
+    //     let vertex_property_2 = 2u8;
+    //     let vertex_to_add_2 = VertexDefinedByKey::new(
+    //         vertex_type_key.as_str(),
+    //         vertex_key.as_str(),
+    //         &vertex_property_2,
+    //     );
 
-        let index2 = graph.add_or_replace_vertex(vertex_to_add_2).unwrap();
+    //     let index2 = graph
+    //         .add_or_update_vertex(vertex_to_add_2)
+    //         .unwrap()
+    //         .unwrap();
 
-        assert_ne!(index1, index2);
-        let value_1: u8 = graph
-            .try_vertex_value_by_key(vertex_type_key.as_str(), vertex_key.as_str())
-            .unwrap();
-        assert_eq!(value_1, vertex_property_2);
-        let value_2: u8 = graph
-            .try_vertex_value_by_index(&vertex_type_index, &index2)
-            .unwrap();
-        assert_eq!(value_2, vertex_property_2);
-        assert!(!graph.is_valid_vertex_index(&index1).unwrap());
-    }
+    //     assert_ne!(index1, index2);
+    //     let value_1: u8 = graph
+    //         .try_vertex_value_by_key(vertex_type_key.as_str(), vertex_key.as_str())
+    //         .unwrap();
+    //     assert_eq!(value_1, vertex_property_2);
+    //     let value_2: u8 = graph
+    //         .try_vertex_value_by_index(&vertex_type_index, &index2)
+    //         .unwrap();
+    //     assert_eq!(value_2, vertex_property_2);
+    //     assert!(!graph.is_valid_vertex_index(&index1).unwrap());
+    // }
 
     #[test]
     fn add_or_update_vertex() {
         let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
-        let vertex_type_key = String::from("A type");
+        let vertex_type_key = String::from("VertexType");
         let vertex_key = String::from("A key");
         let vertex_property = 1u8;
 

@@ -20,12 +20,12 @@ pub type Index = ElementIndex;
 pub type Key = String;
 pub type KeyRef = str;
 
-pub(crate) struct NewIndex {
+pub(crate) struct AssignedIndex {
     index: Index,
     new_index_capacity: Option<ElementCount>,
 }
 
-impl NewIndex {
+impl AssignedIndex {
     fn new(index: Index, new_index_capacity: Option<ElementCount>) -> Self {
         Self {
             index,
@@ -34,12 +34,12 @@ impl NewIndex {
     }
 }
 
-pub(crate) trait NewIndexTrait {
+pub(crate) trait AssignedIndexTrait {
     fn index_ref(&self) -> &Index;
     fn new_index_capacity(&self) -> Option<ElementCount>;
 }
 
-impl NewIndexTrait for NewIndex {
+impl AssignedIndexTrait for AssignedIndex {
     fn index_ref(&self) -> &Index {
         &self.index
     }
@@ -50,8 +50,9 @@ impl NewIndexTrait for NewIndex {
 }
 
 pub(crate) trait IndexerTrait {
-    fn add_new_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError>;
-    fn add_or_replace_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError>;
+    fn add_new_key(&mut self, key: &KeyRef) -> Result<AssignedIndex, GraphComputingError>;
+    fn add_or_replace_key(&mut self, key: &KeyRef) -> Result<AssignedIndex, GraphComputingError>;
+    fn add_or_reuse_key(&mut self, key: &KeyRef) -> Result<AssignedIndex, GraphComputingError>;
 
     // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
     fn free_index(&mut self, index: Index) -> Result<(), GraphComputingError>;
@@ -74,6 +75,7 @@ pub(crate) trait IndexerTrait {
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;
     fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError>;
     fn valid_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError>;
+    fn index_capacity(&self) -> Result<ElementCount, GraphComputingError>;
 }
 
 #[derive(Clone, Debug)]
@@ -92,7 +94,17 @@ pub(crate) struct Indexer {
 // TODO: probably, Indexer needs a generic type annotation, and then be implemented for IndexedDataStoreIndex
 // TODO: drop type annotation altogether. Moving Index struct higher up towards the client would be better.
 impl IndexerTrait for Indexer {
-    fn add_or_replace_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError> {
+    fn add_or_reuse_key(&mut self, key: &KeyRef) -> Result<AssignedIndex, GraphComputingError> {
+        match self.index_for_key(key) {
+            Some(index) => Ok(AssignedIndex::new(*index, None)),
+            None => {
+                // TODO: is there potential for performance optimization here? The Map was already checked at this point
+                self.add_new_key(key)
+            }
+        }
+    }
+
+    fn add_or_replace_key(&mut self, key: &KeyRef) -> Result<AssignedIndex, GraphComputingError> {
         let index = self.claim_available_index()?;
         match self
             .key_to_index_map
@@ -112,7 +124,7 @@ impl IndexerTrait for Indexer {
         Ok(index)
     }
 
-    fn add_new_key(&mut self, key: &KeyRef) -> Result<NewIndex, GraphComputingError> {
+    fn add_new_key(&mut self, key: &KeyRef) -> Result<AssignedIndex, GraphComputingError> {
         let index = self.claim_available_index()?;
         match self
             .key_to_index_map
@@ -244,7 +256,20 @@ impl IndexerTrait for Indexer {
     }
 
     fn try_key_validity(&self, key: &KeyRef) -> Result<(), GraphComputingError> {
-        todo!()
+        if self.key_to_index_map.contains_key(key) {
+            Ok(())
+        } else {
+            Err(LogicError::new(
+                LogicErrorType::InvalidKey,
+                format!("No valid key: {}.", key),
+                None,
+            )
+            .into())
+        }
+    }
+
+    fn index_capacity(&self) -> Result<ElementCount, GraphComputingError> {
+        Ok(self.mask_with_valid_indices.length()?)
     }
 }
 
@@ -277,7 +302,7 @@ impl Indexer {
         })
     }
 
-    fn claim_available_index(&mut self) -> Result<NewIndex, GraphComputingError> {
+    fn claim_available_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
         let available_index = match self.indices_available_for_reuse.pop_front() {
             None => self.mask_with_valid_indices.number_of_stored_elements()?,
             Some(index) => index,
@@ -289,9 +314,9 @@ impl Indexer {
         let new_index;
         if available_index >= self.capacity()? {
             let new_capacity = self.expand_capacity()?;
-            new_index = NewIndex::new(available_index, Some(new_capacity));
+            new_index = AssignedIndex::new(available_index, Some(new_capacity));
         } else {
-            new_index = NewIndex::new(available_index, None);
+            new_index = AssignedIndex::new(available_index, None);
         }
 
         self.mask_with_valid_indices
@@ -506,14 +531,14 @@ mod tests {
             match indexer.free_key("1") {
                 // deleting the same key multiple times will result in errors, this error is not tested.
                 Ok(_) => (),
-                Err(_) => ()
+                Err(_) => (),
             }
         }
         for _i in 0..20 {
             match indexer.free_index(1) {
                 // deleting the same key multiple times will result in errors, this error is not tested.
                 Ok(_) => (),
-                Err(_) => ()
+                Err(_) => (),
             }
         }
 

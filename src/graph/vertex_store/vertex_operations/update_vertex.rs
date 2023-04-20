@@ -6,6 +6,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 };
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SetVectorElement;
 use graphblas_sparse_linear_algebra::context::Context;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 
 use crate::error::GraphComputingError;
 use crate::graph::graph::{VertexIndex, VertexTypeIndex};
@@ -60,7 +61,11 @@ macro_rules! implement_set_vertex_data {
                 let vertex_index = *self
                     .element_indexer_ref()
                     .try_index_for_key(vertex.key_ref())?;
-                self.vertex_vector_by_key_mut_ref(vertex.type_key_ref())?
+                let vertex_vector = self.vertex_vector_by_key_mut_ref(vertex.type_key_ref())?;
+                SparseVertexVector::<$value_type>::sparse_vector_ref(
+                    vertex_vector)
+                    .try_is_element(vertex_index)?;
+                vertex_vector
                     .sparse_vector_mut_ref()
                     .set_element((vertex_index, *vertex.value_ref()).into())?;
                 Ok(())
@@ -73,7 +78,11 @@ macro_rules! implement_set_vertex_data {
                 let vertex_index = *self
                     .element_indexer_ref()
                     .try_index_for_key(vertex.key_ref())?;
-                self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?
+                let vertex_vector = self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?;
+                SparseVertexVector::<$value_type>::sparse_vector_ref(
+                    vertex_vector)
+                    .try_is_element(vertex_index)?;
+                vertex_vector
                     .sparse_vector_mut_ref()
                     .set_element((vertex_index, *vertex.value_ref()).into())?;
                 Ok(())
@@ -85,7 +94,11 @@ macro_rules! implement_set_vertex_data {
             ) -> Result<(), GraphComputingError> {
                 self.element_indexer_ref()
                     .try_index_validity(vertex.index_ref())?;
-                self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?
+                let vertex_vector = self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?;
+                SparseVertexVector::<$value_type>::sparse_vector_ref(
+                    vertex_vector)
+                    .try_is_element(*vertex.index_ref())?;
+                vertex_vector
                     .sparse_vector_mut_ref()
                     .set_element((*vertex.index_ref(), *vertex.value_ref()).into())?;
                 Ok(())
@@ -95,7 +108,11 @@ macro_rules! implement_set_vertex_data {
                 &mut self,
                 vertex: &VertexDefinedByIndex<$value_type>,
             ) -> Result<(), GraphComputingError> {
-                self.vertex_vector_by_index_mut_ref_unchecked(vertex.type_index_ref())
+                let vertex_vector = self.vertex_vector_by_index_mut_ref_unchecked(vertex.type_index_ref());
+                SparseVertexVector::<$value_type>::sparse_vector_ref(
+                    vertex_vector)
+                    .try_is_element(*vertex.index_ref())?;
+                vertex_vector
                     .sparse_vector_mut_ref()
                     .set_element((*vertex.index_ref(), *vertex.value_ref()).into())?;
                 Ok(())
