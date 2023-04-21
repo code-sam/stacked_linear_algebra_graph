@@ -52,12 +52,12 @@ impl DirectedEdgeCoordinateDefinedByIndicesTrait for DirectedEdgeCoordinateDefin
 }
 
 impl DirectedEdgeCoordinateDefinedByKeys {
-    pub fn new(edge_type: EdgeTypeKey, tail: VertexKey, head: VertexKey) -> Self {
+    pub fn new(edge_type: &EdgeTypeKeyRef, tail: &VertexKeyRef, head: &VertexKeyRef) -> Self {
         // TODO: review if a self-connected edge is allowed
         Self {
-            edge_type,
-            tail,
-            head,
+            edge_type: edge_type.to_owned(),
+            tail: tail.to_owned(),
+            head: head.to_owned(),
         }
     }
 }

@@ -71,11 +71,11 @@ macro_rules! implement_read_edge_weight {
                     .try_index_for_key(edge_coordinate.edge_type_ref())?;
                 let tail_index = self
                     .vertex_store_ref()
-                    .vertex_type_indexer_ref()
+                    .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.tail_ref())?;
                 let head_index = self
                     .vertex_store_ref()
-                    .vertex_type_indexer_ref()
+                    .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.head_ref())?;
                 self.edge_store_ref()
                     .adjacency_matrix_ref_unchecked(edge_type_index)
@@ -105,11 +105,11 @@ macro_rules! implement_read_edge_weight {
                     .try_index_for_key(edge_coordinate.edge_type_ref())?;
                 let tail_index = self
                     .vertex_store_ref()
-                    .vertex_type_indexer_ref()
+                    .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.tail_ref())?;
                 let head_index = self
                     .vertex_store_ref()
-                    .vertex_type_indexer_ref()
+                    .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.head_ref())?;
                 self.edge_store_ref()
                     .adjacency_matrix_ref_unchecked(edge_type_index)
@@ -143,11 +143,11 @@ macro_rules! implement_read_edge_weight {
                     .try_index_for_key(edge_coordinate.edge_type_ref())?;
                 let tail_index = self
                     .vertex_store_ref()
-                    .vertex_type_indexer_ref()
+                    .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.tail_ref())?;
                 let head_index = self
                     .vertex_store_ref()
-                    .vertex_type_indexer_ref()
+                    .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.head_ref())?;
                 self.edge_store_ref()
                     .adjacency_matrix_ref_unchecked(edge_type_index)

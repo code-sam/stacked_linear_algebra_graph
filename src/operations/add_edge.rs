@@ -225,45 +225,25 @@ mod tests {
             .unwrap();
 
         let _edge_vertex1_vertex2 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new(
-                String::from("edge_type_1"),
-                String::from("vertex_1"),
-                String::from("vertex_2"),
-            ),
+            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_1", "vertex_1", "vertex_2"),
             1u8,
         );
         let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new(
-                String::from("edge_type_1"),
-                String::from("vertex_2"),
-                String::from("vertex_1"),
-            ),
+            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_1", "vertex_2", "vertex_1"),
             2u8,
         );
 
         let _edge_vertex2_vertex1_type2 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new(
-                String::from("edge_type_2"),
-                String::from("vertex_2"),
-                String::from("vertex_1"),
-            ),
+            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_2", "vertex_2", "vertex_1"),
             2u8,
         );
 
         let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new(
-                String::from("edge_type_2"),
-                String::from("vertex_2"),
-                String::from("vertex_1"),
-            ),
+            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_2", "vertex_2", "vertex_1"),
             3u8,
         );
         let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new(
-                String::from("edge_type_2"),
-                String::from("vertex_1"),
-                String::from("vertex_2"),
-            ),
+            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_2", "vertex_1", "vertex_2"),
             4u8,
         );
 
