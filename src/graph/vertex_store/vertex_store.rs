@@ -77,6 +77,24 @@ pub(crate) trait VertexStoreTrait {
         &mut self,
         new_vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError>;
+
+    fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
+
+    fn map_mut_all_vertex_vectors<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
+
+    fn map_mut_all_valid_vertex_vectors<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
 }
 
 impl VertexStoreTrait for VertexStore {
@@ -127,11 +145,19 @@ impl VertexStoreTrait for VertexStore {
         })?;
         Ok(())
     }
-}
 
-impl VertexStore {
-    /// Apply function to all vertex vectors
-    pub(crate) fn map_mut_all_vertex_vectors<F>(
+    fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
+    {
+        self.vertex_vectors
+            .as_slice()
+            .into_par_iter()
+            .try_for_each(function_to_apply)?;
+        Ok(())
+    }
+
+    fn map_mut_all_vertex_vectors<F>(
         &mut self,
         function_to_apply: F,
     ) -> Result<(), GraphComputingError>
@@ -145,7 +171,7 @@ impl VertexStore {
         Ok(())
     }
 
-    pub(crate) fn map_mut_all_valid_vertex_vectors<F>(
+    fn map_mut_all_valid_vertex_vectors<F>(
         &mut self,
         function_to_apply: F,
     ) -> Result<(), GraphComputingError>

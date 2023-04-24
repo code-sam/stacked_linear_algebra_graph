@@ -62,6 +62,13 @@ pub(crate) trait DeleteVertexConnections<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
+pub(crate) trait DeleteVertexConnectionsForAllTypes {
+    fn delete_vertex_connections_for_all_value_types_unchecked(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
+}
+
 macro_rules! implement_delete_vertex_connections {
     ($insert_vector_into_column_operator_identifier:ident,
         $insert_vector_into_row_operator_identifier:ident,
@@ -99,3 +106,25 @@ implement_1_type_macro_with_2_typed_indentifiers_for_all_value_types!(
     INSERT_VECTOR_INTO_COLUMN_OPERATOR,
     INSERT_VECTOR_INTO_ROW_OPERATOR
 );
+
+impl DeleteVertexConnectionsForAllTypes for WeightedAdjacencyMatrix {
+    fn delete_vertex_connections_for_all_value_types_unchecked(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        DeleteVertexConnections::<bool>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<i8>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<i16>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<i32>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<i64>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<u8>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<u16>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<u32>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<u64>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<f32>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<f64>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<isize>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        DeleteVertexConnections::<usize>::delete_vertex_connections_unchecked(self, vertex_index)?;
+        Ok(())
+    }
+}

@@ -4,6 +4,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
+use crate::graph::graph::VertexIndex;
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
@@ -93,6 +94,11 @@ pub(crate) trait VertexVectorTrait {
 
     fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError>;
     fn length(&self) -> Result<ElementCount, GraphComputingError>;
+
+    fn delete_element_for_all_value_types(
+        &mut self,
+        element_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
 }
 
 impl VertexVectorTrait for VertexVector {
@@ -131,5 +137,25 @@ impl VertexVectorTrait for VertexVector {
     fn length(&self) -> Result<ElementCount, GraphComputingError> {
         // Size is the same for all types
         Ok(self.sparse_vector_bool.length()?)
+    }
+
+    fn delete_element_for_all_value_types(
+        &mut self,
+        element_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.sparse_vector_bool.drop_element(*element_index)?;
+        self.sparse_vector_i8.drop_element(*element_index)?;
+        self.sparse_vector_i16.drop_element(*element_index)?;
+        self.sparse_vector_i32.drop_element(*element_index)?;
+        self.sparse_vector_i64.drop_element(*element_index)?;
+        self.sparse_vector_u8.drop_element(*element_index)?;
+        self.sparse_vector_u16.drop_element(*element_index)?;
+        self.sparse_vector_u32.drop_element(*element_index)?;
+        self.sparse_vector_u64.drop_element(*element_index)?;
+        self.sparse_vector_f32.drop_element(*element_index)?;
+        self.sparse_vector_f64.drop_element(*element_index)?;
+        self.sparse_vector_isize.drop_element(*element_index)?;
+        self.sparse_vector_usize.drop_element(*element_index)?;
+        Ok(())
     }
 }

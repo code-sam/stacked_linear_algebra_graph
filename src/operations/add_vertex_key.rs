@@ -2,12 +2,12 @@ use graphblas_sparse_linear_algebra::value_type::ValueType;
 
 use crate::{
     error::GraphComputingError,
+    graph::indexer::AssignedIndexTrait,
     graph::{
         graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex},
         vertex::{VertexKeyRef, VertexTypeKeyRef},
-        vertex_store::{vertex_operations::AddVertexKey as AddVertexKeyToVertexStore},
+        vertex_store::vertex_operations::AddVertexKey as AddVertexKeyToVertexStore,
     },
-    graph::indexer::AssignedIndexTrait,
 };
 
 pub trait AddVertexKey {
