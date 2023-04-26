@@ -44,11 +44,11 @@ static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRow<bool, bool>> =
     Lazy::new(|| InsertVectorIntoRow::<bool, bool>::new(&DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS, None));
 
 pub trait DeleteVertex {
-    fn delete_vertex_and_connected_edges_by_key(
+    fn drop_vertex_key_and_connected_edges(
         &mut self,
         vertex_key: &VertexKeyRef,
     ) -> Result<(), GraphComputingError>;
-    fn delete_vertex_and_connected_edges_by_index(
+    fn drop_vertex_index_and_connected_edges(
         &mut self,
         vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
@@ -73,7 +73,7 @@ pub trait DeleteVertexElement<T: ValueType> {
 }
 
 impl DeleteVertex for Graph {
-    fn delete_vertex_and_connected_edges_by_key(
+    fn drop_vertex_key_and_connected_edges(
         &mut self,
         vertex_key: &VertexKeyRef,
     ) -> Result<(), GraphComputingError> {
@@ -81,10 +81,10 @@ impl DeleteVertex for Graph {
             .vertex_store_ref()
             .element_indexer_ref()
             .try_index_for_key(vertex_key)?;
-        self.delete_vertex_and_connected_edges_by_index(&vertex_index)
+        self.drop_vertex_index_and_connected_edges(&vertex_index)
     }
 
-    fn delete_vertex_and_connected_edges_by_index(
+    fn drop_vertex_index_and_connected_edges(
         &mut self,
         vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
