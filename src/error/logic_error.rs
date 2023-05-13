@@ -31,6 +31,7 @@ pub enum LogicErrorType {
     InvalidIndex,
     InvalidKey,
     KeyAlreadyExists,
+    ProductCannotEqualArgument,
     VertexAlreadyExists,
     VertexMustExist,
     Other,

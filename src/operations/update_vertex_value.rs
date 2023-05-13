@@ -14,8 +14,6 @@ use crate::{
     },
 };
 
-use super::add_vertex::AddVertex;
-
 // REVIEW update vs set
 pub trait UpdateVertexValue<T: ValueType> {
     fn update_vertex_value_by_key(

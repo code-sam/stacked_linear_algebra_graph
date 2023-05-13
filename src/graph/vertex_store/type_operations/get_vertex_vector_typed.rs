@@ -13,7 +13,10 @@ use crate::{
     },
 };
 
-pub(crate) trait GetVertexVector {
+pub(crate) trait GetVertexVectorTyped<T: ValueType>
+where
+    VertexVector: SparseVertexVector<T>,
+{
     fn vertex_vector_by_index_ref(
         &self,
         vertex_type_index: &VertexTypeIndex,
@@ -46,7 +49,10 @@ pub(crate) trait GetVertexVector {
     ) -> Result<&mut VertexVector, GraphComputingError>;
 }
 
-impl GetVertexVector for VertexStore {
+impl<T: ValueType> GetVertexVectorTyped<T> for VertexStore
+where
+    VertexVector: SparseVertexVector<T>,
+{
     fn vertex_vector_by_index_ref(
         &self,
         vertex_type_index: &VertexTypeIndex,

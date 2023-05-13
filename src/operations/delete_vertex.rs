@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 
 use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::Assignment,
     insert::{
         InsertVectorIntoColumn, InsertVectorIntoColumnTrait, InsertVectorIntoRow,
         InsertVectorIntoRowTrait,
@@ -37,11 +38,15 @@ static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
 
 static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumn<bool, bool>> =
     Lazy::new(|| {
-        InsertVectorIntoColumn::<bool, bool>::new(&DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS, None)
+        InsertVectorIntoColumn::<bool, bool>::new(
+            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &Assignment::new(),
+        )
     });
 
-static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRow<bool, bool>> =
-    Lazy::new(|| InsertVectorIntoRow::<bool, bool>::new(&DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS, None));
+static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRow<bool, bool>> = Lazy::new(|| {
+    InsertVectorIntoRow::<bool, bool>::new(&DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS, &Assignment::new())
+});
 
 pub trait DeleteVertex {
     fn drop_vertex_key_and_connected_edges(

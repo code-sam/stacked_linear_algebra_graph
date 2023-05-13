@@ -1,6 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{Coordinate, SparseMatrixTrait};
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector;
+use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::insert::{
     InsertVectorIntoColumn, InsertVectorIntoColumnTrait,
 };
@@ -29,7 +30,7 @@ macro_rules! create_insert_vector_into_column_operators {
             Lazy::new(|| {
                 InsertVectorIntoColumn::<$value_type, $value_type>::new(
                     &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                    None,
+                    &Assignment::new(),
                 )
             });
     };
@@ -45,7 +46,7 @@ macro_rules! create_insert_vector_into_row_operators {
             Lazy::new(|| {
                 InsertVectorIntoRow::<$value_type, $value_type>::new(
                     &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                    None,
+                    &Assignment::new(),
                 )
             });
     };

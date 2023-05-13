@@ -26,8 +26,6 @@ use crate::{
     },
 };
 
-use super::add_vertex::AddVertex;
-
 // REVIEW update vs set
 pub trait UpdateEdgeWeight<T: ValueType> {
     fn update_edge_weight_by_key(

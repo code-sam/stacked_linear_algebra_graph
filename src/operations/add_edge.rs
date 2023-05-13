@@ -1,5 +1,5 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
-use graphblas_sparse_linear_algebra::value_type::ValueType;
+// use graphblas_sparse_linear_algebra::value_type::ValueType;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType, SystemError, SystemErrorType};
 
@@ -17,7 +17,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::indexer::IndexerTrait;
-use crate::graph::value_type::implement_macro_for_all_native_value_types;
+use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
 use crate::graph::vertex_store::vertex_operations::AddVertex;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::operations::Indexing as GraphIndexing;

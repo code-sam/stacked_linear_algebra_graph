@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
+use graphblas_sparse_linear_algebra::collections::sparse_vector::GraphblasSparseVectorTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
 use crate::graph::graph::VertexIndex;
+use crate::graph::value_type::ValueTypeIndex;
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
@@ -15,7 +17,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-pub(crate) struct VertexVector {
+pub struct VertexVector {
     vertex_type: VertexTypeKey,
     graphblas_context: Arc<GraphBLASContext>,
     sparse_vector_bool: SparseVector<bool>,
@@ -31,6 +33,19 @@ pub(crate) struct VertexVector {
     sparse_vector_f64: SparseVector<f64>,
     sparse_vector_isize: SparseVector<isize>,
     sparse_vector_usize: SparseVector<usize>,
+    // pub(crate) sparse_vector_bool: SparseVector<bool>,
+    // pub(crate) sparse_vector_i8: SparseVector<i8>,
+    // pub(crate) sparse_vector_i16: SparseVector<i16>,
+    // pub(crate) sparse_vector_i32: SparseVector<i32>,
+    // pub(crate) sparse_vector_i64: SparseVector<i64>,
+    // pub(crate) sparse_vector_u8: SparseVector<u8>,
+    // pub(crate) sparse_vector_u16: SparseVector<u16>,
+    // pub(crate) sparse_vector_u32: SparseVector<u32>,
+    // pub(crate) sparse_vector_u64: SparseVector<u64>,
+    // pub(crate) sparse_vector_f32: SparseVector<f32>,
+    // pub(crate) sparse_vector_f64: SparseVector<f64>,
+    // pub(crate) sparse_vector_isize: SparseVector<isize>,
+    // pub(crate) sparse_vector_usize: SparseVector<usize>,
 }
 
 impl VertexVector {
@@ -56,6 +71,48 @@ impl VertexVector {
             sparse_vector_isize: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
             sparse_vector_usize: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
         })
+    }
+}
+
+pub(crate) trait SparseVertexVectorDynamicDispatch<T: ValueType> {
+    fn sparse_vector_ref(&self) -> &dyn GraphblasSparseVectorTrait;
+    fn sparse_vector_mut_ref(&mut self) -> &mut dyn GraphblasSparseVectorTrait;
+}
+
+impl<T: ValueType> SparseVertexVectorDynamicDispatch<T> for VertexVector {
+    fn sparse_vector_ref(&self) -> &dyn GraphblasSparseVectorTrait {
+        match T::value_type_enum() {
+            ValueTypeIndex::Boolean => &self.sparse_vector_bool,
+            ValueTypeIndex::Integer8Bit => &self.sparse_vector_i8,
+            ValueTypeIndex::Integer16Bit => &self.sparse_vector_i16,
+            ValueTypeIndex::Integer32Bit => &self.sparse_vector_i32,
+            ValueTypeIndex::Integer64Bit => &self.sparse_vector_i64,
+            ValueTypeIndex::UnsignedInteger8Bit => &self.sparse_vector_u8,
+            ValueTypeIndex::UnsignedInteger16Bit => &self.sparse_vector_u16,
+            ValueTypeIndex::UnsignedInteger32Bit => &self.sparse_vector_u32,
+            ValueTypeIndex::UnsignedInteger64Bit => &self.sparse_vector_u64,
+            ValueTypeIndex::FloatingPoint32Bit => &self.sparse_vector_u32,
+            ValueTypeIndex::FloatingPoint64Bit => &self.sparse_vector_u64,
+            ValueTypeIndex::PointerSizedInteger => &self.sparse_vector_isize,
+            ValueTypeIndex::PointerSizedUnsizedInteger => &self.sparse_vector_usize,
+        }
+    }
+    fn sparse_vector_mut_ref(&mut self) -> &mut dyn GraphblasSparseVectorTrait {
+        match T::value_type_enum() {
+            ValueTypeIndex::Boolean => &mut self.sparse_vector_bool,
+            ValueTypeIndex::Integer8Bit => &mut self.sparse_vector_i8,
+            ValueTypeIndex::Integer16Bit => &mut self.sparse_vector_i16,
+            ValueTypeIndex::Integer32Bit => &mut self.sparse_vector_i32,
+            ValueTypeIndex::Integer64Bit => &mut self.sparse_vector_i64,
+            ValueTypeIndex::UnsignedInteger8Bit => &mut self.sparse_vector_u8,
+            ValueTypeIndex::UnsignedInteger16Bit => &mut self.sparse_vector_u16,
+            ValueTypeIndex::UnsignedInteger32Bit => &mut self.sparse_vector_u32,
+            ValueTypeIndex::UnsignedInteger64Bit => &mut self.sparse_vector_u64,
+            ValueTypeIndex::FloatingPoint32Bit => &mut self.sparse_vector_u32,
+            ValueTypeIndex::FloatingPoint64Bit => &mut self.sparse_vector_u64,
+            ValueTypeIndex::PointerSizedInteger => &mut self.sparse_vector_isize,
+            ValueTypeIndex::PointerSizedUnsizedInteger => &mut self.sparse_vector_usize,
+        }
     }
 }
 

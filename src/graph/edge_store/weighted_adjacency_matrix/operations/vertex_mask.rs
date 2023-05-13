@@ -1,6 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::context::ContextTrait;
+use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::{
     ApplyElementWiseVectorAdditionMonoidOperator, ElementWiseVectorAdditionMonoidOperator,
 };
@@ -47,7 +48,7 @@ macro_rules! implement_vertex_indexing {
                     MonoidReducer::<$value_type, bool>::new(
                         &Any::<$value_type>::new(),
                         &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                        None,
+                        &Assignment::new(),
                     );
                 GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION
                     .to_vector(&self.sparse_matrix_ref(), &mut from_vertex_vector_mask)?;
@@ -71,7 +72,7 @@ macro_rules! implement_vertex_indexing {
                     MonoidReducer::<$value_type, bool>::new(
                         &Any::<$value_type>::new(),
                         &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                        None,
+                        &Assignment::new(),
                     );
                 GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION
                     .to_vector(&self.sparse_matrix_ref(), &mut to_vertex_vector_mask)?;
@@ -95,7 +96,7 @@ macro_rules! implement_vertex_indexing {
                     ElementWiseVectorAdditionMonoidOperator::<bool>::new(
                         &LogicalOr::<bool>::new(),
                         &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                        None,
+                        &Assignment::new(),
                     );
                 GRAPHBLAS_VECTOR_OR_OPERATOR.apply(
                     &VertexMasking::<$value_type>::mask_vertices_with_incoming_edges(self)?,

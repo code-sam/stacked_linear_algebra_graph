@@ -70,6 +70,8 @@ pub type VertexTypeIndex = Index;
 pub type EdgeTypeIndex = Index;
 
 pub(crate) trait GraphTrait {
+    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
+
     // fn update_vertex_value_by_index(&mut self, index: &VertexIndex, value: T) -> Result<(), GraphComputingError>;
 
     fn vertex_store_ref(&self) -> &VertexStore;
@@ -90,6 +92,10 @@ pub(crate) trait GraphTrait {
 }
 
 impl GraphTrait for Graph {
+    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
+        &self.graphblas_context
+    }
+
     // fn contains_vertex_key(&self, key: &VertexKeyRef) -> bool {
     //     self.vertex_store.is_valid_key(key)
     // }
@@ -162,16 +168,6 @@ pub struct Graph {
     graphblas_context: Arc<GraphblasContext>,
     vertex_store: VertexStore,
     edge_store: EdgeStore,
-    // vertex_indexer: Indexer,
-    // edge_type_indexer: Indexer,
-    // vertex_store: IndexedDataStore<Vertex>,
-    // vertex_key_to_vertex_index_map: HashMap<VertexKey, VertexIndex>, // maps a vertex key to a Vertex
-    // vertex_set: FxHashSet<String>,
-    // edge_types: IndexedDataStore<EdgeType>,
-    // adjacency_matrices: IndexedDataStore<AdjacencyMatrix>,
-    // edges: IndexedDataStore<Vec<DirectedEdge>>, // first dimension over edge_type, second over adjacency_matrix element index
-    // edge_type_to_edge_type_index_map: HashMap<EdgeType, EdgeTypeIndex>, // maps an edge type key to an adjacency matrix
-    // edge_set: FxHashSet<String>,                // TODO: type, unique connections
 }
 
 // let mut map: FxHashMap<String, ElementIndex> = FxHashMap::default();
@@ -209,162 +205,18 @@ impl Graph {
                 &initial_vertex_capacity,
                 &initial_edge_type_capacity,
             )?,
-            // vertex_indexer: Indexer::with_initial_capacity(
-            //     &graphblas_context,
-            //     &initial_vertex_capacity,
-            // )?,
-            // edge_type_indexer: Indexer::with_initial_capacity(
-            //     &graphblas_context,
-            //     &initial_edge_type_capacity,
-            // )?,
-            // edge_type_to_edge_type_index_map,
         };
-
-        // allocate a dummy adjacency matrix to support self.expand_adjacency_matrices_to_match_target_capacity(),
-        // TODO: research a more elegant alternative
-        // let dummy_edge_type = EdgeType::from("Dummy_at_init");
-        // graph.add_new_edge_type(dummy_edge_type.clone())?;
-        // graph.drop_edge_type_with_key(dummy_edge_type.as_str())?;
 
         Ok(graph)
     }
 
-    // TODO: consider to introduce a sepate data type, like GraphWithSharedInders,
-    // to avoid Mutex or RwLock overhead if functionality not required.
-    // pub fn with_indexers() -> Result<Self, GraphComputingError> {}
+    pub(crate) fn vertex_store_mut_ref_unsafe(&mut self) -> *mut VertexStore {
+        &mut self.vertex_store
+    }
 
-    // pub(crate) fn indexed_vertex_and_edge_matrices_ref(
-    //     &self,
-    // ) -> &IndexedVertexAndAdjacencyMatrixStore {
-    //     &self.indexed_vertices_and_edge_matrices
-    // }
-
-    // pub(crate) fn indexed_vertices_and_edge_matrices_mut_ref(
-    //     &mut self,
-    // ) -> &mut IndexedVertexAndAdjacencyMatrixStore {
-    //     &mut self.indexed_vertices_and_edge_matrices
-    // }
-
-    // pub(crate) fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
-    //     &self.graphblas_context
-    // }
-    // pub(crate) fn graphblas_context_mut_ref(&mut self) -> &mut Arc<GraphblasContext> {
-    //     &mut self.graphblas_context.clone()
-    // }
-
-    // pub(crate) fn vertex_store_ref(&self) -> &IndexedDataStore<Vertex> {
-    //     &self.vertex_store
-    // }
-    // pub(crate) fn vertex_store_mut_ref(&mut self) -> &mut IndexedDataStore<Vertex> {
-    //     &mut self.vertex_store
-    // }
-
-    // pub(crate) fn adjacency_matrices_ref(&self) -> &IndexedDataStore<AdjacencyMatrix> {
-    //     &self.adjacency_matrices
-    // }
-    // pub(crate) fn adjacency_matrices_mut_ref(&mut self) -> &mut IndexedDataStore<AdjacencyMatrix> {
-    //     &mut self.adjacency_matrices
-    // }
-
-    // pub(crate) fn edge_type_to_edge_type_index_map_ref(&self) -> &HashMap<EdgeType, EdgeTypeIndex> {
-    //     &self.edge_type_to_edge_type_index_map
-    // }
-    // pub(crate) fn edge_type_to_edge_type_index_map_mut_ref(
-    //     &mut self,
-    // ) -> &mut HashMap<EdgeType, EdgeTypeIndex> {
-    //     &mut self.edge_type_to_edge_type_index_map
-    // }
-
-    // pub(crate) fn expand_adjacency_matrices_to_match_vertex_capacity(
-    //     &mut self,
-    // ) -> Result<(), GraphComputingError> {
-    //     // REVIEW: would it be more efficient to allocate a freed adjacency matrix at matrix initialization, instead of doing this check everytime?
-    //     // if self.adjacency_matrices.get_number_of_stored_and_reusable_elements()? > 0 {
-    //     match self.adjacency_matrices.get_ref(EdgeTypeIndex::new(0)) {
-    //         // this line required the allocation of a dummy adjacency matrix at graph initialization. Review if a more elegant solution can be used.
-    //         Err(_) => Ok(()), // TODO: check error type, pass error if not index-out-bounds
-    //         Ok(adjacency_matrix) => {
-    //             let target_capacity = self.vertex_capacity()?;
-    //             if target_capacity > adjacency_matrix.get_vertex_capacity()? {
-    //                 let resize_adjacency_matrix = |adjacency_matrix: &mut AdjacencyMatrix| -> Result<(), GraphComputingError> {
-    //                         adjacency_matrix.resize(target_capacity) // REVIEW: return error instead of panic
-    //                     };
-    //                 self.adjacency_matrices.map_mut_all(resize_adjacency_matrix)
-    //             } else {
-    //                 Ok(())
-    //             }
-    //         }
-    //     }
-    //     // } else {
-    //     //     Ok(())
-    //     // }
-    // }
-
-    // pub(crate) fn get_edge_adjacency_matrix_ref(
-    //     &self,
-    //     edge_type: &EdgeTypeRef,
-    // ) -> Result<&AdjacencyMatrix, GraphComputingError> {
-    //     match self.edge_type_to_edge_type_index_map.get(edge_type) {
-    //         None => Err(UserError::new(
-    //             UserErrorType::EdgeTypeDoesNotExist,
-    //             format!("Edge type {} does not exist", edge_type),
-    //             None,
-    //         )
-    //         .into()),
-    //         Some(&index) => match self.adjacency_matrices.get_ref(index) {
-    //             Ok(adjacency_matrix) => Ok(adjacency_matrix),
-    //             Err(_) => Err(LogicError::new(
-    //                 // TODO: match actual error type
-    //                 LogicErrorType::Other,
-    //                 format!(
-    //                     "No adjacency matrix at mapped edge type index [{}]",
-    //                     index.index()
-    //                 ),
-    //                 None,
-    //             )
-    //             .into()),
-    //         },
-    //     }
-    // }
-
-    // pub(crate) fn get_edge_adjacency_matrix_mut_ref(
-    //     &mut self,
-    //     edge_type: &EdgeTypeRef,
-    // ) -> Result<&mut AdjacencyMatrix, GraphComputingError> {
-    //     match self.edge_type_to_edge_type_index_map.get(edge_type) {
-    //         None => Err(UserError::new(
-    //             UserErrorType::EdgeTypeDoesNotExist,
-    //             format!("Edge type {} does not exist", edge_type),
-    //             None,
-    //         )
-    //         .into()),
-    //         Some(&index) => match self.adjacency_matrices.get_mut_ref(index) {
-    //             Ok(adjacency_matrix) => Ok(adjacency_matrix),
-    //             Err(_) => Err(LogicError::new(
-    //                 // TODO: match actual error type
-    //                 LogicErrorType::Other,
-    //                 format!(
-    //                     "No adjacency matrix at mapped edge type index [{}]",
-    //                     index.index()
-    //                 ),
-    //                 None,
-    //             )
-    //             .into()),
-    //         },
-    //     }
-    // }
-
-    // fn get_adjacency_matrix_target_capacity(&self) -> Result<VertexIndex, GraphComputingError> {
-    //     Ok(self.vertex_values.get_capacity()?)
-    // }
-
-    // pub(crate) fn index_mask_with_all_vertices(&self) -> &SparseVector<bool> {
-    //     self.vertex_store.mask_with_valid_indices_ref()
-    // }
-
-    // pub(crate) fn index_mask_with_all_adjacency_matrices(&self) -> &SparseVector<bool> {
-    //     self.adjacency_matrices.mask_with_valid_indices_ref()
-    // }
+    pub(crate) fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore {
+        &mut self.edge_store
+    }
 }
 
 #[cfg(test)]
