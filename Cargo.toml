@@ -12,12 +12,11 @@ repository = "https://github.com/code-sam/cairn-knowledge-graph"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# graphblas_sparse_linear_algebra = {version = "0.18.3"}
-graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "remove-dummy-trait-bounds"}
+graphblas_sparse_linear_algebra = {version = "0.19.0"}
 hashbrown = {version = "0.13", features = ["rayon"]}
 once_cell = {version = "1.17"}
 paste = {version = "1.0"}
-rayon = {version = "1.6"}
+rayon = {version = "1.7"}
 
 [dev-dependencies]
 criterion = "0.4"

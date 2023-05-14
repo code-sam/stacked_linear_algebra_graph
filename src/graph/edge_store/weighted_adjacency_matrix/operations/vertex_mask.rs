@@ -45,13 +45,17 @@ macro_rules! implement_vertex_indexing {
                 )?;
                 // TODO: think about caching for performance optimization
                 let GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION =
-                    MonoidReducer::<$value_type, bool>::new(
+                    MonoidReducer::<$value_type>::new(
                         &Any::<$value_type>::new(),
                         &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                         &Assignment::new(),
                     );
-                GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION
-                    .to_vector(&self.sparse_matrix_ref(), &mut from_vertex_vector_mask)?;
+                GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION.to_vector(
+                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    ),
+                    &mut from_vertex_vector_mask,
+                )?;
                 Ok(from_vertex_vector_mask)
             }
 
@@ -69,13 +73,17 @@ macro_rules! implement_vertex_indexing {
                     .row_height()?,
                 )?;
                 let GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION =
-                    MonoidReducer::<$value_type, bool>::new(
+                    MonoidReducer::<$value_type>::new(
                         &Any::<$value_type>::new(),
                         &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                         &Assignment::new(),
                     );
-                GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION
-                    .to_vector(&self.sparse_matrix_ref(), &mut to_vertex_vector_mask)?;
+                GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION.to_vector(
+                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                        self,
+                    ),
+                    &mut to_vertex_vector_mask,
+                )?;
                 Ok(to_vertex_vector_mask)
             }
 

@@ -208,4 +208,3 @@ macro_rules! implement_apply_binary_operator_with_mask {
     };
 }
 implement_macro_for_all_native_value_types!(implement_apply_binary_operator_with_mask);
-
