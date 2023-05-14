@@ -21,16 +21,16 @@ use crate::{
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
 
-pub(crate) trait VertexMasking<T: ValueType> {
-    fn mask_vertices_with_outgoing_edges(&self) -> Result<SparseVector<bool>, GraphComputingError>;
-    fn mask_vertices_with_incoming_edges(&self) -> Result<SparseVector<bool>, GraphComputingError>;
-    fn mask_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError>;
+pub(crate) trait SelectEdgeVertices<T: ValueType> {
+    fn select_vertices_with_outgoing_edges(&self) -> Result<SparseVector<bool>, GraphComputingError>;
+    fn select_vertices_with_incoming_edges(&self) -> Result<SparseVector<bool>, GraphComputingError>;
+    fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError>;
 }
 
 macro_rules! implement_vertex_indexing {
     ($value_type:ty) => {
-        impl VertexMasking<$value_type> for WeightedAdjacencyMatrix {
-            fn mask_vertices_with_outgoing_edges(
+        impl SelectEdgeVertices<$value_type> for WeightedAdjacencyMatrix {
+            fn select_vertices_with_outgoing_edges(
                 &self,
             ) -> Result<SparseVector<bool>, GraphComputingError> {
                 let mut from_vertex_vector_mask = SparseVector::new(
@@ -59,7 +59,7 @@ macro_rules! implement_vertex_indexing {
                 Ok(from_vertex_vector_mask)
             }
 
-            fn mask_vertices_with_incoming_edges(
+            fn select_vertices_with_incoming_edges(
                 &self,
             ) -> Result<SparseVector<bool>, GraphComputingError> {
                 let mut to_vertex_vector_mask = SparseVector::new(
@@ -89,7 +89,7 @@ macro_rules! implement_vertex_indexing {
 
             // TODO: this implementation is not type specific
             // TODO: wrap mask into a business struct
-            fn mask_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError> {
+            fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError> {
                 let mut vertex_vector_mask = SparseVector::new(
                     WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
                         self,
@@ -107,8 +107,8 @@ macro_rules! implement_vertex_indexing {
                         &Assignment::new(),
                     );
                 GRAPHBLAS_VECTOR_OR_OPERATOR.apply(
-                    &VertexMasking::<$value_type>::mask_vertices_with_incoming_edges(self)?,
-                    &VertexMasking::<$value_type>::mask_vertices_with_outgoing_edges(self)?,
+                    &SelectEdgeVertices::<$value_type>::select_vertices_with_incoming_edges(self)?,
+                    &SelectEdgeVertices::<$value_type>::select_vertices_with_outgoing_edges(self)?,
                     &mut vertex_vector_mask,
                 )?;
                 Ok(vertex_vector_mask)

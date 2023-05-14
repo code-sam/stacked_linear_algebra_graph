@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::{
     value_type::ValueType,
 };
 
-use crate::graph::edge_store::weighted_adjacency_matrix::operations::vertex_mask::VertexMasking;
+use crate::graph::edge_store::weighted_adjacency_matrix::operations::select_edge_vertices::SelectEdgeVertices;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait;
 use crate::{
     error::GraphComputingError,
@@ -111,7 +111,7 @@ macro_rules! implement_indexing {
                 &self,
             ) -> Result<Vec<VertexIndex>, GraphComputingError> {
                 Ok(
-                    VertexMasking::<$value_type>::mask_vertices_with_outgoing_edges(self)?
+                    SelectEdgeVertices::<$value_type>::select_vertices_with_outgoing_edges(self)?
                         .get_element_list()?
                         .indices_ref()
                         .to_vec(),
@@ -122,7 +122,7 @@ macro_rules! implement_indexing {
                 &self,
             ) -> Result<Vec<VertexIndex>, GraphComputingError> {
                 Ok(
-                    VertexMasking::<$value_type>::mask_vertices_with_incoming_edges(self)?
+                    SelectEdgeVertices::<$value_type>::select_vertices_with_incoming_edges(self)?
                         .get_element_list()?
                         .indices_ref()
                         .to_vec(),
@@ -133,7 +133,7 @@ macro_rules! implement_indexing {
             fn indices_of_connected_vertices(
                 &self,
             ) -> Result<Vec<VertexIndex>, GraphComputingError> {
-                Ok(VertexMasking::<$value_type>::mask_connected_vertices(self)?
+                Ok(SelectEdgeVertices::<$value_type>::select_connected_vertices(self)?
                     .get_element_list()?
                     .indices_ref()
                     .to_vec())
