@@ -71,7 +71,7 @@ impl UpdateEdgeWeight<bool> for Graph {
         edge: &WeightedDirectedEdgeDefinedByIndices<bool>,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
-            .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type_ref())?
+            .try_adjacency_matrix_mut_ref_for_index(edge.coordinate_ref().edge_type_ref())?
             .update_edge_weight_unchecked(
                 &edge.coordinate_ref().adjacency_matrix_coordinate(),
                 edge.weight_ref(),

@@ -126,7 +126,7 @@ macro_rules! implement_add_edge {
                     *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
 
                 self.edge_store_mut_ref()
-                    .adjacency_matrix_mut_ref_unchecked(&edge_type_index)
+                    .adjacency_matrix_mut_ref_unchecked_for_index(&edge_type_index)
                     .add_edge_defined_by_indices_without_edge_type_unchecked(
                         &tail_index,
                         &head_index,
@@ -144,7 +144,9 @@ macro_rules! implement_add_edge {
 
                 let adjacency_matrix = self
                     .edge_store_mut_ref()
-                    .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type_ref())?;
+                    .try_adjacency_matrix_mut_ref_for_index(
+                        edge.coordinate_ref().edge_type_ref(),
+                    )?;
 
                 if Indexing::<$value_type>::is_edge(
                     adjacency_matrix,
@@ -174,7 +176,9 @@ macro_rules! implement_add_edge {
 
                 let adjacency_matrix = self
                     .edge_store_mut_ref()
-                    .try_adjacency_matrix_mut_ref(edge.coordinate_ref().edge_type_ref())?;
+                    .try_adjacency_matrix_mut_ref_for_index(
+                        edge.coordinate_ref().edge_type_ref(),
+                    )?;
 
                 adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
                 Ok(())

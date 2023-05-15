@@ -68,7 +68,7 @@ static GRAPHBLAS_OPERATOR_OPTIONS_TRANSPOSE_INPUT0: Lazy<OperatorOptions> =
 //     });
 
 #[derive(Clone, Debug)]
-pub(crate) struct WeightedAdjacencyMatrix {
+pub struct WeightedAdjacencyMatrix {
     edge_type: EdgeTypeKey,
     graphblas_context: Arc<GraphBLASContext>,
     sparse_matrix_bool: SparseMatrix<bool>,

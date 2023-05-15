@@ -22,8 +22,12 @@ static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
 
 pub(crate) trait SelectEdgeVertices<T: ValueType> {
-    fn select_vertices_with_outgoing_edges(&self) -> Result<SparseVector<bool>, GraphComputingError>;
-    fn select_vertices_with_incoming_edges(&self) -> Result<SparseVector<bool>, GraphComputingError>;
+    fn select_vertices_with_outgoing_edges(
+        &self,
+    ) -> Result<SparseVector<bool>, GraphComputingError>;
+    fn select_vertices_with_incoming_edges(
+        &self,
+    ) -> Result<SparseVector<bool>, GraphComputingError>;
     fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError>;
 }
 

@@ -133,10 +133,12 @@ macro_rules! implement_indexing {
             fn indices_of_connected_vertices(
                 &self,
             ) -> Result<Vec<VertexIndex>, GraphComputingError> {
-                Ok(SelectEdgeVertices::<$value_type>::select_connected_vertices(self)?
-                    .get_element_list()?
-                    .indices_ref()
-                    .to_vec())
+                Ok(
+                    SelectEdgeVertices::<$value_type>::select_connected_vertices(self)?
+                        .get_element_list()?
+                        .indices_ref()
+                        .to_vec(),
+                )
             }
         }
     };

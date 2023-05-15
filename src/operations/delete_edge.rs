@@ -52,7 +52,7 @@ macro_rules! implement_delete_edge {
                 );
                 DeleteEdgeInAdjacencyMatrix::<$value_type>::delete_edge_unchecked(
                     self.edge_store_mut_ref()
-                        .try_adjacency_matrix_mut_ref(&edge_type_index)?,
+                        .try_adjacency_matrix_mut_ref_for_index(&edge_type_index)?,
                     &coordinate_to_delete,
                 )?;
                 Ok(())
@@ -64,7 +64,7 @@ macro_rules! implement_delete_edge {
             ) -> Result<(), GraphComputingError> {
                 DeleteEdgeInAdjacencyMatrix::<$value_type>::delete_edge_unchecked(
                     self.edge_store_mut_ref()
-                        .try_adjacency_matrix_mut_ref(edge_to_delete.edge_type_ref())?,
+                        .try_adjacency_matrix_mut_ref_for_index(edge_to_delete.edge_type_ref())?,
                     &edge_to_delete.adjacency_matrix_coordinate(),
                 )?;
                 Ok(())

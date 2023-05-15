@@ -11,20 +11,20 @@ use crate::{
 };
 
 pub(crate) trait GetAdjacencyMatrix {
-    fn try_adjacency_matrix_ref(
+    fn try_adjacency_matrix_ref_for_index(
         &self,
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError>;
-    fn try_adjacency_matrix_mut_ref(
+    fn try_adjacency_matrix_mut_ref_for_index(
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError>;
 
-    fn adjacency_matrix_ref_unchecked(
+    fn adjacency_matrix_ref_unchecked_for_index(
         &self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &WeightedAdjacencyMatrix;
-    fn adjacency_matrix_mut_ref_unchecked(
+    fn adjacency_matrix_mut_ref_unchecked_for_index(
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &mut WeightedAdjacencyMatrix;
@@ -40,14 +40,14 @@ pub(crate) trait GetAdjacencyMatrix {
 }
 
 impl GetAdjacencyMatrix for EdgeStore {
-    fn adjacency_matrix_ref_unchecked(
+    fn adjacency_matrix_ref_unchecked_for_index(
         &self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &WeightedAdjacencyMatrix {
         &self.adjacency_matrices_ref()[*edge_type_index]
     }
 
-    fn adjacency_matrix_mut_ref_unchecked(
+    fn adjacency_matrix_mut_ref_unchecked_for_index(
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &mut WeightedAdjacencyMatrix {
@@ -73,7 +73,7 @@ impl GetAdjacencyMatrix for EdgeStore {
         Ok(&mut self.adjacency_matrices_mut_ref()[index])
     }
 
-    fn try_adjacency_matrix_ref(
+    fn try_adjacency_matrix_ref_for_index(
         &self,
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
@@ -88,7 +88,7 @@ impl GetAdjacencyMatrix for EdgeStore {
         }
     }
 
-    fn try_adjacency_matrix_mut_ref(
+    fn try_adjacency_matrix_mut_ref_for_index(
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {

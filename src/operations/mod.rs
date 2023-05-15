@@ -22,7 +22,7 @@ pub use add_edge_type::AddEdgeType;
 pub use add_vertex::AddVertex;
 pub use add_vertex_key::AddVertexKey;
 pub use add_vertex_type::AddVertexType;
-pub use apply_binary_operator::ApplyBinaryOperator;
+pub use apply_binary_operator::ApplyBinaryOperatorToAdjacencyMatrix;
 pub use delete_edge::DeleteEdge;
 pub use delete_vertex::DeleteVertex;
 pub use drop_edge_type::DropEdgeType;
