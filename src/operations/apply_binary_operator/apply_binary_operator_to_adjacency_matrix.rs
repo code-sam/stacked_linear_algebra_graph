@@ -379,3 +379,113 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
 implement_macro_for_all_native_value_types!(
     implement_apply_binary_operator_to_adjacency_matrix_with_mask
 );
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::graph::edge::{
+        DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
+        WeightedDirectedEdgeDefinedByKeysTrait,
+    };
+    use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
+    use crate::operations::add_edge::AddEdge;
+    use crate::operations::add_vertex::AddVertex;
+    use crate::operations::{AddEdgeType, AddVertexType, ReadEdgeWeight};
+
+    #[test]
+    fn add_scalar_to_adjacency_matrix() {
+        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+
+        let vertex_type_key = "vertex_type";
+        let edge_type_1_key = "edge_type_1";
+        let edge_type_2_key = "edge_type_2";
+        let result_type_key = "result_type";
+
+        let vertex_1 = VertexDefinedByKey::new(vertex_type_key, "vertex_1", &1u8);
+        let vertex_2 = VertexDefinedByKey::new(vertex_type_key, "vertex_2", &2u8);
+
+        let edge_vertex1_vertex2 = WeightedDirectedEdgeDefinedByKeys::new(
+            DirectedEdgeCoordinateDefinedByKeys::new(
+                edge_type_1_key,
+                vertex_1.key_ref(),
+                vertex_2.key_ref(),
+            ),
+            1u8,
+        );
+        let edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
+            DirectedEdgeCoordinateDefinedByKeys::new(
+                edge_type_1_key,
+                vertex_2.key_ref(),
+                vertex_1.key_ref(),
+            ),
+            2u16,
+        );
+        let edge_vertex1_vertex2_type_2 = WeightedDirectedEdgeDefinedByKeys::new(
+            DirectedEdgeCoordinateDefinedByKeys::new(
+                edge_type_2_key,
+                vertex_1.key_ref(),
+                vertex_2.key_ref(),
+            ),
+            3u32,
+        );
+
+        let vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let vertex_1_index = graph.add_new_vertex(vertex_1.clone()).unwrap();
+        let vertex_2_index = graph.add_new_vertex(vertex_2.clone()).unwrap();
+
+        let edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
+        let edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
+        let result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+
+        graph
+            .add_new_edge_using_keys(edge_vertex1_vertex2.clone())
+            .unwrap();
+        graph
+            .add_new_edge_using_keys(edge_vertex2_vertex1.clone())
+            .unwrap();
+        graph
+            .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
+            .unwrap();
+
+        let plus_binaray_operator = BinaryOperatorApplier::new(
+            &Plus::<u8>::new(),
+            &OperatorOptions::new_default(),
+            &Assignment::new(),
+        );
+
+        ApplyBinaryOperatorToAdjacencyMatrix::<u8, u16, u8>::with_key_defined_adjacency_matrix_as_first_argument(
+            &mut graph,
+            &edge_type_1_key,
+            &plus_binaray_operator,
+            &1,
+            result_type_key,
+        ).unwrap();
+
+        assert_eq!(ReadEdgeWeight::<u16>::key_defined_edge_weight(
+            &graph,
+            &DirectedEdgeCoordinateDefinedByKeys::new(
+                result_type_key,
+                vertex_1.key_ref(),
+                vertex_2.key_ref(),
+            ),
+        ).unwrap(), Some(2));
+
+        ApplyBinaryOperatorToAdjacencyMatrix::<u32, u16, u8>::with_key_defined_adjacency_matrix_as_first_argument(
+            &mut graph,
+            &edge_type_2_key,
+            &plus_binaray_operator,
+            &u8::MAX,
+            result_type_key,
+        ).unwrap();
+
+        assert_eq!(ReadEdgeWeight::<u16>::key_defined_edge_weight(
+            &graph,
+            &DirectedEdgeCoordinateDefinedByKeys::new(
+                result_type_key,
+                vertex_1.key_ref(),
+                vertex_2.key_ref(),
+            ),
+        ).unwrap(), Some(2))
+    }
+}
