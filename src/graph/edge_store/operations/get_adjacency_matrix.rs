@@ -20,11 +20,11 @@ pub(crate) trait GetAdjacencyMatrix {
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError>;
 
-    fn adjacency_matrix_ref_unchecked_for_index(
+    fn adjacency_matrix_ref_for_index_unchecked(
         &self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &WeightedAdjacencyMatrix;
-    fn adjacency_matrix_mut_ref_unchecked_for_index(
+    fn adjacency_matrix_mut_ref_for_index_unchecked(
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &mut WeightedAdjacencyMatrix;
@@ -40,14 +40,14 @@ pub(crate) trait GetAdjacencyMatrix {
 }
 
 impl GetAdjacencyMatrix for EdgeStore {
-    fn adjacency_matrix_ref_unchecked_for_index(
+    fn adjacency_matrix_ref_for_index_unchecked(
         &self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &WeightedAdjacencyMatrix {
         &self.adjacency_matrices_ref()[*edge_type_index]
     }
 
-    fn adjacency_matrix_mut_ref_unchecked_for_index(
+    fn adjacency_matrix_mut_ref_for_index_unchecked(
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &mut WeightedAdjacencyMatrix {

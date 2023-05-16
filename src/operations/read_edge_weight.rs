@@ -57,7 +57,7 @@ macro_rules! implement_read_edge_weight {
             ) -> Result<Option<$value_type>, GraphComputingError> {
                 self.try_index_defined_edge_coordinate_validity(edge_coordinate)?;
                 self.edge_store_ref()
-                    .adjacency_matrix_ref_unchecked_for_index(edge_coordinate.edge_type_ref())
+                    .adjacency_matrix_ref_for_index_unchecked(edge_coordinate.edge_type_ref())
                     .edge_weight_unchecked(&edge_coordinate.adjacency_matrix_coordinate())
             }
 
@@ -78,7 +78,7 @@ macro_rules! implement_read_edge_weight {
                     .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.head_ref())?;
                 self.edge_store_ref()
-                    .adjacency_matrix_ref_unchecked_for_index(edge_type_index)
+                    .adjacency_matrix_ref_for_index_unchecked(edge_type_index)
                     .edge_weight_unchecked(&AdjacencyMatrixCoordinate::new(
                         *tail_index,
                         *head_index,
@@ -91,7 +91,7 @@ macro_rules! implement_read_edge_weight {
             ) -> Result<$value_type, GraphComputingError> {
                 self.try_index_defined_edge_coordinate_validity(edge_coordinate)?;
                 self.edge_store_ref()
-                    .adjacency_matrix_ref_unchecked_for_index(edge_coordinate.edge_type_ref())
+                    .adjacency_matrix_ref_for_index_unchecked(edge_coordinate.edge_type_ref())
                     .try_edge_weight_unchecked(&edge_coordinate.adjacency_matrix_coordinate())
             }
 
@@ -112,7 +112,7 @@ macro_rules! implement_read_edge_weight {
                     .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.head_ref())?;
                 self.edge_store_ref()
-                    .adjacency_matrix_ref_unchecked_for_index(edge_type_index)
+                    .adjacency_matrix_ref_for_index_unchecked(edge_type_index)
                     .try_edge_weight_unchecked(&AdjacencyMatrixCoordinate::new(
                         *tail_index,
                         *head_index,
@@ -126,7 +126,7 @@ macro_rules! implement_read_edge_weight {
             ) -> Result<$value_type, GraphComputingError> {
                 self.try_index_defined_edge_coordinate_validity(edge_coordinate)?;
                 self.edge_store_ref()
-                    .adjacency_matrix_ref_unchecked_for_index(edge_coordinate.edge_type_ref())
+                    .adjacency_matrix_ref_for_index_unchecked(edge_coordinate.edge_type_ref())
                     .edge_weight_or_default_unchecked(
                         &edge_coordinate.adjacency_matrix_coordinate(),
                     )
@@ -150,7 +150,7 @@ macro_rules! implement_read_edge_weight {
                     .element_indexer_ref()
                     .try_index_for_key(edge_coordinate.head_ref())?;
                 self.edge_store_ref()
-                    .adjacency_matrix_ref_unchecked_for_index(edge_type_index)
+                    .adjacency_matrix_ref_for_index_unchecked(edge_type_index)
                     .edge_weight_or_default_unchecked(&AdjacencyMatrixCoordinate::new(
                         *tail_index,
                         *head_index,

@@ -161,7 +161,7 @@ macro_rules! implement_set_vertex_data {
                 vertex_index: &VertexIndex,
             ) -> Result<Option<$value_type>, GraphComputingError> {
                 Ok(self
-                    .vertex_vector_by_index_ref(vertex_type_index)?
+                    .vertex_vector_ref_by_index(vertex_type_index)?
                     .sparse_vector_ref()
                     .get_element_value(vertex_index)?)
             }
@@ -172,7 +172,7 @@ macro_rules! implement_set_vertex_data {
                 vertex_index: &VertexIndex,
             ) -> Result<$value_type, GraphComputingError> {
                 match self
-                    .vertex_vector_by_index_ref(vertex_type_index)?
+                    .vertex_vector_ref_by_index(vertex_type_index)?
                     .sparse_vector_ref()
                     .get_element_value(vertex_index)? {
                         Some(weight) => Ok(weight),
@@ -192,7 +192,7 @@ macro_rules! implement_set_vertex_data {
                 vertex_index: &VertexIndex,
             ) -> Result<$value_type, GraphComputingError> {
                 Ok(self
-                    .vertex_vector_by_index_ref(vertex_type_index)?
+                    .vertex_vector_ref_by_index(vertex_type_index)?
                     .sparse_vector_ref()
                     .get_element_value_or_default(vertex_index)?)
             }
@@ -203,7 +203,7 @@ macro_rules! implement_set_vertex_data {
                 vertex_index: &VertexIndex,
             ) -> Result<Option<$value_type>, GraphComputingError> {
                 Ok(self
-                    .vertex_vector_by_index_ref_unchecked(vertex_type_index)
+                    .vertex_vector_ref_by_index_unchecked(vertex_type_index)
                     .sparse_vector_ref()
                     .get_element_value(vertex_index)?)
             }
@@ -214,7 +214,7 @@ macro_rules! implement_set_vertex_data {
                 vertex_index: &VertexIndex,
             ) -> Result<$value_type, GraphComputingError> {
                 match self
-                    .vertex_vector_by_index_ref_unchecked(vertex_type_index)
+                    .vertex_vector_ref_by_index_unchecked(vertex_type_index)
                     .sparse_vector_ref()
                     .get_element_value(vertex_index)? {
                         Some(weight) => Ok(weight),
@@ -234,7 +234,7 @@ macro_rules! implement_set_vertex_data {
                 vertex_index: &VertexIndex,
             ) -> Result<$value_type, GraphComputingError> {
                 Ok(self
-                    .vertex_vector_by_index_ref_unchecked(vertex_type_index)
+                    .vertex_vector_ref_by_index_unchecked(vertex_type_index)
                     .sparse_vector_ref()
                     .get_element_value_or_default(vertex_index)?)
             }

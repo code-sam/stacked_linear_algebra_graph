@@ -92,7 +92,7 @@ macro_rules! implement_add_vertex_element {
                 let vertex_index = self
                     .element_indexer_mut_ref()
                     .add_or_reuse_key(vertex.key_ref())?;
-                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_by_index_mut_ref_unchecked(&type_index)
+                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(&type_index)
                     .sparse_vector_mut_ref();
                 match vertex_vector.get_element_value(vertex_index.index_ref())? {
                     Some(_) => {
@@ -123,7 +123,7 @@ macro_rules! implement_add_vertex_element {
                 let vertex_index = self
                     .element_indexer_mut_ref()
                     .add_or_reuse_key(vertex.key_ref())?;
-                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_by_index_mut_ref_unchecked(vertex.type_index_ref())
+                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
                     .sparse_vector_mut_ref();
                 match vertex_vector.get_element_value(vertex_index.index_ref())? {
                     Some(_) => {
@@ -149,7 +149,7 @@ macro_rules! implement_add_vertex_element {
                 &mut self,
                 vertex: VertexDefinedByIndex<$value_type>,
             ) -> Result<(), GraphComputingError> {
-                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?
+                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
                 .sparse_vector_mut_ref();
                 match vertex_vector.get_element_value(vertex.index_ref())? {
                     Some(_) => {
@@ -211,7 +211,7 @@ macro_rules! implement_add_vertex_element {
                     .element_indexer_mut_ref()
                     .add_new_key(vertex.key_ref()) {
                         Ok(vertex_index) => {
-                            self.vertex_vector_by_index_mut_ref(&type_index)?
+                            self.vertex_vector_mut_ref_by_index(&type_index)?
                                 .sparse_vector_mut_ref()
                                 .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
                             return Ok(Some(vertex_index))
@@ -241,7 +241,7 @@ macro_rules! implement_add_vertex_element {
                     }
                 }
 
-                self.vertex_vector_by_index_mut_ref(&type_index)?
+                self.vertex_vector_mut_ref_by_index(&type_index)?
                     .sparse_vector_mut_ref()
                     .set_element((vertex_index, *vertex.value_ref()).into())?;
                 Ok(None)
@@ -274,7 +274,7 @@ macro_rules! implement_add_vertex_element {
                 &mut self,
                 vertex: VertexDefinedByIndex<$value_type>,
             ) -> Result<(), GraphComputingError> {
-                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?
+                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
                     .sparse_vector_mut_ref();
                 vertex_vector
                     .set_element((*vertex.index_ref(), *vertex.value_ref()).into())?;
@@ -289,7 +289,7 @@ macro_rules! implement_add_vertex_element {
                     .element_indexer_mut_ref()
                     .add_new_key(vertex.key_ref()) {
                         Ok(vertex_index) => {
-                            self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?
+                            self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
                                 .sparse_vector_mut_ref()
                                 .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
                             return Ok(Some(vertex_index))
@@ -319,7 +319,7 @@ macro_rules! implement_add_vertex_element {
                     }
                 }
 
-                self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?
+                self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
                     .sparse_vector_mut_ref()
                     .set_element((vertex_index, *vertex.value_ref()).into())?;
                 Ok(None)

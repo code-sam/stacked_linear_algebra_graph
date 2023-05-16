@@ -61,7 +61,7 @@ macro_rules! implement_set_vertex_data {
                 let vertex_index = *self
                     .element_indexer_ref()
                     .try_index_for_key(vertex.key_ref())?;
-                let vertex_vector = self.vertex_vector_by_key_mut_ref(vertex.type_key_ref())?;
+                let vertex_vector = self.vertex_vector_mut_ref_by_key(vertex.type_key_ref())?;
                 SparseVertexVector::<$value_type>::sparse_vector_ref(vertex_vector)
                     .try_is_element(vertex_index)?;
                 vertex_vector
@@ -77,7 +77,7 @@ macro_rules! implement_set_vertex_data {
                 let vertex_index = *self
                     .element_indexer_ref()
                     .try_index_for_key(vertex.key_ref())?;
-                let vertex_vector = self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?;
+                let vertex_vector = self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?;
                 SparseVertexVector::<$value_type>::sparse_vector_ref(vertex_vector)
                     .try_is_element(vertex_index)?;
                 vertex_vector
@@ -92,7 +92,7 @@ macro_rules! implement_set_vertex_data {
             ) -> Result<(), GraphComputingError> {
                 self.element_indexer_ref()
                     .try_index_validity(vertex.index_ref())?;
-                let vertex_vector = self.vertex_vector_by_index_mut_ref(vertex.type_index_ref())?;
+                let vertex_vector = self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?;
                 SparseVertexVector::<$value_type>::sparse_vector_ref(vertex_vector)
                     .try_is_element(*vertex.index_ref())?;
                 vertex_vector
@@ -106,7 +106,7 @@ macro_rules! implement_set_vertex_data {
                 vertex: &VertexDefinedByIndex<$value_type>,
             ) -> Result<(), GraphComputingError> {
                 let vertex_vector =
-                    self.vertex_vector_by_index_mut_ref_unchecked(vertex.type_index_ref());
+                    self.vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref());
                 SparseVertexVector::<$value_type>::sparse_vector_ref(vertex_vector)
                     .try_is_element(*vertex.index_ref())?;
                 vertex_vector

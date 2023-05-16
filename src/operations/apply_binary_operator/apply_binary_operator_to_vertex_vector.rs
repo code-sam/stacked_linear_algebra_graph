@@ -98,10 +98,10 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
 
                 // TODO:: as an alternative to unsafe{}, cloning will work. But this is expensive.
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_index_ref(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(first_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_index_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
                 Ok(operator.apply_with_vector_as_first_argument(
                     AdjacencyMatrixOrVertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -120,10 +120,10 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_index_ref(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(second_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_index_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
                 Ok(operator.apply_with_vector_as_second_argument(
                     &first_argument,
@@ -147,10 +147,10 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
 
                 // TODO:: as an alternative to unsafe{}, cloning will work. But this is expensive.
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_key_ref(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(first_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_key_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
                 Ok(operator.apply_with_vector_as_first_argument(
                     AdjacencyMatrixOrVertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -169,10 +169,10 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_key_ref(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(second_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_key_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
                 Ok(operator.apply_with_vector_as_second_argument(
                     &first_argument,
@@ -258,13 +258,13 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_index_ref(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(first_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_index_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
                 let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_by_index_ref(mask)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
                 Ok(operator.apply_with_vector_as_first_argument_and_mask(
                     VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -289,13 +289,13 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_index_ref(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(second_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_index_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
                 let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_by_index_ref(mask)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
                 Ok(operator.apply_with_vector_as_second_argument_and_mask(
                     &first_argument,
@@ -320,13 +320,13 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_key_ref(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(first_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_key_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
                 let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_by_key_ref(mask)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
 
                 Ok(operator.apply_with_vector_as_first_argument_and_mask(
                     VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -351,13 +351,13 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_by_key_ref(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(second_argument)?;
 
                 let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_by_key_mut_ref(product)?;
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
                 let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_by_key_ref(mask)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
 
                 Ok(operator.apply_with_vector_as_second_argument_and_mask(
                     &first_argument,
