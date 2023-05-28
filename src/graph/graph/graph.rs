@@ -5,6 +5,7 @@ use graphblas_sparse_linear_algebra::{
     collections::sparse_vector::SparseVector,
     context::{Context as GraphblasContext, Mode as GraphblasMode},
     index::ElementIndex as GraphblasElementIndex,
+    operators::apply::BinaryOperatorApplier,
 };
 use hashbrown::HashMap;
 
@@ -168,6 +169,8 @@ pub struct Graph {
     graphblas_context: Arc<GraphblasContext>,
     vertex_store: VertexStore,
     edge_store: EdgeStore,
+
+    binary_operator_applier: BinaryOperatorApplier,
 }
 
 // let mut map: FxHashMap<String, ElementIndex> = FxHashMap::default();
@@ -205,6 +208,7 @@ impl Graph {
                 &initial_vertex_capacity,
                 &initial_edge_type_capacity,
             )?,
+            binary_operator_applier: BinaryOperatorApplier::new(),
         };
 
         Ok(graph)
@@ -216,6 +220,10 @@ impl Graph {
 
     pub(crate) fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore {
         &mut self.edge_store
+    }
+
+    pub(crate) fn binary_operator_applier(&self) -> &BinaryOperatorApplier {
+        &self.binary_operator_applier
     }
 }
 

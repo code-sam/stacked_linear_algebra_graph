@@ -43,8 +43,10 @@ macro_rules! implement_add_vertex {
                     .vertex_store_mut_ref()
                     .add_new_key_defined_vertex(vertex)?;
                 match new_index.new_index_capacity() {
-                    Some(new_capacity) => {
-                        self.update_vertex_capacity(&new_capacity)?;
+                    Some(new_vertex_capacity) => {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(new_vertex_capacity)?;
+                        // self.update_vertex_capacity(&new_capacity)?;
                     }
                     None => (),
                 }
@@ -77,8 +79,10 @@ macro_rules! implement_add_vertex {
                 {
                     Some(new_index) => {
                         match new_index.new_index_capacity() {
-                            Some(new_capacity) => {
-                                self.update_vertex_capacity(&new_capacity)?;
+                            Some(new_vertex_capacity) => {
+                                self.edge_store_mut_ref()
+                                    .resize_adjacency_matrices(new_vertex_capacity)?;
+                                // self.update_vertex_capacity(&new_capacity)?;
                             }
                             None => (),
                         }
@@ -227,6 +231,27 @@ mod tests {
         match graph.add_new_vertex(another_vertex_to_add.clone()) {
             Err(_) => assert!(true),
             Ok(_) => assert!(false),
+        }
+    }
+
+    #[test]
+    fn add_new_vertex() {
+        let mut graph = Graph::with_initial_capacity(&1, &1, &1).unwrap();
+
+        for i in 0..3 {
+            graph
+                .add_new_vertex_type(format!("vertex_type_{}", i).as_str())
+                .unwrap();
+        }
+
+        for i in 0..50 {
+            graph
+                .add_new_vertex(VertexDefinedByKey::new(
+                    "vertex_type_2",
+                    format!("vertex_{}", i).as_str(),
+                    &i,
+                ))
+                .unwrap();
         }
     }
 

@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::{
     },
     operators::{
         apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
-        binary_operator::{Assignment, Plus},
+        binary_operator::{AccumulatorBinaryOperator, Assignment, BinaryOperator, Plus},
         options::OperatorOptions,
     },
     value_type::AsBoolean,
@@ -42,36 +42,44 @@ where
     Product: ValueType + SparseVertexVectorForValueType<Product>,
     EvaluationDomain: ValueType,
 {
-    fn with_index_defined_vertex_vector_as_first_argument(
+    fn with_index_defined_vertex_vector_as_left_argument(
         &mut self,
-        first_argument: &VertexTypeIndex,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
+        left_argument: &VertexTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_index_defined_vertex_vector_as_second_argument(
+    fn with_index_defined_vertex_vector_as_right_argument(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &VertexTypeIndex,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_vertex_vector_as_first_argument(
+    fn with_key_defined_vertex_vector_as_left_argument(
         &mut self,
-        first_argument: &VertexTypeKeyRef,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
+        left_argument: &VertexTypeKeyRef,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_vertex_vector_as_second_argument(
+    fn with_key_defined_vertex_vector_as_right_argument(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &VertexTypeKeyRef,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &VertexTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -83,12 +91,14 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
             > ApplyBinaryOperatorToVertexVector<AdjacencyMatrixOrVertexVector, Product, $evaluation_domain>
             for Graph
         {
-            fn with_index_defined_vertex_vector_as_first_argument(
+            fn with_index_defined_vertex_vector_as_left_argument(
                 &mut self,
-                first_argument: &VertexTypeIndex,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
+                left_argument: &VertexTypeIndex,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
+                options: &OperatorOptions
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -98,46 +108,56 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
 
                 // TODO:: as an alternative to unsafe{}, cloning will work. But this is expensive.
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(left_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
-                Ok(operator.apply_with_vector_as_first_argument(
+                Ok(self.binary_operator_applier().apply_with_vector_as_left_argument(
                     AdjacencyMatrixOrVertexVector::sparse_vector_ref(vertex_vector_argument),
-                    &second_argument,
+                    operator,
+                    right_argument,
+                    accumlator,
                     Product::sparse_vector_mut_ref(vertex_vector_product),
+                    options
                 )?)
             }
 
-            fn with_index_defined_vertex_vector_as_second_argument(
+            fn with_index_defined_vertex_vector_as_right_argument(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &VertexTypeIndex,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &VertexTypeIndex,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
+                options: &OperatorOptions
             ) -> Result<(), GraphComputingError> {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(right_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
-                Ok(operator.apply_with_vector_as_second_argument(
-                    &first_argument,
+                Ok(self.binary_operator_applier().apply_with_vector_as_right_argument(
+                    left_argument,
+                    operator,
                     AdjacencyMatrixOrVertexVector::sparse_vector_ref(vertex_vector_argument),
+                    accumlator,
                     Product::sparse_vector_mut_ref(vertex_vector_product),
+                    options
                 )?)
             }
 
-            fn with_key_defined_vertex_vector_as_first_argument(
+            fn with_key_defined_vertex_vector_as_left_argument(
                 &mut self,
-                first_argument: &VertexTypeKeyRef,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
+                left_argument: &VertexTypeKeyRef,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeKeyRef,
+                options: &OperatorOptions
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -147,37 +167,45 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
 
                 // TODO:: as an alternative to unsafe{}, cloning will work. But this is expensive.
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(left_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
-                Ok(operator.apply_with_vector_as_first_argument(
+                Ok(self.binary_operator_applier().apply_with_vector_as_left_argument(
                     AdjacencyMatrixOrVertexVector::sparse_vector_ref(vertex_vector_argument),
-                    &second_argument,
+                    operator,
+                    right_argument,
+                    accumlator,
                     Product::sparse_vector_mut_ref(vertex_vector_product),
+                    options
                 )?)
             }
 
-            fn with_key_defined_vertex_vector_as_second_argument(
+            fn with_key_defined_vertex_vector_as_right_argument(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &VertexTypeKeyRef,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &VertexTypeKeyRef,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeKeyRef,
+                options: &OperatorOptions
             ) -> Result<(), GraphComputingError> {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(right_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
-                Ok(operator.apply_with_vector_as_second_argument(
-                    &first_argument,
+                Ok(self.binary_operator_applier().apply_with_vector_as_right_argument(
+                    left_argument,
+                    operator,
                     AdjacencyMatrixOrVertexVector::sparse_vector_ref(vertex_vector_argument),
+                    accumlator,
                     Product::sparse_vector_mut_ref(vertex_vector_product),
+                    options
                 )?)
             }
         }
@@ -192,40 +220,48 @@ where
     EvaluationDomain: ValueType,
     Mask: ValueType + SparseVertexVectorForValueType<Mask>,
 {
-    fn with_index_defined_vertex_vector_as_first_argument_and_mask(
+    fn with_index_defined_vertex_vector_as_left_argument_and_mask(
         &mut self,
-        first_argument: &VertexTypeIndex,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
+        left_argument: &VertexTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_index_defined_vertex_vector_as_second_argument_and_mask(
+    fn with_index_defined_vertex_vector_as_right_argument_and_mask(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &VertexTypeIndex,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_vertex_vector_as_first_argument_and_mask(
+    fn with_key_defined_vertex_vector_as_left_argument_and_mask(
         &mut self,
-        first_argument: &VertexTypeKeyRef,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
+        left_argument: &VertexTypeKeyRef,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
         mask: &VertexTypeKeyRef,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_vertex_vector_as_second_argument_and_mask(
+    fn with_key_defined_vertex_vector_as_right_argument_and_mask(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &VertexTypeKeyRef,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &VertexTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
         mask: &VertexTypeKeyRef,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -243,13 +279,15 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 Mask,
             > for Graph
         {
-            fn with_index_defined_vertex_vector_as_first_argument_and_mask(
+            fn with_index_defined_vertex_vector_as_left_argument_and_mask(
                 &mut self,
-                first_argument: &VertexTypeIndex,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
+                left_argument: &VertexTypeIndex,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 mask: &VertexTypeIndex,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -258,7 +296,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(left_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
@@ -266,21 +304,28 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_vector_mask =
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
-                Ok(operator.apply_with_vector_as_first_argument_and_mask(
-                    VertexVector::sparse_vector_ref(vertex_vector_argument),
-                    &second_argument,
-                    Product::sparse_vector_mut_ref(vertex_vector_product),
-                    Mask::sparse_vector_ref(vertex_vector_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_vector_as_left_argument_and_mask(
+                        VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        right_argument,
+                        accumlator,
+                        Product::sparse_vector_mut_ref(vertex_vector_product),
+                        Mask::sparse_vector_ref(vertex_vector_mask),
+                        options,
+                    )?)
             }
 
-            fn with_index_defined_vertex_vector_as_second_argument_and_mask(
+            fn with_index_defined_vertex_vector_as_right_argument_and_mask(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &VertexTypeIndex,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &VertexTypeIndex,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 mask: &VertexTypeIndex,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -289,7 +334,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(right_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
@@ -297,21 +342,28 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_vector_mask =
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
-                Ok(operator.apply_with_vector_as_second_argument_and_mask(
-                    &first_argument,
-                    VertexVector::sparse_vector_ref(vertex_vector_argument),
-                    Product::sparse_vector_mut_ref(vertex_vector_product),
-                    Mask::sparse_vector_ref(vertex_vector_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_vector_as_right_argument_and_mask(
+                        left_argument,
+                        operator,
+                        VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        accumlator,
+                        Product::sparse_vector_mut_ref(vertex_vector_product),
+                        Mask::sparse_vector_ref(vertex_vector_mask),
+                        options,
+                    )?)
             }
 
-            fn with_key_defined_vertex_vector_as_first_argument_and_mask(
+            fn with_key_defined_vertex_vector_as_left_argument_and_mask(
                 &mut self,
-                first_argument: &VertexTypeKeyRef,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
+                left_argument: &VertexTypeKeyRef,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeKeyRef,
                 mask: &VertexTypeKeyRef,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -320,7 +372,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(first_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(left_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
@@ -328,21 +380,28 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_vector_mask =
                     unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
 
-                Ok(operator.apply_with_vector_as_first_argument_and_mask(
-                    VertexVector::sparse_vector_ref(vertex_vector_argument),
-                    &second_argument,
-                    Product::sparse_vector_mut_ref(vertex_vector_product),
-                    Mask::sparse_vector_ref(vertex_vector_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_vector_as_left_argument_and_mask(
+                        VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        right_argument,
+                        accumlator,
+                        Product::sparse_vector_mut_ref(vertex_vector_product),
+                        Mask::sparse_vector_ref(vertex_vector_mask),
+                        options,
+                    )?)
             }
 
-            fn with_key_defined_vertex_vector_as_second_argument_and_mask(
+            fn with_key_defined_vertex_vector_as_right_argument_and_mask(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &VertexTypeKeyRef,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &VertexTypeKeyRef,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeKeyRef,
                 mask: &VertexTypeKeyRef,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -351,7 +410,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(second_argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(right_argument)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
@@ -359,12 +418,17 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                 let vertex_vector_mask =
                     unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
 
-                Ok(operator.apply_with_vector_as_second_argument_and_mask(
-                    &first_argument,
-                    VertexVector::sparse_vector_ref(vertex_vector_argument),
-                    Product::sparse_vector_mut_ref(vertex_vector_product),
-                    Mask::sparse_vector_ref(vertex_vector_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_vector_as_right_argument_and_mask(
+                        left_argument,
+                        operator,
+                        VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        accumlator,
+                        Product::sparse_vector_mut_ref(vertex_vector_product),
+                        Mask::sparse_vector_ref(vertex_vector_mask),
+                        options,
+                    )?)
             }
         }
     };

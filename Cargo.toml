@@ -12,7 +12,8 @@ repository = "https://github.com/code-sam/cairn-knowledge-graph"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-graphblas_sparse_linear_algebra = {version = "0.19.0"}
+graphblas_sparse_linear_algebra = {version = "0.22.0"}
+# graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "simpler-operators"}
 hashbrown = {version = "0.13", features = ["rayon"]}
 once_cell = {version = "1.17"}
 paste = {version = "1.0"}
@@ -27,5 +28,6 @@ nohash-hasher = "0.2"
 [[bench]]
 # name = "experiments"
 # name = "vector_hashmap_benchmark"
-name = "sparse_vector_indexing_benchmark"
+# name = "sparse_vector_indexing_benchmark"
+name = "apply_binary_operator_unchecked_index"
 harness = false

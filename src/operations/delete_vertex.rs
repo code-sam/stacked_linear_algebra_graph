@@ -33,21 +33,6 @@ use crate::graph::graph::Graph;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::VertexKey;
 
-static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
-    Lazy::new(|| OperatorOptions::new_default());
-
-static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumn<bool, bool>> =
-    Lazy::new(|| {
-        InsertVectorIntoColumn::<bool, bool>::new(
-            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-            &Assignment::new(),
-        )
-    });
-
-static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRow<bool, bool>> = Lazy::new(|| {
-    InsertVectorIntoRow::<bool, bool>::new(&DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS, &Assignment::new())
-});
-
 pub trait DeleteVertex {
     fn drop_vertex_key_and_connected_edges(
         &mut self,

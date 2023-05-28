@@ -37,28 +37,24 @@ macro_rules! implement_vertex_indexing {
             fn select_vertices_with_outgoing_edges(
                 &self,
             ) -> Result<SparseVector<bool>, GraphComputingError> {
-                let mut from_vertex_vector_mask = SparseVector::new(
-                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self,
-                    )
-                    .context_ref(),
-                    &WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self,
-                    )
-                    .row_height()?,
-                )?;
+                let mut from_vertex_vector_mask =
+                    SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+
                 // TODO: think about caching for performance optimization
-                let GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION =
-                    MonoidReducer::<$value_type>::new(
-                        &Any::<$value_type>::new(),
-                        &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                        &Assignment::new(),
-                    );
-                GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION.to_vector(
+                // let GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION =
+                //     MonoidReducer::<$value_type>::new(
+                //         &Any::<$value_type>::new(),
+                //         &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                //         &Assignment::new(),
+                //     );
+                MonoidReducer::new().to_column_vector(
+                    &Any::<$value_type>::new(),
                     WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
                         self,
                     ),
+                    &Assignment::new(),
                     &mut from_vertex_vector_mask,
+                    &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
                 Ok(from_vertex_vector_mask)
             }
@@ -66,54 +62,44 @@ macro_rules! implement_vertex_indexing {
             fn select_vertices_with_incoming_edges(
                 &self,
             ) -> Result<SparseVector<bool>, GraphComputingError> {
-                let mut to_vertex_vector_mask = SparseVector::new(
-                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self,
-                    )
-                    .context_ref(),
-                    &WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self,
-                    )
-                    .row_height()?,
-                )?;
-                let GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION =
-                    MonoidReducer::<$value_type>::new(
-                        &Any::<$value_type>::new(),
-                        &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                        &Assignment::new(),
-                    );
-                GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION.to_vector(
+                let mut to_vertex_vector_mask =
+                    SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+                // let GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION =
+                //     MonoidReducer::<$value_type>::new(
+                //         &Any::<$value_type>::new(),
+                //         &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                //         &Assignment::new(),
+                //     );
+                // GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION.to_vector(
+                //     WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
+                //         self,
+                //     ),
+                //     &mut to_vertex_vector_mask,
+                // )?;
+                MonoidReducer::new().to_row_vector(
+                    &Any::<$value_type>::new(),
                     WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
                         self,
                     ),
+                    &Assignment::new(),
                     &mut to_vertex_vector_mask,
+                    &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
                 Ok(to_vertex_vector_mask)
             }
 
-            // TODO: this implementation is not type specific
             // TODO: wrap mask into a business struct
             fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError> {
-                let mut vertex_vector_mask = SparseVector::new(
-                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self,
-                    )
-                    .context_ref(),
-                    &WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self,
-                    )
-                    .row_height()?,
-                )?;
-                let GRAPHBLAS_VECTOR_OR_OPERATOR =
-                    ElementWiseVectorAdditionMonoidOperator::<bool>::new(
-                        &LogicalOr::<bool>::new(),
-                        &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                        &Assignment::new(),
-                    );
-                GRAPHBLAS_VECTOR_OR_OPERATOR.apply(
+                let mut vertex_vector_mask =
+                    SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+
+                ElementWiseVectorAdditionMonoidOperator::new().apply(
                     &SelectEdgeVertices::<$value_type>::select_vertices_with_incoming_edges(self)?,
+                    &LogicalOr::<bool>::new(),
                     &SelectEdgeVertices::<$value_type>::select_vertices_with_outgoing_edges(self)?,
+                    &Assignment::new(),
                     &mut vertex_vector_mask,
+                    &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
                 Ok(vertex_vector_mask)
             }

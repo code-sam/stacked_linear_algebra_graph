@@ -92,25 +92,38 @@ macro_rules! implement_add_vertex_element {
                 let vertex_index = self
                     .element_indexer_mut_ref()
                     .add_or_reuse_key(vertex.key_ref())?;
-                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(&type_index)
-                    .sparse_vector_mut_ref();
-                match vertex_vector.get_element_value(vertex_index.index_ref())? {
-                    Some(_) => {
-                        // The index alrady exists, no need to roll-back index assignment.
-                        return Err(
-                            LogicError::new(
-                                LogicErrorType::VertexAlreadyExists,
-                                format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
-                                vertex.type_key_ref(),
-                                vertex.key_ref(),
-                                std::any::type_name::<$value_type>()),
-                                None).into()
-                        )
-                    },
-                    None => {}
+
+                match vertex_index.new_index_capacity() {
+                    Some(new_capacity) => {
+                        self.resize_vertex_vectors(new_capacity)?;
+                        let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(&type_index)
+                            .sparse_vector_mut_ref();
+                        vertex_vector
+                            .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
+                    }
+                    None => {
+                        let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(&type_index)
+                            .sparse_vector_mut_ref();
+                        match vertex_vector.get_element_value(vertex_index.index_ref())? {
+                            Some(_) => {
+                                // The index alrady exists, no need to roll-back index assignment.
+                                return Err(
+                                    LogicError::new(
+                                        LogicErrorType::VertexAlreadyExists,
+                                        format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
+                                        vertex.type_key_ref(),
+                                        vertex.key_ref(),
+                                        std::any::type_name::<$value_type>()),
+                                        None).into()
+                                )
+                            },
+                            None => {
+                                vertex_vector
+                                    .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
+                            }
+                        }
+                    }
                 }
-                vertex_vector
-                    .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
                 Ok(vertex_index)
             }
 
@@ -123,25 +136,38 @@ macro_rules! implement_add_vertex_element {
                 let vertex_index = self
                     .element_indexer_mut_ref()
                     .add_or_reuse_key(vertex.key_ref())?;
-                let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
-                    .sparse_vector_mut_ref();
-                match vertex_vector.get_element_value(vertex_index.index_ref())? {
-                    Some(_) => {
-                        // The index alrady exists, no need to roll-back index assignment.
-                        return Err(
-                            LogicError::new(
-                                LogicErrorType::VertexAlreadyExists,
-                                format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
-                                self.vertex_type_indexer_ref().key_for_index_unchecked(vertex.type_index_ref()),
-                                vertex.key_ref(),
-                                std::any::type_name::<$value_type>()),
-                                None).into()
-                        )
-                    },
-                    None => {}
-                }
-                vertex_vector
-                    .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
+
+                    match vertex_index.new_index_capacity() {
+                        Some(new_capacity) => {
+                            self.resize_vertex_vectors(new_capacity)?;
+                            let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
+                                .sparse_vector_mut_ref();
+                            vertex_vector
+                                .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
+                        }
+                        None => {
+                            let vertex_vector: &mut SparseVector<$value_type> = self.vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
+                                .sparse_vector_mut_ref();
+                            match vertex_vector.get_element_value(vertex_index.index_ref())? {
+                                Some(_) => {
+                                    // The index alrady exists, no need to roll-back index assignment.
+                                    return Err(
+                                        LogicError::new(
+                                            LogicErrorType::VertexAlreadyExists,
+                                            format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
+                                            self.vertex_type_indexer_ref().key_for_index_unchecked(vertex.type_index_ref()),
+                                            vertex.key_ref(),
+                                            std::any::type_name::<$value_type>()),
+                                            None).into()
+                                    )
+                                },
+                                None => {
+                                    vertex_vector
+                                        .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
+                                }
+                            }
+                        }
+                    }
                 Ok(vertex_index)
             }
 
@@ -218,33 +244,33 @@ macro_rules! implement_add_vertex_element {
                         },
                         Err(error) => {
                             match error.error_type() {
-                                GraphComputingErrorType::LogicErrorType(LogicErrorType::KeyAlreadyExists) => {},
+                                GraphComputingErrorType::LogicErrorType(LogicErrorType::KeyAlreadyExists) => {
+                                    let vertex_index;
+                                    match self
+                                        .element_indexer_ref()
+                                        .index_for_key(vertex.key_ref())
+                                    {
+                                        Some(index_ref) => {
+                                            vertex_index = *index_ref;
+                                        }
+                                        None => {
+                                            return Err(
+                                                LogicError::new(
+                                                    LogicErrorType::Other,
+                                                    format!("Unable to find index for vertex key, although the key was checked for validity before"),
+                                                    None).into())
+                                        }
+                                    }
+
+                                    self.vertex_vector_mut_ref_by_index(&type_index)?
+                                        .sparse_vector_mut_ref()
+                                        .set_element((vertex_index, *vertex.value_ref()).into())?;
+                                    Ok(None)
+                                },
                                 _ => {return Err(error)}
                             }
                         }
                     }
-
-                let vertex_index;
-                match self
-                    .element_indexer_ref()
-                    .index_for_key(vertex.key_ref())
-                {
-                    Some(index_ref) => {
-                        vertex_index = *index_ref;
-                    }
-                    None => {
-                        return Err(
-                            LogicError::new(
-                                LogicErrorType::Other,
-                                format!("Unable to find index for vertex key, although the key was checked for validity before"),
-                                None).into())
-                    }
-                }
-
-                self.vertex_vector_mut_ref_by_index(&type_index)?
-                    .sparse_vector_mut_ref()
-                    .set_element((vertex_index, *vertex.value_ref()).into())?;
-                Ok(None)
 
                 // // TODO: do not clone self.element_indexer_ref()
                 // match self
@@ -355,3 +381,44 @@ implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
     implement_add_vertex_element,
     vertex_vector_mut_ref
 );
+
+#[cfg(test)]
+mod tests {
+    use std::task::Context;
+
+    use super::*;
+
+    use graphblas_sparse_linear_algebra::{
+        collections::sparse_vector::SparseVector,
+        context::{Context as GraphblasContext, Mode as GraphblasMode},
+        index::ElementIndex as GraphblasElementIndex,
+    };
+
+    use crate::graph::vertex_store::type_operations::add_vertex_type::AddVertexType;
+    use crate::operations::Indexing;
+    use crate::operations::ReadVertexValue;
+
+    #[test]
+    fn test_add_new_key_defined_vertex() {
+        let context = GraphblasContext::init_ready(GraphblasMode::NonBlocking).unwrap();
+
+        let mut store = VertexStore::with_initial_capacity(&context, &0, &0).unwrap();
+
+        for i in 0..2 {
+            store
+                .add_new_vertex_type(format!("vertex_type_{}", i).as_str())
+                .unwrap();
+        }
+
+        for i in 0..50 {
+            println!("{}", i);
+            store
+                .add_new_key_defined_vertex(VertexDefinedByKey::new(
+                    "vertex_type_1",
+                    format!("vertex_{}", i).as_str(),
+                    &i,
+                ))
+                .unwrap();
+        }
+    }
+}

@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::{
     },
     operators::{
         apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
-        binary_operator::{Assignment, Plus},
+        binary_operator::{AccumulatorBinaryOperator, Assignment, BinaryOperator, Plus},
         options::OperatorOptions,
     },
     value_type::AsBoolean,
@@ -45,36 +45,64 @@ where
     Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
     EvaluationDomain: ValueType,
 {
-    fn with_index_defined_adjacency_matrix_as_first_argument(
+    fn with_index_defined_adjacency_matrix_as_left_argument(
         &mut self,
-        first_argument: &EdgeTypeIndex,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_index_defined_adjacency_matrix_as_second_argument(
+    fn with_index_defined_adjacency_matrix_as_right_argument(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EdgeTypeIndex,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_adjacency_matrix_as_first_argument(
+    fn with_unchecked_index_defined_adjacency_matrix_as_left_argument(
         &mut self,
-        first_argument: &EdgeTypeKeyRef,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
-        product: &EdgeTypeKeyRef,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_adjacency_matrix_as_second_argument(
+    fn with_unchecked_index_defined_adjacency_matrix_as_right_argument(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EdgeTypeKeyRef,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError>;
+
+    fn with_key_defined_adjacency_matrix_as_left_argument(
+        &mut self,
+        right_argument: &EdgeTypeKeyRef,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError>;
+
+    fn with_key_defined_adjacency_matrix_as_right_argument(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeKeyRef,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -86,12 +114,14 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix {
             > ApplyBinaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, $evaluation_domain>
             for Graph
         {
-            fn with_index_defined_adjacency_matrix_as_first_argument(
+            fn with_index_defined_adjacency_matrix_as_left_argument(
                 &mut self,
-                first_argument: &EdgeTypeIndex,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
+                left_argument: &EdgeTypeIndex,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeIndex,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -101,46 +131,60 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix {
 
                 // TODO:: as an alternative to unsafe{}, cloning will work. But this is expensive.
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(first_argument)?;
+                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
-                Ok(operator.apply_with_matrix_as_first_argument(
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    &second_argument,
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_left_argument(
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        &right_argument,
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        options,
+                    )?)
             }
 
-            fn with_index_defined_adjacency_matrix_as_second_argument(
+            fn with_index_defined_adjacency_matrix_as_right_argument(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &EdgeTypeIndex,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &EdgeTypeIndex,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeIndex,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(second_argument)?;
+                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
-                Ok(operator.apply_with_matrix_as_second_argument(
-                    &first_argument,
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_right_argument(
+                        left_argument,
+                        operator,
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        options,
+                    )?)
             }
 
-            fn with_key_defined_adjacency_matrix_as_first_argument(
+            fn with_unchecked_index_defined_adjacency_matrix_as_left_argument(
                 &mut self,
-                first_argument: &VertexTypeKeyRef,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
-                product: &VertexTypeKeyRef,
+                left_argument: &EdgeTypeIndex,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                product: &EdgeTypeIndex,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -150,38 +194,113 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix {
 
                 // TODO:: as an alternative to unsafe{}, cloning will work. But this is expensive.
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(first_argument)?;
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
+
+                let adjacency_matrix_product = unsafe { &mut *edge_store }
+                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_left_argument(
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        &right_argument,
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        options,
+                    )?)
+            }
+
+            fn with_unchecked_index_defined_adjacency_matrix_as_right_argument(
+                &mut self,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &EdgeTypeIndex,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                product: &EdgeTypeIndex,
+                options: &OperatorOptions,
+            ) -> Result<(), GraphComputingError> {
+                let edge_store = self.edge_store_mut_ref_unsafe();
+
+                let adjacency_matrix_argument = unsafe { &*edge_store }
+                    .adjacency_matrix_ref_for_index_unchecked(right_argument);
+
+                let adjacency_matrix_product = unsafe { &mut *edge_store }
+                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_right_argument(
+                        left_argument,
+                        operator,
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        options,
+                    )?)
+            }
+
+            fn with_key_defined_adjacency_matrix_as_left_argument(
+                &mut self,
+                left_argument: &VertexTypeKeyRef,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                product: &VertexTypeKeyRef,
+                options: &OperatorOptions,
+            ) -> Result<(), GraphComputingError> {
+                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+                // For example, an alternative to unsafe access would be to clone the operands.
+                let edge_store = self.edge_store_mut_ref_unsafe();
+
+                // TODO:: as an alternative to unsafe{}, cloning will work. But this is expensive.
+                let adjacency_matrix_argument =
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
-                Ok(operator.apply_with_matrix_as_first_argument(
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    &second_argument,
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_left_argument(
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        right_argument,
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        options,
+                    )?)
             }
 
-            fn with_key_defined_adjacency_matrix_as_second_argument(
+            fn with_key_defined_adjacency_matrix_as_right_argument(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &VertexTypeKeyRef,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &VertexTypeKeyRef,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeKeyRef,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(second_argument)?;
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
-                Ok(operator.apply_with_matrix_as_second_argument(
-                    &first_argument,
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_right_argument(
+                        left_argument,
+                        operator,
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        options,
+                    )?)
             }
         }
     };
@@ -199,40 +318,70 @@ pub trait ApplyBinaryOperatorToAdjacencyMatrixWithMask<
     EvaluationDomain: ValueType,
     Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
 {
-    fn with_index_defined_adjacency_matrix_as_first_argument_and_mask(
+    fn with_index_defined_adjacency_matrix_as_left_argument_and_mask(
         &mut self,
-        first_argument: &VertexTypeIndex,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
+        left_argument: &VertexTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_index_defined_adjacency_matrix_as_second_argument_and_mask(
+    fn with_index_defined_adjacency_matrix_as_right_argument_and_mask(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &VertexTypeIndex,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_adjacency_matrix_as_first_argument_and_mask(
+    fn with_unchecked_index_defined_adjacency_matrix_as_left_argument_and_mask(
         &mut self,
-        first_argument: &VertexTypeKeyRef,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &EvaluationDomain,
-        product: &VertexTypeKeyRef,
-        mask: &VertexTypeKeyRef,
+        left_argument: &VertexTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn with_key_defined_adjacency_matrix_as_second_argument_and_mask(
+    fn with_unchecked_index_defined_adjacency_matrix_as_right_argument_and_mask(
         &mut self,
-        first_argument: &EvaluationDomain,
-        operator: &BinaryOperatorApplier<EvaluationDomain>,
-        second_argument: &VertexTypeKeyRef,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError>;
+
+    fn with_key_defined_adjacency_matrix_as_left_argument_and_mask(
+        &mut self,
+        left_argument: &VertexTypeKeyRef,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
         mask: &VertexTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError>;
+
+    fn with_key_defined_adjacency_matrix_as_right_argument_and_mask(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &VertexTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeKeyRef,
+        mask: &VertexTypeKeyRef,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -250,13 +399,15 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 Mask,
             > for Graph
         {
-            fn with_index_defined_adjacency_matrix_as_first_argument_and_mask(
+            fn with_index_defined_adjacency_matrix_as_left_argument_and_mask(
                 &mut self,
-                first_argument: &VertexTypeIndex,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
+                left_argument: &VertexTypeIndex,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 mask: &VertexTypeIndex,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -265,7 +416,7 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(first_argument)?;
+                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
@@ -273,21 +424,28 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let adjacency_matrix_mask =
                     unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
 
-                Ok(operator.apply_with_matrix_as_first_argument_and_mask(
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    &second_argument,
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                    Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_left_argument_and_mask(
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        right_argument,
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                        options,
+                    )?)
             }
 
-            fn with_index_defined_adjacency_matrix_as_second_argument_and_mask(
+            fn with_index_defined_adjacency_matrix_as_right_argument_and_mask(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &VertexTypeIndex,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &VertexTypeIndex,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 mask: &VertexTypeIndex,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -296,7 +454,7 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(second_argument)?;
+                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
@@ -304,21 +462,96 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let adjacency_matrix_mask =
                     unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
 
-                Ok(operator.apply_with_matrix_as_second_argument_and_mask(
-                    &first_argument,
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                    Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_right_argument_and_mask(
+                        left_argument,
+                        operator,
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                        options,
+                    )?)
             }
 
-            fn with_key_defined_adjacency_matrix_as_first_argument_and_mask(
+            fn with_unchecked_index_defined_adjacency_matrix_as_left_argument_and_mask(
                 &mut self,
-                first_argument: &EdgeTypeKeyRef,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &$evaluation_domain,
+                left_argument: &VertexTypeIndex,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                product: &VertexTypeIndex,
+                mask: &VertexTypeIndex,
+                options: &OperatorOptions,
+            ) -> Result<(), GraphComputingError> {
+                let edge_store = self.edge_store_mut_ref_unsafe();
+
+                let adjacency_matrix_argument =
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
+
+                let adjacency_matrix_product = unsafe { &mut *edge_store }
+                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+
+                let adjacency_matrix_mask =
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(mask);
+
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_left_argument_and_mask(
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        right_argument,
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                        options,
+                    )?)
+            }
+
+            fn with_unchecked_index_defined_adjacency_matrix_as_right_argument_and_mask(
+                &mut self,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &VertexTypeIndex,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                product: &VertexTypeIndex,
+                mask: &VertexTypeIndex,
+                options: &OperatorOptions,
+            ) -> Result<(), GraphComputingError> {
+                let edge_store = self.edge_store_mut_ref_unsafe();
+
+                let adjacency_matrix_argument = unsafe { &*edge_store }
+                    .adjacency_matrix_ref_for_index_unchecked(right_argument);
+
+                let adjacency_matrix_product = unsafe { &mut *edge_store }
+                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+
+                let adjacency_matrix_mask =
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(mask);
+
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_right_argument_and_mask(
+                        left_argument,
+                        operator,
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                        options,
+                    )?)
+            }
+
+            fn with_key_defined_adjacency_matrix_as_left_argument_and_mask(
+                &mut self,
+                left_argument: &EdgeTypeKeyRef,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &$evaluation_domain,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeKeyRef,
                 mask: &EdgeTypeKeyRef,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -327,7 +560,7 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(first_argument)?;
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
@@ -335,21 +568,28 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let adjacency_matrix_mask =
                     unsafe { &*edge_store }.adjacency_matrix_ref_for_key(mask)?;
 
-                Ok(operator.apply_with_matrix_as_first_argument_and_mask(
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    &second_argument,
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                    Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_left_argument_and_mask(
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        right_argument,
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                        options,
+                    )?)
             }
 
-            fn with_key_defined_adjacency_matrix_as_second_argument_and_mask(
+            fn with_key_defined_adjacency_matrix_as_right_argument_and_mask(
                 &mut self,
-                first_argument: &$evaluation_domain,
-                operator: &BinaryOperatorApplier<$evaluation_domain>,
-                second_argument: &EdgeTypeKeyRef,
+                left_argument: &$evaluation_domain,
+                operator: &impl BinaryOperator<$evaluation_domain>,
+                right_argument: &EdgeTypeKeyRef,
+                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeKeyRef,
                 mask: &EdgeTypeKeyRef,
+                options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
                 // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -358,7 +598,7 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(second_argument)?;
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
@@ -366,12 +606,17 @@ macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
                 let adjacency_matrix_mask =
                     unsafe { &*edge_store }.adjacency_matrix_ref_for_key(mask)?;
 
-                Ok(operator.apply_with_matrix_as_second_argument_and_mask(
-                    &first_argument,
-                    AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                    Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                    Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                )?)
+                Ok(self
+                    .binary_operator_applier()
+                    .apply_with_matrix_as_right_argument_and_mask(
+                        left_argument,
+                        operator,
+                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        accumlator,
+                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                        options,
+                    )?)
             }
         }
     };
@@ -419,7 +664,7 @@ mod tests {
                 vertex_2.key_ref(),
                 vertex_1.key_ref(),
             ),
-            2u16,
+            25usize,
         );
         let edge_vertex1_vertex2_type_2 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
@@ -448,44 +693,73 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        let plus_binaray_operator = BinaryOperatorApplier::new(
-            &Plus::<u8>::new(),
-            &OperatorOptions::new_default(),
-            &Assignment::new(),
-        );
-
-        ApplyBinaryOperatorToAdjacencyMatrix::<u8, u16, u8>::with_key_defined_adjacency_matrix_as_first_argument(
+        ApplyBinaryOperatorToAdjacencyMatrix::<u8, u16, u8>::with_key_defined_adjacency_matrix_as_left_argument(
             &mut graph,
             &edge_type_1_key,
-            &plus_binaray_operator,
+            &Plus::<u8>::new(),
             &1,
+            &Assignment::new(),
             result_type_key,
+            &OperatorOptions::new_default(),
         ).unwrap();
 
-        assert_eq!(ReadEdgeWeight::<u16>::key_defined_edge_weight(
-            &graph,
-            &DirectedEdgeCoordinateDefinedByKeys::new(
-                result_type_key,
-                vertex_1.key_ref(),
-                vertex_2.key_ref(),
-            ),
-        ).unwrap(), Some(2));
+        assert_eq!(
+            ReadEdgeWeight::<u16>::key_defined_edge_weight(
+                &graph,
+                &DirectedEdgeCoordinateDefinedByKeys::new(
+                    result_type_key,
+                    vertex_1.key_ref(),
+                    vertex_2.key_ref(),
+                ),
+            )
+            .unwrap(),
+            Some(2)
+        );
 
-        ApplyBinaryOperatorToAdjacencyMatrix::<u32, u16, u8>::with_key_defined_adjacency_matrix_as_first_argument(
+        ApplyBinaryOperatorToAdjacencyMatrix::<u32, u16, u8>::with_key_defined_adjacency_matrix_as_left_argument(
             &mut graph,
             &edge_type_2_key,
-            &plus_binaray_operator,
+            &Plus::<u8>::new(),
             &u8::MAX,
+            &Assignment::new(),
             result_type_key,
+            &OperatorOptions::new_default(),
         ).unwrap();
 
-        assert_eq!(ReadEdgeWeight::<u16>::key_defined_edge_weight(
-            &graph,
-            &DirectedEdgeCoordinateDefinedByKeys::new(
-                result_type_key,
-                vertex_1.key_ref(),
-                vertex_2.key_ref(),
-            ),
-        ).unwrap(), Some(2))
+        assert_eq!(
+            ReadEdgeWeight::<u16>::key_defined_edge_weight(
+                &graph,
+                &DirectedEdgeCoordinateDefinedByKeys::new(
+                    result_type_key,
+                    vertex_1.key_ref(),
+                    vertex_2.key_ref(),
+                ),
+            )
+            .unwrap(),
+            Some(2)
+        );
+
+        ApplyBinaryOperatorToAdjacencyMatrix::<usize, usize, u8>::with_key_defined_adjacency_matrix_as_left_argument(
+            &mut graph,
+            &edge_type_1_key,
+            &Plus::<u8>::new(),
+            &1u8,
+            &Assignment::new(),
+            result_type_key,
+            &OperatorOptions::new_default(),
+        ).unwrap();
+
+        assert_eq!(
+            ReadEdgeWeight::<usize>::key_defined_edge_weight(
+                &graph,
+                &DirectedEdgeCoordinateDefinedByKeys::new(
+                    result_type_key,
+                    vertex_2.key_ref(),
+                    vertex_1.key_ref(),
+                ),
+            )
+            .unwrap(),
+            Some(26)
+        )
     }
 }
