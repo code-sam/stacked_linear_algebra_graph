@@ -3,7 +3,7 @@ mod add_edge_type;
 mod add_vertex;
 mod add_vertex_key;
 mod add_vertex_type;
-mod apply_binary_operator;
+mod apply_scalar_operator;
 mod delete_edge;
 mod delete_vertex;
 mod drop_edge_type;
@@ -22,7 +22,10 @@ pub use add_edge_type::AddEdgeType;
 pub use add_vertex::AddVertex;
 pub use add_vertex_key::AddVertexKey;
 pub use add_vertex_type::AddVertexType;
-pub use apply_binary_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix;
+pub use apply_scalar_operator::{
+    ApplyScalarBinaryOperatorToAdjacencyMatrix, ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix,
+    ApplyScalarBinaryOperatorToMaskedVertexVector, ApplyScalarBinaryOperatorToVertexVector,
+};
 pub use delete_edge::DeleteEdge;
 pub use delete_vertex::DeleteVertex;
 pub use drop_edge_type::DropEdgeType;

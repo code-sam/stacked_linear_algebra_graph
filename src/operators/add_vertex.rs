@@ -106,9 +106,9 @@ mod tests {
         index::ElementIndex as GraphblasElementIndex,
     };
 
-    use crate::operations::AddVertexType;
-    use crate::operations::Indexing;
-    use crate::operations::ReadVertexValue;
+    use crate::operators::AddVertexType;
+    use crate::operators::Indexing;
+    use crate::operators::ReadVertexValue;
     // use crate::operations::read_vertex_value::ReadVertexValue;
     // use crate::operations::select_edge_type::EdgeTypeSelectorTrait;
     // use crate::tests::standard_graph_for_testing::standard_graph_for_testing;

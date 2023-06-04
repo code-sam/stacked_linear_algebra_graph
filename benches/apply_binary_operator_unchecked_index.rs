@@ -1,20 +1,19 @@
-use stacked_linear_algebra_graph::{
-    graph::{
-        edge::{DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys},
-        graph::Graph,
-        vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait},
-    },
-    operations::{
-        AddEdge, AddEdgeType, AddVertex, AddVertexType, ApplyScalarBinaryOperatorToAdjacencyMatrix,
-        ReadEdgeWeight,
-    },
-};
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use graphblas_sparse_linear_algebra::{
     context::Context,
     operators::{
         binary_operator::{Assignment, Plus},
         options::OperatorOptions,
+    },
+};
+use stacked_linear_algebra_graph::{
+    graph::{
+        edge::{DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys},
+        graph::Graph,
+        vertex::VertexDefinedByKey,
+    },
+    operators::{
+        AddEdge, AddEdgeType, AddVertex, AddVertexType, ApplyScalarBinaryOperatorToAdjacencyMatrix,
     },
 };
 
@@ -69,14 +68,13 @@ criterion_group!(benches, graph_binary_operator_benchmark);
 criterion_main!(benches);
 
 fn add_scalar_to_adjacency_matrix_with_key(graph: &mut Graph) {
-    ApplyScalarBinaryOperatorToAdjacencyMatrix::<i32, i32, i32, i32>::with_key_defined_adjacency_matrix_as_left_argument(
+    ApplyScalarBinaryOperatorToAdjacencyMatrix::<i32, i32, i32>::with_key_defined_adjacency_matrix_as_left_argument(
         graph,
         "edge_type_250",
         &Plus::<i32>::new(),
         &1,
         &Assignment::new(),
         "edge_type_251",
-        None,
         &OperatorOptions::new_default(),
     ).unwrap();
 

@@ -20,7 +20,7 @@ use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
 use crate::graph::vertex_store::vertex_operations::AddVertex;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::operations::Indexing as GraphIndexing;
+use crate::operators::Indexing as GraphIndexing;
 
 use super::add_edge_type::AddEdgeType as AddEdgeTypeToGraph;
 
@@ -195,8 +195,8 @@ mod tests {
     use crate::graph::edge::DirectedEdgeCoordinateDefinedByKeys;
     use crate::graph::graph::Graph;
     use crate::graph::vertex::VertexDefinedByKey;
-    use crate::operations::add_vertex::AddVertex;
-    use crate::operations::AddVertexType;
+    use crate::operators::add_vertex::AddVertex;
+    use crate::operators::AddVertexType;
 
     #[test]
     fn add_edge() {

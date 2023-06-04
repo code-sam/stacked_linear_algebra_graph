@@ -14,7 +14,7 @@ use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::operations::read_vertex_value::ReadVertexValue;
+use crate::operators::read_vertex_value::ReadVertexValue;
 
 use super::Indexing;
 

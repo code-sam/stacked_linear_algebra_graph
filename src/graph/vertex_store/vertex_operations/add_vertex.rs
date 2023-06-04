@@ -395,8 +395,8 @@ mod tests {
     };
 
     use crate::graph::vertex_store::type_operations::add_vertex_type::AddVertexType;
-    use crate::operations::Indexing;
-    use crate::operations::ReadVertexValue;
+    use crate::operators::Indexing;
+    use crate::operators::ReadVertexValue;
 
     #[test]
     fn test_add_new_key_defined_vertex() {
