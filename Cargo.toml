@@ -1,18 +1,19 @@
 [package]
-name = "cairn-knowledge-graph"
-version = "0.4.2"
+name = "stacked_linear_algebra_graph"
+version = "0.1.0"
 authors = ["code_sam <mail@samdekker.nl>"]
-description = "An embedded and in-memory knowledge graph for static specification analysis."
+description = "Embedded in-memory graph using sparse linear algebra"
 edition = "2021"
-keywords = ["knowledge", "graph"]
+keywords = ["graphblas", "graph"]
+categories = ["mathematics"]
 license = "CC-BY-NC-4.0"
 readme = "README.md"
-repository = "https://github.com/code-sam/cairn-knowledge-graph"
+repository = "https://github.com/code-sam/stacked_linear_algebra_graph"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-graphblas_sparse_linear_algebra = {version = "0.22.0"}
+graphblas_sparse_linear_algebra = {version = "0.23.1"}
 # graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "simpler-operators"}
 hashbrown = {version = "0.13", features = ["rayon"]}
 once_cell = {version = "1.17"}

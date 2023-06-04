@@ -36,7 +36,7 @@ use crate::{
     },
 };
 
-pub trait ApplyBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
+pub trait ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
     VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
     Product: ValueType + SparseVertexVectorForValueType<Product>,
@@ -88,7 +88,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
         impl<
                 AdjacencyMatrixOrVertexVector: ValueType + SparseVertexVectorForValueType<AdjacencyMatrixOrVertexVector>,
                 Product: ValueType + SparseVertexVectorForValueType<Product>,
-            > ApplyBinaryOperatorToVertexVector<AdjacencyMatrixOrVertexVector, Product, $evaluation_domain>
+            > ApplyScalarBinaryOperatorToVertexVector<AdjacencyMatrixOrVertexVector, Product, $evaluation_domain>
             for Graph
         {
             fn with_index_defined_vertex_vector_as_left_argument(

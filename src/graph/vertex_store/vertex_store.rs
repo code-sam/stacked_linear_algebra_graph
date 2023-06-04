@@ -9,6 +9,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 };
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::context::Context;
+use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
 use crate::error::GraphComputingError;
@@ -35,6 +36,7 @@ pub(crate) struct VertexStore {
     vertex_type_indexer: VertexTypeIndexer,
     vertex_vectors: Vec<VertexVector>,
     element_indexer: VertexElementIndexer,
+    mask_to_select_entire_vertex_vector: SelectEntireVector,
 }
 
 impl VertexStore {
@@ -54,6 +56,7 @@ impl VertexStore {
                 context,
                 inital_vertex_capacity,
             )?,
+            mask_to_select_entire_vertex_vector: SelectEntireVector::new(context),
         })
     }
 }
@@ -72,6 +75,8 @@ pub(crate) trait VertexStoreTrait {
     fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector];
     fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector];
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector>;
+
+    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector;
 
     fn resize_vertex_vectors(
         &mut self,
@@ -132,6 +137,10 @@ impl VertexStoreTrait for VertexStore {
 
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector> {
         &mut self.vertex_vectors
+    }
+
+    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector {
+        &self.mask_to_select_entire_vertex_vector
     }
 
     fn resize_vertex_vectors(

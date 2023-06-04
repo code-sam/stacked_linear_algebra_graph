@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::GetElementIndices;
 use graphblas_sparse_linear_algebra::error::SparseLinearAlgebraError;
+use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 
@@ -24,6 +25,7 @@ pub(crate) struct EdgeStore {
     adjacency_matrices: Vec<WeightedAdjacencyMatrix>,
     edge_type_indexer: EdgeTypeIndexer,
     adjacency_matrix_size: ElementCount,
+    mask_to_select_entire_adjacency_matrix: SelectEntireMatrix,
 }
 
 impl EdgeStore {
@@ -42,6 +44,7 @@ impl EdgeStore {
                 initial_edge_type_capacity.clone(),
             ),
             adjacency_matrix_size: *initial_vertex_capacity,
+            mask_to_select_entire_adjacency_matrix: SelectEntireMatrix::new(graphblas_context),
         })
     }
 }
@@ -57,6 +60,8 @@ pub(crate) trait EdgeStoreTrait {
 
     fn edge_type_indexer_ref(&self) -> &EdgeTypeIndexer;
     fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer;
+
+    fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix;
 
     ///
     fn resize_adjacency_matrices(
@@ -94,6 +99,10 @@ impl EdgeStoreTrait for EdgeStore {
 
     fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer {
         &mut self.edge_type_indexer
+    }
+
+    fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix {
+        &self.mask_to_select_entire_adjacency_matrix
     }
 
     fn resize_adjacency_matrices(

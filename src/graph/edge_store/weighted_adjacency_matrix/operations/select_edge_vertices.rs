@@ -5,6 +5,7 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::{
     ApplyElementWiseVectorAdditionMonoidOperator, ElementWiseVectorAdditionMonoidOperator,
 };
+use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use graphblas_sparse_linear_algebra::operators::monoid::{Any, LogicalOr};
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::reduce::{MonoidReducer, MonoidVectorReducer};
@@ -54,6 +55,7 @@ macro_rules! implement_vertex_indexing {
                     ),
                     &Assignment::new(),
                     &mut from_vertex_vector_mask,
+                    &SelectEntireVector::new(self.graphblas_context_ref()),
                     &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
                 Ok(from_vertex_vector_mask)
@@ -83,6 +85,7 @@ macro_rules! implement_vertex_indexing {
                     ),
                     &Assignment::new(),
                     &mut to_vertex_vector_mask,
+                    &SelectEntireVector::new(self.graphblas_context_ref()),
                     &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
                 Ok(to_vertex_vector_mask)
@@ -99,6 +102,7 @@ macro_rules! implement_vertex_indexing {
                     &SelectEdgeVertices::<$value_type>::select_vertices_with_outgoing_edges(self)?,
                     &Assignment::new(),
                     &mut vertex_vector_mask,
+                    &SelectEntireVector::new(self.graphblas_context_ref()),
                     &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
                 Ok(vertex_vector_mask)
