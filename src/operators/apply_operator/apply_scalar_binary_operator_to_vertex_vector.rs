@@ -21,6 +21,7 @@ use crate::{
         vertex_store::VertexStoreTrait,
     },
 };
+use crate::operators::GraphblasOperatorApplierCollectionTrait;
 
 pub trait ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
@@ -124,6 +125,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_left_argument(
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -158,6 +160,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_right_argument(
                         left_argument,
@@ -188,6 +191,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_left_argument(
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -218,6 +222,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_right_argument(
                         left_argument,
@@ -252,6 +257,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_left_argument(
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -286,6 +292,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_right_argument(
                         left_argument,
@@ -427,6 +434,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_left_argument(
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -465,6 +473,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_right_argument(
                         left_argument,
@@ -499,6 +508,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_left_argument(
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -533,6 +543,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_right_argument(
                         left_argument,
@@ -571,6 +582,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                     unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_left_argument(
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
@@ -609,6 +621,7 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
                     unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
 
                 Ok(self
+                    .graphblas_operator_applier_collection_ref()
                     .binary_operator_applier()
                     .apply_with_vector_as_right_argument(
                         left_argument,

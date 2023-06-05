@@ -16,7 +16,7 @@ use crate::{
         value_type::implement_macro_for_all_native_value_types,
         vertex::{VertexDefinedByKeyTrait, VertexKeyRef},
         vertex_store::VertexStoreTrait,
-    },
+    }, operators::GraphblasOperatorApplierCollection,
 };
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
@@ -170,7 +170,7 @@ pub struct Graph {
     vertex_store: VertexStore,
     edge_store: EdgeStore,
 
-    binary_operator_applier: BinaryOperatorApplier,
+    graphblas_operator_applier_collection: GraphblasOperatorApplierCollection,
 }
 
 // let mut map: FxHashMap<String, ElementIndex> = FxHashMap::default();
@@ -208,7 +208,7 @@ impl Graph {
                 &initial_vertex_capacity,
                 &initial_edge_type_capacity,
             )?,
-            binary_operator_applier: BinaryOperatorApplier::new(),
+            graphblas_operator_applier_collection: GraphblasOperatorApplierCollection::new(),
         };
 
         Ok(graph)
@@ -222,8 +222,8 @@ impl Graph {
         &mut self.edge_store
     }
 
-    pub(crate) fn binary_operator_applier(&self) -> &BinaryOperatorApplier {
-        &self.binary_operator_applier
+    pub(crate) fn graphblas_operator_applier_collection_ref(&self) -> &GraphblasOperatorApplierCollection {
+        &self.graphblas_operator_applier_collection
     }
 }
 
