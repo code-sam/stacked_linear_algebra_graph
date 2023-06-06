@@ -1,10 +1,12 @@
-use graphblas_sparse_linear_algebra::operators::apply::{BinaryOperatorApplier, UnaryOperatorApplier, IndexUnaryOperatorApplier};
+use graphblas_sparse_linear_algebra::operators::apply::{
+    BinaryOperatorApplier, IndexUnaryOperatorApplier, UnaryOperatorApplier,
+};
 
 #[derive(Clone, Debug)]
 pub(crate) struct GraphblasOperatorApplierCollection {
     binary_operator_applier: BinaryOperatorApplier,
     unary_operator_applier: UnaryOperatorApplier,
-    index_unary_operator_applier: IndexUnaryOperatorApplier
+    index_unary_operator_applier: IndexUnaryOperatorApplier,
 }
 
 impl GraphblasOperatorApplierCollection {
@@ -12,7 +14,7 @@ impl GraphblasOperatorApplierCollection {
         Self {
             binary_operator_applier: BinaryOperatorApplier::new(),
             unary_operator_applier: UnaryOperatorApplier::new(),
-            index_unary_operator_applier: IndexUnaryOperatorApplier::new()
+            index_unary_operator_applier: IndexUnaryOperatorApplier::new(),
         }
     }
 }

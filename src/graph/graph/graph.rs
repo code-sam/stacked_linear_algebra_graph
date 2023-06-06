@@ -16,7 +16,8 @@ use crate::{
         value_type::implement_macro_for_all_native_value_types,
         vertex::{VertexDefinedByKeyTrait, VertexKeyRef},
         vertex_store::VertexStoreTrait,
-    }, operators::GraphblasOperatorApplierCollection,
+    },
+    operators::GraphblasOperatorApplierCollection,
 };
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
@@ -222,7 +223,9 @@ impl Graph {
         &mut self.edge_store
     }
 
-    pub(crate) fn graphblas_operator_applier_collection_ref(&self) -> &GraphblasOperatorApplierCollection {
+    pub(crate) fn graphblas_operator_applier_collection_ref(
+        &self,
+    ) -> &GraphblasOperatorApplierCollection {
         &self.graphblas_operator_applier_collection
     }
 }

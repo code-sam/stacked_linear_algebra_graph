@@ -1,9 +1,7 @@
 use graphblas_sparse_linear_algebra::{
-    collections::{
-        sparse_matrix::SparseMatrix,
-    },
+    collections::sparse_matrix::SparseMatrix,
     operators::{
-        apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator},
+        apply::ApplyBinaryOperator as ApplyGraphBlasBinaryOperator,
         binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
         options::OperatorOptions,
     },
@@ -14,18 +12,16 @@ use crate::graph::{
     edge::EdgeTypeKeyRef, edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
     value_type::SparseAdjacencyMatrixForValueType,
 };
+use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
-    error::{GraphComputingError},
+    error::GraphComputingError,
     graph::{
-        graph::{Graph, EdgeTypeIndex},
-        value_type::{ implement_macro_for_all_native_value_types,
-            ValueType,
-        },
+        graph::{EdgeTypeIndex, Graph},
+        value_type::{implement_macro_for_all_native_value_types, ValueType},
         vertex::VertexTypeKeyRef,
     },
 };
 use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 
 pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
 where
@@ -647,7 +643,7 @@ implement_macro_for_all_native_value_types!(
 
 #[cfg(test)]
 mod tests {
-    use graphblas_sparse_linear_algebra::operators::binary_operator::{Plus, Assignment};
+    use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
 
     use super::*;
 

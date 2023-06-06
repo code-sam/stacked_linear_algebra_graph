@@ -1,9 +1,10 @@
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
-        apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator, apply::UnaryOperatorApplier,
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-        unary_operator::UnaryOperator,
+        apply::ApplyIndexUnaryOperator,
+        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+        index_unary_operator::IndexUnaryOperator,
+        options::OperatorOptions,
     },
 };
 
@@ -12,17 +13,18 @@ use crate::graph::{
     edge::EdgeTypeKeyRef, edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
     value_type::SparseAdjacencyMatrixForValueType,
 };
-use crate::operators::GraphblasOperatorApplierCollectionTrait;
+use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
         graph::{EdgeTypeIndex, Graph},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
+        vertex::VertexTypeKeyRef,
     },
 };
 use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
 
-pub trait ApplyUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
+pub trait ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
 where
     AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
     Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
@@ -30,49 +32,53 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
 {
-    fn by_index(
+    fn with_index(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        adjacency_matrix: &EdgeTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_unchecked_index(
+    fn with_unchecked_index(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        adjacency_matrix: &EdgeTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_key(
+    fn with_key(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeKeyRef,
+        adjacency_matrix: &VertexTypeKeyRef,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeKeyRef,
+        product: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_apply_unary_operator_to_adjacency_matrix {
+macro_rules! implement_apply_binary_operator_to_adjacency_matrix {
     ($evaluation_domain: ty) => {
         impl<
                 AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
                 Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-            > ApplyUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, $evaluation_domain>
+            > ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, $evaluation_domain>
             for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
             SparseMatrix<Product>: MatrixMask,
         {
-            fn by_index(
+            fn with_index(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &EdgeTypeIndex,
+                adjacency_matrix: &EdgeTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeIndex,
                 options: &OperatorOptions,
@@ -84,17 +90,18 @@ macro_rules! implement_apply_unary_operator_to_adjacency_matrix {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(argument)?;
+                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(adjacency_matrix)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_matrix(
-                        operator,
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                         unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
@@ -102,28 +109,30 @@ macro_rules! implement_apply_unary_operator_to_adjacency_matrix {
                     )?)
             }
 
-            fn by_unchecked_index(
+            fn with_unchecked_index(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &EdgeTypeIndex,
+                adjacency_matrix: &EdgeTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeIndex,
                 options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(argument);
+                let adjacency_matrix_argument = unsafe { &*edge_store }
+                    .adjacency_matrix_ref_for_index_unchecked(adjacency_matrix);
 
                 let adjacency_matrix_product = unsafe { &mut *edge_store }
                     .adjacency_matrix_mut_ref_for_index_unchecked(product);
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_matrix(
-                        operator,
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                         unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
@@ -131,10 +140,11 @@ macro_rules! implement_apply_unary_operator_to_adjacency_matrix {
                     )?)
             }
 
-            fn by_key(
+            fn with_key(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &EdgeTypeKeyRef,
+                adjacency_matrix: &EdgeTypeKeyRef,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeKeyRef,
                 options: &OperatorOptions,
@@ -146,17 +156,18 @@ macro_rules! implement_apply_unary_operator_to_adjacency_matrix {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(argument)?;
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(adjacency_matrix)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_matrix(
-                        operator,
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                         unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
@@ -166,9 +177,9 @@ macro_rules! implement_apply_unary_operator_to_adjacency_matrix {
         }
     };
 }
-implement_macro_for_all_native_value_types!(implement_apply_unary_operator_to_adjacency_matrix);
+implement_macro_for_all_native_value_types!(implement_apply_binary_operator_to_adjacency_matrix);
 
-pub trait ApplyUnaryOperatorToMaskedAdjacencyMatrix<
+pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
     AdjacencyMatrix,
     Product,
     EvaluationDomain,
@@ -182,45 +193,48 @@ pub trait ApplyUnaryOperatorToMaskedAdjacencyMatrix<
     Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
     SparseMatrix<Mask>: MatrixMask,
 {
-    fn by_index(
+    fn with_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        adjacency_matrix: &EdgeTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_unchecked_index(
+    fn with_unchecked_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        adjacency_matrix: &EdgeTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_key(
+    fn with_key_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeKeyRef,
+        adjacency_matrix: &VertexTypeKeyRef,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeKeyRef,
-        mask: &EdgeTypeKeyRef,
+        product: &VertexTypeKeyRef,
+        mask: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
+macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
     ($evaluation_domain: ty) => {
         impl<
                 AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
                 Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
                 Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
             >
-            ApplyUnaryOperatorToMaskedAdjacencyMatrix<
+            ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
                 AdjacencyMatrix,
                 Product,
                 $evaluation_domain,
@@ -231,10 +245,11 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
             SparseMatrix<Product>: MatrixMask,
             SparseMatrix<Mask>: MatrixMask,
         {
-            fn by_index(
+            fn with_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &EdgeTypeIndex,
+                adjacency_matrix: &EdgeTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeIndex,
                 mask: &EdgeTypeIndex,
@@ -247,7 +262,7 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(argument)?;
+                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(adjacency_matrix)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
@@ -257,10 +272,11 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_matrix(
-                        operator,
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                         Mask::sparse_matrix_ref(adjacency_matrix_mask),
@@ -268,10 +284,11 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
                     )?)
             }
 
-            fn by_unchecked_index(
+            fn with_unchecked_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &EdgeTypeIndex,
+                adjacency_matrix: &EdgeTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeIndex,
                 mask: &EdgeTypeIndex,
@@ -279,8 +296,8 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
             ) -> Result<(), GraphComputingError> {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(argument);
+                let adjacency_matrix_argument = unsafe { &*edge_store }
+                    .adjacency_matrix_ref_for_index_unchecked(adjacency_matrix);
 
                 let adjacency_matrix_product = unsafe { &mut *edge_store }
                     .adjacency_matrix_mut_ref_for_index_unchecked(product);
@@ -290,10 +307,11 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_matrix(
-                        operator,
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                         Mask::sparse_matrix_ref(adjacency_matrix_mask),
@@ -301,10 +319,11 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
                     )?)
             }
 
-            fn by_key(
+            fn with_key_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &EdgeTypeKeyRef,
+                adjacency_matrix: &EdgeTypeKeyRef,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &EdgeTypeKeyRef,
                 mask: &EdgeTypeKeyRef,
@@ -317,7 +336,7 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
                 let edge_store = self.edge_store_mut_ref_unsafe();
 
                 let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(argument)?;
+                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(adjacency_matrix)?;
 
                 let adjacency_matrix_product =
                     unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
@@ -327,10 +346,11 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_matrix(
-                        operator,
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                         Mask::sparse_matrix_ref(adjacency_matrix_mask),
@@ -341,19 +361,27 @@ macro_rules! implement_apply_unary_operator_to_masked_adjacency_matrix {
     };
 }
 implement_macro_for_all_native_value_types!(
-    implement_apply_unary_operator_to_masked_adjacency_matrix
+    implement_apply_binary_operator_to_adjacency_matrix_with_mask
 );
 
 #[cfg(test)]
 mod tests {
+    use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetMatrixElementList;
     use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
-    use graphblas_sparse_linear_algebra::operators::unary_operator::ColumnIndex;
+    use graphblas_sparse_linear_algebra::operators::index_unary_operator::{
+        IsValueEqualTo, IsValueGreaterThan,
+    };
 
     use super::*;
 
     use crate::graph::edge::{
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
+        WeightedDirectedEdgeDefinedByKeysTrait,
     };
+    use crate::graph::edge_store::weighted_adjacency_matrix::{
+        WeightedAdjacencyMatrixSparseMatrixTrait, WeightedAdjacencyMatrixTrait,
+    };
+    use crate::graph::graph::GraphTrait;
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;
@@ -385,7 +413,7 @@ mod tests {
                 vertex_2.key_ref(),
                 vertex_1.key_ref(),
             ),
-            25usize,
+            2u8,
         );
         let edge_vertex1_vertex2_type_2 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
@@ -414,27 +442,40 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyUnaryOperatorToAdjacencyMatrix::<u8, u16, i32>::by_key(
+        ApplyIndexUnaryOperatorToAdjacencyMatrix::<u8, u16, f32>::with_key(
             &mut graph,
-            &ColumnIndex::<i32>::new(),
             &edge_type_1_key,
+            &IsValueGreaterThan::<f32>::new(),
+            &1f32,
             &Assignment::new(),
-            &result_type_key,
+            result_type_key,
             &OperatorOptions::new_default(),
         )
         .unwrap();
+
+        // println!(
+        //     "{:?}",
+        //     WeightedAdjacencyMatrixSparseMatrixTrait::<u16>::sparse_matrix_ref(
+        //         graph
+        //             .edge_store_ref()
+        //             .adjacency_matrix_ref_for_key(result_type_key)
+        //             .unwrap()
+        //     )
+        //     .get_element_list()
+        //     .unwrap()
+        // );
 
         assert_eq!(
             ReadEdgeWeight::<u16>::key_defined_edge_weight(
                 &graph,
                 &DirectedEdgeCoordinateDefinedByKeys::new(
                     result_type_key,
-                    vertex_1.key_ref(),
                     vertex_2.key_ref(),
+                    vertex_1.key_ref(),
                 ),
             )
             .unwrap(),
-            Some(vertex_2_index as u16)
+            Some(1)
         );
     }
 }

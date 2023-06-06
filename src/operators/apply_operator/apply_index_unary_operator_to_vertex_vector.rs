@@ -1,28 +1,30 @@
 use graphblas_sparse_linear_algebra::{
     collections::sparse_vector::SparseVector,
     operators::{
-        apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator, apply::UnaryOperatorApplier,
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-        unary_operator::UnaryOperator,
+        apply::ApplyIndexUnaryOperator,
+        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+        index_unary_operator::IndexUnaryOperator,
+        options::OperatorOptions,
     },
 };
 
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::graph::{
-    value_type::SparseVertexVectorForValueType, vertex::VertexTypeKeyRef,
-    vertex_store::type_operations::get_vertex_vector::GetVertexVector,
+    edge::EdgeTypeKeyRef, vertex_store::type_operations::get_vertex_vector::GetVertexVector,
+    value_type::SparseVertexVectorForValueType,
 };
-use crate::operators::GraphblasOperatorApplierCollectionTrait;
+use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::{Graph, VertexTypeIndex},
+        graph::{VertexTypeIndex, Graph},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
+        vertex::VertexTypeKeyRef,
     },
 };
 use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
-pub trait ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
+pub trait ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
     VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
     Product: ValueType + SparseVertexVectorForValueType<Product>,
@@ -30,48 +32,53 @@ where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
 {
-    fn by_index(
+    fn with_index(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        vertex_vector: &VertexTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_unchecked_index(
+    fn with_unchecked_index(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        vertex_vector: &VertexTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_key(
+    fn with_key(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeKeyRef,
+        vertex_vector: &VertexTypeKeyRef,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_apply_unary_operator_to_vertex_vector {
+macro_rules! implement_apply_binary_operator_to_vertex_vector {
     ($evaluation_domain: ty) => {
         impl<
                 VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
                 Product: ValueType + SparseVertexVectorForValueType<Product>,
-            > ApplyUnaryOperatorToVertexVector<VertexVector, Product, $evaluation_domain> for Graph
+            > ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, $evaluation_domain>
+            for Graph
         where
             SparseVector<VertexVector>: VectorMask,
             SparseVector<Product>: VectorMask,
         {
-            fn by_index(
+            fn with_index(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &VertexTypeIndex,
+                vertex_vector: &VertexTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 options: &OperatorOptions,
@@ -83,17 +90,18 @@ macro_rules! implement_apply_unary_operator_to_vertex_vector {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(vertex_vector)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_vector(
-                        operator,
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_vector_mut_ref(vertex_vector_product),
                         unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -101,28 +109,30 @@ macro_rules! implement_apply_unary_operator_to_vertex_vector {
                     )?)
             }
 
-            fn by_unchecked_index(
+            fn with_unchecked_index(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &VertexTypeIndex,
+                vertex_vector: &VertexTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(argument);
+                let vertex_vector_argument = unsafe { &*vertex_store }
+                    .vertex_vector_ref_by_index_unchecked(vertex_vector);
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
+                let vertex_vector_product = unsafe { &mut *vertex_store }
+                    .vertex_vector_mut_ref_by_index_unchecked(product);
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_vector(
-                        operator,
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_vector_mut_ref(vertex_vector_product),
                         unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -130,12 +140,13 @@ macro_rules! implement_apply_unary_operator_to_vertex_vector {
                     )?)
             }
 
-            fn by_key(
+            fn with_key(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &VertexTypeKeyRef,
+                vertex_vector: &EdgeTypeKeyRef,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeKeyRef,
+                product: &EdgeTypeKeyRef,
                 options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
@@ -145,17 +156,18 @@ macro_rules! implement_apply_unary_operator_to_vertex_vector {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(vertex_vector)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_vector(
-                        operator,
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_vector_mut_ref(vertex_vector_product),
                         unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -165,10 +177,14 @@ macro_rules! implement_apply_unary_operator_to_vertex_vector {
         }
     };
 }
-implement_macro_for_all_native_value_types!(implement_apply_unary_operator_to_vertex_vector);
+implement_macro_for_all_native_value_types!(implement_apply_binary_operator_to_vertex_vector);
 
-pub trait ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
-where
+pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
+    VertexVector,
+    Product,
+    EvaluationDomain,
+    Mask,
+> where
     VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
     SparseVector<VertexVector>: VectorMask,
     Product: ValueType + SparseVertexVectorForValueType<Product>,
@@ -177,30 +193,33 @@ where
     Mask: ValueType + SparseVertexVectorForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
 {
-    fn by_index(
+    fn with_index_defined_vertex_vector_as_vertex_vector_and_mask(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        vertex_vector: &VertexTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_unchecked_index(
+    fn with_unchecked_index_defined_vertex_vector_as_vertex_vector_and_mask(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        vertex_vector: &VertexTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
-    fn by_key(
+    fn with_key_defined_vertex_vector_as_vertex_vector_and_mask(
         &mut self,
-        operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeKeyRef,
+        vertex_vector: &VertexTypeKeyRef,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
         mask: &VertexTypeKeyRef,
@@ -208,24 +227,29 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
+macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
     ($evaluation_domain: ty) => {
         impl<
                 VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
                 Product: ValueType + SparseVertexVectorForValueType<Product>,
                 Mask: ValueType + SparseVertexVectorForValueType<Mask>,
             >
-            ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, $evaluation_domain, Mask>
-            for Graph
+            ApplyScalarBinaryOperatorToMaskedVertexVector<
+                VertexVector,
+                Product,
+                $evaluation_domain,
+                Mask,
+            > for Graph
         where
             SparseVector<VertexVector>: VectorMask,
             SparseVector<Product>: VectorMask,
             SparseVector<Mask>: VectorMask,
         {
-            fn by_index(
+            fn with_index_defined_vertex_vector_as_vertex_vector_and_mask(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &VertexTypeIndex,
+                vertex_vector: &VertexTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 mask: &VertexTypeIndex,
@@ -238,7 +262,7 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(vertex_vector)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
@@ -248,10 +272,11 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_vector(
-                        operator,
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_vector_mut_ref(vertex_vector_product),
                         Mask::sparse_vector_ref(vertex_vector_mask),
@@ -259,10 +284,11 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
                     )?)
             }
 
-            fn by_unchecked_index(
+            fn with_unchecked_index_defined_vertex_vector_as_vertex_vector_and_mask(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &VertexTypeIndex,
+                vertex_vector: &VertexTypeIndex,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 product: &VertexTypeIndex,
                 mask: &VertexTypeIndex,
@@ -270,21 +296,22 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
             ) -> Result<(), GraphComputingError> {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(argument);
+                let vertex_vector_argument = unsafe { &*vertex_store }
+                    .vertex_vector_ref_by_index_unchecked(vertex_vector);
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
+                let vertex_vector_product = unsafe { &mut *vertex_store }
+                    .vertex_vector_mut_ref_by_index_unchecked(product);
 
                 let vertex_vector_mask =
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_vector(
-                        operator,
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_vector_mut_ref(vertex_vector_product),
                         Mask::sparse_vector_ref(vertex_vector_mask),
@@ -292,13 +319,14 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
                     )?)
             }
 
-            fn by_key(
+            fn with_key_defined_vertex_vector_as_vertex_vector_and_mask(
                 &mut self,
-                operator: &impl UnaryOperator<$evaluation_domain>,
-                argument: &VertexTypeKeyRef,
+                vertex_vector: &EdgeTypeKeyRef,
+                operator: &impl IndexUnaryOperator<$evaluation_domain>,
+                argument: &$evaluation_domain,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeKeyRef,
-                mask: &VertexTypeKeyRef,
+                product: &EdgeTypeKeyRef,
+                mask: &EdgeTypeKeyRef,
                 options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
                 // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
@@ -308,7 +336,7 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
                 let vertex_vector_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(argument)?;
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(vertex_vector)?;
 
                 let vertex_vector_product =
                     unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
@@ -318,10 +346,11 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
+                    .index_unary_operator_applier()
                     .apply_to_vector(
-                        operator,
                         VertexVector::sparse_vector_ref(vertex_vector_argument),
+                        operator,
+                        argument,
                         accumlator,
                         Product::sparse_vector_mut_ref(vertex_vector_product),
                         Mask::sparse_vector_ref(vertex_vector_mask),
@@ -331,18 +360,25 @@ macro_rules! implement_apply_unary_operator_to_masked_vertex_vector {
         }
     };
 }
-implement_macro_for_all_native_value_types!(implement_apply_unary_operator_to_masked_vertex_vector);
+implement_macro_for_all_native_value_types!(
+    implement_apply_binary_operator_to_vertex_vector_with_mask
+);
 
 #[cfg(test)]
 mod tests {
+    use graphblas_sparse_linear_algebra::collections::sparse_vector::GetVectorElementList;
     use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
-    use graphblas_sparse_linear_algebra::operators::unary_operator::ColumnIndex;
+    use graphblas_sparse_linear_algebra::operators::index_unary_operator::{
+        IsValueEqualTo, IsValueGreaterThan,
+    };
 
     use super::*;
 
     use crate::graph::edge::{
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
+        WeightedDirectedEdgeDefinedByKeysTrait,
     };
+    use crate::graph::graph::GraphTrait;
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;
@@ -374,7 +410,7 @@ mod tests {
                 vertex_2.key_ref(),
                 vertex_1.key_ref(),
             ),
-            25usize,
+            2u8,
         );
         let edge_vertex1_vertex2_type_2 = WeightedDirectedEdgeDefinedByKeys::new(
             DirectedEdgeCoordinateDefinedByKeys::new(
@@ -403,24 +439,37 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyUnaryOperatorToVertexVector::<u8, u16, i32>::by_key(
+        ApplyIndexUnaryOperatorToVertexVector::<u8, u16, f32>::with_key(
             &mut graph,
-            &ColumnIndex::<i32>::new(),
             &vertex_type_key,
+            &IsValueGreaterThan::<f32>::new(),
+            &1f32,
             &Assignment::new(),
-            &vertex_type_key,
+            vertex_type_key,
             &OperatorOptions::new_default(),
         )
         .unwrap();
+
+        // println!(
+        //     "{:?}",
+        //     WeightedVertexVectorSparseVectorTrait::<u16>::sparse_vector_ref(
+        //         graph
+        //             .vertex_store_ref()
+        //             .vertex_vector_ref_by_key(result_type_key)
+        //             .unwrap()
+        //     )
+        //     .get_element_list()
+        //     .unwrap()
+        // );
 
         assert_eq!(
             ReadVertexValue::<u16>::vertex_value_by_key(
                 &graph,
                 vertex_type_key,
-                vertex_1.key_ref(),
+                vertex_2.key_ref()
             )
             .unwrap(),
-            Some(vertex_1_index as u16)
+            Some(1)
         );
     }
 }
