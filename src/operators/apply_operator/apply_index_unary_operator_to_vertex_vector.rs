@@ -10,14 +10,14 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::graph::{
-    edge::EdgeTypeKeyRef, vertex_store::type_operations::get_vertex_vector::GetVertexVector,
-    value_type::SparseVertexVectorForValueType,
+    edge::EdgeTypeKeyRef, value_type::SparseVertexVectorForValueType,
+    vertex_store::type_operations::get_vertex_vector::GetVertexVector,
 };
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::{VertexTypeIndex, Graph},
+        graph::{Graph, VertexTypeIndex},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
         vertex::VertexTypeKeyRef,
     },
@@ -120,11 +120,11 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector {
             ) -> Result<(), GraphComputingError> {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_argument = unsafe { &*vertex_store }
-                    .vertex_vector_ref_by_index_unchecked(vertex_vector);
+                let vertex_vector_argument =
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(vertex_vector);
 
-                let vertex_vector_product = unsafe { &mut *vertex_store }
-                    .vertex_vector_mut_ref_by_index_unchecked(product);
+                let vertex_vector_product =
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
@@ -296,11 +296,11 @@ macro_rules! implement_apply_binary_operator_to_vertex_vector_with_mask {
             ) -> Result<(), GraphComputingError> {
                 let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_argument = unsafe { &*vertex_store }
-                    .vertex_vector_ref_by_index_unchecked(vertex_vector);
+                let vertex_vector_argument =
+                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(vertex_vector);
 
-                let vertex_vector_product = unsafe { &mut *vertex_store }
-                    .vertex_vector_mut_ref_by_index_unchecked(product);
+                let vertex_vector_product =
+                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
 
                 let vertex_vector_mask =
                     unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
