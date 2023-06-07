@@ -8,6 +8,7 @@ mod delete_edge;
 mod delete_vertex;
 mod drop_edge_type;
 mod drop_vertex_type;
+mod element_wise_addition;
 mod graphblas_operator_applier;
 mod indexing;
 mod read_adjacency_matrix;

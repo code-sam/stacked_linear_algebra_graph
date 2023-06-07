@@ -1,6 +1,7 @@
-use graphblas_sparse_linear_algebra::collections::{sparse_vector::{
-    GetVectorElementList, VectorElementList as VertexVectorElementList,
-}, sparse_matrix::GetMatrixElementList};
+use graphblas_sparse_linear_algebra::collections::{
+    sparse_matrix::GetMatrixElementList,
+    sparse_vector::{GetVectorElementList, VectorElementList as VertexVectorElementList},
+};
 
 use crate::{
     error::GraphComputingError,
@@ -10,8 +11,9 @@ use crate::{
             weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait,
         },
         graph::{Graph, GraphTrait, VertexTypeIndex},
-        value_type::{ValueType, implement_macro_for_all_native_value_types},
-        vertex::VertexTypeKeyRef, vertex_store::{SparseVertexVector, type_operations::get_vertex_vector::GetVertexVector},
+        value_type::{implement_macro_for_all_native_value_types, ValueType},
+        vertex::VertexTypeKeyRef,
+        vertex_store::{type_operations::get_vertex_vector::GetVertexVector, SparseVertexVector},
     },
 };
 
@@ -37,42 +39,34 @@ macro_rules! implement_read_vertex_vector {
                 &self,
                 type_index: &VertexTypeIndex,
             ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(
-                    SparseVertexVector::<$value_type>::sparse_vector_ref(
-                        self.vertex_store_ref()
-                            .vertex_vector_ref_by_index(type_index)?,
-                    )
-                    .get_element_list()?,
+                Ok(SparseVertexVector::<$value_type>::sparse_vector_ref(
+                    self.vertex_store_ref()
+                        .vertex_vector_ref_by_index(type_index)?,
                 )
+                .get_element_list()?)
             }
-        
+
             fn with_index_unchecked(
                 &self,
                 type_index: &VertexTypeIndex,
             ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(
-                    SparseVertexVector::<$value_type>::sparse_vector_ref(
-                        self.vertex_store_ref()
-                            .vertex_vector_ref_by_index_unchecked(type_index),
-                    )
-                    .get_element_list()?,
+                Ok(SparseVertexVector::<$value_type>::sparse_vector_ref(
+                    self.vertex_store_ref()
+                        .vertex_vector_ref_by_index_unchecked(type_index),
                 )
+                .get_element_list()?)
             }
-        
+
             fn with_key(
                 &self,
                 type_key: &VertexTypeKeyRef,
             ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(
-                    SparseVertexVector::<$value_type>::sparse_vector_ref(
-                        self.vertex_store_ref()
-                            .vertex_vector_ref_by_key(type_key)?,
-                    )
-                    .get_element_list()?,
+                Ok(SparseVertexVector::<$value_type>::sparse_vector_ref(
+                    self.vertex_store_ref().vertex_vector_ref_by_key(type_key)?,
                 )
+                .get_element_list()?)
             }
         }
     };
 }
 implement_macro_for_all_native_value_types!(implement_read_vertex_vector);
-

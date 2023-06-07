@@ -5,12 +5,13 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 use crate::{
     error::GraphComputingError,
     graph::{
+        edge::EdgeTypeKeyRef,
         edge_store::{
             operations::get_adjacency_matrix::GetAdjacencyMatrix,
             weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait,
         },
-        graph::{Graph, GraphTrait, EdgeTypeIndex},
-        value_type::{ValueType, implement_macro_for_all_native_value_types}, edge::EdgeTypeKeyRef,
+        graph::{EdgeTypeIndex, Graph, GraphTrait},
+        value_type::{implement_macro_for_all_native_value_types, ValueType},
     },
 };
 
@@ -44,7 +45,7 @@ macro_rules! implement_read_adjacency_matrix {
                     .get_element_list()?,
                 )
             }
-        
+
             fn with_index_unchecked(
                 &self,
                 type_index: &EdgeTypeIndex,
@@ -57,7 +58,7 @@ macro_rules! implement_read_adjacency_matrix {
                     .get_element_list()?,
                 )
             }
-        
+
             fn with_key(
                 &self,
                 type_key: &EdgeTypeKeyRef,
