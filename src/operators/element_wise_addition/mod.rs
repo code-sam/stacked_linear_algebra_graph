@@ -1,3 +1,5 @@
-mod element_wise_adjacency_matrix_addition;
+mod binary_operator_element_wise_adjacency_matrix_addition;
+mod binary_operator_element_wise_vertex_vector_addition;
 
-pub use element_wise_adjacency_matrix_addition::*;
+pub use binary_operator_element_wise_adjacency_matrix_addition::*;
+pub use binary_operator_element_wise_vertex_vector_addition::*;

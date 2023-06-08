@@ -25,8 +25,12 @@ use crate::{
     },
 };
 
-pub trait ElementWiseAdjacencyMatrixAddition<LeftArgument, RightArgument, Product, EvaluationDomain>
-where
+pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
+    LeftArgument,
+    RightArgument,
+    Product,
+    EvaluationDomain,
+> where
     LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
     RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
     Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
@@ -72,8 +76,13 @@ macro_rules! implement_element_wise_adjacency_matrix_addition {
                 LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
                 RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
                 Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-            > ElementWiseAdjacencyMatrixAddition<LeftArgument, RightArgument, Product, $evaluation_domain>
-            for Graph
+            >
+            BinaryOperatorElementWiseAdjacencyMatrixAddition<
+                LeftArgument,
+                RightArgument,
+                Product,
+                $evaluation_domain,
+            > for Graph
         where
             SparseMatrix<LeftArgument>: MatrixMask,
             SparseMatrix<RightArgument>: MatrixMask,
@@ -193,8 +202,13 @@ macro_rules! implement_element_wise_adjacency_matrix_addition {
 }
 implement_macro_for_all_native_value_types!(implement_element_wise_adjacency_matrix_addition);
 
-pub trait ElementWiseMaskedAdjacencyMatrixAddition<LeftArgument, RightArgument, Product, EvaluationDomain, Mask>
-where
+pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
+    LeftArgument,
+    RightArgument,
+    Product,
+    EvaluationDomain,
+    Mask,
+> where
     LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
     RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
     SparseMatrix<LeftArgument>: MatrixMask,
@@ -247,7 +261,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_addition {
                 Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
                 Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
             >
-            ElementWiseMaskedAdjacencyMatrixAddition<
+            BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
                 LeftArgument,
                 RightArgument,
                 Product,
@@ -458,17 +472,18 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-for _i in 0..2  {
-    ElementWiseAdjacencyMatrixAddition::<u8, u8, u16, u8>::by_key(
-        &mut graph,
-        &edge_type_1_key,
-        &Plus::<u8>::new(),
-        &edge_type_1_key,
-        &Plus::<u8>::new(),
-        result_type_key,
-        &OperatorOptions::new_default(),
-    ).unwrap();
-}
+        for _i in 0..2 {
+            BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8, u8, u16, u8>::by_key(
+                &mut graph,
+                &edge_type_1_key,
+                &Plus::<u8>::new(),
+                &edge_type_1_key,
+                &Plus::<u8>::new(),
+                result_type_key,
+                &OperatorOptions::new_default(),
+            )
+            .unwrap();
+        }
 
         assert_eq!(
             ReadEdgeWeight::<u16>::key_defined_edge_weight(
@@ -483,7 +498,7 @@ for _i in 0..2  {
             Some(4)
         );
 
-        ElementWiseAdjacencyMatrixAddition::<u8, usize, u16, u8>::by_key(
+        BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8, usize, u16, u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &Plus::<u8>::new(),
@@ -491,7 +506,8 @@ for _i in 0..2  {
             &Assignment::new(),
             result_type_key,
             &OperatorOptions::new_default(),
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(
             ReadEdgeWeight::<u16>::key_defined_edge_weight(
@@ -506,6 +522,4 @@ for _i in 0..2  {
             None
         );
     }
-
 }
-
