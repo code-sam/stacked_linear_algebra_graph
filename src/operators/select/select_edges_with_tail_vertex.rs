@@ -12,6 +12,7 @@ use graphblas_sparse_linear_algebra::{
         options::OperatorOptions,
     },
 };
+use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixRow;
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
@@ -36,7 +37,7 @@ use crate::{
     },
 };
 
-pub trait ExtractEdgesWithHeadVertex<AdjacencyMatrix, ExtractTo>
+pub trait SelectEdgesWithTailVertex<AdjacencyMatrix, ExtractTo>
 where
     AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
     ExtractTo: ValueType + SparseVertexVectorForValueType<ExtractTo>,
@@ -46,8 +47,8 @@ where
     fn by_index(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
-        head_vertex: &VertexIndex,
-        tail_vertex_selector: &VertexSelector,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
         extract_to: &VertexTypeIndex,
         options: &OperatorOptions,
@@ -56,8 +57,8 @@ where
     fn by_unchecked_index(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
-        head_vertex: &VertexIndex,
-        tail_vertex_selector: &VertexSelector,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
         extract_to: &VertexTypeIndex,
         options: &OperatorOptions,
@@ -66,8 +67,8 @@ where
     fn by_key(
         &mut self,
         adjacency_matrix: &EdgeTypeKeyRef,
-        head_vertex: &VertexKeyRef,
-        tail_vertex_selector: &VertexSelector,
+        tail_vertex: &VertexKeyRef,
+        // head_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
         extract_to: &VertexTypeKeyRef,
         options: &OperatorOptions,
@@ -77,15 +78,15 @@ where
 macro_rules! implement_element_wise_adjacency_matrix_multiplication {
     ($evaluation_domain: ty) => {
         impl<AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>>
-            ExtractEdgesWithHeadVertex<AdjacencyMatrix, $evaluation_domain> for Graph
+            SelectEdgesWithTailVertex<AdjacencyMatrix, $evaluation_domain> for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
         {
             fn by_index(
                 &mut self,
                 adjacency_matrix: &EdgeTypeIndex,
-                head_vertex: &VertexIndex,
-                tail_vertex_selector: &VertexSelector,
+                tail_vertex: &VertexIndex,
+                // head_vertex_selector: &VertexSelector,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 extract_to: &VertexTypeIndex,
                 options: &OperatorOptions,
@@ -105,11 +106,11 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
+                    .matrix_row_extractor()
                     .apply(
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        head_vertex,
-                        &tail_vertex_selector,
+                        tail_vertex,
+                        &VertexSelector::All,
                         accumlator,
                         SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
@@ -122,8 +123,8 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
             fn by_unchecked_index(
                 &mut self,
                 adjacency_matrix: &EdgeTypeIndex,
-                head_vertex: &VertexIndex,
-                tail_vertex_selector: &VertexSelector,
+                tail_vertex: &VertexIndex,
+                // head_vertex_selector: &VertexSelector,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 extract_to: &VertexTypeIndex,
                 options: &OperatorOptions,
@@ -139,11 +140,11 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
+                    .matrix_row_extractor()
                     .apply(
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        head_vertex,
-                        &tail_vertex_selector,
+                        tail_vertex,
+                        &VertexSelector::All,
                         accumlator,
                         SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
@@ -156,8 +157,8 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
             fn by_key(
                 &mut self,
                 adjacency_matrix: &EdgeTypeKeyRef,
-                head_vertex: &VertexKeyRef,
-                tail_vertex_selector: &VertexSelector,
+                tail_vertex: &VertexKeyRef,
+                // head_vertex_selector: &VertexSelector,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 extract_to: &VertexTypeKeyRef,
                 options: &OperatorOptions,
@@ -178,15 +179,15 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
                 let head_vertex_index = self
                     .vertex_store_ref()
                     .element_indexer_ref()
-                    .try_index_for_key(head_vertex)?;
+                    .try_index_for_key(tail_vertex)?;
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
+                    .matrix_row_extractor()
                     .apply(
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
                         head_vertex_index,
-                        &tail_vertex_selector,
+                        &VertexSelector::All,
                         accumlator,
                         SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
@@ -200,7 +201,7 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
 }
 implement_macro_for_all_native_value_types!(implement_element_wise_adjacency_matrix_multiplication);
 
-pub trait ExtractMaskedEdgesWithHeadVertex<AdjacencyMatrix, ExtractTo, Mask>
+pub trait SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, ExtractTo, Mask>
 where
     AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
@@ -212,8 +213,8 @@ where
     fn by_index(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
-        head_vertex: &VertexIndex,
-        tail_vertex_selector: &VertexSelector,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
@@ -223,8 +224,8 @@ where
     fn by_unchecked_index(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
-        head_vertex: &VertexIndex,
-        tail_vertex_selector: &VertexSelector,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
@@ -234,8 +235,8 @@ where
     fn by_key(
         &mut self,
         adjacency_matrix: &EdgeTypeKeyRef,
-        head_vertex: &VertexKeyRef,
-        tail_vertex_selector: &VertexSelector,
+        tail_vertex: &VertexKeyRef,
+        // head_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
         extract_to: &VertexTypeKeyRef,
         mask: &VertexTypeKeyRef,
@@ -248,7 +249,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
         impl<
                 AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
                 Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-            > ExtractMaskedEdgesWithHeadVertex<AdjacencyMatrix, $evaluation_domain, Mask>
+            > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, $evaluation_domain, Mask>
             for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
@@ -257,8 +258,8 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
             fn by_index(
                 &mut self,
                 adjacency_matrix: &EdgeTypeIndex,
-                head_vertex: &VertexIndex,
-                tail_vertex_selector: &VertexSelector,
+                tail_vertex: &VertexIndex,
+                // head_vertex_selector: &VertexSelector,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 extract_to: &VertexTypeIndex,
                 mask: &EdgeTypeIndex,
@@ -282,11 +283,11 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
+                    .matrix_row_extractor()
                     .apply(
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        head_vertex,
-                        &tail_vertex_selector,
+                        tail_vertex,
+                        &VertexSelector::All,
                         accumlator,
                         SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
@@ -299,8 +300,8 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
             fn by_unchecked_index(
                 &mut self,
                 adjacency_matrix: &EdgeTypeIndex,
-                head_vertex: &VertexIndex,
-                tail_vertex_selector: &VertexSelector,
+                tail_vertex: &VertexIndex,
+                // head_vertex_selector: &VertexSelector,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 extract_to: &VertexTypeIndex,
                 mask: &EdgeTypeIndex,
@@ -320,11 +321,11 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
+                    .matrix_row_extractor()
                     .apply(
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        head_vertex,
-                        &tail_vertex_selector,
+                        tail_vertex,
+                        &VertexSelector::All,
                         accumlator,
                         SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
@@ -337,8 +338,8 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
             fn by_key(
                 &mut self,
                 adjacency_matrix: &EdgeTypeKeyRef,
-                head_vertex: &VertexKeyRef,
-                tail_vertex_selector: &VertexSelector,
+                tail_vertex: &VertexKeyRef,
+                // head_vertex_selector: &VertexSelector,
                 accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
                 extract_to: &VertexTypeKeyRef,
                 mask: &VertexTypeKeyRef,
@@ -363,15 +364,15 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
                 let head_vertex_index = self
                     .vertex_store_ref()
                     .element_indexer_ref()
-                    .try_index_for_key(head_vertex)?;
+                    .try_index_for_key(tail_vertex)?;
 
                 Ok(self
                     .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
+                    .matrix_row_extractor()
                     .apply(
                         AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
                         head_vertex_index,
-                        &tail_vertex_selector,
+                        &VertexSelector::All,
                         accumlator,
                         SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
@@ -461,11 +462,11 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ExtractEdgesWithHeadVertex::<u8, isize>::by_key(
+        SelectEdgesWithTailVertex::<u8, isize>::by_key(
             &mut graph,
             &edge_type_1_key,
-            vertex_2.key_ref(),
-            &VertexSelector::All,
+            vertex_1.key_ref(),
+            // &VertexSelector::All,
             &Plus::<isize>::new(),
             vertex_result_type_key,
             &OperatorOptions::new_default(),
@@ -476,17 +477,17 @@ mod tests {
             ReadVertexValue::<isize>::vertex_value_by_key(
                 &graph,
                 vertex_result_type_key,
-                vertex_1.key_ref(),
+                vertex_2.key_ref(),
             )
             .unwrap(),
             Some(1)
         );
 
-        ExtractEdgesWithHeadVertex::<usize, isize>::by_key(
+        SelectEdgesWithTailVertex::<usize, isize>::by_key(
             &mut graph,
             &edge_type_1_key,
-            vertex_1.key_ref(),
-            &VertexSelector::All,
+            vertex_2.key_ref(),
+            // &VertexSelector::Index(&vec![0]),
             &Assignment::new(),
             vertex_result_type_key,
             &OperatorOptions::new_default(),
@@ -505,7 +506,7 @@ mod tests {
             ReadVertexValue::<isize>::vertex_value_by_key(
                 &graph,
                 vertex_result_type_key,
-                vertex_2.key_ref(),
+                vertex_1.key_ref(),
             )
             .unwrap(),
             Some(25)
