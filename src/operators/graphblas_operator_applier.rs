@@ -13,6 +13,7 @@ use graphblas_sparse_linear_algebra::operators::{
         ElementWiseVectorMultiplicationMonoidOperator,
         ElementWiseVectorMultiplicationSemiringOperator,
     },
+    extract::{MatrixColumnExtractor, MatrixRowExtractor, SubMatrixExtractor, SubVectorExtractor},
 };
 
 #[derive(Clone, Debug)]
@@ -40,6 +41,11 @@ pub(crate) struct GraphblasOperatorApplierCollection {
         ElementWiseVectorMultiplicationMonoidOperator,
     element_wise_vector_multiplication_semiring_operator:
         ElementWiseVectorMultiplicationSemiringOperator,
+
+    matrix_column_extractor: MatrixColumnExtractor,
+    matrix_row_extractor: MatrixRowExtractor,
+    sub_matrix_extractor: SubMatrixExtractor,
+    sub_vector_extractor: SubVectorExtractor,
 }
 
 impl GraphblasOperatorApplierCollection {
@@ -74,6 +80,11 @@ impl GraphblasOperatorApplierCollection {
                 ElementWiseVectorMultiplicationMonoidOperator::new(),
             element_wise_vector_multiplication_semiring_operator:
                 ElementWiseVectorMultiplicationSemiringOperator::new(),
+
+            matrix_column_extractor: MatrixColumnExtractor::new(),
+            matrix_row_extractor: MatrixRowExtractor::new(),
+            sub_matrix_extractor: SubMatrixExtractor::new(),
+            sub_vector_extractor: SubVectorExtractor::new(),
         }
     }
 }
@@ -120,6 +131,11 @@ pub(crate) trait GraphblasOperatorApplierCollectionTrait {
     fn element_wise_vector_multiplication_semiring_operator(
         &self,
     ) -> &ElementWiseVectorMultiplicationSemiringOperator;
+
+    fn matrix_column_extractor(&self) -> &MatrixColumnExtractor;
+    fn matrix_row_extractor(&self) -> &MatrixRowExtractor;
+    fn sub_matrix_extractor(&self) -> &SubMatrixExtractor;
+    fn sub_vector_extractor(&self) -> &SubVectorExtractor;
 }
 
 impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollection {
@@ -195,5 +211,18 @@ impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollect
         &self,
     ) -> &ElementWiseVectorMultiplicationSemiringOperator {
         &self.element_wise_vector_multiplication_semiring_operator
+    }
+
+    fn matrix_column_extractor(&self) -> &MatrixColumnExtractor {
+        &self.matrix_column_extractor
+    }
+    fn matrix_row_extractor(&self) -> &MatrixRowExtractor {
+        &self.matrix_row_extractor
+    }
+    fn sub_matrix_extractor(&self) -> &SubMatrixExtractor {
+        &self.sub_matrix_extractor
+    }
+    fn sub_vector_extractor(&self) -> &SubVectorExtractor {
+        &self.sub_vector_extractor
     }
 }
