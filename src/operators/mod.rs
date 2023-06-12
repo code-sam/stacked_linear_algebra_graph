@@ -10,7 +10,7 @@ mod drop_edge_type;
 mod drop_vertex_type;
 mod element_wise_addition;
 mod element_wise_multiplication;
-mod extract;
+// mod extract; // deactivated, extracts to a collection of arbitrary size, which the graph doesn't support
 mod graphblas_operator_applier;
 mod indexing;
 mod read_adjacency_matrix;
@@ -35,7 +35,7 @@ pub use drop_edge_type::DropEdgeType;
 pub use drop_vertex_type::DropVertexType;
 pub use element_wise_addition::*;
 pub use element_wise_multiplication::*;
-pub use extract::*;
+// pub use extract::*;
 pub(crate) use graphblas_operator_applier::*;
 pub use indexing::Indexing;
 pub use read_adjacency_matrix::*;

@@ -487,7 +487,7 @@ mod tests {
             &mut graph,
             &edge_type_1_key,
             vertex_2.key_ref(),
-            &VertexSelector::All,
+            &VertexSelector::Index(&vec![0]),
             &Assignment::new(),
             vertex_result_type_key,
             &OperatorOptions::new_default(),
