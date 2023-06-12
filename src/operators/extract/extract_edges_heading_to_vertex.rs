@@ -36,7 +36,7 @@ use crate::{
     },
 };
 
-pub trait ExtractEdgesPointingToVertex<AdjacencyMatrix, ExtractTo>
+pub trait ExtractEdgesHeadingToVertex<AdjacencyMatrix, ExtractTo>
 where
     AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
     ExtractTo: ValueType + SparseVertexVectorForValueType<ExtractTo>,
@@ -77,7 +77,7 @@ where
 macro_rules! implement_element_wise_adjacency_matrix_multiplication {
     ($evaluation_domain: ty) => {
         impl<AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>>
-            ExtractEdgesPointingToVertex<AdjacencyMatrix, $evaluation_domain> for Graph
+            ExtractEdgesHeadingToVertex<AdjacencyMatrix, $evaluation_domain> for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
         {
@@ -200,7 +200,7 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
 }
 implement_macro_for_all_native_value_types!(implement_element_wise_adjacency_matrix_multiplication);
 
-pub trait ExtractMaskedEdgesPointingToVertex<AdjacencyMatrix, ExtractTo, Mask>
+pub trait ExtractMaskedEdgesHeadingToVertex<AdjacencyMatrix, ExtractTo, Mask>
 where
     AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
@@ -248,7 +248,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
         impl<
                 AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
                 Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-            > ExtractMaskedEdgesPointingToVertex<AdjacencyMatrix, $evaluation_domain, Mask>
+            > ExtractMaskedEdgesHeadingToVertex<AdjacencyMatrix, $evaluation_domain, Mask>
             for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
@@ -461,7 +461,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ExtractEdgesPointingToVertex::<u8, isize>::by_key(
+        ExtractEdgesHeadingToVertex::<u8, isize>::by_key(
             &mut graph,
             &edge_type_1_key,
             vertex_2.key_ref(),
@@ -482,7 +482,7 @@ mod tests {
             Some(1)
         );
 
-        ExtractEdgesPointingToVertex::<usize, isize>::by_key(
+        ExtractEdgesHeadingToVertex::<usize, isize>::by_key(
             &mut graph,
             &edge_type_1_key,
             vertex_1.key_ref(),
