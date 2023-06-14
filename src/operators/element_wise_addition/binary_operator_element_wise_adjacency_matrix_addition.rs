@@ -61,11 +61,11 @@ pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
 
     fn by_key(
         &mut self,
-        left_argument: &VertexTypeKeyRef,
+        left_argument: &EdgeTypeKeyRef,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &VertexTypeKeyRef,
+        right_argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeKeyRef,
+        product: &EdgeTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
@@ -243,12 +243,12 @@ pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
 
     fn by_key(
         &mut self,
-        left_argument: &VertexTypeKeyRef,
+        left_argument: &EdgeTypeKeyRef,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeKeyRef,
-        mask: &VertexTypeKeyRef,
+        product: &EdgeTypeKeyRef,
+        mask: &EdgeTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }

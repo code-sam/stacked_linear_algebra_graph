@@ -10,17 +10,15 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
-
 use crate::graph::graph::{Graph, VertexTypeIndex};
-use crate::graph::vertex_store::VertexStoreTrait;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::VertexStoreTrait;
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
         value_type::{
-            implement_macro_for_all_native_value_types, SparseVertexVectorForValueType,
-            ValueType,
+            implement_macro_for_all_native_value_types, SparseVertexVectorForValueType, ValueType,
         },
         vertex::VertexTypeKeyRef,
     },
@@ -255,8 +253,7 @@ where
         let vertex_vector_product =
             unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
-        let vertex_vector_mask =
-            unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
+        let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
@@ -290,8 +287,7 @@ where
         let vertex_vector_product =
             unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
 
-        let vertex_vector_mask =
-            unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
+        let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
@@ -429,22 +425,14 @@ mod tests {
         .unwrap();
 
         assert_eq!(
-            ReadVertexValue::<u16>::vertex_value_by_key(
-                &graph,
-                vertex_type_key,
-                "vertex_1",
-            )
-            .unwrap(),
+            ReadVertexValue::<u16>::vertex_value_by_key(&graph, vertex_type_key, "vertex_1",)
+                .unwrap(),
             None
         );
 
         assert_eq!(
-            ReadVertexValue::<u16>::vertex_value_by_key(
-                &graph,
-                vertex_type_key,
-                "vertex_2",
-            )
-            .unwrap(),
+            ReadVertexValue::<u16>::vertex_value_by_key(&graph, vertex_type_key, "vertex_2",)
+                .unwrap(),
             Some(2)
         );
     }

@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
-        apply::ApplyBinaryOperator as ApplyGraphBlasBinaryOperator,
+        apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
         binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
         options::OperatorOptions,
     },
@@ -92,223 +92,219 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_apply_binary_operator_to_adjacency_matrix {
-    ($evaluation_domain: ty) => {
-        impl<
-                AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-                Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-            >
-            ApplyScalarBinaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, $evaluation_domain>
-            for Graph
-        where
-            SparseMatrix<AdjacencyMatrix>: MatrixMask,
-            SparseMatrix<Product>: MatrixMask,
-        {
-            fn with_index_defined_adjacency_matrix_as_left_argument(
-                &mut self,
-                left_argument: &EdgeTypeIndex,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &$evaluation_domain,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+impl<
+        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+        EvaluationDomain: ValueType,
+    > ApplyScalarBinaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
+    for Graph
+where
+    SparseMatrix<AdjacencyMatrix>: MatrixMask,
+    SparseMatrix<Product>: MatrixMask,
+    BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
+{
+    fn with_index_defined_adjacency_matrix_as_left_argument(
+        &mut self,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_left_argument(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        operator,
-                        right_argument,
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_left_argument(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                operator,
+                right_argument,
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
+                options,
+            )?)
+    }
 
-            fn with_index_defined_adjacency_matrix_as_right_argument(
-                &mut self,
-                left_argument: &$evaluation_domain,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &EdgeTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_index_defined_adjacency_matrix_as_right_argument(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_right_argument(
-                        left_argument,
-                        operator,
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_right_argument(
+                left_argument,
+                operator,
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
+                options,
+            )?)
+    }
 
-            fn with_unchecked_index_defined_adjacency_matrix_as_left_argument(
-                &mut self,
-                left_argument: &EdgeTypeIndex,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &$evaluation_domain,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_unchecked_index_defined_adjacency_matrix_as_left_argument(
+        &mut self,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
 
-                let adjacency_matrix_product = unsafe { &mut *edge_store }
-                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_index_unchecked(product);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_left_argument(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        operator,
-                        right_argument,
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_left_argument(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                operator,
+                right_argument,
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
+                options,
+            )?)
+    }
 
-            fn with_unchecked_index_defined_adjacency_matrix_as_right_argument(
-                &mut self,
-                left_argument: &$evaluation_domain,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &EdgeTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_unchecked_index_defined_adjacency_matrix_as_right_argument(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument = unsafe { &*edge_store }
-                    .adjacency_matrix_ref_for_index_unchecked(right_argument);
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(right_argument);
 
-                let adjacency_matrix_product = unsafe { &mut *edge_store }
-                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_index_unchecked(product);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_right_argument(
-                        left_argument,
-                        operator,
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_right_argument(
+                left_argument,
+                operator,
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
+                options,
+            )?)
+    }
 
-            fn with_key_defined_adjacency_matrix_as_left_argument(
-                &mut self,
-                left_argument: &EdgeTypeKeyRef,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &$evaluation_domain,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_key_defined_adjacency_matrix_as_left_argument(
+        &mut self,
+        left_argument: &EdgeTypeKeyRef,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_left_argument(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        operator,
-                        right_argument,
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_left_argument(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                operator,
+                right_argument,
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
+                options,
+            )?)
+    }
 
-            fn with_key_defined_adjacency_matrix_as_right_argument(
-                &mut self,
-                left_argument: &$evaluation_domain,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &EdgeTypeKeyRef,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_key_defined_adjacency_matrix_as_right_argument(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_right_argument(
-                        left_argument,
-                        operator,
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                        options,
-                    )?)
-            }
-        }
-    };
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_right_argument(
+                left_argument,
+                operator,
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
+                options,
+            )?)
+    }
 }
-implement_macro_for_all_native_value_types!(implement_apply_binary_operator_to_adjacency_matrix);
 
 pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
     AdjacencyMatrix,
@@ -391,255 +387,248 @@ pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_apply_binary_operator_to_adjacency_matrix_with_mask {
-    ($evaluation_domain: ty) => {
-        impl<
-                AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-                Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-                Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-            >
-            ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-                AdjacencyMatrix,
-                Product,
-                $evaluation_domain,
-                Mask,
-            > for Graph
-        where
-            SparseMatrix<AdjacencyMatrix>: MatrixMask,
-            SparseMatrix<Product>: MatrixMask,
-            SparseMatrix<Mask>: MatrixMask,
-        {
-            fn with_index_defined_adjacency_matrix_as_left_argument_and_mask(
-                &mut self,
-                left_argument: &EdgeTypeIndex,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &$evaluation_domain,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                mask: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+impl<
+        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+        Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
+        EvaluationDomain: ValueType,
+    >
+    ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
+        AdjacencyMatrix,
+        Product,
+        EvaluationDomain,
+        Mask,
+    > for Graph
+where
+    SparseMatrix<AdjacencyMatrix>: MatrixMask,
+    SparseMatrix<Product>: MatrixMask,
+    SparseMatrix<Mask>: MatrixMask,
+    BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
+{
+    fn with_index_defined_adjacency_matrix_as_left_argument_and_mask(
+        &mut self,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        mask: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
+        let adjacency_matrix_mask =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_left_argument(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        operator,
-                        right_argument,
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_left_argument(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                operator,
+                right_argument,
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                options,
+            )?)
+    }
 
-            fn with_index_defined_adjacency_matrix_as_right_argument_and_mask(
-                &mut self,
-                left_argument: &$evaluation_domain,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &EdgeTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                mask: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_index_defined_adjacency_matrix_as_right_argument_and_mask(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        mask: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
+        let adjacency_matrix_mask =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_right_argument(
-                        left_argument,
-                        operator,
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_right_argument(
+                left_argument,
+                operator,
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                options,
+            )?)
+    }
 
-            fn with_unchecked_index_defined_adjacency_matrix_as_left_argument_and_mask(
-                &mut self,
-                left_argument: &EdgeTypeIndex,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &$evaluation_domain,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                mask: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_unchecked_index_defined_adjacency_matrix_as_left_argument_and_mask(
+        &mut self,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        mask: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
 
-                let adjacency_matrix_product = unsafe { &mut *edge_store }
-                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_index_unchecked(product);
 
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
+        let adjacency_matrix_mask =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_left_argument(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        operator,
-                        right_argument,
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_left_argument(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                operator,
+                right_argument,
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                options,
+            )?)
+    }
 
-            fn with_unchecked_index_defined_adjacency_matrix_as_right_argument_and_mask(
-                &mut self,
-                left_argument: &$evaluation_domain,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &EdgeTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeIndex,
-                mask: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_unchecked_index_defined_adjacency_matrix_as_right_argument_and_mask(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeIndex,
+        mask: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument = unsafe { &*edge_store }
-                    .adjacency_matrix_ref_for_index_unchecked(right_argument);
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(right_argument);
 
-                let adjacency_matrix_product = unsafe { &mut *edge_store }
-                    .adjacency_matrix_mut_ref_for_index_unchecked(product);
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_index_unchecked(product);
 
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
+        let adjacency_matrix_mask =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_right_argument(
-                        left_argument,
-                        operator,
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_right_argument(
+                left_argument,
+                operator,
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                options,
+            )?)
+    }
 
-            fn with_key_defined_adjacency_matrix_as_left_argument_and_mask(
-                &mut self,
-                left_argument: &EdgeTypeKeyRef,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &$evaluation_domain,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeKeyRef,
-                mask: &EdgeTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_key_defined_adjacency_matrix_as_left_argument_and_mask(
+        &mut self,
+        left_argument: &EdgeTypeKeyRef,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeKeyRef,
+        mask: &EdgeTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(mask)?;
+        let adjacency_matrix_mask = unsafe { &*edge_store }.adjacency_matrix_ref_for_key(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_left_argument(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        operator,
-                        right_argument,
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_left_argument(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                operator,
+                right_argument,
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                options,
+            )?)
+    }
 
-            fn with_key_defined_adjacency_matrix_as_right_argument_and_mask(
-                &mut self,
-                left_argument: &$evaluation_domain,
-                operator: &impl BinaryOperator<$evaluation_domain>,
-                right_argument: &EdgeTypeKeyRef,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &EdgeTypeKeyRef,
-                mask: &EdgeTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
+    fn with_key_defined_adjacency_matrix_as_right_argument_and_mask(
+        &mut self,
+        left_argument: &EvaluationDomain,
+        operator: &impl BinaryOperator<EvaluationDomain>,
+        right_argument: &EdgeTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &EdgeTypeKeyRef,
+        mask: &EdgeTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
 
-                let adjacency_matrix_argument =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
+        let adjacency_matrix_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
 
-                let adjacency_matrix_product =
-                    unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
+        let adjacency_matrix_product =
+            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(mask)?;
+        let adjacency_matrix_mask = unsafe { &*edge_store }.adjacency_matrix_ref_for_key(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .binary_operator_applier()
-                    .apply_with_matrix_as_right_argument(
-                        left_argument,
-                        operator,
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
-                        accumlator,
-                        Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                        Mask::sparse_matrix_ref(adjacency_matrix_mask),
-                        options,
-                    )?)
-            }
-        }
-    };
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .binary_operator_applier()
+            .apply_with_matrix_as_right_argument(
+                left_argument,
+                operator,
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_argument),
+                accumlator,
+                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                options,
+            )?)
+    }
 }
-implement_macro_for_all_native_value_types!(
-    implement_apply_binary_operator_to_adjacency_matrix_with_mask
-);
 
 #[cfg(test)]
 mod tests {
