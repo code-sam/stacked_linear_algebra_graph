@@ -3,6 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixColumn;
+use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixRow;
 use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
@@ -12,7 +13,6 @@ use graphblas_sparse_linear_algebra::{
         options::OperatorOptions,
     },
 };
-use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixRow;
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
@@ -249,8 +249,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
         impl<
                 AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
                 Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-            > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, $evaluation_domain, Mask>
-            for Graph
+            > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, $evaluation_domain, Mask> for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
             SparseVector<Mask>: VectorMask,
@@ -402,7 +401,8 @@ mod tests {
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;
     use crate::operators::{
-        AddEdgeType, AddVertexType, ReadEdgeWeight, ReadVertexValue, ReadVertexVectorElementList, ReadAdjacencyMatrixElementList,
+        AddEdgeType, AddVertexType, ReadAdjacencyMatrixElementList, ReadEdgeWeight,
+        ReadVertexValue, ReadVertexVectorElementList,
     };
 
     #[test]

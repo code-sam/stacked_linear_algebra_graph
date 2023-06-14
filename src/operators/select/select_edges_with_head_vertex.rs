@@ -248,8 +248,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
         impl<
                 AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
                 Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-            > SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, $evaluation_domain, Mask>
-            for Graph
+            > SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, $evaluation_domain, Mask> for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
             SparseVector<Mask>: VectorMask,
@@ -401,7 +400,8 @@ mod tests {
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;
     use crate::operators::{
-        AddEdgeType, AddVertexType, ReadEdgeWeight, ReadVertexValue, ReadVertexVectorElementList, ReadAdjacencyMatrixElementList,
+        AddEdgeType, AddVertexType, ReadAdjacencyMatrixElementList, ReadEdgeWeight,
+        ReadVertexValue, ReadVertexVectorElementList,
     };
 
     #[test]

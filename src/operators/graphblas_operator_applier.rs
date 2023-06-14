@@ -14,6 +14,7 @@ use graphblas_sparse_linear_algebra::operators::{
         ElementWiseVectorMultiplicationSemiringOperator,
     },
     extract::{MatrixColumnExtractor, MatrixRowExtractor, SubMatrixExtractor, SubVectorExtractor},
+    select::{MatrixSelector, VectorSelector},
 };
 
 #[derive(Clone, Debug)]
@@ -46,6 +47,9 @@ pub(crate) struct GraphblasOperatorApplierCollection {
     matrix_row_extractor: MatrixRowExtractor,
     sub_matrix_extractor: SubMatrixExtractor,
     sub_vector_extractor: SubVectorExtractor,
+
+    matrix_selector: MatrixSelector,
+    vector_selector: VectorSelector,
 }
 
 impl GraphblasOperatorApplierCollection {
@@ -85,6 +89,9 @@ impl GraphblasOperatorApplierCollection {
             matrix_row_extractor: MatrixRowExtractor::new(),
             sub_matrix_extractor: SubMatrixExtractor::new(),
             sub_vector_extractor: SubVectorExtractor::new(),
+
+            matrix_selector: MatrixSelector::new(),
+            vector_selector: VectorSelector::new(),
         }
     }
 }
@@ -136,6 +143,9 @@ pub(crate) trait GraphblasOperatorApplierCollectionTrait {
     fn matrix_row_extractor(&self) -> &MatrixRowExtractor;
     fn sub_matrix_extractor(&self) -> &SubMatrixExtractor;
     fn sub_vector_extractor(&self) -> &SubVectorExtractor;
+
+    fn matrix_selector(&self) -> &MatrixSelector;
+    fn vector_selector(&self) -> &VectorSelector;
 }
 
 impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollection {
@@ -224,5 +234,13 @@ impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollect
     }
     fn sub_vector_extractor(&self) -> &SubVectorExtractor {
         &self.sub_vector_extractor
+    }
+
+    fn matrix_selector(&self) -> &MatrixSelector {
+        &self.matrix_selector
+    }
+
+    fn vector_selector(&self) -> &VectorSelector {
+        &self.vector_selector
     }
 }
