@@ -1,4 +1,5 @@
 use crate::graph::value_type::SparseVertexVectorForValueType;
+use crate::graph::vertex_store::VertexVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
@@ -75,19 +76,19 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_element_wise_adjacency_matrix_multiplication {
-    ($evaluation_domain: ty) => {
-        impl<AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>>
-            SelectEdgesWithTailVertex<AdjacencyMatrix, $evaluation_domain> for Graph
+        impl<AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>, EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>>
+            SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain> for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
+            SparseVector<EvaluationDomain>: VectorMask,
+            VertexVector: SparseVertexVector<EvaluationDomain>
         {
             fn by_index(
                 &mut self,
                 adjacency_matrix: &EdgeTypeIndex,
                 tail_vertex: &VertexIndex,
                 // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
                 extract_to: &VertexTypeIndex,
                 options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
@@ -112,7 +113,7 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
                         tail_vertex,
                         &VertexSelector::All,
                         accumlator,
-                        SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
+                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
                         ),
                         unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -125,7 +126,7 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
                 adjacency_matrix: &EdgeTypeIndex,
                 tail_vertex: &VertexIndex,
                 // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
                 extract_to: &VertexTypeIndex,
                 options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
@@ -146,7 +147,7 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
                         tail_vertex,
                         &VertexSelector::All,
                         accumlator,
-                        SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
+                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
                         ),
                         unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -159,7 +160,7 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
                 adjacency_matrix: &EdgeTypeKeyRef,
                 tail_vertex: &VertexKeyRef,
                 // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
                 extract_to: &VertexTypeKeyRef,
                 options: &OperatorOptions,
             ) -> Result<(), GraphComputingError> {
@@ -189,7 +190,7 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
                         head_vertex_index,
                         &VertexSelector::All,
                         accumlator,
-                        SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
+                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
                         ),
                         unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -197,9 +198,6 @@ macro_rules! implement_element_wise_adjacency_matrix_multiplication {
                     )?)
             }
         }
-    };
-}
-implement_macro_for_all_native_value_types!(implement_element_wise_adjacency_matrix_multiplication);
 
 pub trait SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, ExtractTo, Mask>
 where
@@ -244,22 +242,23 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
-    ($evaluation_domain: ty) => {
         impl<
                 AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
                 Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-            > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, $evaluation_domain, Mask> for Graph
+                EvaluationDomain: ValueType + SparseAdjacencyMatrixForValueType<EvaluationDomain>
+            > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
         where
             SparseMatrix<AdjacencyMatrix>: MatrixMask,
             SparseVector<Mask>: VectorMask,
+            SparseMatrix<EvaluationDomain>: MatrixMask,
+            VertexVector: SparseVertexVector<EvaluationDomain>
         {
             fn by_index(
                 &mut self,
                 adjacency_matrix: &EdgeTypeIndex,
                 tail_vertex: &VertexIndex,
                 // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
                 extract_to: &VertexTypeIndex,
                 mask: &EdgeTypeIndex,
                 options: &OperatorOptions,
@@ -288,7 +287,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
                         tail_vertex,
                         &VertexSelector::All,
                         accumlator,
-                        SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
+                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
                         ),
                         Mask::sparse_vector_ref(vertex_vector_mask),
@@ -301,7 +300,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
                 adjacency_matrix: &EdgeTypeIndex,
                 tail_vertex: &VertexIndex,
                 // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
                 extract_to: &VertexTypeIndex,
                 mask: &EdgeTypeIndex,
                 options: &OperatorOptions,
@@ -326,7 +325,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
                         tail_vertex,
                         &VertexSelector::All,
                         accumlator,
-                        SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
+                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
                         ),
                         Mask::sparse_vector_ref(vertex_vector_mask),
@@ -339,7 +338,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
                 adjacency_matrix: &EdgeTypeKeyRef,
                 tail_vertex: &VertexKeyRef,
                 // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
+                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
                 extract_to: &VertexTypeKeyRef,
                 mask: &VertexTypeKeyRef,
                 options: &OperatorOptions,
@@ -373,7 +372,7 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
                         head_vertex_index,
                         &VertexSelector::All,
                         accumlator,
-                        SparseVertexVector::<$evaluation_domain>::sparse_vector_mut_ref(
+                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
                             vertex_vector_extract_to,
                         ),
                         Mask::sparse_vector_ref(vertex_vector_mask),
@@ -381,11 +380,6 @@ macro_rules! implement_element_wise_masked_adjacency_matrix_multiplication {
                     )?)
             }
         }
-    };
-}
-implement_macro_for_all_native_value_types!(
-    implement_element_wise_masked_adjacency_matrix_multiplication
-);
 
 #[cfg(test)]
 mod tests {

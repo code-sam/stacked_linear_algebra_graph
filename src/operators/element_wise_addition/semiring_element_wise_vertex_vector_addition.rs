@@ -68,137 +68,129 @@ pub trait SemiringElementWiseVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_element_wise_vertex_vector_addition {
-    ($evaluation_domain: ty) => {
-        impl<
-                LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-                RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-                Product: ValueType + SparseVertexVectorForValueType<Product>,
-            >
-            SemiringElementWiseVertexVectorAddition<
-                LeftArgument,
-                RightArgument,
-                Product,
-                $evaluation_domain,
-            > for Graph
-        where
-            SparseVector<LeftArgument>: VectorMask,
-            SparseVector<RightArgument>: VectorMask,
-            SparseVector<Product>: VectorMask,
-        {
-            fn by_index(
-                &mut self,
-                left_argument: &VertexTypeIndex,
-                operator: &impl Semiring<$evaluation_domain>,
-                right_argument: &VertexTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+impl<
+        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        EvaluationDomain: ValueType,
+    >
+    SemiringElementWiseVertexVectorAddition<LeftArgument, RightArgument, Product, EvaluationDomain>
+    for Graph
+where
+    SparseVector<LeftArgument>: VectorMask,
+    SparseVector<RightArgument>: VectorMask,
+    SparseVector<Product>: VectorMask,
+{
+    fn by_index(
+        &mut self,
+        left_argument: &VertexTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_left_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(left_argument)?;
+        let vertex_vector_left_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index(left_argument)?;
 
-                let vertex_vector_right_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(right_argument)?;
+        let vertex_vector_right_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index(right_argument)?;
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
+        let vertex_vector_product =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
-                        operator,
-                        RightArgument::sparse_vector_ref(vertex_vector_right_argument),
-                        accumlator,
-                        Product::sparse_vector_mut_ref(vertex_vector_product),
-                        unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .element_wise_vector_addition_semiring_operator()
+            .apply(
+                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                operator,
+                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                accumlator,
+                Product::sparse_vector_mut_ref(vertex_vector_product),
+                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
+                options,
+            )?)
+    }
 
-            fn by_unchecked_index(
-                &mut self,
-                left_argument: &VertexTypeIndex,
-                operator: &impl Semiring<$evaluation_domain>,
-                right_argument: &VertexTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_unchecked_index(
+        &mut self,
+        left_argument: &VertexTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_left_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(left_argument);
+        let vertex_vector_left_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(left_argument);
 
-                let vertex_vector_right_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(right_argument);
+        let vertex_vector_right_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(right_argument);
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
+        let vertex_vector_product =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
-                        operator,
-                        RightArgument::sparse_vector_ref(vertex_vector_right_argument),
-                        accumlator,
-                        Product::sparse_vector_mut_ref(vertex_vector_product),
-                        unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .element_wise_vector_addition_semiring_operator()
+            .apply(
+                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                operator,
+                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                accumlator,
+                Product::sparse_vector_mut_ref(vertex_vector_product),
+                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
+                options,
+            )?)
+    }
 
-            fn by_key(
-                &mut self,
-                left_argument: &VertexTypeKeyRef,
-                operator: &impl Semiring<$evaluation_domain>,
-                right_argument: &VertexTypeKeyRef,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_key(
+        &mut self,
+        left_argument: &VertexTypeKeyRef,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &VertexTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_left_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(left_argument)?;
+        let vertex_vector_left_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_key(left_argument)?;
 
-                let vertex_vector_right_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(right_argument)?;
+        let vertex_vector_right_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_key(right_argument)?;
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
+        let vertex_vector_product =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
-                        operator,
-                        RightArgument::sparse_vector_ref(vertex_vector_right_argument),
-                        accumlator,
-                        Product::sparse_vector_mut_ref(vertex_vector_product),
-                        unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                        options,
-                    )?)
-            }
-        }
-    };
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .element_wise_vector_addition_semiring_operator()
+            .apply(
+                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                operator,
+                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                accumlator,
+                Product::sparse_vector_mut_ref(vertex_vector_product),
+                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
+                options,
+            )?)
+    }
 }
-implement_macro_for_all_native_value_types!(implement_element_wise_vertex_vector_addition);
 
 pub trait SemiringElementWiseMaskedVertexVectorAddition<
     LeftArgument,
@@ -251,152 +243,145 @@ pub trait SemiringElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_element_wise_masked_vertex_vector_addition {
-    ($evaluation_domain: ty) => {
-        impl<
-                LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-                RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-                Product: ValueType + SparseVertexVectorForValueType<Product>,
-                Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-            >
-            SemiringElementWiseMaskedVertexVectorAddition<
-                LeftArgument,
-                RightArgument,
-                Product,
-                $evaluation_domain,
-                Mask,
-            > for Graph
-        where
-            SparseVector<LeftArgument>: VectorMask,
-            SparseVector<RightArgument>: VectorMask,
-            SparseVector<Product>: VectorMask,
-            SparseVector<Mask>: VectorMask,
-        {
-            fn by_index(
-                &mut self,
-                left_argument: &VertexTypeIndex,
-                operator: &impl Semiring<$evaluation_domain>,
-                right_argument: &VertexTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeIndex,
-                mask: &VertexTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+impl<
+        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+        EvaluationDomain: ValueType,
+    >
+    SemiringElementWiseMaskedVertexVectorAddition<
+        LeftArgument,
+        RightArgument,
+        Product,
+        EvaluationDomain,
+        Mask,
+    > for Graph
+where
+    SparseVector<LeftArgument>: VectorMask,
+    SparseVector<RightArgument>: VectorMask,
+    SparseVector<Product>: VectorMask,
+    SparseVector<Mask>: VectorMask,
+{
+    fn by_index(
+        &mut self,
+        left_argument: &VertexTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_left_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(left_argument)?;
+        let vertex_vector_left_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index(left_argument)?;
 
-                let vertex_vector_right_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(right_argument)?;
+        let vertex_vector_right_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index(right_argument)?;
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
+        let vertex_vector_product =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(product)?;
 
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
+        let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
-                        operator,
-                        RightArgument::sparse_vector_ref(vertex_vector_right_argument),
-                        accumlator,
-                        Product::sparse_vector_mut_ref(vertex_vector_product),
-                        Mask::sparse_vector_ref(vertex_vector_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .element_wise_vector_addition_semiring_operator()
+            .apply(
+                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                operator,
+                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                accumlator,
+                Product::sparse_vector_mut_ref(vertex_vector_product),
+                Mask::sparse_vector_ref(vertex_vector_mask),
+                options,
+            )?)
+    }
 
-            fn by_unchecked_index(
-                &mut self,
-                left_argument: &VertexTypeIndex,
-                operator: &impl Semiring<$evaluation_domain>,
-                right_argument: &VertexTypeIndex,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeIndex,
-                mask: &VertexTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_unchecked_index(
+        &mut self,
+        left_argument: &VertexTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &VertexTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_left_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(left_argument);
+        let vertex_vector_left_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(left_argument);
 
-                let vertex_vector_right_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(right_argument);
+        let vertex_vector_right_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_index_unchecked(right_argument);
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
+        let vertex_vector_product =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(product);
 
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
+        let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_by_index(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
-                        operator,
-                        RightArgument::sparse_vector_ref(vertex_vector_right_argument),
-                        accumlator,
-                        Product::sparse_vector_mut_ref(vertex_vector_product),
-                        Mask::sparse_vector_ref(vertex_vector_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .element_wise_vector_addition_semiring_operator()
+            .apply(
+                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                operator,
+                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                accumlator,
+                Product::sparse_vector_mut_ref(vertex_vector_product),
+                Mask::sparse_vector_ref(vertex_vector_mask),
+                options,
+            )?)
+    }
 
-            fn by_key(
-                &mut self,
-                left_argument: &VertexTypeKeyRef,
-                operator: &impl Semiring<$evaluation_domain>,
-                right_argument: &VertexTypeKeyRef,
-                accumlator: &impl AccumulatorBinaryOperator<$evaluation_domain>,
-                product: &VertexTypeKeyRef,
-                mask: &VertexTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_key(
+        &mut self,
+        left_argument: &VertexTypeKeyRef,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &VertexTypeKeyRef,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &VertexTypeKeyRef,
+        mask: &VertexTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let vertex_vector_left_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(left_argument)?;
+        let vertex_vector_left_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_key(left_argument)?;
 
-                let vertex_vector_right_argument =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(right_argument)?;
+        let vertex_vector_right_argument =
+            unsafe { &*vertex_store }.vertex_vector_ref_by_key(right_argument)?;
 
-                let vertex_vector_product =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
+        let vertex_vector_product =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(product)?;
 
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
+        let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_by_key(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
-                        operator,
-                        RightArgument::sparse_vector_ref(vertex_vector_right_argument),
-                        accumlator,
-                        Product::sparse_vector_mut_ref(vertex_vector_product),
-                        Mask::sparse_vector_ref(vertex_vector_mask),
-                        options,
-                    )?)
-            }
-        }
-    };
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .element_wise_vector_addition_semiring_operator()
+            .apply(
+                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                operator,
+                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                accumlator,
+                Product::sparse_vector_mut_ref(vertex_vector_product),
+                Mask::sparse_vector_ref(vertex_vector_mask),
+                options,
+            )?)
+    }
 }
-implement_macro_for_all_native_value_types!(implement_element_wise_masked_vertex_vector_addition);
 
 #[cfg(test)]
 mod tests {
