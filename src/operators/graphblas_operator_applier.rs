@@ -14,7 +14,7 @@ use graphblas_sparse_linear_algebra::operators::{
         ElementWiseVectorMultiplicationSemiringOperator,
     },
     extract::{MatrixColumnExtractor, MatrixRowExtractor, SubMatrixExtractor, SubVectorExtractor},
-    select::{MatrixSelector, VectorSelector},
+    select::{MatrixSelector, VectorSelector}, transpose::{TransposeMatrix, MatrixTranspose},
 };
 
 #[derive(Clone, Debug)]
@@ -50,6 +50,8 @@ pub(crate) struct GraphblasOperatorApplierCollection {
 
     matrix_selector: MatrixSelector,
     vector_selector: VectorSelector,
+
+    matrix_transposer: MatrixTranspose
 }
 
 impl GraphblasOperatorApplierCollection {
@@ -92,6 +94,8 @@ impl GraphblasOperatorApplierCollection {
 
             matrix_selector: MatrixSelector::new(),
             vector_selector: VectorSelector::new(),
+
+            matrix_transposer: MatrixTranspose::new(),
         }
     }
 }
@@ -146,6 +150,8 @@ pub(crate) trait GraphblasOperatorApplierCollectionTrait {
 
     fn matrix_selector(&self) -> &MatrixSelector;
     fn vector_selector(&self) -> &VectorSelector;
+
+    fn matrix_transposer(&self) -> &MatrixTranspose;
 }
 
 impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollection {
@@ -242,5 +248,9 @@ impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollect
 
     fn vector_selector(&self) -> &VectorSelector {
         &self.vector_selector
+    }
+
+    fn matrix_transposer(&self) -> &MatrixTranspose {
+        &self.matrix_transposer
     }
 }

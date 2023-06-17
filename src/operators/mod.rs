@@ -20,6 +20,7 @@ mod select;
 // pub mod select_edge_type;
 // pub mod select_vertex;
 // pub mod selection;
+mod transpose_adjacency_matrix;
 mod update_edge_weight;
 mod update_vertex_value;
 
@@ -42,5 +43,6 @@ pub use read_edge_weight::ReadEdgeWeight;
 pub use read_vertex_value::ReadVertexValue;
 pub use read_vertex_vector::*;
 pub use select::*;
+pub use transpose_adjacency_matrix::*;
 pub use update_edge_weight::UpdateEdgeWeight;
 pub use update_vertex_value::UpdateVertexValue;

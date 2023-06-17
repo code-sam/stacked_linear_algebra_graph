@@ -76,128 +76,130 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-        impl<AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>, EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>>
-            SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain> for Graph
-        where
-            SparseMatrix<AdjacencyMatrix>: MatrixMask,
-            SparseVector<EvaluationDomain>: VectorMask,
-            VertexVector: SparseVertexVector<EvaluationDomain>
-        {
-            fn by_index(
-                &mut self,
-                adjacency_matrix: &EdgeTypeIndex,
-                tail_vertex: &VertexIndex,
-                // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-                extract_to: &VertexTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+impl<
+        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+        EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
+    > SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain> for Graph
+where
+    SparseMatrix<AdjacencyMatrix>: MatrixMask,
+    SparseVector<EvaluationDomain>: VectorMask,
+    VertexVector: SparseVertexVector<EvaluationDomain>,
+{
+    fn by_index(
+        &mut self,
+        adjacency_matrix: &EdgeTypeIndex,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        extract_to: &VertexTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let adjacency_matrix_adjacency_matrix =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(adjacency_matrix)?;
+        let adjacency_matrix_adjacency_matrix =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(adjacency_matrix)?;
 
-                let vertex_vector_extract_to =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(extract_to)?;
+        let vertex_vector_extract_to =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(extract_to)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_row_extractor()
-                    .apply(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        tail_vertex,
-                        &VertexSelector::All,
-                        accumlator,
-                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                            vertex_vector_extract_to,
-                        ),
-                        unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .matrix_row_extractor()
+            .apply(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                tail_vertex,
+                &VertexSelector::All,
+                accumlator,
+                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                    vertex_vector_extract_to,
+                ),
+                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
+                options,
+            )?)
+    }
 
-            fn by_unchecked_index(
-                &mut self,
-                adjacency_matrix: &EdgeTypeIndex,
-                tail_vertex: &VertexIndex,
-                // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-                extract_to: &VertexTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let edge_store = self.edge_store_mut_ref_unsafe();
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_unchecked_index(
+        &mut self,
+        adjacency_matrix: &EdgeTypeIndex,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        extract_to: &VertexTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let edge_store = self.edge_store_mut_ref_unsafe();
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let adjacency_matrix_adjacency_matrix = unsafe { &*edge_store }
-                    .adjacency_matrix_ref_for_index_unchecked(adjacency_matrix);
+        let adjacency_matrix_adjacency_matrix =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(adjacency_matrix);
 
-                let vertex_vector_extract_to = unsafe { &mut *vertex_store }
-                    .vertex_vector_mut_ref_by_index_unchecked(extract_to);
+        let vertex_vector_extract_to =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(extract_to);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_row_extractor()
-                    .apply(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        tail_vertex,
-                        &VertexSelector::All,
-                        accumlator,
-                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                            vertex_vector_extract_to,
-                        ),
-                        unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .matrix_row_extractor()
+            .apply(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                tail_vertex,
+                &VertexSelector::All,
+                accumlator,
+                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                    vertex_vector_extract_to,
+                ),
+                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
+                options,
+            )?)
+    }
 
-            fn by_key(
-                &mut self,
-                adjacency_matrix: &EdgeTypeKeyRef,
-                tail_vertex: &VertexKeyRef,
-                // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-                extract_to: &VertexTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_key(
+        &mut self,
+        adjacency_matrix: &EdgeTypeKeyRef,
+        tail_vertex: &VertexKeyRef,
+        // head_vertex_selector: &VertexSelector,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        extract_to: &VertexTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let adjacency_matrix_adjacency_matrix =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(adjacency_matrix)?;
+        let adjacency_matrix_adjacency_matrix =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(adjacency_matrix)?;
 
-                let vertex_vector_extract_to =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(extract_to)?;
+        let vertex_vector_extract_to =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(extract_to)?;
 
-                let head_vertex_index = self
-                    .vertex_store_ref()
-                    .element_indexer_ref()
-                    .try_index_for_key(tail_vertex)?;
+        let head_vertex_index = self
+            .vertex_store_ref()
+            .element_indexer_ref()
+            .try_index_for_key(tail_vertex)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_row_extractor()
-                    .apply(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        head_vertex_index,
-                        &VertexSelector::All,
-                        accumlator,
-                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                            vertex_vector_extract_to,
-                        ),
-                        unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                        options,
-                    )?)
-            }
-        }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .matrix_row_extractor()
+            .apply(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                head_vertex_index,
+                &VertexSelector::All,
+                accumlator,
+                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                    vertex_vector_extract_to,
+                ),
+                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
+                options,
+            )?)
+    }
+}
 
 pub trait SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, ExtractTo, Mask>
 where
@@ -242,144 +244,144 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-        impl<
-                AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-                Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-                EvaluationDomain: ValueType + SparseAdjacencyMatrixForValueType<EvaluationDomain>
-            > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
-        where
-            SparseMatrix<AdjacencyMatrix>: MatrixMask,
-            SparseVector<Mask>: VectorMask,
-            SparseMatrix<EvaluationDomain>: MatrixMask,
-            VertexVector: SparseVertexVector<EvaluationDomain>
-        {
-            fn by_index(
-                &mut self,
-                adjacency_matrix: &EdgeTypeIndex,
-                tail_vertex: &VertexIndex,
-                // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-                extract_to: &VertexTypeIndex,
-                mask: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+impl<
+        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+        EvaluationDomain: ValueType + SparseAdjacencyMatrixForValueType<EvaluationDomain>,
+    > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
+where
+    SparseMatrix<AdjacencyMatrix>: MatrixMask,
+    SparseVector<Mask>: VectorMask,
+    SparseMatrix<EvaluationDomain>: MatrixMask,
+    VertexVector: SparseVertexVector<EvaluationDomain>,
+{
+    fn by_index(
+        &mut self,
+        adjacency_matrix: &EdgeTypeIndex,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        extract_to: &VertexTypeIndex,
+        mask: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let adjacency_matrix_adjacency_matrix =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(adjacency_matrix)?;
+        let adjacency_matrix_adjacency_matrix =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(adjacency_matrix)?;
 
-                let vertex_vector_extract_to =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(extract_to)?;
+        let vertex_vector_extract_to =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(extract_to)?;
 
-                let vertex_vector_mask =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(mask)?;
+        let vertex_vector_mask =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index(mask)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_row_extractor()
-                    .apply(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        tail_vertex,
-                        &VertexSelector::All,
-                        accumlator,
-                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                            vertex_vector_extract_to,
-                        ),
-                        Mask::sparse_vector_ref(vertex_vector_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .matrix_row_extractor()
+            .apply(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                tail_vertex,
+                &VertexSelector::All,
+                accumlator,
+                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                    vertex_vector_extract_to,
+                ),
+                Mask::sparse_vector_ref(vertex_vector_mask),
+                options,
+            )?)
+    }
 
-            fn by_unchecked_index(
-                &mut self,
-                adjacency_matrix: &EdgeTypeIndex,
-                tail_vertex: &VertexIndex,
-                // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-                extract_to: &VertexTypeIndex,
-                mask: &EdgeTypeIndex,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                let edge_store = self.edge_store_mut_ref_unsafe();
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_unchecked_index(
+        &mut self,
+        adjacency_matrix: &EdgeTypeIndex,
+        tail_vertex: &VertexIndex,
+        // head_vertex_selector: &VertexSelector,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        extract_to: &VertexTypeIndex,
+        mask: &EdgeTypeIndex,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        let edge_store = self.edge_store_mut_ref_unsafe();
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let adjacency_matrix_adjacency_matrix = unsafe { &*edge_store }
-                    .adjacency_matrix_ref_for_index_unchecked(adjacency_matrix);
+        let adjacency_matrix_adjacency_matrix =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(adjacency_matrix);
 
-                let vertex_vector_extract_to = unsafe { &mut *vertex_store }
-                    .vertex_vector_mut_ref_by_index_unchecked(extract_to);
+        let vertex_vector_extract_to =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(extract_to);
 
-                let vertex_vector_mask =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(mask);
+        let vertex_vector_mask =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_index_unchecked(mask);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_row_extractor()
-                    .apply(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        tail_vertex,
-                        &VertexSelector::All,
-                        accumlator,
-                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                            vertex_vector_extract_to,
-                        ),
-                        Mask::sparse_vector_ref(vertex_vector_mask),
-                        options,
-                    )?)
-            }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .matrix_row_extractor()
+            .apply(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                tail_vertex,
+                &VertexSelector::All,
+                accumlator,
+                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                    vertex_vector_extract_to,
+                ),
+                Mask::sparse_vector_ref(vertex_vector_mask),
+                options,
+            )?)
+    }
 
-            fn by_key(
-                &mut self,
-                adjacency_matrix: &EdgeTypeKeyRef,
-                tail_vertex: &VertexKeyRef,
-                // head_vertex_selector: &VertexSelector,
-                accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-                extract_to: &VertexTypeKeyRef,
-                mask: &VertexTypeKeyRef,
-                options: &OperatorOptions,
-            ) -> Result<(), GraphComputingError> {
-                // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-                // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-                // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-                // For example, an alternative to unsafe access would be to clone the operands.
-                let edge_store = self.edge_store_mut_ref_unsafe();
-                let vertex_store = self.vertex_store_mut_ref_unsafe();
+    fn by_key(
+        &mut self,
+        adjacency_matrix: &EdgeTypeKeyRef,
+        tail_vertex: &VertexKeyRef,
+        // head_vertex_selector: &VertexSelector,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        extract_to: &VertexTypeKeyRef,
+        mask: &VertexTypeKeyRef,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError> {
+        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
+        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
+        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
+        // For example, an alternative to unsafe access would be to clone the operands.
+        let edge_store = self.edge_store_mut_ref_unsafe();
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-                let adjacency_matrix_adjacency_matrix =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_for_key(adjacency_matrix)?;
+        let adjacency_matrix_adjacency_matrix =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(adjacency_matrix)?;
 
-                let vertex_vector_extract_to =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(extract_to)?;
+        let vertex_vector_extract_to =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(extract_to)?;
 
-                let vertex_vector_mask =
-                    unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(mask)?;
+        let vertex_vector_mask =
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_by_key(mask)?;
 
-                let head_vertex_index = self
-                    .vertex_store_ref()
-                    .element_indexer_ref()
-                    .try_index_for_key(tail_vertex)?;
+        let head_vertex_index = self
+            .vertex_store_ref()
+            .element_indexer_ref()
+            .try_index_for_key(tail_vertex)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_row_extractor()
-                    .apply(
-                        AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
-                        head_vertex_index,
-                        &VertexSelector::All,
-                        accumlator,
-                        SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                            vertex_vector_extract_to,
-                        ),
-                        Mask::sparse_vector_ref(vertex_vector_mask),
-                        options,
-                    )?)
-            }
-        }
+        Ok(self
+            .graphblas_operator_applier_collection_ref()
+            .matrix_row_extractor()
+            .apply(
+                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                head_vertex_index,
+                &VertexSelector::All,
+                accumlator,
+                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                    vertex_vector_extract_to,
+                ),
+                Mask::sparse_vector_ref(vertex_vector_mask),
+                options,
+            )?)
+    }
+}
 
 #[cfg(test)]
 mod tests {
