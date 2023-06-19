@@ -407,7 +407,7 @@ mod tests {
     use crate::operators::{AddEdgeType, AddVertexType, ReadEdgeWeight};
 
     #[test]
-    fn add_adjacency_matrices() {
+    fn binary_operator_element_wise_adjacency_matrix_addition() {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let vertex_type_key = "vertex_type";

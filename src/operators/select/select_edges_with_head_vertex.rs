@@ -400,7 +400,7 @@ mod tests {
     };
 
     #[test]
-    fn add_adjacency_matrices() {
+    fn select_edges_with_head_vertex() {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let vertex_type_key = "vertex_type";
