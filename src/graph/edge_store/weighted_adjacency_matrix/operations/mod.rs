@@ -12,5 +12,5 @@ pub(crate) use delete_edge::*;
 pub(crate) use delete_vertex_connections::*;
 pub(crate) use indexing::*;
 pub(crate) use read_edge::*;
-pub(crate) use select_edge_vertices::*;
+
 pub(crate) use update_edge_weight::*;

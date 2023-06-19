@@ -1,10 +1,3 @@
-use crate::error::GraphComputingError;
-use crate::error::{LogicError, LogicErrorType};
-use crate::error::{SystemError, SystemErrorType};
-
-use crate::graph::graph::Graph;
-use crate::graph::index::ElementIndex;
-
 use crate::graph::value_type::ValueType;
 
 use super::graph::{VertexIndex, VertexTypeIndex};

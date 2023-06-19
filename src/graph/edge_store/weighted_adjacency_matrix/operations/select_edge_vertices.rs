@@ -1,6 +1,5 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
-use graphblas_sparse_linear_algebra::context::ContextTrait;
+
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::{
     ApplyElementWiseVectorAdditionMonoidOperator, ElementWiseVectorAdditionMonoidOperator,

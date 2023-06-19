@@ -6,23 +6,15 @@ use crate::graph::edge::{
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::UpdateEdgeWeight as UpdateEdgeWeightInEdgeStore;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
-use crate::graph::edge_store::EdgeStoreTrait;
+
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{
-    error::{GraphComputingError, SystemError, SystemErrorType, UserError, UserErrorType},
+    error::GraphComputingError,
     graph::{
         edge::{WeightedDirectedEdgeDefinedByIndices, WeightedDirectedEdgeDefinedByKeys},
-        graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex},
-        value_type::NativeDataType,
-        vertex::{
-            VertexDefinedByIndex, VertexDefinedByKey, VertexDefinedByTypeIndexAndVertexKey,
-            VertexDefinedByTypeKeyAndVertexIndex, VertexKeyRef, VertexTypeKeyRef,
-        },
-        vertex_store::{
-            type_operations::get_vertex_vector::GetVertexVector, vertex_operations::UpdateVertex,
-        },
+        graph::{Graph, GraphTrait},
     },
 };
 

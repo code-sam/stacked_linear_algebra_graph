@@ -16,9 +16,7 @@ use crate::graph::vertex_store::VertexStoreTrait;
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
-    graph::value_type::{
-        implement_macro_for_all_native_value_types, SparseVertexVectorForValueType, ValueType,
-    },
+    graph::value_type::{SparseVertexVectorForValueType, ValueType},
 };
 
 pub trait BinaryOperatorElementWiseVertexVectorAddition<

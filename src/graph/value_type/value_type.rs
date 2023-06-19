@@ -1,10 +1,6 @@
 // pub(crate) use graphblas_sparse_linear_algebra::value_type::ValueType;
 use graphblas_sparse_linear_algebra::{
-    collections::{
-        sparse_matrix::{GraphblasSparseMatrixTrait, SparseMatrix},
-        sparse_vector::SparseVector,
-    },
-    context::ContextTrait,
+    collections::{sparse_matrix::SparseMatrix, sparse_vector::SparseVector},
     operators::mask::{MatrixMask, VectorMask},
     value_type::ValueType as GraphBLASValueType,
 };

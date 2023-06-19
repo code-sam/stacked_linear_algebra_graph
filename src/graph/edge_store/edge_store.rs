@@ -1,23 +1,20 @@
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_vector::GetElementIndices;
-use graphblas_sparse_linear_algebra::error::SparseLinearAlgebraError;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 
 use super::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::{Size, SparseMatrixTrait};
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
-use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::edge::EdgeTypeKeyRef;
+use crate::error::GraphComputingError;
+
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
-use crate::graph::graph::EdgeTypeIndex;
+
 use crate::graph::index::ElementCount;
 use crate::graph::indexer::Indexer as EdgeTypeIndexer;
 use crate::graph::indexer::IndexerTrait;
-use crate::graph::value_type::ValueType;
 
 #[derive(Clone, Debug)]
 pub(crate) struct EdgeStore {

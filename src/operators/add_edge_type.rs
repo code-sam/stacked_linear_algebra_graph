@@ -1,13 +1,9 @@
 use crate::error::GraphComputingError;
-use crate::error::{LogicError, LogicErrorType};
 
 use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKeyRef};
 use crate::graph::edge_store::operations::add_edge_type::AddEdgeType as AddEdgeTypeToStore;
-use crate::graph::edge_store::{
-    weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStoreTrait,
-};
+
 use crate::graph::graph::{Graph, GraphTrait};
-use crate::graph::indexer::IndexerTrait;
 
 // use crate::operations::ReadEdge;
 

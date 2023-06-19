@@ -1,30 +1,25 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
+
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 use graphblas_sparse_linear_algebra::operators::transpose::TransposeMatrix;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        mask::MatrixMask,
-        options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
     },
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::EdgeStoreTrait;
+
 use crate::graph::graph::Graph;
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
         edge::EdgeTypeIndex,
-        value_type::{
-            implement_macro_for_all_native_value_types, SparseAdjacencyMatrixForValueType,
-            ValueType,
-        },
+        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
         vertex::VertexTypeKeyRef,
     },
 };

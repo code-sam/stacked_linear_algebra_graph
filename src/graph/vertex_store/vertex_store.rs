@@ -1,27 +1,15 @@
-use std::marker::PhantomData;
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
-    MatrixElement, SetMatrixElement, Size, SparseMatrix, SparseMatrixTrait,
-};
-use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    SparseVector, SparseVectorTrait,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::context::Context;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
 use crate::error::GraphComputingError;
-use crate::graph::graph::VertexTypeIndex;
+
 use crate::graph::index::ElementCount;
-use crate::graph::index::Index;
-use crate::graph::value_type::NativeDataType as GraphNativeDataType;
-use crate::graph::value_type::ValueType;
-use crate::graph::value_type::{
-    implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
-};
-use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait, VertexKeyRef};
 
 use crate::graph::indexer::{Indexer, IndexerTrait};
 

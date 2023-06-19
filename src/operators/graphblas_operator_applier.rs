@@ -19,7 +19,7 @@ use graphblas_sparse_linear_algebra::operators::{
         VectorMatrixMultiplicationOperator,
     },
     select::{MatrixSelector, VectorSelector},
-    transpose::{MatrixTranspose, TransposeMatrix},
+    transpose::MatrixTranspose,
 };
 
 #[derive(Clone, Debug)]

@@ -17,7 +17,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::{EdgeTypeIndex, Graph},
-        value_type::{implement_macro_for_all_native_value_types, ValueType},
+        value_type::ValueType,
         vertex::VertexTypeKeyRef,
     },
 };

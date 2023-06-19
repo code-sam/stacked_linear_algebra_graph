@@ -1,25 +1,23 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
 // use graphblas_sparse_linear_algebra::value_type::ValueType;
 
-use crate::error::{GraphComputingError, LogicError, LogicErrorType, SystemError, SystemErrorType};
+use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 
 use crate::graph::edge::{
-    AdjacencyMatrixCoordinate, DirectedEdgeCoordinateDefinedByIndices,
-    DirectedEdgeCoordinateDefinedByIndicesTrait, DirectedEdgeCoordinateDefinedByKeysTrait,
-    EdgeTypeIndex, WeightedDirectedEdgeDefinedByIndices, WeightedDirectedEdgeDefinedByIndicesTrait,
-    WeightedDirectedEdgeDefinedByKeys, WeightedDirectedEdgeDefinedByKeysTrait,
+    AdjacencyMatrixCoordinate, DirectedEdgeCoordinateDefinedByIndicesTrait,
+    DirectedEdgeCoordinateDefinedByKeysTrait, EdgeTypeIndex, WeightedDirectedEdgeDefinedByIndices,
+    WeightedDirectedEdgeDefinedByIndicesTrait, WeightedDirectedEdgeDefinedByKeys,
+    WeightedDirectedEdgeDefinedByKeysTrait,
 };
 use crate::graph::edge_store::operations::add_edge_type::AddEdgeType;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
     AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
 };
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+
 use crate::graph::graph::{Graph, GraphTrait};
-use crate::graph::indexer::IndexerTrait;
+
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
-use crate::graph::vertex_store::vertex_operations::AddVertex;
-use crate::graph::vertex_store::VertexStoreTrait;
+
 use crate::operators::Indexing as GraphIndexing;
 
 use super::add_edge_type::AddEdgeType as AddEdgeTypeToGraph;

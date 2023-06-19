@@ -5,9 +5,7 @@ use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_vector::SparseVector,
     operators::{
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        mask::VectorMask,
-        options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, mask::VectorMask, options::OperatorOptions,
     },
 };
 
@@ -18,9 +16,7 @@ use crate::graph::vertex_store::VertexStoreTrait;
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
-    graph::value_type::{
-        implement_macro_for_all_native_value_types, SparseVertexVectorForValueType, ValueType,
-    },
+    graph::value_type::{SparseVertexVectorForValueType, ValueType},
 };
 
 pub trait MonoidElementWiseVertexVectorMultiplication<

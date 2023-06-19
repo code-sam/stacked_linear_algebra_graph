@@ -11,12 +11,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::{
-            weighted_adjacency_matrix::{WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait},
-            EdgeStore,
-        },
-        graph::VertexIndex,
-        index::ElementIndex,
+        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, graph::VertexIndex,
         value_type::implement_macro_for_all_native_value_types,
     },
 };

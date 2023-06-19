@@ -1,12 +1,4 @@
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
-    context::{Context as GraphblasContext, Mode as GraphblasMode},
-    index::ElementIndex as GraphblasElementIndex,
-};
-
-use super::graph::Graph;
-
-use crate::error::{GraphComputingError, LogicError, LogicErrorType, UserError, UserErrorType};
+use crate::error::GraphComputingError;
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
 use crate::graph::index::ElementCount;
@@ -14,7 +6,7 @@ use crate::graph::index::ElementCount;
 // use crate::graph::graph::indexed_vertex_and_adjacency_matrix_store::indexed_vertex_and_adjacency_matrix_store::{
 //     IndexedVertexAndAdjacencyMatrixStore, IndexedVertexAndAdjacencyMatrixStoreTrait,
 // };
-use crate::graph::vertex::{VertexDefinedByKey, VertexKey};
+
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
 pub trait GraphMonitoring {

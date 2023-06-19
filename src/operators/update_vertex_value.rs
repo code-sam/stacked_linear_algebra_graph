@@ -1,16 +1,11 @@
 use crate::graph::value_type::ValueType;
 use crate::{
-    error::{GraphComputingError, SystemError, SystemErrorType, UserError, UserErrorType},
+    error::GraphComputingError,
     graph::{
-        graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex},
-        value_type::{implement_macro_for_all_native_value_types, NativeDataType},
-        vertex::{
-            VertexDefinedByIndex, VertexDefinedByKey, VertexDefinedByTypeIndexAndVertexKey,
-            VertexDefinedByTypeKeyAndVertexIndex, VertexKeyRef, VertexTypeKeyRef,
-        },
-        vertex_store::{
-            type_operations::get_vertex_vector::GetVertexVector, vertex_operations::UpdateVertex,
-        },
+        graph::{Graph, GraphTrait},
+        value_type::implement_macro_for_all_native_value_types,
+        vertex::{VertexDefinedByIndex, VertexDefinedByKey, VertexDefinedByTypeIndexAndVertexKey},
+        vertex_store::vertex_operations::UpdateVertex,
     },
 };
 

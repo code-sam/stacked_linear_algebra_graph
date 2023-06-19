@@ -1,15 +1,9 @@
-use graphblas_sparse_linear_algebra::value_type::ValueType;
-
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex},
         indexer::{AssignedIndex, AssignedIndexTrait, IndexerTrait},
-        vertex::{VertexKeyRef, VertexTypeKeyRef},
-        vertex_store::{
-            type_operations::add_vertex_type::AddVertexType as AddVertexTypeToVertexStore,
-            VertexStore, VertexStoreTrait,
-        },
+        vertex::VertexKeyRef,
+        vertex_store::{VertexStore, VertexStoreTrait},
     },
 };
 

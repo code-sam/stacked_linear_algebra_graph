@@ -1,11 +1,6 @@
-use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::graph::graph::Graph;
-use crate::graph::graph::GraphTrait;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::VertexKey;
 
 use super::{DirectedEdgeCoordinateDefinedByIndices, DirectedEdgeCoordinateDefinedByKeys};
-use super::{EdgeTypeIndex, EdgeTypeKey, EdgeTypeKeyRef};
 
 #[derive(Clone, Debug)]
 pub struct WeightedDirectedEdgeDefinedByIndices<T: ValueType> {

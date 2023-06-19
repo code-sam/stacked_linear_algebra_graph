@@ -6,9 +6,7 @@ use crate::graph::edge::DirectedEdgeCoordinateDefinedByIndicesTrait;
 use crate::graph::edge::WeightedDirectedEdgeDefinedByIndices;
 use crate::graph::edge::WeightedDirectedEdgeDefinedByIndicesTrait;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::{
-    WeightedAdjacencyMatrixSparseMatrixTrait, WeightedAdjacencyMatrixTrait,
-};
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait;
 use crate::graph::index::ElementIndex;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
 

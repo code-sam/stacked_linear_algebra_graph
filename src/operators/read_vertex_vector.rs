@@ -6,10 +6,6 @@ use graphblas_sparse_linear_algebra::collections::{
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::{
-            operations::get_adjacency_matrix::GetAdjacencyMatrix,
-            weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait,
-        },
         graph::{Graph, GraphTrait, VertexTypeIndex},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
         vertex::VertexTypeKeyRef,

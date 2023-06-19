@@ -12,7 +12,7 @@ use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 use graphblas_sparse_linear_algebra::index::ElementIndex;
 use hashbrown::HashMap;
 
-use crate::error::{GraphComputingError, LogicError, LogicErrorType, UserError, UserErrorType};
+use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::index::ElementCount;
 
 pub type Index = ElementIndex;

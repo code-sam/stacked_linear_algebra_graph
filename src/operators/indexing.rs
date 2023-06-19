@@ -1,16 +1,14 @@
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-use crate::error::{UserError, UserErrorType};
 
 use crate::graph::edge::{
     DirectedEdgeCoordinateDefinedByIndices, DirectedEdgeCoordinateDefinedByIndicesTrait,
     DirectedEdgeCoordinateDefinedByKeys, DirectedEdgeCoordinateDefinedByKeysTrait, EdgeTypeIndex,
-    EdgeTypeKey, EdgeTypeKeyRef, WeightedDirectedEdgeDefinedByIndices,
-    WeightedDirectedEdgeDefinedByKeys,
+    EdgeTypeKey, EdgeTypeKeyRef,
 };
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
-use crate::graph::value_type::ValueType;
+
 use crate::graph::vertex::{VertexKey, VertexKeyRef, VertexTypeKey, VertexTypeKeyRef};
 use crate::graph::vertex_store::VertexStoreTrait;
 // use crate::graph::vertex_store::vertex_operations::Indexing as VertexStoreIndexing;

@@ -1,12 +1,10 @@
-use graphblas_sparse_linear_algebra::value_type::ValueType;
-
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::{
     error::GraphComputingError,
     graph::indexer::AssignedIndexTrait,
     graph::{
-        graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex},
-        vertex::{VertexKeyRef, VertexTypeKeyRef},
+        graph::{Graph, GraphTrait, VertexIndex},
+        vertex::VertexKeyRef,
         vertex_store::vertex_operations::AddVertexKey as AddVertexKeyToVertexStore,
     },
 };

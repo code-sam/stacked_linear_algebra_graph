@@ -5,7 +5,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge::{
     AdjacencyMatrixCoordinate, DirectedEdgeCoordinateDefinedByIndices,
     DirectedEdgeCoordinateDefinedByIndicesTrait, DirectedEdgeCoordinateDefinedByKeys,
-    DirectedEdgeCoordinateDefinedByKeysTrait, EdgeTypeIndex,
+    DirectedEdgeCoordinateDefinedByKeysTrait,
 };
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::ReadEdge;
@@ -14,7 +14,6 @@ use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::operators::read_vertex_value::ReadVertexValue;
 
 use super::Indexing;
 

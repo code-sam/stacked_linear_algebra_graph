@@ -7,15 +7,13 @@ use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        mask::MatrixMask,
-        options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
     },
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::EdgeStoreTrait;
+
 use crate::graph::graph::GraphTrait;
 use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
@@ -28,10 +26,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge::EdgeTypeIndex,
-        value_type::{
-            implement_macro_for_all_native_value_types, SparseAdjacencyMatrixForValueType,
-            ValueType,
-        },
+        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
         vertex::VertexTypeKeyRef,
     },
 };

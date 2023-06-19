@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_vector::GraphblasSparseVectorTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
@@ -11,10 +10,7 @@ use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
 use crate::graph::vertex::{VertexTypeKey, VertexTypeKeyRef};
-use crate::{
-    error::GraphComputingError,
-    graph::{index::ElementCount, indexer::Indexer as VertexIndexer},
-};
+use crate::{error::GraphComputingError, graph::index::ElementCount};
 
 #[derive(Clone, Debug)]
 pub struct VertexVector {

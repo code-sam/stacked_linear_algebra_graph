@@ -1,4 +1,3 @@
-use crate::graph::indexer::Indexer as EdgeTypeIndexer;
 use crate::graph::indexer::IndexerTrait;
 use crate::{
     error::{GraphComputingError, LogicError, LogicErrorType},

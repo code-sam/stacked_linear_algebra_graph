@@ -4,7 +4,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge::{EdgeTypeIndex, EdgeTypeKeyRef},
-        edge_store::{weighted_adjacency_matrix, EdgeStore},
+        edge_store::EdgeStore,
         indexer::{AssignedIndexTrait, IndexerTrait},
     },
 };

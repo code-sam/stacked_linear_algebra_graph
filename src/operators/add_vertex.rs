@@ -1,13 +1,13 @@
-use crate::error::{GraphComputingError, UserError, UserErrorType};
+use crate::error::GraphComputingError;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
-use crate::graph::index::ElementCount;
-use crate::graph::indexer::{AssignedIndex, AssignedIndexTrait};
+
+use crate::graph::indexer::AssignedIndexTrait;
+use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::ValueType;
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, NativeDataType};
-use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
+use crate::graph::vertex::VertexDefinedByKey;
 use crate::graph::vertex_store::vertex_operations::AddVertex as AddVertexToStore;
-use crate::graph::vertex_store::VertexStoreTrait;
+
 // use crate::graph::vertex_store::vertex_operations::Indexing;
 
 // use super::update_vertex::UpdateVertex;

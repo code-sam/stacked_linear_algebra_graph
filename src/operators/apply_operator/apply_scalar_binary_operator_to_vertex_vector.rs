@@ -15,9 +15,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::Graph,
-        value_type::{
-            implement_macro_for_all_native_value_types, SparseVertexVectorForValueType, ValueType,
-        },
+        value_type::{SparseVertexVectorForValueType, ValueType},
         vertex::VertexTypeKeyRef,
         vertex_store::VertexStoreTrait,
     },

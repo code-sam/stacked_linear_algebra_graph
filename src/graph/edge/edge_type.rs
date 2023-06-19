@@ -1,8 +1,4 @@
-use crate::error::GraphComputingError;
-use crate::error::{LogicError, LogicErrorType};
-use crate::error::{SystemError, SystemErrorType};
-use crate::graph::graph::Graph;
-use crate::graph::index::{ElementIndex, Index};
+use crate::graph::index::ElementIndex;
 
 // use crate::graph::indexed_data_store::index::Index as IndexedDataStoreIndex;
 

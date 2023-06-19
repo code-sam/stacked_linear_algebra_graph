@@ -1,7 +1,5 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetMatrixElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::GetVectorElementValue;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SetVectorElement;
 
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
@@ -10,13 +8,12 @@ use crate::graph::graph::VertexTypeIndex;
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::VertexKey;
+
 use crate::graph::vertex::VertexKeyRef;
 use crate::graph::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::vertex_vector::SparseVertexVector;
-use crate::graph::vertex_store::VertexVectorTrait;
 
 pub(crate) trait ReadVertex<T: ValueType> {
     // fn edge_weight_unchecked(

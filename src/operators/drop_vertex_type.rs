@@ -1,12 +1,5 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
-
 use crate::error::GraphComputingError;
 
-use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKeyRef};
-use crate::graph::edge_store::weighted_adjacency_matrix::{
-    WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait,
-};
-use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::vertex::VertexTypeKeyRef;

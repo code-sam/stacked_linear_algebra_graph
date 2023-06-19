@@ -1,5 +1,3 @@
-use graphblas_sparse_linear_algebra::value_type::ValueType;
-
 use crate::{
     error::GraphComputingError,
     graph::{

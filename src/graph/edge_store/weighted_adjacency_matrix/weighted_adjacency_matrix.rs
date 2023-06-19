@@ -2,35 +2,22 @@ use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::Collection;
-use graphblas_sparse_linear_algebra::context::ContextTrait;
-use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionMonoidOperator;
-use graphblas_sparse_linear_algebra::operators::reduce::MonoidVectorReducer;
+
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::index::ElementCount;
 use crate::graph::value_type::{
-    implement_1_type_macro_with_typed_indentifier_for_all_value_types,
-    implement_macro_for_all_native_value_types, ValueType,
+    implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
 
-use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKey, EdgeTypeKeyRef};
-use crate::graph::vertex::{VertexTypeKey, VertexTypeKeyRef};
+use crate::graph::edge::{EdgeTypeKey, EdgeTypeKeyRef};
 
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::{
-        Coordinate, GetMatrixElementList, GetMatrixElementValue, MatrixElement, SetMatrixElement,
-        Size, SparseMatrix,
-    },
-    collections::sparse_vector::{GetVectorElementList, SparseVector},
+    collections::sparse_matrix::{Size, SparseMatrix},
     context::Context as GraphBLASContext,
     index::ElementIndex,
-    operators::{
-        element_wise_addition::ElementWiseVectorAdditionMonoidOperator,
-        monoid::{Any, LogicalOr},
-        options::OperatorOptions,
-        reduce::MonoidReducer,
-    },
+    operators::options::OperatorOptions,
 };
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =

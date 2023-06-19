@@ -1,33 +1,24 @@
-use std::marker::PhantomData;
-use std::sync::Arc;
-
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
-    MatrixElement, SetMatrixElement, Size, SparseMatrix, SparseMatrixTrait,
+    SetMatrixElement, SparseMatrixTrait,
 };
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SetVectorElement;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
-use graphblas_sparse_linear_algebra::context::Context;
 
 use crate::error::GraphComputingError;
-use crate::graph::graph::{VertexIndex, VertexTypeIndex};
-use crate::graph::index::ElementCount;
-use crate::graph::index::Index;
-use crate::graph::indexer::{Indexer, IndexerTrait};
-use crate::graph::value_type::NativeDataType as GraphNativeDataType;
+
+use crate::graph::indexer::IndexerTrait;
+
+use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::ValueType;
-use crate::graph::value_type::{
-    implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
-};
 use crate::graph::vertex::VertexDefinedByKeyTrait;
 use crate::graph::vertex::VertexDefinedByTypeIndexAndVertexKeyTrait;
 use crate::graph::vertex::{
     VertexDefinedByIndex, VertexDefinedByIndexTrait, VertexDefinedByKey,
-    VertexDefinedByTypeIndexAndVertexKey, VertexKeyRef,
+    VertexDefinedByTypeIndexAndVertexKey,
 };
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::vertex_vector::SparseVertexVector;
-use crate::graph::vertex_store::VertexVectorTrait;
 
 pub(crate) trait UpdateVertex<T: ValueType> {
     fn update_key_defined_vertex(

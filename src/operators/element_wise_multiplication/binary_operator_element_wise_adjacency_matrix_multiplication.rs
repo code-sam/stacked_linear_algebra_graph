@@ -17,10 +17,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge::EdgeTypeIndex,
-        value_type::{
-            implement_macro_for_all_native_value_types, SparseAdjacencyMatrixForValueType,
-            ValueType,
-        },
+        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
         vertex::VertexTypeKeyRef,
     },
 };

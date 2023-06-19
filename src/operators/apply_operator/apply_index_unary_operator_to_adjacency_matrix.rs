@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
         apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+        binary_operator::AccumulatorBinaryOperator,
         index_unary_operator::IndexUnaryOperator,
         options::OperatorOptions,
     },
@@ -18,7 +18,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::{EdgeTypeIndex, Graph},
-        value_type::{implement_macro_for_all_native_value_types, ValueType},
+        value_type::ValueType,
         vertex::VertexTypeKeyRef,
     },
 };

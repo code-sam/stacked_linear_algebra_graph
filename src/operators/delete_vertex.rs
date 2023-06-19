@@ -1,20 +1,7 @@
-use once_cell::sync::Lazy;
-
-use graphblas_sparse_linear_algebra::operators::{
-    binary_operator::Assignment,
-    insert::{
-        InsertVectorIntoColumn, InsertVectorIntoColumnTrait, InsertVectorIntoRow,
-        InsertVectorIntoRowTrait,
-    },
-    options::OperatorOptions,
-};
-
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::weighted_adjacency_matrix::operations::{
-            DeleteVertexConnections, DeleteVertexConnectionsForAllTypes,
-        },
+        edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnectionsForAllTypes,
         graph::{GraphTrait, VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
         value_type::implement_macro_for_all_native_value_types,
@@ -31,7 +18,6 @@ use crate::{
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::Graph;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::VertexKey;
 
 pub trait DeleteVertex {
     fn drop_vertex_key_and_connected_edges(

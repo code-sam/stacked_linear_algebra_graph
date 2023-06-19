@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use graphblas_sparse_linear_algebra::index::ElementIndex as GraphblasElementIndex;
 
 // TODO: is there a need to re-define ElementIndex?

@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::{
     collections::sparse_vector::SparseVector,
     operators::{
-        apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator, apply::UnaryOperatorApplier,
+        apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
         binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
         unary_operator::UnaryOperator,
     },
@@ -17,7 +17,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::{Graph, VertexTypeIndex},
-        value_type::{implement_macro_for_all_native_value_types, ValueType},
+        value_type::ValueType,
     },
 };
 use graphblas_sparse_linear_algebra::operators::mask::VectorMask;

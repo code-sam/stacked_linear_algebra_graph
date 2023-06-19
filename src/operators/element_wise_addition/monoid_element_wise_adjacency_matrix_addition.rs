@@ -4,9 +4,7 @@ use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        mask::MatrixMask,
-        options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
     },
 };
 
@@ -19,10 +17,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge::EdgeTypeIndex,
-        value_type::{
-            implement_macro_for_all_native_value_types, SparseAdjacencyMatrixForValueType,
-            ValueType,
-        },
+        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
         vertex::VertexTypeKeyRef,
     },
 };
