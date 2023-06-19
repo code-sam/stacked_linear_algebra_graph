@@ -106,7 +106,7 @@ mod tests {
         index::ElementIndex as GraphblasElementIndex,
     };
 
-    use crate::operators::AddVertexType;
+    use crate::{operators::AddVertexType, graph::vertex::VertexDefinedByKeyTrait};
     use crate::operators::Indexing;
     use crate::operators::ReadVertexValue;
     // use crate::operations::read_vertex_value::ReadVertexValue;

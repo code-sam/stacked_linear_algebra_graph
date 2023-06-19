@@ -41,7 +41,7 @@ impl<'g> AddEdgeType for Graph {
 mod tests {
     use super::*;
 
-    use crate::error::GraphComputingErrorType;
+    use crate::error::{GraphComputingErrorType, LogicErrorType};
     use crate::graph::graph::Graph;
 
     #[test]
