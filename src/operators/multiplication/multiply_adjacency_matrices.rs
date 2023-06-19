@@ -1,8 +1,8 @@
-use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
-use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
-use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
-use graphblas_sparse_linear_algebra::operators::transpose::TransposeMatrix;
+use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
+use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationSemiring;
+use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
+use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyMatrices;
+use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
@@ -25,21 +25,24 @@ use crate::{
             implement_macro_for_all_native_value_types, SparseAdjacencyMatrixForValueType,
             ValueType,
         },
-        vertex::VertexTypeKeyRef,
     },
 };
 
-pub trait TransposeAdjacencyMatrix<Argument, Product, EvaluationDomain>
+pub trait AdjacencyMatrixMultiplication<LeftArgument, RightArgument, Product, EvaluationDomain>
 where
-    Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
+    LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
     Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
     EvaluationDomain: ValueType,
-    SparseMatrix<Argument>: MatrixMask,
+    SparseMatrix<LeftArgument>: MatrixMask,
+    SparseMatrix<RightArgument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         options: &OperatorOptions,
@@ -47,7 +50,9 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         options: &OperatorOptions,
@@ -55,7 +60,9 @@ where
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        left_argument: &EdgeTypeKeyRef,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeKeyRef,
         options: &OperatorOptions,
@@ -63,18 +70,22 @@ where
 }
 
 impl<
-        Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
+        LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
+        RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
         Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
         EvaluationDomain: ValueType,
-    > TransposeAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
+    > AdjacencyMatrixMultiplication<LeftArgument, RightArgument, Product, EvaluationDomain>
+    for Graph
 where
-    SparseMatrix<Argument>: MatrixMask,
+    SparseMatrix<LeftArgument>: MatrixMask,
+    SparseMatrix<RightArgument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
-    MatrixSelector: SelectFromMatrix<EvaluationDomain>,
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         options: &OperatorOptions,
@@ -85,17 +96,22 @@ where
         // For example, an alternative to unsafe access would be to clone the operands.
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(argument)?;
+        let adjacency_matrix_left_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
+
+        let adjacency_matrix_right_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_transposer()
+            .matrix_multiplication_operator()
             .apply(
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                operator,
+                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                 options,
@@ -104,24 +120,31 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(argument);
+        let adjacency_matrix_left_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
+
+        let adjacency_matrix_right_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(right_argument);
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_index_unchecked(product);
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_transposer()
+            .matrix_multiplication_operator()
             .apply(
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                operator,
+                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                 options,
@@ -130,7 +153,9 @@ where
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        left_argument: &EdgeTypeKeyRef,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeKeyRef,
         options: &OperatorOptions,
@@ -141,17 +166,22 @@ where
         // For example, an alternative to unsafe access would be to clone the operands.
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(argument)?;
+        let adjacency_matrix_left_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
+
+        let adjacency_matrix_right_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_transposer()
+            .matrix_multiplication_operator()
             .apply(
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                operator,
+                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                 options,
@@ -159,10 +189,17 @@ where
     }
 }
 
-pub trait TransposeMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask>
-where
-    Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
-    SparseMatrix<Argument>: MatrixMask,
+pub trait MaskedAdjacencyMatrixMultiplication<
+    LeftArgument,
+    RightArgument,
+    Product,
+    EvaluationDomain,
+    Mask,
+> where
+    LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
+    SparseMatrix<LeftArgument>: MatrixMask,
+    SparseMatrix<RightArgument>: MatrixMask,
     Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
     SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
@@ -171,7 +208,9 @@ where
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
@@ -180,7 +219,9 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
@@ -189,29 +230,41 @@ where
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        left_argument: &EdgeTypeKeyRef,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeKeyRef,
-        mask: &VertexTypeKeyRef,
+        product: &EdgeTypeKeyRef,
+        mask: &EdgeTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl<
-        Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
+        LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
+        RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
         Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
         Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-    > TransposeMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
+        EvaluationDomain: ValueType,
+    >
+    MaskedAdjacencyMatrixMultiplication<
+        LeftArgument,
+        RightArgument,
+        Product,
+        EvaluationDomain,
+        Mask,
+    > for Graph
 where
-    SparseMatrix<Argument>: MatrixMask,
+    SparseMatrix<LeftArgument>: MatrixMask,
+    SparseMatrix<RightArgument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     SparseMatrix<Mask>: MatrixMask,
-    MatrixSelector: SelectFromMatrix<EvaluationDomain>,
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
@@ -223,8 +276,11 @@ where
         // For example, an alternative to unsafe access would be to clone the operands.
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(argument)?;
+        let adjacency_matrix_left_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(left_argument)?;
+
+        let adjacency_matrix_right_argument =
+            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(right_argument)?;
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
@@ -234,9 +290,11 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_transposer()
+            .matrix_multiplication_operator()
             .apply_with_mask(
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                operator,
+                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                 Mask::sparse_matrix_ref(adjacency_matrix_mask),
@@ -246,7 +304,9 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        left_argument: &EdgeTypeIndex,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
@@ -254,8 +314,11 @@ where
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(argument);
+        let adjacency_matrix_left_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(left_argument);
+
+        let adjacency_matrix_right_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_index_unchecked(right_argument);
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_index_unchecked(product);
@@ -265,9 +328,11 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_transposer()
+            .matrix_multiplication_operator()
             .apply_with_mask(
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                operator,
+                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                 Mask::sparse_matrix_ref(adjacency_matrix_mask),
@@ -277,7 +342,9 @@ where
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        left_argument: &EdgeTypeKeyRef,
+        operator: &impl Semiring<EvaluationDomain>,
+        right_argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeKeyRef,
         mask: &EdgeTypeKeyRef,
@@ -289,8 +356,11 @@ where
         // For example, an alternative to unsafe access would be to clone the operands.
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(argument)?;
+        let adjacency_matrix_left_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(left_argument)?;
+
+        let adjacency_matrix_right_argument =
+            unsafe { &*edge_store }.adjacency_matrix_ref_for_key(right_argument)?;
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_for_key(product)?;
@@ -299,9 +369,11 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_transposer()
+            .matrix_multiplication_operator()
             .apply_with_mask(
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                operator,
+                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
                 Mask::sparse_matrix_ref(adjacency_matrix_mask),
@@ -312,8 +384,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
-    use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueGreaterThan;
+    use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
+    use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
     use super::*;
 
@@ -324,10 +396,12 @@ mod tests {
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;
-    use crate::operators::{AddEdgeType, AddVertexType, ReadEdgeWeight};
+    use crate::operators::{
+        AddEdgeType, AddVertexType, ReadAdjacencyMatrixElementList, ReadEdgeWeight,
+    };
 
     #[test]
-    fn transpose_adjacency_matrix() {
+    fn multiply_adjacency_matrices() {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let vertex_type_key = "vertex_type";
@@ -381,27 +455,18 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        TransposeAdjacencyMatrix::<u8, u16, u8>::by_key(
+        AdjacencyMatrixMultiplication::<u8, u8, u16, u8>::by_key(
             &mut graph,
             &edge_type_1_key,
-            &Assignment::new(),
+            &PlusTimes::<u8>::new(),
+            &edge_type_1_key,
+            &graphblas_sparse_linear_algebra::operators::binary_operator::Plus::<u8>::new(),
             result_type_key,
             &OperatorOptions::new_default(),
         )
         .unwrap();
 
-        assert_eq!(
-            ReadEdgeWeight::<u16>::key_defined_edge_weight(
-                &graph,
-                &DirectedEdgeCoordinateDefinedByKeys::new(
-                    result_type_key,
-                    vertex_2.key_ref(),
-                    vertex_1.key_ref(),
-                ),
-            )
-            .unwrap(),
-            Some(1)
-        );
+        // println!("{:?}", ReadAdjacencyMatrixElementList::<u16>::with_key(&graph, result_type_key).unwrap());
 
         assert_eq!(
             ReadEdgeWeight::<u16>::key_defined_edge_weight(
@@ -409,7 +474,7 @@ mod tests {
                 &DirectedEdgeCoordinateDefinedByKeys::new(
                     result_type_key,
                     vertex_1.key_ref(),
-                    vertex_2.key_ref(),
+                    vertex_1.key_ref(),
                 ),
             )
             .unwrap(),

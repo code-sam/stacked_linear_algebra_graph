@@ -14,7 +14,12 @@ use graphblas_sparse_linear_algebra::operators::{
         ElementWiseVectorMultiplicationSemiringOperator,
     },
     extract::{MatrixColumnExtractor, MatrixRowExtractor, SubMatrixExtractor, SubVectorExtractor},
-    select::{MatrixSelector, VectorSelector}, transpose::{TransposeMatrix, MatrixTranspose},
+    multiplication::{
+        MatrixMultiplicationOperator, MatrixVectorMultiplicationOperator,
+        VectorMatrixMultiplicationOperator,
+    },
+    select::{MatrixSelector, VectorSelector},
+    transpose::{MatrixTranspose, TransposeMatrix},
 };
 
 #[derive(Clone, Debug)]
@@ -51,7 +56,11 @@ pub(crate) struct GraphblasOperatorApplierCollection {
     matrix_selector: MatrixSelector,
     vector_selector: VectorSelector,
 
-    matrix_transposer: MatrixTranspose
+    matrix_transposer: MatrixTranspose,
+
+    matrix_multiplication_operator: MatrixMultiplicationOperator,
+    matrix_vector_multiplication_operator: MatrixVectorMultiplicationOperator,
+    vector_matrix_multiplication_operator: VectorMatrixMultiplicationOperator,
 }
 
 impl GraphblasOperatorApplierCollection {
@@ -96,6 +105,10 @@ impl GraphblasOperatorApplierCollection {
             vector_selector: VectorSelector::new(),
 
             matrix_transposer: MatrixTranspose::new(),
+
+            matrix_multiplication_operator: MatrixMultiplicationOperator::new(),
+            matrix_vector_multiplication_operator: MatrixVectorMultiplicationOperator::new(),
+            vector_matrix_multiplication_operator: VectorMatrixMultiplicationOperator::new(),
         }
     }
 }
@@ -152,6 +165,10 @@ pub(crate) trait GraphblasOperatorApplierCollectionTrait {
     fn vector_selector(&self) -> &VectorSelector;
 
     fn matrix_transposer(&self) -> &MatrixTranspose;
+
+    fn matrix_multiplication_operator(&self) -> &MatrixMultiplicationOperator;
+    fn matrix_vector_multiplication_operator(&self) -> &MatrixVectorMultiplicationOperator;
+    fn vector_matrix_multiplication_operator(&self) -> &VectorMatrixMultiplicationOperator;
 }
 
 impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollection {
@@ -252,5 +269,17 @@ impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollect
 
     fn matrix_transposer(&self) -> &MatrixTranspose {
         &self.matrix_transposer
+    }
+
+    fn matrix_multiplication_operator(&self) -> &MatrixMultiplicationOperator {
+        &self.matrix_multiplication_operator
+    }
+
+    fn matrix_vector_multiplication_operator(&self) -> &MatrixVectorMultiplicationOperator {
+        &self.matrix_vector_multiplication_operator
+    }
+
+    fn vector_matrix_multiplication_operator(&self) -> &VectorMatrixMultiplicationOperator {
+        &self.vector_matrix_multiplication_operator
     }
 }
