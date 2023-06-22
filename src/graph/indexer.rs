@@ -20,6 +20,7 @@ pub type Index = ElementIndex;
 pub type Key = String;
 pub type KeyRef = str;
 
+#[derive(Debug)]
 pub(crate) struct AssignedIndex {
     index: Index,
     new_index_capacity: Option<ElementCount>,

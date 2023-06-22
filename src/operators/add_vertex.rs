@@ -46,7 +46,6 @@ macro_rules! implement_add_vertex {
                     Some(new_vertex_capacity) => {
                         self.edge_store_mut_ref()
                             .resize_adjacency_matrices(new_vertex_capacity)?;
-                        // self.update_vertex_capacity(&new_capacity)?;
                     }
                     None => (),
                 }
@@ -106,9 +105,9 @@ mod tests {
         index::ElementIndex as GraphblasElementIndex,
     };
 
-    use crate::{operators::AddVertexType, graph::vertex::VertexDefinedByKeyTrait};
     use crate::operators::Indexing;
     use crate::operators::ReadVertexValue;
+    use crate::{graph::vertex::VertexDefinedByKeyTrait, operators::AddVertexType};
     // use crate::operations::read_vertex_value::ReadVertexValue;
     // use crate::operations::select_edge_type::EdgeTypeSelectorTrait;
     // use crate::tests::standard_graph_for_testing::standard_graph_for_testing;

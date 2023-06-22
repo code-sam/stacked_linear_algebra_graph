@@ -108,9 +108,8 @@ impl EdgeStoreTrait for EdgeStore {
     ) -> Result<(), GraphComputingError> {
         self.map_mut_all_adjacency_matrices(|adjacency_matrix: &mut WeightedAdjacencyMatrix| {
             adjacency_matrix.resize(new_vertex_capacity)
-            // .sparse_matrix_mut_ref()
-            // .resize(&(new_vertex_capacity, new_vertex_capacity).into())
         })?;
+        self.adjacency_matrix_size = new_vertex_capacity;
         Ok(())
     }
 }
