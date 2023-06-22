@@ -27,9 +27,9 @@ fn bench_vector_indexing() {
         indices.push(random_distribution.sample(&mut rng))
     }
 
-    let mut rng = rand::thread_rng();
+    let _rng = rand::thread_rng();
     for i in indices {
-        let value = Some(&data[i]);
+        let _value = Some(&data[i]);
         // println!("{}",value)
     }
 }
@@ -63,7 +63,7 @@ fn bench_vector_indexing_with_abstracted_index() {
     }
 
     for i in indices {
-        let value = Some(&data[i.index_ref().clone()]);
+        let _value = Some(&data[i.index_ref().clone()]);
         // println!("{}",value)
     }
 }

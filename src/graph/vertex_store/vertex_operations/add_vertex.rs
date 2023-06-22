@@ -370,19 +370,17 @@ implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
 
 #[cfg(test)]
 mod tests {
-    use std::task::Context;
+    
 
     use super::*;
 
     use graphblas_sparse_linear_algebra::{
-        collections::sparse_vector::SparseVector,
         context::{Context as GraphblasContext, Mode as GraphblasMode},
-        index::ElementIndex as GraphblasElementIndex,
     };
 
     use crate::graph::vertex_store::type_operations::add_vertex_type::AddVertexType;
-    use crate::operators::Indexing;
-    use crate::operators::ReadVertexValue;
+    
+    
 
     #[test]
     fn test_add_new_key_defined_vertex() {

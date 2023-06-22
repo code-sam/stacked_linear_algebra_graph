@@ -295,13 +295,9 @@ impl VertexStoreTrait for VertexStore {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
-    use graphblas_sparse_linear_algebra::{
-        collections::sparse_vector::SparseVector,
-        context::{Context as GraphblasContext, Mode as GraphblasMode},
-        index::ElementIndex as GraphblasElementIndex,
-    };
+    
 
     // #[test]
     // fn add_new_vertex() {

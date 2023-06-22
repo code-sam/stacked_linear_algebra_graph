@@ -39,7 +39,7 @@ impl DropVertexType for Graph {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     // #[test]
     // fn drop_edge_type() {

@@ -13,35 +13,31 @@ pub(crate) mod vertex_store;
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::operators::binary_operator::{
-        Assignment, IsEqualTyped, Plus,
+        Assignment, Plus,
     };
     use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
-    use graphblas_sparse_linear_algebra::operators::monoid::Equal;
+    
     use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
     use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
-    use super::*;
+    
 
     use crate::graph::edge::{
-        DirectedEdgeCoordinateDefinedByIndices, DirectedEdgeCoordinateDefinedByKeys,
-        WeightedDirectedEdgeDefinedByIndices, WeightedDirectedEdgeDefinedByKeys,
-        WeightedDirectedEdgeDefinedByKeysTrait,
+        DirectedEdgeCoordinateDefinedByIndices,
+        WeightedDirectedEdgeDefinedByIndices,
     };
-    use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-    use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixSparseMatrixTrait;
-    use crate::graph::graph::{Graph, GraphTrait};
-    use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
+    
+    
+    use crate::graph::graph::{Graph};
+    use crate::graph::vertex::{VertexDefinedByKey};
     use crate::operators::{
-        AddEdge, ApplyIndexUnaryOperatorToVertexVector, ApplyUnaryOperatorToVertexVector,
-        BinaryOperatorElementWiseAdjacencyMatrixMultiplication,
-        BinaryOperatorElementWiseMaskedVertexVectorMultiplication,
-        BinaryOperatorElementWiseVertexVectorMultiplication,
-        MonoidElementWiseVertexVectorMultiplication, ReadVertexValue,
+        AddEdge, ApplyIndexUnaryOperatorToVertexVector,
+        BinaryOperatorElementWiseVertexVectorMultiplication, ReadVertexValue,
         VertexVectorAdjacencyMatrixMultiplication,
     };
-    use crate::operators::{AddEdgeType, AddVertexType, ReadEdgeWeight};
+    use crate::operators::{AddEdgeType, AddVertexType};
     use crate::operators::{
-        AddVertex, ReadAdjacencyMatrixElementList, ReadVertexVectorElementList,
+        AddVertex,
     };
 
     #[test]
@@ -51,7 +47,7 @@ mod tests {
         let numbers_vertex_type_key = "numbers";
         let odd_number_sequence_edge_type_key = "odd_number_sequence";
 
-        let vertex_type_1_index = graph.add_new_vertex_type(numbers_vertex_type_key).unwrap();
+        let _vertex_type_1_index = graph.add_new_vertex_type(numbers_vertex_type_key).unwrap();
 
         // Add vertices
         let mut vertex_indices = Vec::new();

@@ -380,18 +380,17 @@ where
 
 #[cfg(test)]
 mod tests {
-    use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
+    use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment};
 
     use super::*;
 
     use crate::graph::edge::{
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
-        WeightedDirectedEdgeDefinedByKeysTrait,
     };
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;
-    use crate::operators::{AddEdgeType, AddVertexType, ReadEdgeWeight, ReadVertexValue};
+    use crate::operators::{AddEdgeType, AddVertexType, ReadVertexValue};
 
     #[test]
     fn monoid_element_wise_vertex_vector_addition() {
@@ -430,13 +429,13 @@ mod tests {
             3u32,
         );
 
-        let vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
-        let vertex_1_index = graph.add_new_vertex(vertex_1.clone()).unwrap();
-        let vertex_2_index = graph.add_new_vertex(vertex_2.clone()).unwrap();
+        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_1_index = graph.add_new_vertex(vertex_1.clone()).unwrap();
+        let _vertex_2_index = graph.add_new_vertex(vertex_2.clone()).unwrap();
 
-        let edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
+        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
+        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())

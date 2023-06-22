@@ -1,6 +1,5 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use graphblas_sparse_linear_algebra::{
-    context::Context,
     operators::{
         binary_operator::{Assignment, Plus},
         options::OperatorOptions,
@@ -60,7 +59,7 @@ fn graph_binary_operator_benchmark(c: &mut Criterion) {
     c.bench_with_input(
         BenchmarkId::new("with_key", "parameter"),
         &graph,
-        |b, data| b.iter(|| add_scalar_to_adjacency_matrix_with_key(&mut graph.clone())),
+        |b, _data| b.iter(|| add_scalar_to_adjacency_matrix_with_key(&mut graph.clone())),
     );
 }
 

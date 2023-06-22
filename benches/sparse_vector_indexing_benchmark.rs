@@ -1,11 +1,11 @@
 // use hashbrown::HashMap;
-use std::collections::VecDeque;
+
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use graphblas_sparse_linear_algebra::collections::Collection;
-use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
-use rustc_hash::{FxHashMap, FxHashSet, FxHasher};
+use rustc_hash::{FxHashMap};
 
 use nohash_hasher::NoHashHasher;
 // use std::hash::BuildHasherDefault;
@@ -58,7 +58,7 @@ fn bench_vector() {
     let random_distribution = Uniform::from(0..data.len());
     let mut rng = rand::thread_rng();
     for _i in 0..100000 {
-        let value = Some(&data[random_distribution.sample(&mut rng)]);
+        let _value = Some(&data[random_distribution.sample(&mut rng)]);
         // println!("{}",value)
     }
 }
@@ -97,7 +97,7 @@ fn bench_struct_with_vector() {
     let random_distribution = Uniform::from(0..data.data.len());
     let mut rng = rand::thread_rng();
     for _i in 0..100000 {
-        let value = data.get(random_distribution.sample(&mut rng));
+        let _value = data.get(random_distribution.sample(&mut rng));
         // println!("{}",value)
     }
 }
@@ -111,7 +111,7 @@ fn bench_hashmap() {
     let random_distribution = Uniform::from(0..data.len());
     let mut rng = rand::thread_rng();
     for _i in 0..100000 {
-        let value = data.get(&random_distribution.sample(&mut rng)).unwrap();
+        let _value = data.get(&random_distribution.sample(&mut rng)).unwrap();
         // println!("{}",value)
     }
 }
@@ -149,7 +149,7 @@ fn bench_no_hash_hashmap() {
     let random_distribution = Uniform::from(0..valid_indices.len());
 
     for _i in 0..100000 {
-        let value = data.get(&random_distribution.sample(&mut rng)).unwrap();
+        let _value = data.get(&random_distribution.sample(&mut rng)).unwrap();
         // let value = data.get(&valid_indices[random_distribution.sample(&mut rng)]).unwrap();
         // println!("{}",value)
     }
@@ -168,7 +168,7 @@ fn bench_sparse_vector_lookup(data: SparseVector<i32>) {
     let random_distribution = Uniform::from(0..data.number_of_stored_elements().unwrap());
     let mut rng = rand::thread_rng();
     for _i in 0..100000 {
-        let value = data
+        let _value = data
             .get_element_value(&(10 * random_distribution.sample(&mut rng)))
             .unwrap();
         // println!("{}",value)

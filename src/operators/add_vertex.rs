@@ -99,13 +99,9 @@ implement_macro_for_all_native_value_types!(implement_add_vertex);
 mod tests {
     use super::*;
 
-    use graphblas_sparse_linear_algebra::{
-        collections::sparse_vector::SparseVector,
-        context::{Context as GraphblasContext, Mode as GraphblasMode},
-        index::ElementIndex as GraphblasElementIndex,
-    };
+    
 
-    use crate::operators::Indexing;
+    
     use crate::operators::ReadVertexValue;
     use crate::{graph::vertex::VertexDefinedByKeyTrait, operators::AddVertexType};
     // use crate::operations::read_vertex_value::ReadVertexValue;

@@ -122,12 +122,12 @@ mod tests {
             3u8,
         );
 
-        let vertex_type_1_index = graph.add_new_vertex_type(vertex_type).unwrap();
-        let vertex_1_index = graph.add_new_vertex(vertex_1.clone()).unwrap();
-        let vertex_2_index = graph.add_new_vertex(vertex_2.clone()).unwrap();
+        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type).unwrap();
+        let _vertex_1_index = graph.add_new_vertex(vertex_1.clone()).unwrap();
+        let _vertex_2_index = graph.add_new_vertex(vertex_2.clone()).unwrap();
 
-        let edge_type_1_index = graph.add_new_edge_type(edge_type_1).unwrap();
-        let edge_type_2_index = graph.add_new_edge_type(edge_type_2).unwrap();
+        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1).unwrap();
+        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())
