@@ -22,9 +22,17 @@ pub enum LogicErrorSource {
 pub enum LogicErrorType {
     SparseLinearAlgebra(SparseLinearAlgebraErrorType),
     DimensionMismatch,
+    EdgeAlreadyExists,
     EdgeTypeAlreadyExists,
     EdgeTypeMustExist,
+    EdgeMustExist,
     IndexOutOfBounds,
+    InvalidCharacter,
+    InvalidIndex,
+    InvalidKey,
+    KeyAlreadyExists,
+    ProductCannotEqualArgument,
+    VertexAlreadyExists,
     VertexMustExist,
     Other,
 }

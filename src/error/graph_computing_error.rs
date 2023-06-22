@@ -10,6 +10,7 @@ use super::user_error::{UserError, UserErrorType};
 use graphblas_sparse_linear_algebra::error::{
     SparseLinearAlgebraError, SparseLinearAlgebraErrorType,
 };
+use std::collections::TryReserveError;
 
 #[derive(Debug)]
 pub enum GraphComputingError {
@@ -101,5 +102,11 @@ impl From<SparseLinearAlgebraError> for GraphComputingError {
             SparseLinearAlgebraErrorType::OtherErrorType(_) => Self::OtherError(error.into()),
             SparseLinearAlgebraErrorType::SystemErrorType(_) => Self::SystemError(error.into()),
         }
+    }
+}
+
+impl From<TryReserveError> for GraphComputingError {
+    fn from(error: TryReserveError) -> Self {
+        GraphComputingError::SystemError(error.into())
     }
 }
