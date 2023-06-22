@@ -217,7 +217,6 @@ impl Graph {
 
 #[cfg(test)]
 mod tests {
-    
 
     // use crate::operations::add_vertex::AddVertex;
     // use crate::operations::read_vertex_value::ReadVertexValue;

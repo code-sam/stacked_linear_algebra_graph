@@ -231,7 +231,6 @@ impl<T: ValueType + Clone> VertexDefinedByTypeKeyAndVertexIndex<T> {
 
 #[cfg(test)]
 mod tests {
-    
 
     // use crate::operations::add_vertex::AddVertex;
 

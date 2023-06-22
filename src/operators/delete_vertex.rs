@@ -110,7 +110,6 @@ implement_macro_for_all_native_value_types!(implement_delete_vertex_element);
 
 #[cfg(test)]
 mod tests {
-    
 
     // use crate::graph::edge::DirectedEdgeDefinedByKeys;
     // use crate::graph::vertex::Vertex;

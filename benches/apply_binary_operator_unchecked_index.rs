@@ -1,9 +1,7 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::{Assignment, Plus},
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::{Assignment, Plus},
+    options::OperatorOptions,
 };
 use stacked_linear_algebra_graph::{
     graph::{
