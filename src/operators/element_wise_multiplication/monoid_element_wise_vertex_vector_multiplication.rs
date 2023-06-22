@@ -385,7 +385,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment};
+    use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 
     use super::*;
 

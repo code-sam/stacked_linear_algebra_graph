@@ -1,11 +1,10 @@
 // use hashbrown::HashMap;
 
-
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use graphblas_sparse_linear_algebra::collections::Collection;
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
-use rustc_hash::{FxHashMap};
+use rustc_hash::FxHashMap;
 
 use nohash_hasher::NoHashHasher;
 // use std::hash::BuildHasherDefault;

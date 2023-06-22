@@ -349,18 +349,16 @@ where
 
 #[cfg(test)]
 mod tests {
-    
-    use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment};
-    use graphblas_sparse_linear_algebra::operators::index_unary_operator::{
-        IsValueGreaterThan,
-    };
+
+    use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
+    use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueGreaterThan;
 
     use super::*;
 
     use crate::graph::edge::{
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
     };
-    
+
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;

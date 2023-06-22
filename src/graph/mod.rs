@@ -16,7 +16,7 @@ pub(crate) mod vertex_store;
 //         Assignment, Plus,
 //     };
 //     use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
-    
+
 //     use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 //     use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
@@ -24,7 +24,7 @@ pub(crate) mod vertex_store;
 //         DirectedEdgeCoordinateDefinedByIndices,
 //         WeightedDirectedEdgeDefinedByIndices,
 //     };
-    
+
 //     use crate::graph::graph::{Graph};
 //     use crate::graph::vertex::{VertexDefinedByKey};
 //     use crate::operators::{

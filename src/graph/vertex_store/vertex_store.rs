@@ -295,9 +295,6 @@ impl VertexStoreTrait for VertexStore {
 
 #[cfg(test)]
 mod tests {
-    
-
-    
 
     // #[test]
     // fn add_new_vertex() {

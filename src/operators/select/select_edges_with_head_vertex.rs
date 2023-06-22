@@ -388,10 +388,7 @@ mod tests {
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
     use crate::operators::add_edge::AddEdge;
     use crate::operators::add_vertex::AddVertex;
-    use crate::operators::{
-        AddEdgeType, AddVertexType,
-        ReadVertexValue,
-    };
+    use crate::operators::{AddEdgeType, AddVertexType, ReadVertexValue};
 
     #[test]
     fn select_edges_with_head_vertex() {
