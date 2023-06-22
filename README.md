@@ -46,97 +46,116 @@ The graph resides in-memory and does currently not exist in persistent storage.
 
 ## Minimum example
 ```rust
-use cairn_knowledge_graph::error::GraphComputingError;
-use cairn_knowledge_graph::graph::edge::DirectedEdgeDefinedByKeys;
-use cairn_knowledge_graph::graph::graph::Graph;
-use cairn_knowledge_graph::graph::vertex::{Vertex, VertexValue};
-use cairn_knowledge_graph::operations::add_edge::AddEdge;
-use cairn_knowledge_graph::operations::add_vertex::AddVertex;
-use cairn_knowledge_graph::operations::selection::operators::and::AndOperator;
-use cairn_knowledge_graph::operations::select_vertex::SelectVertex;
-use cairn_knowledge_graph::operations::selection::vertex_selection::VertexSelection;
+use graphblas_sparse_linear_algebra::operators::binary_operator::{
+        Assignment, Plus,
+    };
+    use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
+    
+    use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
+    use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
-macro_rules! add_new_edge {
-  ($from_vertex:ident, $edge_type:ident, $to_vertex:ident, $graph:ident) => {
-     let edge = DirectedEdgeDefinedByKeys::new(
-         $from_vertex.clone().into(),
-         $edge_type.clone(),
-         $to_vertex.clone().into(),
-     );
-     $graph.add_edge_and_edge_type_using_keys(edge.clone()).unwrap();
-  };
-}
- 
-fn main() {
-    let initial_vertex_capacity = 10;
-    let initial_edge_type_capacity = 10;
-    let mut graph = Graph::new(initial_vertex_capacity, initial_edge_type_capacity).unwrap();
+    use stacked_linear_algebra_graph::graph::edge::{
+        DirectedEdgeCoordinateDefinedByIndices,
+        WeightedDirectedEdgeDefinedByIndices,
+    };
+    
+    use stacked_linear_algebra_graph::graph::graph::{Graph};
+    use stacked_linear_algebra_graph::graph::vertex::{VertexDefinedByKey};
+    use stacked_linear_algebra_graph::operators::{
+        AddEdge, ApplyIndexUnaryOperatorToVertexVector,
+        BinaryOperatorElementWiseVertexVectorMultiplication, ReadVertexValue,
+        VertexVectorAdjacencyMatrixMultiplication,
+    };
+    use stacked_linear_algebra_graph::operators::{AddEdgeType, AddVertexType};
+    use stacked_linear_algebra_graph::operators::{
+        AddVertex,
+    };
 
-    let zero = Vertex::new(String::from("0"), 0u8.into());
-    graph.add_or_replace_vertex(zero.clone()).unwrap();
+    fn main() {
+        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
-    let one = Vertex::new(String::from("1"), 1u8.into());
-    graph.add_or_replace_vertex(one.clone()).unwrap();
+        let numbers_vertex_type_key = "numbers";
+        let odd_number_sequence_edge_type_key = "odd_number_sequence";
 
-    let one_dot_one = Vertex::new(String::from("1.1"), 1.1f32.into());
-    graph.add_or_replace_vertex(one_dot_one.clone()).unwrap();
+        let _vertex_type_1_index = graph.add_new_vertex_type(numbers_vertex_type_key).unwrap();
 
-    let negative_one = Vertex::new(String::from("-1"), (-1i8).into());
-    graph.add_or_replace_vertex(negative_one.clone()).unwrap();
+        // Add vertices
+        let mut vertex_indices = Vec::new();
+        for n in 0..12 {
+            vertex_indices.push(
+                graph
+                    .add_new_vertex(VertexDefinedByKey::new(
+                        numbers_vertex_type_key,
+                        format!("vertex_{}", n).as_str(),
+                        &(n as u8),
+                    ))
+                    .unwrap(),
+            );
+        }
 
-    let negative_one_dot_one = Vertex::new(String::from("-1.1"), (-1.1f32).into());
-    graph
-        .add_or_replace_vertex(negative_one_dot_one.clone())
+        let odd_number_sequence_edge_type_index = graph
+            .add_new_edge_type(odd_number_sequence_edge_type_key)
+            .unwrap();
+
+        // Define a sequence of subsequent odd numbers
+        for i in [1, 3, 5, 7, 9] {
+            let edge = WeightedDirectedEdgeDefinedByIndices::new(
+                DirectedEdgeCoordinateDefinedByIndices::new(
+                    odd_number_sequence_edge_type_index,
+                    vertex_indices[i],
+                    vertex_indices[i + 2],
+                ),
+                true,
+            );
+
+            graph.add_new_edge_using_indices(edge).unwrap();
+        }
+
+        // Find the fourth number in the sequence, starting at 1
+        let selected_vertices_key = "selected_vertices";
+        let selected_vertices_index = graph.add_new_vertex_type(selected_vertices_key).unwrap();
+
+        ApplyIndexUnaryOperatorToVertexVector::<u8, u8, u8>::with_key(
+            &mut graph,
+            numbers_vertex_type_key,
+            &IsValueEqualTo::<u8>::new(),
+            &1,
+            &Assignment::new(),
+            selected_vertices_key,
+            &OperatorOptions::new_default(),
+        )
         .unwrap();
 
-    let integer = Vertex::new(String::from("integer"), String::from("integer").into());
-    graph.add_or_replace_vertex(integer.clone()).unwrap();
+        for _i in 0..2 {
+            VertexVectorAdjacencyMatrixMultiplication::<u8, bool, u8, u8>::by_index(
+                &mut graph,
+                &selected_vertices_index,
+                &PlusTimes::<u8>::new(),
+                &odd_number_sequence_edge_type_index,
+                &Assignment::new(),
+                &selected_vertices_index,
+                &OperatorOptions::new_default(),
+            )
+            .unwrap();
+        }
 
-    let real_number = Vertex::new(
-        String::from("real_number"),
-        String::from("real_number").into(),
-    );
-    graph.add_or_replace_vertex(real_number.clone()).unwrap();
-
-    let positive = Vertex::new(String::from("positive"), String::from("positive").into());
-    graph.add_or_replace_vertex(positive.clone()).unwrap();
-
-    let negative = Vertex::new(String::from("negative"), String::from("negative").into());
-    graph.add_or_replace_vertex(negative.clone()).unwrap();
-
-    let sign = String::from("sign");
-    let is_a = String::from("is_a");
-
-    add_new_edge!(negative_one_dot_one, is_a, real_number, graph);
-    add_new_edge!(negative_one_dot_one, sign, negative, graph);
-
-    add_new_edge!(negative_one, is_a, real_number, graph);
-    add_new_edge!(negative_one, is_a, integer, graph);
-    add_new_edge!(negative_one, sign, negative, graph);
-
-    add_new_edge!(zero, is_a, real_number, graph);
-    add_new_edge!(zero, is_a, integer, graph);
-
-    add_new_edge!(one, is_a, real_number, graph);
-    add_new_edge!(one, is_a, integer, graph);
-    add_new_edge!(one, sign, positive, graph);
-
-    add_new_edge!(one_dot_one, is_a, real_number, graph);
-    add_new_edge!(one_dot_one, sign, positive, graph);
-
-    let negative_selection = graph
-        .select_vertices_connected_to_vertex_by_key(sign, &"negative")
-        .unwrap();
-    let integer_selection = graph
-        .select_vertices_connected_to_vertex_by_key(is_a, &"integer")
+        BinaryOperatorElementWiseVertexVectorMultiplication::<u8, u8, u8, u8>::by_key(
+            &mut graph,
+            selected_vertices_key,
+            &Plus::<u8>::new(),
+            numbers_vertex_type_key,
+            &Assignment::new(),
+            selected_vertices_key,
+            &OperatorOptions::new_default(),
+        )
         .unwrap();
 
-    let negative_integer_selection = negative_selection.and(&integer_selection).unwrap();
-    let negative_integers = negative_integer_selection.vertex_values_ref().unwrap();
-
-    assert_eq!(negative_integers.len(), 1);
-    assert_eq!(negative_integers, vec!(&VertexValue::Integer8Bit(-1)));
- }
+        assert_eq!(
+            ReadVertexValue::<u8>::vertex_value_by_key(&graph, selected_vertices_key, "vertex_7")
+                .unwrap(),
+            Some(7)
+        )
+    }
  ```
 
 ## Requirements
