@@ -154,7 +154,7 @@ where
     }
 }
 
-pub trait TransposeMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask>
+pub trait TransposeAdjacencyMatrixMasked<Argument, Product, EvaluationDomain, Mask>
 where
     Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
     SparseMatrix<Argument>: MatrixMask,
@@ -197,7 +197,7 @@ impl<
         Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
         EvaluationDomain: ValueType,
         Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-    > TransposeMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
+    > TransposeAdjacencyMatrixMasked<Argument, Product, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,

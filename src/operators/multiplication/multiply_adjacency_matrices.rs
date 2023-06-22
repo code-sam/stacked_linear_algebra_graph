@@ -184,7 +184,7 @@ where
     }
 }
 
-pub trait MaskedAdjacencyMatrixMultiplication<
+pub trait AdjacencyMatrixMultiplicationMasked<
     LeftArgument,
     RightArgument,
     Product,
@@ -242,7 +242,7 @@ impl<
         Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
         EvaluationDomain: ValueType,
     >
-    MaskedAdjacencyMatrixMultiplication<
+    AdjacencyMatrixMultiplicationMasked<
         LeftArgument,
         RightArgument,
         Product,
