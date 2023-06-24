@@ -388,9 +388,8 @@ mod tests {
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
     };
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
-    use crate::operators::add_edge::AddEdge;
-    use crate::operators::add_vertex::AddVertex;
-    use crate::operators::{AddEdgeType, AddVertexType, ReadVertexValue};
+    use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::read::ReadVertexValue;
 
     #[test]
     fn monoid_element_wise_vertex_vector_addition() {

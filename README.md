@@ -59,17 +59,17 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
         WeightedDirectedEdgeDefinedByIndices,
     };
     
-    use stacked_linear_algebra_graph::graph::graph::{Graph};
-    use stacked_linear_algebra_graph::graph::vertex::{VertexDefinedByKey};
-    use stacked_linear_algebra_graph::operators::{
-        AddEdge, ApplyIndexUnaryOperatorToVertexVector,
-        BinaryOperatorElementWiseVertexVectorMultiplication, ReadVertexValue,
-        VertexVectorAdjacencyMatrixMultiplication,
+    use stacked_linear_algebra_graph::graph::graph::Graph;
+    use stacked_linear_algebra_graph::graph::vertex::VertexDefinedByKey;
+    use stacked_linear_algebra_graph::operators::add::{
+        AddEdge, AddEdgeType, AddVertexType, AddVertex
     };
-    use stacked_linear_algebra_graph::operators::{AddEdgeType, AddVertexType};
-    use stacked_linear_algebra_graph::operators::{
-        AddVertex,
-    };
+    use stacked_linear_algebra_graph::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+    use stacked_linear_algebra_graph::operators::element_wise_multiplication
+        ::BinaryOperatorElementWiseVertexVectorMultiplication;
+    use stacked_linear_algebra_graph::operators::multiplication
+        ::VertexVectorAdjacencyMatrixMultiplication;
+    use stacked_linear_algebra_graph::operators::read::ReadVertexValue;
 
     fn main() {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();

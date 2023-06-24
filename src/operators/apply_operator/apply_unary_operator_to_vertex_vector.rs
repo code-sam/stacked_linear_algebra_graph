@@ -12,7 +12,7 @@ use crate::graph::{
     value_type::SparseVertexVectorForValueType, vertex::VertexTypeKeyRef,
     vertex_store::type_operations::get_vertex_vector::GetVertexVector,
 };
-use crate::operators::GraphblasOperatorApplierCollectionTrait;
+use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -332,9 +332,8 @@ mod tests {
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
     };
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
-    use crate::operators::add_edge::AddEdge;
-    use crate::operators::add_vertex::AddVertex;
-    use crate::operators::{AddEdgeType, AddVertexType, ReadVertexValue};
+    use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::read::ReadVertexValue;
 
     #[test]
     fn add_scalar_to_vertex_vector() {
