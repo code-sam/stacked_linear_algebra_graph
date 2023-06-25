@@ -8,7 +8,7 @@ use graphblas_sparse_linear_algebra::context::{
 use crate::{
     error::GraphComputingError,
     graph::{edge_store::EdgeStore, vertex_store::VertexStoreTrait},
-    operators::GraphblasOperatorApplierCollection,
+    operators::graphblas_operator_applier::GraphblasOperatorApplierCollection,
 };
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};

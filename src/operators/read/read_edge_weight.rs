@@ -15,7 +15,7 @@ use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::vertex_store::VertexStoreTrait;
 
-use super::Indexing;
+use crate::operators::indexing::Indexing;
 
 pub trait ReadEdgeWeight<T: ValueType> {
     fn index_defined_edge_weight(

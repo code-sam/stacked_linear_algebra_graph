@@ -10,7 +10,8 @@ use stacked_linear_algebra_graph::{
         vertex::VertexDefinedByKey,
     },
     operators::{
-        AddEdge, AddEdgeType, AddVertex, AddVertexType, ApplyScalarBinaryOperatorToAdjacencyMatrix,
+        add::{AddEdge, AddEdgeType, AddVertex, AddVertexType},
+        apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix,
     },
 };
 

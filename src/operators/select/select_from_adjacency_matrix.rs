@@ -354,9 +354,8 @@ mod tests {
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
     };
     use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
-    use crate::operators::add_edge::AddEdge;
-    use crate::operators::add_vertex::AddVertex;
-    use crate::operators::{AddEdgeType, AddVertexType, ReadEdgeWeight};
+    use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::read::ReadEdgeWeight;
 
     #[test]
     fn select_from_adjacency_matrix() {

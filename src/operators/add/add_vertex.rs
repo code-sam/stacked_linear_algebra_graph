@@ -99,11 +99,9 @@ implement_macro_for_all_native_value_types!(implement_add_vertex);
 mod tests {
     use super::*;
 
-    use crate::operators::ReadVertexValue;
-    use crate::{graph::vertex::VertexDefinedByKeyTrait, operators::AddVertexType};
-    // use crate::operations::read_vertex_value::ReadVertexValue;
-    // use crate::operations::select_edge_type::EdgeTypeSelectorTrait;
-    // use crate::tests::standard_graph_for_testing::standard_graph_for_testing;
+    use crate::graph::vertex::VertexDefinedByKeyTrait;
+    use crate::operators::add::AddVertexType;
+    use crate::operators::read::ReadVertexValue;
 
     // #[test]
     // fn add_or_replace_vertex() {
