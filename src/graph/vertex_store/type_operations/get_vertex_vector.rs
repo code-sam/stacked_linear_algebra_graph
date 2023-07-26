@@ -3,7 +3,7 @@ use crate::{
     graph::{
         graph::VertexTypeIndex,
         indexer::IndexerTrait,
-        vertex::VertexTypeKeyRef,
+        vertex::vertex::VertexTypeKeyRef,
         vertex_store::{vertex_store::VertexStoreTrait, VertexStore, VertexVector},
     },
 };

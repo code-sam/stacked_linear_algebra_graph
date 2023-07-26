@@ -2,7 +2,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         indexer::{AssignedIndex, AssignedIndexTrait, IndexerTrait},
-        vertex::VertexKeyRef,
+        vertex::vertex::VertexKeyRef,
         vertex_store::{VertexStore, VertexStoreTrait},
     },
 };

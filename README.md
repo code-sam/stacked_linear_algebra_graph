@@ -60,7 +60,7 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
     };
     
     use stacked_linear_algebra_graph::graph::graph::Graph;
-    use stacked_linear_algebra_graph::graph::vertex::VertexDefinedByKey;
+    use stacked_linear_algebra_graph::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
     use stacked_linear_algebra_graph::operators::add::{
         AddEdge, AddEdgeType, AddVertexType, AddVertex
     };
@@ -84,7 +84,7 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
         for n in 0..12 {
             vertex_indices.push(
                 graph
-                    .add_new_vertex(VertexDefinedByKey::new(
+                    .add_new_key_defined_vertex(VertexDefinedByKey::new(
                         numbers_vertex_type_key,
                         format!("vertex_{}", n).as_str(),
                         &(n as u8),

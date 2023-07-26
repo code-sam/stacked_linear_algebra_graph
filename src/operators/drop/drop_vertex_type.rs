@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::graph::{Graph, GraphTrait, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
-use crate::graph::vertex::VertexTypeKeyRef;
+use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::VertexStoreTrait;
 
 pub trait DropVertexType {

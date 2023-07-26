@@ -32,7 +32,7 @@ fn graph_binary_operator_benchmark(c: &mut Criterion) {
 
     for i in 0..10_000 {
         graph
-            .add_new_vertex(VertexDefinedByKey::new(
+            .add_new_key_defined_vertex(VertexDefinedByKey::new(
                 "vertex_type_250",
                 format!("vertex_{}", i).as_str(),
                 &i,

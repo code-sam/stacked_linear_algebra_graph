@@ -9,8 +9,8 @@ use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::ValueType;
 
-use crate::graph::vertex::VertexKeyRef;
-use crate::graph::vertex::VertexTypeKeyRef;
+use crate::graph::vertex::vertex::VertexKeyRef;
+use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::vertex_vector::SparseVertexVector;

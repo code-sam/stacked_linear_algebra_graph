@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
 
 use crate::graph::{
     graph::{EdgeTypeIndex, VertexIndex},
-    vertex::{VertexKey, VertexKeyRef},
+    vertex::vertex::{VertexKey, VertexKeyRef},
 };
 
 use super::{EdgeTypeKey, EdgeTypeKeyRef};
