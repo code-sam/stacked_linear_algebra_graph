@@ -6,6 +6,7 @@ use crate::graph::indexer::AssignedIndexTrait;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
+use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
 use crate::graph::vertex_store::vertex_operations::AddVertex as AddVertexToStore;
 
 pub trait AddVertex<T: ValueType> {
@@ -14,10 +15,10 @@ pub trait AddVertex<T: ValueType> {
         vertex: VertexDefinedByKey<T>,
     ) -> Result<VertexIndex, GraphComputingError>;
 
-    // fn add_new_vertex_defined_by_type_index_and_vertex_key(
-    //     &mut self,
-    //     vertex: VertexDefinedByTypeIndexAndVertexKey<T>,
-    // ) -> Result<VertexIndex, GraphComputingError>;
+    fn add_new_vertex_defined_by_type_index_and_vertex_key(
+        &mut self,
+        vertex: VertexDefinedByTypeIndexAndVertexKey<T>,
+    ) -> Result<VertexIndex, GraphComputingError>;
 
     // /// Replacement deletes connected edges
     // fn add_or_replace_vertex(
@@ -28,6 +29,12 @@ pub trait AddVertex<T: ValueType> {
     fn add_or_update_key_defined_vertex(
         &mut self,
         vertex: VertexDefinedByKey<T>,
+    ) -> Result<Option<VertexIndex>, GraphComputingError>;
+
+    fn add_or_update_vertex_defined_by_type_index_and_vertex_key(
+        &mut self,
+
+        vertex: VertexDefinedByTypeIndexAndVertexKey<T>,
     ) -> Result<Option<VertexIndex>, GraphComputingError>;
 }
 
@@ -41,6 +48,23 @@ macro_rules! implement_add_vertex {
                 let new_index = self
                     .vertex_store_mut_ref()
                     .add_new_key_defined_vertex(vertex)?;
+                match new_index.new_index_capacity() {
+                    Some(new_vertex_capacity) => {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(new_vertex_capacity)?;
+                    }
+                    None => (),
+                }
+                Ok(*new_index.index_ref())
+            }
+
+            fn add_new_vertex_defined_by_type_index_and_vertex_key(
+                &mut self,
+                vertex: VertexDefinedByTypeIndexAndVertexKey<$value_type>,
+            ) -> Result<VertexIndex, GraphComputingError> {
+                let new_index = self
+                    .vertex_store_mut_ref()
+                    .add_new_vertex_with_type_index_and_vertex_key(vertex)?;
                 match new_index.new_index_capacity() {
                     Some(new_vertex_capacity) => {
                         self.edge_store_mut_ref()
@@ -74,6 +98,29 @@ macro_rules! implement_add_vertex {
                 match self
                     .vertex_store_mut_ref()
                     .add_or_update_key_defined_vertex(vertex)?
+                {
+                    Some(new_index) => {
+                        match new_index.new_index_capacity() {
+                            Some(new_vertex_capacity) => {
+                                self.edge_store_mut_ref()
+                                    .resize_adjacency_matrices(new_vertex_capacity)?;
+                            }
+                            None => (),
+                        }
+                        Ok(Some(*new_index.index_ref()))
+                    }
+                    None => Ok(None),
+                }
+            }
+
+            fn add_or_update_vertex_defined_by_type_index_and_vertex_key(
+                &mut self,
+        
+                vertex: VertexDefinedByTypeIndexAndVertexKey<$value_type>,
+            ) -> Result<Option<VertexIndex>, GraphComputingError> {
+                match self
+                    .vertex_store_mut_ref()
+                    .add_or_update_vertex_with_type_index_and_vertex_key(vertex)?
                 {
                     Some(new_index) => {
                         match new_index.new_index_capacity() {
