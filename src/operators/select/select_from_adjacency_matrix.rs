@@ -174,7 +174,7 @@ where
     }
 }
 
-pub trait MaskedMatrixSelector<Argument, Product, EvaluationDomain, Mask>
+pub trait SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask>
 where
     Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
     SparseMatrix<Argument>: MatrixMask,
@@ -223,7 +223,7 @@ impl<
         Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
         EvaluationDomain: ValueType,
         Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-    > MaskedMatrixSelector<Argument, Product, EvaluationDomain, Mask> for Graph
+    > SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,

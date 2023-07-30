@@ -168,7 +168,7 @@ where
     }
 }
 
-pub trait MaskedVectorSelector<Argument, Product, EvaluationDomain, Mask>
+pub trait SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask>
 where
     Argument: ValueType + SparseVertexVectorForValueType<Argument>,
     SparseVector<Argument>: VectorMask,
@@ -217,7 +217,7 @@ impl<
         Product: ValueType + SparseVertexVectorForValueType<Product>,
         EvaluationDomain: ValueType,
         Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-    > MaskedVectorSelector<Argument, Product, EvaluationDomain, Mask> for Graph
+    > SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask> for Graph
 where
     SparseVector<Argument>: VectorMask,
     SparseVector<Product>: VectorMask,
