@@ -11,13 +11,12 @@ use crate::graph::indexer::{AssignedIndex, AssignedIndexTrait};
 use crate::graph::value_type::implement_1_type_macro_with_typed_indentifier_for_all_value_types;
 use crate::graph::value_type::ValueType;
 
-use crate::graph::vertex::VertexDefinedByTypeIndexAndVertexKeyTrait;
-use crate::graph::vertex::{
-    VertexDefinedByIndex, VertexDefinedByIndexTrait, VertexDefinedByKey, VertexDefinedByKeyTrait,
-};
-use crate::graph::vertex::{
-    VertexDefinedByTypeIndexAndVertexKey, VertexDefinedByTypeKeyAndVertexIndexTrait,
-};
+use crate::graph::vertex::vertex_defined_by_index::VertexDefinedByIndex;
+use crate::graph::vertex::vertex_defined_by_index::VertexDefinedByIndexTrait;
+use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
+use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKeyTrait;
+use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
+use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKeyTrait;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::vertex_vector::SparseVertexVector;

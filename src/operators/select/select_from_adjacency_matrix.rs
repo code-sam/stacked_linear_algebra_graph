@@ -19,7 +19,7 @@ use crate::{
     graph::{
         edge::EdgeTypeIndex,
         value_type::{SparseAdjacencyMatrixForValueType, ValueType},
-        vertex::VertexTypeKeyRef,
+        vertex::vertex::VertexTypeKeyRef,
     },
 };
 
@@ -174,7 +174,7 @@ where
     }
 }
 
-pub trait MaskedMatrixSelector<Argument, Product, EvaluationDomain, Mask>
+pub trait SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask>
 where
     Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
     SparseMatrix<Argument>: MatrixMask,
@@ -223,7 +223,7 @@ impl<
         Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
         EvaluationDomain: ValueType,
         Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-    > MaskedMatrixSelector<Argument, Product, EvaluationDomain, Mask> for Graph
+    > SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
@@ -353,7 +353,9 @@ mod tests {
     use crate::graph::edge::{
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
     };
-    use crate::graph::vertex::{VertexDefinedByKey, VertexDefinedByKeyTrait};
+    use crate::graph::vertex::vertex_defined_by_key::{
+        VertexDefinedByKey, VertexDefinedByKeyTrait,
+    };
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::read::ReadEdgeWeight;
 
@@ -395,8 +397,8 @@ mod tests {
         );
 
         let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
-        let _vertex_1_index = graph.add_new_vertex(vertex_1.clone()).unwrap();
-        let _vertex_2_index = graph.add_new_vertex(vertex_2.clone()).unwrap();
+        let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
+        let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
         let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
         let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();

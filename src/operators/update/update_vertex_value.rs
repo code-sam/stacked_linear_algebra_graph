@@ -1,10 +1,12 @@
 use crate::graph::value_type::ValueType;
+use crate::graph::vertex::vertex_defined_by_index::VertexDefinedByIndex;
+use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
+use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
 use crate::{
     error::GraphComputingError,
     graph::{
         graph::{Graph, GraphTrait},
         value_type::implement_macro_for_all_native_value_types,
-        vertex::{VertexDefinedByIndex, VertexDefinedByKey, VertexDefinedByTypeIndexAndVertexKey},
         vertex_store::vertex_operations::UpdateVertex,
     },
 };

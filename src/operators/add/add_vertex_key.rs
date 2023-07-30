@@ -4,7 +4,7 @@ use crate::{
     graph::indexer::AssignedIndexTrait,
     graph::{
         graph::{Graph, GraphTrait, VertexIndex},
-        vertex::VertexKeyRef,
+        vertex::vertex::VertexKeyRef,
         vertex_store::vertex_operations::AddVertexKey as AddVertexKeyToVertexStore,
     },
 };

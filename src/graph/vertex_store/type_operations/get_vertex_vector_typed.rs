@@ -4,7 +4,7 @@ use crate::{
         graph::VertexTypeIndex,
         indexer::IndexerTrait,
         value_type::ValueType,
-        vertex::VertexTypeKeyRef,
+        vertex::vertex::VertexTypeKeyRef,
         vertex_store::{
             vertex_store::VertexStoreTrait, SparseVertexVector, VertexStore, VertexVector,
         },

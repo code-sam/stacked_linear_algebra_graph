@@ -5,7 +5,7 @@ use crate::{
         graph::{GraphTrait, VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
         value_type::implement_macro_for_all_native_value_types,
-        vertex::{VertexKeyRef, VertexTypeKeyRef},
+        vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
             vertex_operations::{
                 DeleteVertexElement as DeleteVertexElementFromVertexStore, DeleteVertexForAllTypes,

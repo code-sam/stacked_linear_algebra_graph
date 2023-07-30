@@ -192,7 +192,7 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinateDefinedByKeys;
     use crate::graph::graph::Graph;
-    use crate::graph::vertex::VertexDefinedByKey;
+    use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
     use crate::operators::add::{AddVertex, AddVertexType};
 
     #[test]
@@ -217,11 +217,11 @@ mod tests {
         );
 
         let _vertex1_index = graph
-            .add_or_update_vertex(vertex_1.clone())
+            .add_or_update_key_defined_vertex(vertex_1.clone())
             .unwrap()
             .unwrap();
         let _vertex2_index = graph
-            .add_or_update_vertex(vertex_2.clone())
+            .add_or_update_key_defined_vertex(vertex_2.clone())
             .unwrap()
             .unwrap();
 

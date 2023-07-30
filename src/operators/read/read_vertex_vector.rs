@@ -1,6 +1,5 @@
-use graphblas_sparse_linear_algebra::collections::{
-    sparse_matrix::GetMatrixElementList,
-    sparse_vector::{GetVectorElementList, VectorElementList as VertexVectorElementList},
+use graphblas_sparse_linear_algebra::collections::sparse_vector::{
+    GetVectorElementList, VectorElementList as VertexVectorElementList,
 };
 
 use crate::{
@@ -8,7 +7,7 @@ use crate::{
     graph::{
         graph::{Graph, GraphTrait, VertexTypeIndex},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
-        vertex::VertexTypeKeyRef,
+        vertex::vertex::VertexTypeKeyRef,
         vertex_store::{type_operations::get_vertex_vector::GetVertexVector, SparseVertexVector},
     },
 };

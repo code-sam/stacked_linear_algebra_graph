@@ -5,19 +5,19 @@ use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 use crate::graph::indexer::AssignedIndexTrait;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::VertexDefinedByKey;
+use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
+use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
 use crate::graph::vertex_store::vertex_operations::AddVertex as AddVertexToStore;
 
-// use crate::graph::vertex_store::vertex_operations::Indexing;
-
-// use super::update_vertex::UpdateVertex;
-
-// use super::update_vertex::UpdateVertex;
-
 pub trait AddVertex<T: ValueType> {
-    fn add_new_vertex(
+    fn add_new_key_defined_vertex(
         &mut self,
         vertex: VertexDefinedByKey<T>,
+    ) -> Result<VertexIndex, GraphComputingError>;
+
+    fn add_new_vertex_defined_by_type_index_and_vertex_key(
+        &mut self,
+        vertex: VertexDefinedByTypeIndexAndVertexKey<T>,
     ) -> Result<VertexIndex, GraphComputingError>;
 
     // /// Replacement deletes connected edges
@@ -26,22 +26,45 @@ pub trait AddVertex<T: ValueType> {
     //     vertex: VertexDefinedByKey<T>,
     // ) -> Result<VertexIndex, GraphComputingError>;
 
-    fn add_or_update_vertex(
+    fn add_or_update_key_defined_vertex(
         &mut self,
         vertex: VertexDefinedByKey<T>,
+    ) -> Result<Option<VertexIndex>, GraphComputingError>;
+
+    fn add_or_update_vertex_defined_by_type_index_and_vertex_key(
+        &mut self,
+
+        vertex: VertexDefinedByTypeIndexAndVertexKey<T>,
     ) -> Result<Option<VertexIndex>, GraphComputingError>;
 }
 
 macro_rules! implement_add_vertex {
     ($value_type:ty) => {
         impl AddVertex<$value_type> for Graph {
-            fn add_new_vertex(
+            fn add_new_key_defined_vertex(
                 &mut self,
                 vertex: VertexDefinedByKey<$value_type>,
             ) -> Result<VertexIndex, GraphComputingError> {
                 let new_index = self
                     .vertex_store_mut_ref()
                     .add_new_key_defined_vertex(vertex)?;
+                match new_index.new_index_capacity() {
+                    Some(new_vertex_capacity) => {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(new_vertex_capacity)?;
+                    }
+                    None => (),
+                }
+                Ok(*new_index.index_ref())
+            }
+
+            fn add_new_vertex_defined_by_type_index_and_vertex_key(
+                &mut self,
+                vertex: VertexDefinedByTypeIndexAndVertexKey<$value_type>,
+            ) -> Result<VertexIndex, GraphComputingError> {
+                let new_index = self
+                    .vertex_store_mut_ref()
+                    .add_new_vertex_with_type_index_and_vertex_key(vertex)?;
                 match new_index.new_index_capacity() {
                     Some(new_vertex_capacity) => {
                         self.edge_store_mut_ref()
@@ -68,7 +91,7 @@ macro_rules! implement_add_vertex {
             //     Ok(*new_index.index_ref())
             // }
 
-            fn add_or_update_vertex(
+            fn add_or_update_key_defined_vertex(
                 &mut self,
                 vertex: VertexDefinedByKey<$value_type>,
             ) -> Result<Option<VertexIndex>, GraphComputingError> {
@@ -81,7 +104,29 @@ macro_rules! implement_add_vertex {
                             Some(new_vertex_capacity) => {
                                 self.edge_store_mut_ref()
                                     .resize_adjacency_matrices(new_vertex_capacity)?;
-                                // self.update_vertex_capacity(&new_capacity)?;
+                            }
+                            None => (),
+                        }
+                        Ok(Some(*new_index.index_ref()))
+                    }
+                    None => Ok(None),
+                }
+            }
+
+            fn add_or_update_vertex_defined_by_type_index_and_vertex_key(
+                &mut self,
+        
+                vertex: VertexDefinedByTypeIndexAndVertexKey<$value_type>,
+            ) -> Result<Option<VertexIndex>, GraphComputingError> {
+                match self
+                    .vertex_store_mut_ref()
+                    .add_or_update_vertex_with_type_index_and_vertex_key(vertex)?
+                {
+                    Some(new_index) => {
+                        match new_index.new_index_capacity() {
+                            Some(new_vertex_capacity) => {
+                                self.edge_store_mut_ref()
+                                    .resize_adjacency_matrices(new_vertex_capacity)?;
                             }
                             None => (),
                         }
@@ -99,7 +144,7 @@ implement_macro_for_all_native_value_types!(implement_add_vertex);
 mod tests {
     use super::*;
 
-    use crate::graph::vertex::VertexDefinedByKeyTrait;
+    use crate::graph::vertex::vertex::GetVertexValue;
     use crate::operators::add::AddVertexType;
     use crate::operators::read::ReadVertexValue;
 
@@ -159,7 +204,7 @@ mod tests {
         );
         let vertex_type_index = graph.add_new_vertex_type(vertex_type_key.as_str()).unwrap();
         let index1 = graph
-            .add_or_update_vertex(vertex_to_add.clone())
+            .add_or_update_key_defined_vertex(vertex_to_add.clone())
             .unwrap()
             .unwrap();
 
@@ -170,7 +215,9 @@ mod tests {
             &vertex_property_2,
         );
 
-        let index2 = graph.add_or_update_vertex(vertex_to_add_2).unwrap();
+        let index2 = graph
+            .add_or_update_key_defined_vertex(vertex_to_add_2)
+            .unwrap();
 
         assert_eq!(None, index2);
         let value_2: u8 = graph
@@ -199,7 +246,9 @@ mod tests {
             &vertex_property,
         );
         let vertex_type_index = graph.add_new_vertex_type(vertex_type_key.as_str()).unwrap();
-        graph.add_new_vertex(vertex_to_add.clone()).unwrap();
+        graph
+            .add_new_key_defined_vertex(vertex_to_add.clone())
+            .unwrap();
 
         let value: u8 = graph
             .try_vertex_value_by_key(vertex_type_key.as_str(), vertex_key.as_str())
@@ -211,14 +260,16 @@ mod tests {
             another_key.as_str(),
             &another_vertex_property,
         );
-        let index = graph.add_new_vertex(another_vertex_to_add.clone()).unwrap();
+        let index = graph
+            .add_new_key_defined_vertex(another_vertex_to_add.clone())
+            .unwrap();
 
         let value: u8 = graph
             .try_vertex_value_by_index(&vertex_type_index, &index)
             .unwrap();
         assert_eq!(value, another_vertex_to_add.clone().value_ref().clone());
 
-        match graph.add_new_vertex(another_vertex_to_add.clone()) {
+        match graph.add_new_key_defined_vertex(another_vertex_to_add.clone()) {
             Err(_) => assert!(true),
             Ok(_) => assert!(false),
         }
@@ -236,7 +287,7 @@ mod tests {
 
         for i in 0..50 {
             graph
-                .add_new_vertex(VertexDefinedByKey::new(
+                .add_new_key_defined_vertex(VertexDefinedByKey::new(
                     "vertex_type_2",
                     format!("vertex_{}", i).as_str(),
                     &i,

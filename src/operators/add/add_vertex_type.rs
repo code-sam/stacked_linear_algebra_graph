@@ -2,7 +2,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::{Graph, GraphTrait, VertexTypeIndex},
-        vertex::VertexTypeKeyRef,
+        vertex::vertex::VertexTypeKeyRef,
         vertex_store::type_operations::add_vertex_type::AddVertexType as AddVertexTypeToVertexStore,
     },
 };

@@ -16,7 +16,7 @@ use crate::{
     graph::{
         graph::Graph,
         value_type::{SparseVertexVectorForValueType, ValueType},
-        vertex::VertexTypeKeyRef,
+        vertex::vertex::VertexTypeKeyRef,
         vertex_store::VertexStoreTrait,
     },
 };

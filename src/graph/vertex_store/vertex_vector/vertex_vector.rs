@@ -9,7 +9,8 @@ use crate::graph::graph::VertexIndex;
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
-use crate::graph::vertex::{VertexTypeKey, VertexTypeKeyRef};
+use crate::graph::vertex::vertex::VertexTypeKey;
+use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::{error::GraphComputingError, graph::index::ElementCount};
 
 #[derive(Clone, Debug)]

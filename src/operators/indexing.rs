@@ -9,7 +9,7 @@ use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
 
-use crate::graph::vertex::{VertexKey, VertexKeyRef, VertexTypeKey, VertexTypeKeyRef};
+use crate::graph::vertex::vertex::{VertexKey, VertexKeyRef, VertexTypeKey, VertexTypeKeyRef};
 use crate::graph::vertex_store::VertexStoreTrait;
 // use crate::graph::vertex_store::vertex_operations::Indexing as VertexStoreIndexing;
 
