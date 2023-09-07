@@ -1,7 +1,14 @@
-use crate::error::GraphComputingError;
+// use hashbrown::HashMap;
+
+// use crate::error::GraphComputingError;
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
-use crate::graph::index::ElementCount;
+// use crate::graph::index::ElementCount;
+
+// use super::edge::{EdgeTypeIndex, EdgeTypeKey};
+// use super::graph::{VertexIndex, Graph, GraphTrait, VertexTypeIndex};
+// use super::vertex::vertex::{VertexKey, VertexTypeKey};
+// use super::vertex_store::VertexStoreTrait;
 // use crate::graph::indexed_data_store::data_store::IndexedDataStore;
 // use crate::graph::graph::indexed_vertex_and_adjacency_matrix_store::indexed_vertex_and_adjacency_matrix_store::{
 //     IndexedVertexAndAdjacencyMatrixStore, IndexedVertexAndAdjacencyMatrixStoreTrait,
@@ -9,13 +16,13 @@ use crate::graph::index::ElementCount;
 
 // use crate::operations::{add_edge_type::AddEdgeType, drop_edge_type::DropEdgeType};
 
-pub trait GraphMonitoring {
-    fn number_of_vertices(&self) -> Result<ElementCount, GraphComputingError>;
-    fn number_of_edge_types(&self) -> Result<ElementCount, GraphComputingError>;
-    fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError>;
-    // TODO: number of edges
-    // TODO: number of edges per edge type, etc
-}
+// pub trait GraphMonitoring {
+//     fn number_of_vertices(&self) -> Result<ElementCount, GraphComputingError>;
+//     fn number_of_edge_types(&self) -> Result<ElementCount, GraphComputingError>;
+//     fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError>;
+//     // TODO: number of edges
+//     // TODO: number of edges per edge type, etc
+// }
 
 // impl GraphMonitoring for Graph {
 //     fn number_of_vertices(&self) -> Result<ElementCount, GraphComputingError> {

@@ -4,6 +4,7 @@ use graphblas_sparse_linear_algebra::{
         apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
         binary_operator::AccumulatorBinaryOperator,
         index_unary_operator::IndexUnaryOperator,
+        mask::MatrixMask,
         options::OperatorOptions,
     },
 };
@@ -22,7 +23,6 @@ use crate::{
         vertex::vertex::VertexTypeKeyRef,
     },
 };
-use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
 
 pub trait ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
 where

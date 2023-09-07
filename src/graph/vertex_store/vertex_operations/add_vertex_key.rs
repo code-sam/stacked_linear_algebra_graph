@@ -3,7 +3,7 @@ use crate::{
     graph::{
         indexer::{AssignedIndex, AssignedIndexTrait, IndexerTrait},
         vertex::vertex::VertexKeyRef,
-        vertex_store::{VertexStore, VertexStoreTrait},
+        vertex_store::{VertexMatrixTrait, VertexStore, VertexStoreTrait},
     },
 };
 
@@ -22,7 +22,8 @@ impl AddVertexKey for VertexStore {
         let assigned_index = self.element_indexer_mut_ref().add_new_key(vertex_key)?;
         match assigned_index.new_index_capacity() {
             Some(new_capacity) => {
-                self.resize_vertex_vectors(new_capacity)?;
+                self.vertex_matrix_mut_ref()
+                    .set_vertex_capacity(new_capacity)?;
             }
             None => {}
         }

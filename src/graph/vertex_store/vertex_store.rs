@@ -3,7 +3,6 @@ use std::sync::Arc;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
-use graphblas_sparse_linear_algebra::context::Context;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
@@ -13,7 +12,7 @@ use crate::graph::index::ElementCount;
 
 use crate::graph::indexer::{Indexer, IndexerTrait};
 
-use super::{VertexVector, VertexVectorTrait};
+use super::{VertexMatrixStore, VertexMatrixTrait};
 
 pub(crate) type VertexTypeIndexer = Indexer;
 pub(crate) type VertexElementIndexer = Indexer;
@@ -22,27 +21,33 @@ pub(crate) type VertexElementIndexer = Indexer;
 pub(crate) struct VertexStore {
     graphblas_context: Arc<GraphblasContext>,
     vertex_type_indexer: VertexTypeIndexer,
-    vertex_vectors: Vec<VertexVector>,
+    vertex_matrix: VertexMatrixStore,
     element_indexer: VertexElementIndexer,
+
+    // TODO: introduce a store-specific operator cache, for operators that require the corresponding context.
     mask_to_select_entire_vertex_vector: SelectEntireVector,
 }
 
 impl VertexStore {
     pub(crate) fn with_initial_capacity(
-        context: &Arc<Context>,
-        inital_vertex_type_capacity: &ElementCount,
-        inital_vertex_capacity: &ElementCount,
+        context: &Arc<GraphblasContext>,
+        initial_vertex_type_capacity: &ElementCount,
+        initial_vertex_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
         Ok(Self {
             graphblas_context: context.clone(),
             vertex_type_indexer: VertexTypeIndexer::with_initial_capacity(
                 context,
-                inital_vertex_type_capacity,
+                initial_vertex_type_capacity,
             )?,
-            vertex_vectors: Vec::with_capacity(*inital_vertex_type_capacity),
+            vertex_matrix: VertexMatrixStore::new(
+                context,
+                initial_vertex_capacity,
+                initial_vertex_type_capacity,
+            )?,
             element_indexer: VertexElementIndexer::with_initial_capacity(
                 context,
-                inital_vertex_capacity,
+                initial_vertex_capacity,
             )?,
             mask_to_select_entire_vertex_vector: SelectEntireVector::new(context),
         })
@@ -60,34 +65,40 @@ pub(crate) trait VertexStoreTrait {
     fn element_indexer_ref(&self) -> &VertexElementIndexer;
     fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer;
 
-    fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector];
-    fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector];
-    fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector>;
+    fn vertex_matrix_ref(&self) -> &VertexMatrixStore;
+    fn vertex_matrix_mut_ref(&mut self) -> &mut VertexMatrixStore;
 
     fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector;
 
-    fn resize_vertex_vectors(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError>;
+    // fn resize_vertex_vectors(
+    //     &mut self,
+    //     new_vertex_capacity: ElementCount,
+    // ) -> Result<(), GraphComputingError>;
 
-    fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
+    // fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&VertexMatrixStore) -> Result<(), GraphComputingError> + Send + Sync;
 
-    fn map_mut_all_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
+    // fn map_mut_all_vertex_vectors<F>(
+    //     &mut self,
+    //     function_to_apply: F,
+    // ) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&mut VertexMatrixStore) -> Result<(), GraphComputingError> + Send + Sync;
 
-    fn map_mut_all_valid_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
+    // fn map_all_valid_vertex_vectors<F>(
+    //     &mut self,
+    //     function_to_apply: F,
+    // ) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&mut VertexMatrixStore) -> Result<(), GraphComputingError> + Send + Sync;
+
+    // fn map_mut_all_valid_vertex_vectors<F>(
+    //     &mut self,
+    //     function_to_apply: F,
+    // ) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&mut VertexMatrixStore) -> Result<(), GraphComputingError> + Send + Sync;
 }
 
 impl VertexStoreTrait for VertexStore {
@@ -115,183 +126,66 @@ impl VertexStoreTrait for VertexStore {
         &mut self.element_indexer
     }
 
-    fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector] {
-        self.vertex_vectors.as_slice()
+    fn vertex_matrix_ref(&self) -> &VertexMatrixStore {
+        &self.vertex_matrix
     }
 
-    fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector] {
-        self.vertex_vectors.as_mut_slice()
-    }
-
-    fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector> {
-        &mut self.vertex_vectors
+    fn vertex_matrix_mut_ref(&mut self) -> &mut VertexMatrixStore {
+        &mut self.vertex_matrix
     }
 
     fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector {
         &self.mask_to_select_entire_vertex_vector
     }
 
-    fn resize_vertex_vectors(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError> {
-        self.map_mut_all_vertex_vectors(|vertex_vector: &mut VertexVector| {
-            vertex_vector.resize(new_vertex_capacity)
-            // .sparse_matrix_mut_ref()
-            // .resize(&(new_vertex_capacity, new_vertex_capacity).into())
-        })?;
-        Ok(())
-    }
+    // TODO: is this method a useful abstraction, should it move to mod vertex_operations?
+    // fn resize_vertex_vectors(
+    //     &mut self,
+    //     new_vertex_capacity: ElementCount,
+    // ) -> Result<(), GraphComputingError> {
+    //     Ok(self.vertex_matrix.set_vertex_capacity(new_vertex_capacity)?)
+    // }
 
-    fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        self.vertex_vectors
-            .as_slice()
-            .into_par_iter()
-            .try_for_each(function_to_apply)?;
-        Ok(())
-    }
+    // fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&VertexMatrixStore) -> Result<(), GraphComputingError> + Send + Sync,
+    // {
+    //     self.vertex_vectors
+    //         .as_slice()
+    //         .into_par_iter()
+    //         .try_for_each(function_to_apply)?;
+    //     Ok(())
+    // }
 
-    fn map_mut_all_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        self.vertex_vectors
-            .as_mut_slice()
-            .into_par_iter()
-            .try_for_each(function_to_apply)?;
-        Ok(())
-    }
+    // fn map_mut_all_vertex_vectors<F>(
+    //     &mut self,
+    //     function_to_apply: F,
+    // ) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&mut VertexMatrixStore) -> Result<(), GraphComputingError> + Send + Sync,
+    // {
+    //     self.vertex_vectors
+    //         .as_mut_slice()
+    //         .into_par_iter()
+    //         .try_for_each(function_to_apply)?;
+    //     Ok(())
+    // }
 
-    fn map_mut_all_valid_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.vertex_type_indexer
-            .valid_indices()?
-            .into_iter()
-            .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
-        Ok(())
-    }
+    // fn map_mut_all_valid_vertex_vectors<F>(
+    //     &mut self,
+    //     function_to_apply: F,
+    // ) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&mut VertexMatrixStore) -> Result<(), GraphComputingError> + Send + Sync,
+    // {
+    //     // TODO: would par_iter() give better performance?
+    //     self.vertex_type_indexer
+    //         .valid_indices()?
+    //         .into_iter()
+    //         .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
+    //     Ok(())
+    // }
 }
-
-// impl<T: MatrixDataType> SetVertexData<T> for VertexStore<T> {
-//     fn set_vertex_value(&mut self, index: Index, value: T) -> Result<(), GraphComputingError> {
-//         self.vertices.set_element((index, index, value).into())?;
-//         Ok(())
-//     }
-// }
-
-// macro_rules! set_sparse_matrix_capacity {
-//     ($vertices_typed:ident) => {
-//         self.$vertices_typed.resize(&target_size)?;
-//     };
-// }
-
-// impl SetCapacity for VertexStore {
-//     fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-//         let target_size = Size::new(new_capacity.clone(), new_capacity.clone());
-//         implement_macro_with_typed_graph_indentifier_for_all_matrix_data_types!(set_sparse_matrix_capacity, vertices);
-//         Ok(())
-//     }
-// }
-
-// macro_rules! implement_set_capacity {
-//     ($dummy:literal, $($y:ident),+) => {
-//         impl SetCapacity for VertexStore {
-//             fn set_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-//                 let target_size = Size::new(new_capacity.clone(), new_capacity.clone());
-//                 implement_set_capacity!($($y),+);
-//     };
-//     ($type_id:ident, $($y:ident),*) => {
-//         paste::paste! {
-//             self.[<vertices $type_id>].resize(&target_size)?;
-//         }
-//         implement_set_capacity!($($y),*);
-//     };
-//     ($type_id:ident) => {
-//                 paste::paste! {
-//                     self.[<vertices $type_id>].resize(&target_size)?;
-//                 }
-//                 Ok(())
-//             }
-//         }
-//     }
-// }
-
-// macro_rules! implement_macro_for_all_graph_data_typed_parameter {
-//     ($macro_identifier:ident) => {
-//         $macro_identifier!(
-//             0,
-//             _bool,
-//             _i8,
-//             _i16,
-//             _i32,
-//             _i64,
-//             _u8,
-//             _u16,
-//             _u32,
-//             _u64,
-//             _isize,
-//             _usize,
-//             _char,
-//             _unit
-//         );
-//     };
-// }
-
-// implement_macro_for_all_graph_data_typed_parameter!(implement_set_capacity);
-
-// pub(crate) trait SetCapacityTyped<G: GraphNativeDataType, M: MatrixDataType> {
-//     fn expand_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
-// }
-
-// macro_rules! implement_set_capacity_typed {
-//     ($vertices_typed:ident, $graph_data_type:ty, $matrix_data_type:ty) => {
-//         impl SetCapacityTyped<$graph_data_type, $matrix_data_type> for VertexStore {
-//             fn expand_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-//                 let target_size = Size::new(new_capacity.clone(), new_capacity.clone());
-//                 Ok(self.$vertices_typed.resize(&target_size)?)
-//             }
-//         }
-//     };
-// }
-
-// impl SetCapacityTyped<bool> for VertexStore {
-//     fn expand_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-//         let target_size = Size::new(new_capacity.clone(), new_capacity.clone());
-//         Ok(self.vertices_bool.resize(&target_size)?)
-//     }
-// }
-
-// implement_macro_with_typed_graph_indentifier_for_all_graph_and_matrix_data_types!(implement_set_capacity_typed, vertices);
-
-// pub(crate) trait VertexData {
-//     fn expand_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
-// }
-
-// macro_rules! resize_vertices {
-//     ($vertices_typed:ident) => {
-//         self.$vertices_typed.resize(&target_size);
-//     };
-// }
-
-// impl VertexData for VertexStore {
-//     fn expand_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-//         let target_size = Size::new(new_capacity.clone(), new_capacity.clone());
-//         implement_macro_with_typed_indentifier_for_all_native_data_types!(resize_vertices, vertices);
-//         Ok(())
-//     }
-// }
 
 #[cfg(test)]
 mod tests {

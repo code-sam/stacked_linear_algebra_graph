@@ -8,11 +8,11 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
-use crate::graph::vertex_store::VertexStoreTrait;
 use crate::graph::{
-    edge::EdgeTypeKeyRef, value_type::SparseVertexVectorForValueType,
+    edge::EdgeTypeKeyRef, value_type,
     vertex_store::type_operations::get_vertex_vector::GetVertexVector,
 };
+use crate::graph::{value_type::SparseVertexMatrixForValueType, vertex_store::VertexStoreTrait};
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
@@ -26,8 +26,8 @@ use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
 pub trait ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
+    Product: ValueType + SparseVertexMatrixForValueType<Product>,
     EvaluationDomain: ValueType,
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -64,8 +64,8 @@ where
 }
 
 impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
+        Product: ValueType + SparseVertexMatrixForValueType<Product>,
         EvaluationDomain: ValueType,
     > ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
@@ -181,12 +181,12 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     EvaluationDomain,
     Mask,
 > where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
     SparseVector<VertexVector>: VectorMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Product: ValueType + SparseVertexMatrixForValueType<Product>,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
 {
     fn with_index_defined_vertex_vector_as_vertex_vector_and_mask(
@@ -224,9 +224,9 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
 }
 
 impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+        VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
+        Product: ValueType + SparseVertexMatrixForValueType<Product>,
+        Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
         EvaluationDomain: ValueType,
     > ApplyScalarBinaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
     for Graph

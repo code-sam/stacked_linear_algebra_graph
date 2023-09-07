@@ -115,7 +115,7 @@ macro_rules! implement_add_vertex {
 
             fn add_or_update_vertex_defined_by_type_index_and_vertex_key(
                 &mut self,
-        
+
                 vertex: VertexDefinedByTypeIndexAndVertexKey<$value_type>,
             ) -> Result<Option<VertexIndex>, GraphComputingError> {
                 match self

@@ -8,7 +8,7 @@ use crate::{
         graph::{Graph, GraphTrait, VertexTypeIndex},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
         vertex::vertex::VertexTypeKeyRef,
-        vertex_store::{type_operations::get_vertex_vector::GetVertexVector, SparseVertexVector},
+        vertex_store::{type_operations::get_vertex_vector::GetVertexVector, SparseVertexMatrix},
     },
 };
 

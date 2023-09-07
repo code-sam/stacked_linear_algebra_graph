@@ -12,7 +12,7 @@ use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
-    WeightedAdjacencyMatrix, WeightedAdjacencyMatrixSparseMatrixTrait, WeightedAdjacencyMatrixTrait,
+    SparseWeightedAdjacencyMatrix, WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait,
 };
 use crate::graph::graph::VertexIndex;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};

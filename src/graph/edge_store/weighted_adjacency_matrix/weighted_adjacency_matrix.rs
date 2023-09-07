@@ -107,23 +107,57 @@ impl WeightedAdjacencyMatrix {
     // }
 }
 
-pub(crate) trait WeightedAdjacencyMatrixSparseMatrixTrait<T: ValueType> {
+pub(crate) trait SparseWeightedAdjacencyMatrix<T: ValueType> {
     fn sparse_matrix_ref(&self) -> &SparseMatrix<T>;
     fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<T>;
     fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError>;
 }
 
+impl<T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T>> SparseWeightedAdjacencyMatrix<T>
+    for WeightedAdjacencyMatrix
+{
+    fn sparse_matrix_ref(&self) -> &SparseMatrix<T> {
+        T::sparse_matrix_ref(self)
+    }
+
+    fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<T> {
+        T::sparse_matrix_mut_ref(self)
+    }
+
+    fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError> {
+        T::number_of_edges(self)
+    }
+}
+
+pub(crate) trait SparseWeightedAdjacencyMatrixForValueType<T: ValueType> {
+    fn sparse_matrix_ref(adjacency_matrix: &WeightedAdjacencyMatrix) -> &SparseMatrix<T>;
+    fn sparse_matrix_mut_ref(
+        adjacency_matrix: &mut WeightedAdjacencyMatrix,
+    ) -> &mut SparseMatrix<T>;
+    fn number_of_edges(
+        adjacency_matrix: &WeightedAdjacencyMatrix,
+    ) -> Result<ElementIndex, GraphComputingError>;
+}
+
 macro_rules! implement_weighted_adjacency_matrix_sparse_matrix_trait {
     ($typed_sparse_vector:ident, $value_type: ty) => {
-        impl WeightedAdjacencyMatrixSparseMatrixTrait<$value_type> for WeightedAdjacencyMatrix {
-            fn sparse_matrix_ref(&self) -> &SparseMatrix<$value_type> {
-                &self.$typed_sparse_vector
+        impl SparseWeightedAdjacencyMatrixForValueType<$value_type> for $value_type {
+            fn sparse_matrix_ref(
+                adjacency_matrix: &WeightedAdjacencyMatrix,
+            ) -> &SparseMatrix<$value_type> {
+                &adjacency_matrix.$typed_sparse_vector
             }
-            fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<$value_type> {
-                &mut self.$typed_sparse_vector
+            fn sparse_matrix_mut_ref(
+                adjacency_matrix: &mut WeightedAdjacencyMatrix,
+            ) -> &mut SparseMatrix<$value_type> {
+                &mut adjacency_matrix.$typed_sparse_vector
             }
-            fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError> {
-                Ok(self.$typed_sparse_vector.number_of_stored_elements()?)
+            fn number_of_edges(
+                adjacency_matrix: &WeightedAdjacencyMatrix,
+            ) -> Result<ElementIndex, GraphComputingError> {
+                Ok(adjacency_matrix
+                    .$typed_sparse_vector
+                    .number_of_stored_elements()?)
             }
         }
     };

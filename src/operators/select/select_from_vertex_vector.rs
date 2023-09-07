@@ -8,19 +8,17 @@ use graphblas_sparse_linear_algebra::{
 };
 
 use crate::graph::graph::{Graph, VertexTypeIndex};
+use crate::graph::value_type::SparseVertexMatrixForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
-use crate::{
-    error::GraphComputingError,
-    graph::value_type::{SparseVertexVectorForValueType, ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait SelectFromVertexVector<Argument, Product, EvaluationDomain>
 where
-    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Argument: ValueType + SparseVertexMatrixForValueType<Argument>,
+    Product: ValueType + SparseVertexMatrixForValueType<Product>,
     EvaluationDomain: ValueType,
     SparseVector<Argument>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -57,8 +55,8 @@ where
 }
 
 impl<
-        Argument: ValueType + SparseVertexVectorForValueType<Argument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        Argument: ValueType + SparseVertexMatrixForValueType<Argument>,
+        Product: ValueType + SparseVertexMatrixForValueType<Product>,
         EvaluationDomain: ValueType,
     > SelectFromVertexVector<Argument, Product, EvaluationDomain> for Graph
 where
@@ -170,12 +168,12 @@ where
 
 pub trait SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask>
 where
-    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
+    Argument: ValueType + SparseVertexMatrixForValueType<Argument>,
     SparseVector<Argument>: VectorMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Product: ValueType + SparseVertexMatrixForValueType<Product>,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -213,10 +211,10 @@ where
 }
 
 impl<
-        Argument: ValueType + SparseVertexVectorForValueType<Argument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        Argument: ValueType + SparseVertexMatrixForValueType<Argument>,
+        Product: ValueType + SparseVertexMatrixForValueType<Product>,
         EvaluationDomain: ValueType,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+        Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
     > SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask> for Graph
 where
     SparseVector<Argument>: VectorMask,

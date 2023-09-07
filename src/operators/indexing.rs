@@ -11,7 +11,19 @@ use crate::graph::indexer::IndexerTrait;
 
 use crate::graph::vertex::vertex::{VertexKey, VertexKeyRef, VertexTypeKey, VertexTypeKeyRef};
 use crate::graph::vertex_store::VertexStoreTrait;
-// use crate::graph::vertex_store::vertex_operations::Indexing as VertexStoreIndexing;
+
+// pub trait IndexMonitoring {
+//     fn vertex_key_to_index_map_ref(&self) -> &HashMap<VertexKey, VertexIndex>;
+
+// TODO: exposing a raw array using a map won't work since the vector may contain invalidated (deleted) keys
+//     fn vertex_index_to_key_map_ref(&self) -> &[VertexKey];
+
+//     fn vertex_type_key_to_index_map_ref(&self) -> &HashMap<VertexTypeKey, VertexTypeIndex>;
+//     fn vertex_type_index_to_key_map_ref(&self) -> &[VertexTypeKey];
+
+//     fn edge_type_key_to_index_map_ref(&self) -> &HashMap<EdgeTypeKey, EdgeTypeIndex>;
+//     fn edge_type_index_to_key_map_ref(&self) -> &[EdgeTypeKey];
+// }
 
 pub trait Indexing {
     fn is_valid_vertex_key(&self, vertex_key: &VertexKeyRef) -> bool;

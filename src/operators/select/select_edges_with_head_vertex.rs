@@ -1,4 +1,4 @@
-use crate::graph::value_type::SparseVertexVectorForValueType;
+use crate::graph::value_type::{self, SparseVertexMatrixForValueType};
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
@@ -20,7 +20,7 @@ use crate::graph::indexer::IndexerTrait;
 use crate::graph::vertex::vertex::VertexKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
+use crate::graph::vertex_store::{SparseVertexMatrix, VertexMatrixStore};
 use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
@@ -34,7 +34,7 @@ use crate::{
 pub trait SelectEdgesWithHeadVertex<AdjacencyMatrix, SelectTo>
 where
     AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-    SelectTo: ValueType + SparseVertexVectorForValueType<SelectTo>,
+    SelectTo: ValueType + SparseVertexMatrixForValueType<SelectTo>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<SelectTo>: VectorMask,
 {
@@ -71,10 +71,10 @@ where
 
 impl<
         AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
+        EvaluationDomain: ValueType + SparseVertexMatrixForValueType<EvaluationDomain>,
     > SelectEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain> for Graph
 where
-    VertexVector: SparseVertexVector<EvaluationDomain>,
+    VertexMatrixStore: SparseVertexMatrix<EvaluationDomain>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<EvaluationDomain>: VectorMask,
 {
@@ -108,7 +108,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
                     vertex_vector_extract_to,
                 ),
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -142,7 +142,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
                     vertex_vector_extract_to,
                 ),
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -185,7 +185,7 @@ where
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
                     vertex_vector_extract_to,
                 ),
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
@@ -200,7 +200,7 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SelectTo: ValueType + SparseAdjacencyMatrixForValueType<SelectTo>,
     SparseMatrix<SelectTo>: MatrixMask,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -239,14 +239,14 @@ where
 
 impl<
         AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+        Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
         EvaluationDomain: ValueType + SparseAdjacencyMatrixForValueType<EvaluationDomain>,
     > SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
     SparseVector<Mask>: VectorMask,
-    VertexVector: SparseVertexVector<EvaluationDomain>,
+    VertexMatrixStore: SparseVertexMatrix<EvaluationDomain>,
 {
     fn by_index(
         &mut self,
@@ -282,7 +282,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
                     vertex_vector_extract_to,
                 ),
                 Mask::sparse_vector_ref(vertex_vector_mask),
@@ -320,7 +320,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
                     vertex_vector_extract_to,
                 ),
                 Mask::sparse_vector_ref(vertex_vector_mask),
@@ -367,7 +367,7 @@ where
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
+                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
                     vertex_vector_extract_to,
                 ),
                 Mask::sparse_vector_ref(vertex_vector_mask),

@@ -3,9 +3,11 @@ use std::collections::VecDeque;
 use std::fmt::Debug;
 use std::sync::Arc;
 
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
+    GetVectorElementIndices, GetVectorElementValue, SetVectorElement,
+};
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    GetElementIndices, GetVectorElementValue, SetVectorElement, SparseVector, SparseVectorTrait,
-    VectorElement,
+    SparseVector, SparseVectorTrait, VectorElement,
 };
 use graphblas_sparse_linear_algebra::collections::Collection;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
@@ -359,7 +361,6 @@ impl Indexer {
 mod tests {
     use super::*;
 
-    use graphblas_sparse_linear_algebra::collections::sparse_vector::GetVectorElementValue;
     use graphblas_sparse_linear_algebra::context::Mode as GraphBLASMode;
 
     #[test]
