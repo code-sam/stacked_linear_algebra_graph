@@ -16,7 +16,7 @@ use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKeyTrait;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKeyTrait;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+// use crate::graph::vertex_store::type_operations::get_vertex_matrix::GetVertexMatrix;
 use crate::graph::vertex_store::vertex_matrix::SparseVertexMatrix;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::IsElementInVertexMatrix;
@@ -44,8 +44,8 @@ pub(crate) trait UpdateVertex<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T: ValueType + SparseVertexMatrixForValueType<T> + SetMatrixElementTyped<T>> UpdateVertex<T>
-    for VertexStore
+impl<T: ValueType + Copy + SparseVertexMatrixForValueType<T> + SetMatrixElementTyped<T>>
+    UpdateVertex<T> for VertexStore
 {
     fn update_key_defined_vertex(
         &mut self,
@@ -56,14 +56,15 @@ impl<T: ValueType + SparseVertexMatrixForValueType<T> + SetMatrixElementTyped<T>
             .try_index_for_key(vertex.key_ref())?;
         let vertex_type_index = self
             .vertex_type_indexer_ref()
-            .try_index_for_key(vertex.type_key_ref())?;
+            .try_index_for_key(vertex.type_key_ref())?
+            .to_owned();
         IsElementInVertexMatrix::<T>::try_is_vertex_element(
             self.vertex_matrix_ref(),
-            vertex_type_index,
+            &vertex_type_index,
             &vertex_index,
         )?;
-        Ok(self.vertex_matrix_ref().set_vertex_value(
-            vertex_type_index,
+        Ok(self.vertex_matrix_mut_ref().set_vertex_value(
+            &vertex_type_index,
             &vertex_index,
             *vertex.value_ref(),
         )?)
@@ -73,10 +74,11 @@ impl<T: ValueType + SparseVertexMatrixForValueType<T> + SetMatrixElementTyped<T>
         &mut self,
         vertex: &VertexDefinedByTypeIndexAndVertexKey<T>,
     ) -> Result<(), GraphComputingError> {
-        let vertex_index = *self
+        let vertex_index = self
             .element_indexer_ref()
-            .try_index_for_key(vertex.key_ref())?;
-        Ok(self.vertex_matrix_ref().set_vertex_value(
+            .try_index_for_key(vertex.key_ref())?
+            .to_owned();
+        Ok(self.vertex_matrix_mut_ref().set_vertex_value(
             vertex.type_index_ref(),
             &vertex_index,
             *vertex.value_ref(),
@@ -91,7 +93,7 @@ impl<T: ValueType + SparseVertexMatrixForValueType<T> + SetMatrixElementTyped<T>
             .try_index_validity(vertex.index_ref())?;
         self.vertex_type_indexer_ref()
             .try_index_validity(vertex.type_index_ref())?;
-        Ok(self.vertex_matrix_ref().set_vertex_value(
+        Ok(self.vertex_matrix_mut_ref().set_vertex_value(
             vertex.type_index_ref(),
             vertex.index_ref(),
             *vertex.value_ref(),
@@ -102,7 +104,7 @@ impl<T: ValueType + SparseVertexMatrixForValueType<T> + SetMatrixElementTyped<T>
         &mut self,
         vertex: &VertexDefinedByIndex<T>,
     ) -> Result<(), GraphComputingError> {
-        Ok(self.vertex_matrix_ref().set_vertex_value(
+        Ok(self.vertex_matrix_mut_ref().set_vertex_value(
             vertex.type_index_ref(),
             vertex.index_ref(),
             *vertex.value_ref(),

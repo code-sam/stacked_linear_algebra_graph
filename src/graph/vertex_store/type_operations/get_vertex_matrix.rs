@@ -4,59 +4,59 @@ use crate::{
         graph::VertexTypeIndex,
         indexer::IndexerTrait,
         vertex::vertex::VertexTypeKeyRef,
-        vertex_store::{vertex_store::VertexStoreTrait, VertexMatrixStore, VertexStore},
+        vertex_store::{vertex_store::VertexStoreTrait, VertexMatrix, VertexStore},
     },
 };
 
-pub(crate) trait GetVertexVector {
-    fn vertex_vector_ref_by_index(
+pub(crate) trait GetVertexMatrix {
+    fn vertex_matrix_ref_by_index(
         &self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> Result<&VertexMatrixStore, GraphComputingError>;
-    fn vertex_vector_mut_ref_by_index(
+    ) -> Result<&VertexMatrix, GraphComputingError>;
+    fn vertex_matrix_mut_ref_by_index(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> Result<&mut VertexMatrixStore, GraphComputingError>;
+    ) -> Result<&mut VertexMatrix, GraphComputingError>;
     // fn vertex_vector_by_index_mut_ref_unsafe(
     //     store: *mut VertexStore,
     //     vertex_type_index: &VertexTypeIndex,
     // ) -> Result<*mut VertexVector, GraphComputingError>;
 
-    fn vertex_vector_ref_by_index_unchecked(
+    fn vertex_matrix_ref_by_index_unchecked(
         &self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> &VertexMatrixStore;
-    fn vertex_vector_mut_ref_by_index_unchecked(
+    ) -> &VertexMatrix;
+    fn vertex_matrix_mut_ref_by_index_unchecked(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> &mut VertexMatrixStore;
+    ) -> &mut VertexMatrix;
 
-    fn vertex_vector_ref_by_key(
+    fn vertex_matrix_ref_by_key(
         &self,
         vertex_key_ref: &VertexTypeKeyRef,
-    ) -> Result<&VertexMatrixStore, GraphComputingError>;
-    fn vertex_vector_mut_ref_by_key(
+    ) -> Result<&VertexMatrix, GraphComputingError>;
+    fn vertex_matrix_mut_ref_by_key(
         &mut self,
         vertex_key_ref: &VertexTypeKeyRef,
-    ) -> Result<&mut VertexMatrixStore, GraphComputingError>;
+    ) -> Result<&mut VertexMatrix, GraphComputingError>;
 }
 
-impl GetVertexVector for VertexStore {
-    fn vertex_vector_ref_by_index(
+impl GetVertexMatrix for VertexStore {
+    fn vertex_matrix_ref_by_index(
         &self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> Result<&VertexMatrixStore, GraphComputingError> {
+    ) -> Result<&VertexMatrix, GraphComputingError> {
         self.vertex_type_indexer_ref()
             .try_index_validity(vertex_type_index)?;
-        Ok(self.vertex_vector_ref_by_index_unchecked(vertex_type_index))
+        Ok(self.vertex_matrix_ref_by_index_unchecked(vertex_type_index))
     }
-    fn vertex_vector_mut_ref_by_index(
+    fn vertex_matrix_mut_ref_by_index(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> Result<&mut VertexMatrixStore, GraphComputingError> {
+    ) -> Result<&mut VertexMatrix, GraphComputingError> {
         self.vertex_type_indexer_ref()
             .try_index_validity(vertex_type_index)?;
-        Ok(self.vertex_vector_mut_ref_by_index_unchecked(vertex_type_index))
+        Ok(self.vertex_matrix_mut_ref_by_index_unchecked(vertex_type_index))
     }
     // fn vertex_vector_by_index_mut_ref_unsafe(
     //     store: *mut VertexStore,
@@ -68,34 +68,34 @@ impl GetVertexVector for VertexStore {
     //     Ok(store.vertex_vector_by_index_mut_ref_unchecked(vertex_type_index))
     // }
 
-    fn vertex_vector_ref_by_index_unchecked(
+    fn vertex_matrix_ref_by_index_unchecked(
         &self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> &VertexMatrixStore {
-        &self.vertex_matrix_for_all_vertex_types_ref()[*vertex_type_index]
+    ) -> &VertexMatrix {
+        &self.vertex_matrix_mut_ref_by_index_unchecked(vertex_type_index)
     }
-    fn vertex_vector_mut_ref_by_index_unchecked(
+    fn vertex_matrix_mut_ref_by_index_unchecked(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> &mut VertexMatrixStore {
-        &mut self.vertex_vector_for_all_vertex_types_mut_ref()[*vertex_type_index]
+    ) -> &mut VertexMatrix {
+        &mut self.vertex_matrix_mut_ref_by_index_unchecked(vertex_type_index)
     }
 
-    fn vertex_vector_ref_by_key(
+    fn vertex_matrix_ref_by_key(
         &self,
         vertex_key_ref: &VertexTypeKeyRef,
-    ) -> Result<&VertexMatrixStore, GraphComputingError> {
-        Ok(self.vertex_vector_ref_by_index_unchecked(
+    ) -> Result<&VertexMatrix, GraphComputingError> {
+        Ok(self.vertex_matrix_ref_by_index_unchecked(
             self.vertex_type_indexer_ref()
                 .try_index_for_key(vertex_key_ref)?,
         ))
     }
 
-    fn vertex_vector_mut_ref_by_key(
+    fn vertex_matrix_mut_ref_by_key(
         &mut self,
         vertex_key_ref: &VertexTypeKeyRef,
-    ) -> Result<&mut VertexMatrixStore, GraphComputingError> {
-        Ok(self.vertex_vector_mut_ref_by_index_unchecked(
+    ) -> Result<&mut VertexMatrix, GraphComputingError> {
+        Ok(self.vertex_matrix_mut_ref_by_index_unchecked(
             &self
                 .vertex_type_indexer_ref()
                 .try_index_for_key(vertex_key_ref)?

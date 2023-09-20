@@ -13,78 +13,75 @@ use graphblas_sparse_linear_algebra::{
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::graph::Graph;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::graph::VertexTypeIndex;
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge::EdgeTypeIndex,
-        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
-        vertex::vertex::VertexTypeKeyRef,
-    },
+    graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait TransposeAdjacencyMatrix<Argument, Product, EvaluationDomain>
+pub trait TransposeVertexyMatrix<Argument, Product, EvaluationDomain>
 where
-    Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    Argument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        argument: &VertexTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeKeyRef,
+        product: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > TransposeAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
+impl<Argument: ValueType, Product: ValueType, EvaluationDomain: ValueType>
+    TransposeVertexyMatrix<Argument, Product, EvaluationDomain> for Graph
 where
+    Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     MatrixSelector: SelectFromMatrix<EvaluationDomain>,
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
         // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
         // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
+        let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.try_adjacency_matrix_ref_for_index(argument)?;
+        let vertex_matrix_argument =
+            unsafe { &*vertex_store }.try_adjacency_matrix_ref_for_index(argument)?;
 
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
+        let vertex_matrix_product =
+            unsafe { &mut *vertex_store }.try_adjacency_matrix_mut_ref_for_index(product)?;
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
@@ -99,9 +96,9 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
@@ -125,9 +122,9 @@ where
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        argument: &VertexTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeKeyRef,
+        product: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
@@ -154,37 +151,37 @@ where
     }
 }
 
-pub trait TransposeAdjacencyMatrixMasked<Argument, Product, EvaluationDomain, Mask>
+pub trait TransposeVertexMatrixMasked<Argument, Product, EvaluationDomain, Mask>
 where
-    Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
+    Argument: ValueType,
     SparseMatrix<Argument>: MatrixMask,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    Product: ValueType,
     SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
+    Mask: ValueType,
     SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        argument: &VertexTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeKeyRef,
         mask: &VertexTypeKeyRef,
@@ -192,13 +189,12 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
-        Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-    > TransposeAdjacencyMatrixMasked<Argument, Product, EvaluationDomain, Mask> for Graph
+impl<Argument, Product, EvaluationDomain: ValueType, Mask>
+    TransposeVertexMatrixMasked<Argument, Product, EvaluationDomain, Mask> for Graph
 where
+    Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    Mask: ValueType + SparseWeightedAdjacencyMatrixForValueType<Mask>,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     SparseMatrix<Mask>: MatrixMask,
@@ -206,10 +202,10 @@ where
 {
     fn by_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
@@ -241,10 +237,10 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
+        product: &VertexTypeIndex,
+        mask: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
@@ -272,10 +268,10 @@ where
 
     fn by_key(
         &mut self,
-        argument: &EdgeTypeKeyRef,
+        argument: &VertexTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeKeyRef,
-        mask: &EdgeTypeKeyRef,
+        product: &VertexTypeKeyRef,
+        mask: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
@@ -375,7 +371,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        TransposeAdjacencyMatrix::<u8, u16, u8>::by_key(
+        TransposeVertexyMatrix::<u8, u16, u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &Assignment::new(),

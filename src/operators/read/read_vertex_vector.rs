@@ -1,6 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    GetVectorElementList, VectorElementList as VertexVectorElementList,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElementList as VertexVectorElementList;
 
 use crate::{
     error::GraphComputingError,
@@ -8,7 +6,6 @@ use crate::{
         graph::{Graph, GraphTrait, VertexTypeIndex},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
         vertex::vertex::VertexTypeKeyRef,
-        vertex_store::{type_operations::get_vertex_vector::GetVertexVector, SparseVertexMatrix},
     },
 };
 
@@ -34,7 +31,7 @@ macro_rules! implement_read_vertex_vector {
                 &self,
                 type_index: &VertexTypeIndex,
             ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(SparseVertexVector::<$value_type>::sparse_vector_ref(
+                Ok(<$value_type>::sparse_vector_ref(
                     self.vertex_store_ref()
                         .vertex_vector_ref_by_index(type_index)?,
                 )
@@ -45,7 +42,7 @@ macro_rules! implement_read_vertex_vector {
                 &self,
                 type_index: &VertexTypeIndex,
             ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(SparseVertexVector::<$value_type>::sparse_vector_ref(
+                Ok(<$value_type>::sparse_vector_ref(
                     self.vertex_store_ref()
                         .vertex_vector_ref_by_index_unchecked(type_index),
                 )
@@ -56,7 +53,7 @@ macro_rules! implement_read_vertex_vector {
                 &self,
                 type_key: &VertexTypeKeyRef,
             ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(SparseVertexVector::<$value_type>::sparse_vector_ref(
+                Ok(<$value_type>::sparse_vector_ref(
                     self.vertex_store_ref().vertex_vector_ref_by_key(type_key)?,
                 )
                 .get_element_list()?)

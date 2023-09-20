@@ -1,7 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
+
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
+use graphblas_sparse_linear_algebra::operators::transpose::TransposeMatrix;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
@@ -11,8 +12,8 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+
 use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
-use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::{
@@ -20,7 +21,7 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain>
+pub trait TransposeAdjacencyMatrix<Argument, Product, EvaluationDomain>
 where
     Argument: ValueType,
     Product: ValueType,
@@ -30,8 +31,6 @@ where
 {
     fn by_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -40,8 +39,6 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -50,8 +47,6 @@ where
 
     fn by_key(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeKeyRef,
@@ -59,8 +54,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<Argument, Product, EvaluationDomain: ValueType>
-    SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
+impl<Argument: ValueType, Product: ValueType, EvaluationDomain: ValueType>
+    TransposeAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
 where
     Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
     Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
@@ -70,8 +65,6 @@ where
 {
     fn by_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -91,22 +84,17 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
+            .matrix_transposer()
             .apply(
-                selector,
-                selector_argument,
                 Argument::sparse_matrix_ref(adjacency_matrix_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
     }
 
     fn by_unchecked_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -122,22 +110,17 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
+            .matrix_transposer()
             .apply(
-                selector,
-                selector_argument,
                 Argument::sparse_matrix_ref(adjacency_matrix_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
     }
 
     fn by_key(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeKeyRef,
@@ -157,20 +140,17 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
+            .matrix_transposer()
             .apply(
-                selector,
-                selector_argument,
                 Argument::sparse_matrix_ref(adjacency_matrix_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
     }
 }
 
-pub trait SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask>
+pub trait TransposeAdjacencyMatrixMasked<Argument, Product, EvaluationDomain, Mask>
 where
     Argument: ValueType,
     SparseMatrix<Argument>: MatrixMask,
@@ -182,8 +162,6 @@ where
 {
     fn by_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -193,8 +171,6 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -204,18 +180,16 @@ where
 
     fn by_key(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeKeyRef,
-        mask: &VertexTypeKeyRef,
+        product: &EdgeTypeKeyRef,
+        mask: &EdgeTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl<Argument, Product, EvaluationDomain: ValueType, Mask>
-    SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
+    TransposeAdjacencyMatrixMasked<Argument, Product, EvaluationDomain, Mask> for Graph
 where
     Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
     Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
@@ -227,8 +201,6 @@ where
 {
     fn by_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -252,10 +224,8 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
-            .apply(
-                selector,
-                selector_argument,
+            .matrix_transposer()
+            .apply_with_mask(
                 Argument::sparse_matrix_ref(adjacency_matrix_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
@@ -266,8 +236,6 @@ where
 
     fn by_unchecked_index(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
@@ -287,10 +255,8 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
-            .apply(
-                selector,
-                selector_argument,
+            .matrix_transposer()
+            .apply_with_mask(
                 Argument::sparse_matrix_ref(adjacency_matrix_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
@@ -301,8 +267,6 @@ where
 
     fn by_key(
         &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
         argument: &EdgeTypeKeyRef,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeKeyRef,
@@ -325,10 +289,8 @@ where
 
         Ok(self
             .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
-            .apply(
-                selector,
-                selector_argument,
+            .matrix_transposer()
+            .apply_with_mask(
                 Argument::sparse_matrix_ref(adjacency_matrix_argument),
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
@@ -341,7 +303,6 @@ where
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
-    use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueGreaterThan;
 
     use super::*;
 
@@ -355,7 +316,7 @@ mod tests {
     use crate::operators::read::ReadEdgeWeight;
 
     #[test]
-    fn select_from_adjacency_matrix() {
+    fn transpose_adjacency_matrix() {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
         let vertex_type_key = "vertex_type";
@@ -409,10 +370,8 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        SelectFromAdjacencyMatrix::<u8, u16, u8>::by_key(
+        TransposeAdjacencyMatrix::<u8, u16, u8>::by_key(
             &mut graph,
-            &IsValueGreaterThan::<u8>::new(),
-            &1,
             &edge_type_1_key,
             &Assignment::new(),
             result_type_key,
@@ -425,12 +384,12 @@ mod tests {
                 &graph,
                 &DirectedEdgeCoordinateDefinedByKeys::new(
                     result_type_key,
-                    vertex_1.key_ref(),
                     vertex_2.key_ref(),
+                    vertex_1.key_ref(),
                 ),
             )
             .unwrap(),
-            None
+            Some(1)
         );
 
         assert_eq!(
@@ -438,8 +397,8 @@ mod tests {
                 &graph,
                 &DirectedEdgeCoordinateDefinedByKeys::new(
                     result_type_key,
-                    vertex_2.key_ref(),
                     vertex_1.key_ref(),
+                    vertex_2.key_ref(),
                 ),
             )
             .unwrap(),

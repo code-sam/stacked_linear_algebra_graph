@@ -14,7 +14,7 @@ use graphblas_sparse_linear_algebra::{
 use once_cell::sync::Lazy;
 
 use crate::graph::vertex_store::vertex_matrix::VertexMatrixTrait;
-use crate::graph::vertex_store::VertexMatrixStore;
+use crate::graph::vertex_store::VertexMatrix;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -48,7 +48,7 @@ pub(crate) trait DeleteVertex<T: ValueType> {
 
 macro_rules! implement_delete_vertex {
     ($value_type:ty) => {
-        impl DeleteVertex<$value_type> for VertexMatrixStore {
+        impl DeleteVertex<$value_type> for VertexMatrix {
             fn delete_vertex(
                 &mut self,
                 vertex_type_index: &VertexTypeIndex,
@@ -101,7 +101,7 @@ pub(crate) trait DeleteVertexForAllValueTypes {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl DeleteVertexForAllValueTypes for VertexMatrixStore {
+impl DeleteVertexForAllValueTypes for VertexMatrix {
     fn delete_vertex_for_all_value_types(
         &mut self,
         vertex_type_index: &VertexTypeIndex,

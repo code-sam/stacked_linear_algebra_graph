@@ -29,7 +29,7 @@ pub(crate) trait AddEdge<T: ValueType> {
 
 impl<T> AddEdge<T> for WeightedAdjacencyMatrix
 where
-    T: ValueType + SetMatrixElementTyped<T> + SparseWeightedAdjacencyMatrixForValueType<T>,
+    T: ValueType + Copy + SetMatrixElementTyped<T> + SparseWeightedAdjacencyMatrixForValueType<T>,
 {
     fn add_edge_defined_by_indices_unchecked(
         &mut self,

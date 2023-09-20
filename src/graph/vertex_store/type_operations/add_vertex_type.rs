@@ -7,7 +7,7 @@ use crate::{
         indexer::{AssignedIndexTrait, IndexerTrait},
         vertex::vertex::VertexTypeKeyRef,
         vertex_store::{
-            vertex_store::VertexStoreTrait, VertexMatrixStore, VertexMatrixTrait, VertexStore,
+            vertex_store::VertexStoreTrait, VertexMatrix, VertexMatrixTrait, VertexStore,
         },
     },
 };

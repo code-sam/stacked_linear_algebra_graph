@@ -5,18 +5,18 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::{
     ApplyElementWiseVectorAdditionMonoidOperator, ElementWiseVectorAdditionMonoidOperator,
 };
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
-use graphblas_sparse_linear_algebra::operators::monoid::{Any, LogicalOr};
+use graphblas_sparse_linear_algebra::operators::monoid::{Any, AnyMonoidTyped, LogicalOr};
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::reduce::{MonoidReducer, MonoidVectorReducer};
 use once_cell::sync::Lazy;
 
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrix;
+use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
-use crate::{
-    error::GraphComputingError,
-    graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix,
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
+    WeightedAdjacencyMatrix,
 };
+use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
@@ -31,7 +31,9 @@ pub(crate) trait SelectEdgeVertices<T: ValueType> {
     fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError>;
 }
 
-impl<T: ValueType> SelectEdgeVertices<T> for WeightedAdjacencyMatrix {
+impl<T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T> + AnyMonoidTyped<T>>
+    SelectEdgeVertices<T> for WeightedAdjacencyMatrix
+{
     fn select_vertices_with_outgoing_edges(
         &self,
     ) -> Result<SparseVector<bool>, GraphComputingError> {
@@ -47,7 +49,7 @@ impl<T: ValueType> SelectEdgeVertices<T> for WeightedAdjacencyMatrix {
         //     );
         MonoidReducer::new().to_column_vector(
             &Any::<T>::new(),
-            self.sparse_matrix_ref(),
+            SparseWeightedAdjacencyMatrix::<T>::sparse_matrix_ref(self),
             &Assignment::new(),
             &mut from_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context_ref()),
@@ -75,7 +77,7 @@ impl<T: ValueType> SelectEdgeVertices<T> for WeightedAdjacencyMatrix {
         // )?;
         MonoidReducer::new().to_row_vector(
             &Any::<T>::new(),
-            self.sparse_matrix_ref(),
+            SparseWeightedAdjacencyMatrix::<T>::sparse_matrix_ref(self),
             &Assignment::new(),
             &mut to_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context_ref()),

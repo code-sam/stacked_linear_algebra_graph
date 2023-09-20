@@ -9,8 +9,8 @@ use crate::{
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
             type_operations::delete_vertex::DeleteVertexForAllValueTypes,
-            DeleteVertexValueInVertexMatrix, SparseVertexMatrix, VertexMatrixStore,
-            VertexMatrixTrait, VertexStore, VertexStoreTrait,
+            DeleteVertexValueInVertexMatrix, SparseVertexMatrix, VertexMatrix, VertexMatrixTrait,
+            VertexStore, VertexStoreTrait,
         },
     },
 };

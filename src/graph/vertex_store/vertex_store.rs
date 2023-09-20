@@ -10,9 +10,9 @@ use crate::error::GraphComputingError;
 
 use crate::graph::index::ElementCount;
 
-use crate::graph::indexer::{Indexer, IndexerTrait};
+use crate::graph::indexer::{Indexer, IndexerTrait, MINIMUM_INDEXER_CAPACITY};
 
-use super::{VertexMatrixStore, VertexMatrixTrait};
+use super::{VertexMatrix, VertexMatrixTrait};
 
 pub(crate) type VertexTypeIndexer = Indexer;
 pub(crate) type VertexElementIndexer = Indexer;
@@ -21,7 +21,7 @@ pub(crate) type VertexElementIndexer = Indexer;
 pub(crate) struct VertexStore {
     graphblas_context: Arc<GraphblasContext>,
     vertex_type_indexer: VertexTypeIndexer,
-    vertex_matrix: VertexMatrixStore,
+    vertex_matrix: VertexMatrix,
     element_indexer: VertexElementIndexer,
 
     // TODO: introduce a store-specific operator cache, for operators that require the corresponding context.
@@ -34,21 +34,22 @@ impl VertexStore {
         initial_vertex_type_capacity: &ElementCount,
         initial_vertex_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
+        let vertex_type_indexer =
+            VertexTypeIndexer::with_initial_capacity(context, initial_vertex_type_capacity)?;
+        let element_indexer =
+            VertexElementIndexer::with_initial_capacity(context, initial_vertex_capacity)?;
+
+        let vertex_matrix = VertexMatrix::new(
+            context,
+            &element_indexer.index_capacity()?,
+            &vertex_type_indexer.index_capacity()?,
+        )?;
+
         Ok(Self {
             graphblas_context: context.clone(),
-            vertex_type_indexer: VertexTypeIndexer::with_initial_capacity(
-                context,
-                initial_vertex_type_capacity,
-            )?,
-            vertex_matrix: VertexMatrixStore::new(
-                context,
-                initial_vertex_capacity,
-                initial_vertex_type_capacity,
-            )?,
-            element_indexer: VertexElementIndexer::with_initial_capacity(
-                context,
-                initial_vertex_capacity,
-            )?,
+            vertex_type_indexer,
+            vertex_matrix,
+            element_indexer,
             mask_to_select_entire_vertex_vector: SelectEntireVector::new(context),
         })
     }
@@ -65,8 +66,8 @@ pub(crate) trait VertexStoreTrait {
     fn element_indexer_ref(&self) -> &VertexElementIndexer;
     fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer;
 
-    fn vertex_matrix_ref(&self) -> &VertexMatrixStore;
-    fn vertex_matrix_mut_ref(&mut self) -> &mut VertexMatrixStore;
+    fn vertex_matrix_ref(&self) -> &VertexMatrix;
+    fn vertex_matrix_mut_ref(&mut self) -> &mut VertexMatrix;
 
     fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector;
 
@@ -126,11 +127,11 @@ impl VertexStoreTrait for VertexStore {
         &mut self.element_indexer
     }
 
-    fn vertex_matrix_ref(&self) -> &VertexMatrixStore {
+    fn vertex_matrix_ref(&self) -> &VertexMatrix {
         &self.vertex_matrix
     }
 
-    fn vertex_matrix_mut_ref(&mut self) -> &mut VertexMatrixStore {
+    fn vertex_matrix_mut_ref(&mut self) -> &mut VertexMatrix {
         &mut self.vertex_matrix
     }
 

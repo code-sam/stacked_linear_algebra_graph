@@ -7,12 +7,8 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
-use crate::graph::{
-    value_type, vertex::vertex::VertexTypeKeyRef,
-    vertex_store::type_operations::get_vertex_vector::GetVertexVector,
-};
+use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::{value_type::SparseVertexMatrixForValueType, vertex_store::VertexStoreTrait};
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{

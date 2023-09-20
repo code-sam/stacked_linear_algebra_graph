@@ -41,7 +41,7 @@ static EXTRACT_MATRIX_ROW_OPERATOR: Lazy<MatrixRowExtractor> =
     Lazy::new(|| MatrixRowExtractor::new());
 
 #[derive(Clone, Debug)]
-pub struct VertexMatrixStore {
+pub struct VertexMatrix {
     graphblas_context: Arc<GraphBLASContext>,
     vertex_matrix_bool: SparseMatrix<bool>,
     vertex_matrix_i8: SparseMatrix<i8>,
@@ -58,7 +58,7 @@ pub struct VertexMatrixStore {
     vertex_matrix_usize: SparseMatrix<usize>,
 }
 
-impl VertexMatrixStore {
+impl VertexMatrix {
     pub(crate) fn new(
         graphblas_context: &Arc<GraphBLASContext>,
         initial_vertex_capacity: &ElementCount,
@@ -88,50 +88,51 @@ impl VertexMatrixStore {
 }
 
 pub(crate) trait SparseVertexVector<T: ValueType> {
-    fn sparse_vector_ref(
+    fn extract_sparse_vector(
         &self,
         vertex_type_index: &VertexTypeIndex,
-    ) -> Result<&SparseVector<T>, GraphComputingError>;
+    ) -> Result<SparseVector<T>, GraphComputingError>;
 
     // REVIEW: mutating the cloned vector doesn't apply to the source vertex matrix.
     // fn sparse_vector_mut_ref(&mut self, vertex_type_index: &VertexTypeIndex) -> &mut SparseVector<T>;
 }
 
-macro_rules! implement_vertex_vector_trait {
-    ($typed_sparse_matrix:ident, $value_type: ty) => {
-        impl SparseVertexVector<$value_type> for VertexMatrixStore {
-            fn sparse_vector_ref(
-                &self,
-                vertex_type_index: &VertexTypeIndex,
-            ) -> Result<&SparseVector<$value_type>, GraphComputingError> {
-                let mut vertex_vector = SparseVector::<$value_type>::new(
-                    &self.graphblas_context_ref(),
-                    &self.vertex_capacity()?,
-                )?;
+// TODO: implement type-generically
+// macro_rules! implement_vertex_vector_trait {
+//     ($typed_sparse_matrix:ident, $value_type: ty) => {
+//         impl SparseVertexVector<$value_type> for VertexMatrix {
+//             fn extract_sparse_vector(
+//                 &self,
+//                 vertex_type_index: &VertexTypeIndex,
+//             ) -> Result<SparseVector<$value_type>, GraphComputingError> {
+//                 let mut vertex_vector = SparseVector::<$value_type>::new(
+//                     &self.graphblas_context_ref(),
+//                     &self.vertex_capacity()?,
+//                 )?;
 
-                // TODO: cache the accumulator for better performance
-                let accumulator = Assignment::<$value_type>::new();
+//                 // TODO: cache the accumulator for better performance
+//                 let accumulator = Assignment::<$value_type>::new();
 
-                EXTRACT_MATRIX_ROW_OPERATOR.apply(
-                    &self.$typed_sparse_matrix,
-                    vertex_type_index,
-                    &ElementIndexSelector::All,
-                    &accumulator,
-                    &mut vertex_vector,
-                    &SelectEntireVector::new(&self.graphblas_context_ref()), // TODO: cache this for better performance
-                    &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                )?;
+//                 EXTRACT_MATRIX_ROW_OPERATOR.apply(
+//                     &self.$typed_sparse_matrix,
+//                     vertex_type_index,
+//                     &ElementIndexSelector::All,
+//                     &accumulator,
+//                     &mut vertex_vector,
+//                     &SelectEntireVector::new(&self.graphblas_context_ref()), // TODO: cache this for better performance
+//                     &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+//                 )?;
 
-                Ok(&vertex_vector)
-            }
-        }
-    };
-}
+//                 Ok(vertex_vector)
+//             }
+//         }
+//     };
+// }
 
-implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
-    implement_vertex_vector_trait,
-    vertex_matrix
-);
+// implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
+//     implement_vertex_vector_trait,
+//     vertex_matrix
+// );
 
 pub(crate) trait SparseVertexMatrix<T: ValueType> {
     fn sparse_matrix_ref(&self) -> &SparseMatrix<T>;
@@ -140,7 +141,7 @@ pub(crate) trait SparseVertexMatrix<T: ValueType> {
 
 macro_rules! implement_vertex_matrix_trait {
     ($typed_sparse_matrix:ident, $value_type: ty) => {
-        impl SparseVertexMatrix<$value_type> for VertexMatrixStore {
+        impl SparseVertexMatrix<$value_type> for VertexMatrix {
             fn sparse_matrix_ref(&self) -> &SparseMatrix<$value_type> {
                 &self.$typed_sparse_matrix
             }
@@ -153,7 +154,7 @@ macro_rules! implement_vertex_matrix_trait {
 
 implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
     implement_vertex_matrix_trait,
-    sparse_matrix
+    vertex_matrix
 );
 
 pub(crate) trait VertexMatrixTrait {
@@ -178,7 +179,7 @@ pub(crate) trait VertexMatrixTrait {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl VertexMatrixTrait for VertexMatrixStore {
+impl VertexMatrixTrait for VertexMatrix {
     fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext> {
         &self.graphblas_context
     }
@@ -268,7 +269,7 @@ pub(crate) trait SetVertexMatrixValue<T: ValueType> {
 }
 
 impl<T: ValueType + SparseVertexMatrixForValueType<T> + SetMatrixElementTyped<T>>
-    SetVertexMatrixValue<T> for VertexMatrixStore
+    SetVertexMatrixValue<T> for VertexMatrix
 {
     fn set_vertex_value(
         &mut self,
@@ -306,7 +307,7 @@ pub(crate) trait ReadVertexValueInVertexMatrix<T: ValueType> {
 
 impl<
         T: ValueType + SparseVertexMatrixForValueType<T> + GetMatrixElementValueTyped<T> + Default,
-    > ReadVertexValueInVertexMatrix<T> for VertexMatrixStore
+    > ReadVertexValueInVertexMatrix<T> for VertexMatrix
 {
     fn get_vertex_value(
         &self,
@@ -357,7 +358,7 @@ pub(crate) trait DeleteVertexValueInVertexMatrix<T: ValueType + SparseVertexMatr
 }
 
 impl<T: ValueType + SparseVertexMatrixForValueType<T>> DeleteVertexValueInVertexMatrix<T>
-    for VertexMatrixStore
+    for VertexMatrix
 {
     fn delete_vertex_value(
         &mut self,
@@ -383,9 +384,7 @@ pub(crate) trait IsElementInVertexMatrix<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T: ValueType + SparseVertexMatrixForValueType<T>> IsElementInVertexMatrix<T>
-    for VertexMatrixStore
-{
+impl<T: ValueType + SparseVertexMatrixForValueType<T>> IsElementInVertexMatrix<T> for VertexMatrix {
     fn is_vertex_element(
         &self,
         vertex_type_index: &VertexTypeIndex,

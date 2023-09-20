@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GraphblasSparseMatrixTrait;
 use graphblas_sparse_linear_algebra::value_type::ValueType as GraphblasValueType;
@@ -11,12 +13,12 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
 };
 use crate::graph::vertex_store::SparseVertexMatrix;
 use crate::graph::{
-    edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, vertex_store::VertexMatrixStore,
+    edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, vertex_store::VertexMatrix,
 };
 
 use super::implement_macro_for_all_native_value_types;
 
-pub trait ValueType: GraphblasValueType {
+pub trait ValueType: GraphblasValueType + Debug {
     fn value_type_index() -> ValueTypeIndex;
 }
 
@@ -125,19 +127,19 @@ pub trait SparseVertexMatrixForValueType<T: ValueType>
 where
     SparseMatrix<T>: GraphblasSparseMatrixTrait,
 {
-    fn sparse_matrix_ref(vertex_matrix: &VertexMatrixStore) -> &SparseMatrix<T>;
-    fn sparse_matrix_mut_ref(vertex_matrix: &mut VertexMatrixStore) -> &mut SparseMatrix<T>;
+    fn sparse_matrix_ref(vertex_matrix: &VertexMatrix) -> &SparseMatrix<T>;
+    fn sparse_matrix_mut_ref(vertex_matrix: &mut VertexMatrix) -> &mut SparseMatrix<T>;
 }
 
 macro_rules! implement_sparse_vertex_matrix_for_value_type {
     ($value_type: ty) => {
         impl SparseVertexMatrixForValueType<$value_type> for $value_type {
-            fn sparse_matrix_ref(vertex_matrix: &VertexMatrixStore) -> &SparseMatrix<$value_type> {
+            fn sparse_matrix_ref(vertex_matrix: &VertexMatrix) -> &SparseMatrix<$value_type> {
                 SparseVertexMatrix::<$value_type>::sparse_matrix_ref(vertex_matrix)
             }
 
             fn sparse_matrix_mut_ref(
-                vertex_matrix: &mut VertexMatrixStore,
+                vertex_matrix: &mut VertexMatrix,
             ) -> &mut SparseMatrix<$value_type> {
                 SparseVertexMatrix::<$value_type>::sparse_matrix_mut_ref(vertex_matrix)
             }

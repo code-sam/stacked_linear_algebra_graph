@@ -1,6 +1,6 @@
 pub mod error;
 pub mod graph;
-// pub mod operators;
+pub mod operators;
 
 pub use graphblas_sparse_linear_algebra;
 

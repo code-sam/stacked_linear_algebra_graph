@@ -1,15 +1,10 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
-    GetMatrixElementList, MatrixElementList as AdjacencyMatrixElementList,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElementList as AdjacencyMatrixElementList;
 
 use crate::{
     error::GraphComputingError,
     graph::{
         edge::EdgeTypeKeyRef,
-        edge_store::{
-            operations::get_adjacency_matrix::GetAdjacencyMatrix,
-            weighted_adjacency_matrix::SparseWeightedAdjacencyMatrix,
-        },
+        edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
         graph::{EdgeTypeIndex, Graph, GraphTrait},
         value_type::{implement_macro_for_all_native_value_types, ValueType},
     },
@@ -37,39 +32,33 @@ macro_rules! implement_read_adjacency_matrix {
                 &self,
                 type_index: &EdgeTypeIndex,
             ) -> Result<AdjacencyMatrixElementList<$value_type>, GraphComputingError> {
-                Ok(
-                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self.edge_store_ref()
-                            .try_adjacency_matrix_ref_for_index(type_index)?,
-                    )
-                    .get_element_list()?,
+                Ok(<$value_type>::sparse_matrix_ref(
+                    self.edge_store_ref()
+                        .try_adjacency_matrix_ref_for_index(type_index)?,
                 )
+                .get_element_list()?)
             }
 
             fn with_index_unchecked(
                 &self,
                 type_index: &EdgeTypeIndex,
             ) -> Result<AdjacencyMatrixElementList<$value_type>, GraphComputingError> {
-                Ok(
-                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self.edge_store_ref()
-                            .adjacency_matrix_ref_for_index_unchecked(type_index),
-                    )
-                    .get_element_list()?,
+                Ok(<$value_type>::sparse_matrix_ref(
+                    self.edge_store_ref()
+                        .adjacency_matrix_ref_for_index_unchecked(type_index),
                 )
+                .get_element_list()?)
             }
 
             fn with_key(
                 &self,
                 type_key: &EdgeTypeKeyRef,
             ) -> Result<AdjacencyMatrixElementList<$value_type>, GraphComputingError> {
-                Ok(
-                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_ref(
-                        self.edge_store_ref()
-                            .adjacency_matrix_ref_for_key(type_key)?,
-                    )
-                    .get_element_list()?,
+                Ok(<$value_type>::sparse_matrix_ref(
+                    self.edge_store_ref()
+                        .adjacency_matrix_ref_for_key(type_key)?,
                 )
+                .get_element_list()?)
             }
         }
     };

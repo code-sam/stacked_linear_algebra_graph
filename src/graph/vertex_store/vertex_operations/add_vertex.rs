@@ -1,9 +1,13 @@
+use std::fmt::Display;
+
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::GraphblasSparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
 use crate::error::{GraphComputingError, GraphComputingErrorType};
@@ -26,6 +30,7 @@ use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::ReadVertexValueInVertexMatrix;
 use crate::graph::vertex_store::SetVertexMatrixValue;
 use crate::graph::vertex_store::SparseVertexMatrix;
+use crate::graph::vertex_store::VertexMatrix;
 use crate::graph::vertex_store::VertexMatrixTrait;
 
 pub(crate) trait AddVertex<T>
@@ -79,18 +84,34 @@ where
         + SparseVertexMatrixForValueType<T>
         + GetMatrixElementValueTyped<T>
         + SetMatrixElementTyped<T>
-        + Default,
+        + Default
+        + Copy,
+    VertexMatrix: SparseVertexMatrix<T>,
+    SparseMatrix<T>: Display,
 {
     fn add_new_key_defined_vertex(
         &mut self,
         vertex: VertexDefinedByKey<T>,
     ) -> Result<AssignedIndex, GraphComputingError> {
+        println!("{:?}", vertex);
         let type_index = *self
             .vertex_type_indexer_ref()
             .try_index_for_key(vertex.type_key_ref())?;
+        println!("type index: {:?}", type_index);
         let vertex_index = self
             .element_indexer_mut_ref()
             .add_or_reuse_key(vertex.key_ref())?;
+
+        println!("vertex index: {:?}", vertex_index);
+        println!(
+            "vertex matrix {}",
+            SparseVertexMatrix::<T>::sparse_matrix_ref(self.vertex_matrix_ref())
+        );
+        println!("vertex element indexer: {:?}", self.element_indexer_ref());
+        println!(
+            "vertex element indexer capacity: {:?}",
+            self.element_indexer_ref().index_capacity()
+        );
 
         match vertex_index.new_index_capacity() {
             Some(new_capacity) => {

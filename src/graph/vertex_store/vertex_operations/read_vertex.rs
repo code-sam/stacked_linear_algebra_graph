@@ -12,7 +12,7 @@ use crate::graph::value_type::{
 
 use crate::graph::vertex::vertex::VertexKeyRef;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+// use crate::graph::vertex_store::type_operations::get_vertex_matrix::GetVertexMatrix;
 use crate::graph::vertex_store::vertex_matrix::SparseVertexMatrix;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::ReadVertexValueInVertexMatrix;

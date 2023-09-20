@@ -21,8 +21,9 @@ pub(crate) trait UpdateEdgeWeight<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T> + SetMatrixElementTyped<T>>
-    UpdateEdgeWeight<T> for WeightedAdjacencyMatrix
+impl<
+        T: ValueType + Copy + SparseWeightedAdjacencyMatrixForValueType<T> + SetMatrixElementTyped<T>,
+    > UpdateEdgeWeight<T> for WeightedAdjacencyMatrix
 {
     fn update_edge_weight_unchecked(
         &mut self,

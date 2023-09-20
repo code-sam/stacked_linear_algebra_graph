@@ -1,3 +1,4 @@
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::value_type::{self, SparseVertexMatrixForValueType};
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
@@ -18,22 +19,15 @@ use crate::graph::graph::GraphTrait;
 use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::vertex::vertex::VertexKeyRef;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::graph::vertex_store::{SparseVertexMatrix, VertexMatrixStore};
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge::EdgeTypeIndex,
-        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
-        vertex::vertex::VertexTypeKeyRef,
-    },
+    graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
 pub trait SelectEdgesWithHeadVertex<AdjacencyMatrix, SelectTo>
 where
-    AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    AdjacencyMatrix: ValueType,
     SelectTo: ValueType + SparseVertexMatrixForValueType<SelectTo>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<SelectTo>: VectorMask,
@@ -70,11 +64,11 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+        AdjacencyMatrix,
         EvaluationDomain: ValueType + SparseVertexMatrixForValueType<EvaluationDomain>,
     > SelectEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain> for Graph
 where
-    VertexMatrixStore: SparseVertexMatrix<EvaluationDomain>,
+    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<EvaluationDomain>: VectorMask,
 {
@@ -108,9 +102,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                <EvaluationDomain>::sparse_vector_mut_ref(vertex_vector_extract_to),
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -142,9 +134,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                <EvaluationDomain>::sparse_vector_mut_ref(vertex_vector_extract_to),
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -185,9 +175,7 @@ where
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                <EvaluationDomain>::sparse_vector_mut_ref(vertex_vector_extract_to),
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -196,9 +184,9 @@ where
 
 pub trait SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, SelectTo, Mask>
 where
-    AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    AdjacencyMatrix: ValueType,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SelectTo: ValueType + SparseAdjacencyMatrixForValueType<SelectTo>,
+    SelectTo: ValueType,
     SparseMatrix<SelectTo>: MatrixMask,
     Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
@@ -238,15 +226,14 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+        AdjacencyMatrix: ValueType,
         Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
-        EvaluationDomain: ValueType + SparseAdjacencyMatrixForValueType<EvaluationDomain>,
+        EvaluationDomain: ValueType,
     > SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
     SparseVector<Mask>: VectorMask,
-    VertexMatrixStore: SparseVertexMatrix<EvaluationDomain>,
 {
     fn by_index(
         &mut self,
@@ -282,9 +269,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                <EvaluationDomain>::sparse_vector_mut_ref(vertex_vector_extract_to),
                 Mask::sparse_vector_ref(vertex_vector_mask),
                 options,
             )?)
@@ -320,9 +305,7 @@ where
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                <EvaluationDomain>::sparse_vector_mut_ref(vertex_vector_extract_to),
                 Mask::sparse_vector_ref(vertex_vector_mask),
                 options,
             )?)
@@ -367,9 +350,7 @@ where
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexMatrix::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                <EvaluationDomain>::sparse_vector_mut_ref(vertex_vector_extract_to),
                 Mask::sparse_vector_ref(vertex_vector_mask),
                 options,
             )?)

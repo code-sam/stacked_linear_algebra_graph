@@ -4,6 +4,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
 };
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElementList;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementList;
+use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
 
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::select_edge_vertices::SelectEdgeVertices;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
@@ -49,6 +50,7 @@ impl<
             + GetMatrixElementValueTyped<T>
             + Default
             + GetMatrixElementListTyped<T>
+            + AnyMonoidTyped<T>
             + Clone
             + Copy,
     > Indexing<T> for WeightedAdjacencyMatrix
