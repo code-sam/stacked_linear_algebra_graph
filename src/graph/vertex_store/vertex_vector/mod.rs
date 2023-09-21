@@ -1,5 +1,5 @@
 // mod operations;
-mod vertex_matrix;
+mod vertex_vector;
 
 // pub(crate) use operations::*;
-pub(crate) use vertex_matrix::*;
+pub(crate) use vertex_vector::*;

@@ -10,7 +10,7 @@ use graphblas_sparse_linear_algebra::{
 };
 
 use crate::graph::graph::{Graph, VertexTypeIndex};
-use crate::graph::value_type::SparseVertexMatrixForValueType;
+use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -21,9 +21,9 @@ pub trait MonoidElementWiseVertexVectorAddition<
     Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType + SparseVertexMatrixForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexMatrixForValueType<RightArgument>,
-    Product: ValueType + SparseVertexMatrixForValueType<Product>,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
     EvaluationDomain: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
@@ -61,9 +61,9 @@ pub trait MonoidElementWiseVertexVectorAddition<
 }
 
 impl<
-        LeftArgument: ValueType + SparseVertexMatrixForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexMatrixForValueType<RightArgument>,
-        Product: ValueType + SparseVertexMatrixForValueType<Product>,
+        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+        Product: ValueType + SparseVertexVectorForValueType<Product>,
         EvaluationDomain: ValueType,
     > MonoidElementWiseVertexVectorAddition<LeftArgument, RightArgument, Product, EvaluationDomain>
     for Graph
@@ -190,14 +190,14 @@ pub trait MonoidElementWiseMaskedVertexVectorAddition<
     EvaluationDomain,
     Mask,
 > where
-    LeftArgument: ValueType + SparseVertexMatrixForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexMatrixForValueType<RightArgument>,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
-    Product: ValueType + SparseVertexMatrixForValueType<Product>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -235,10 +235,10 @@ pub trait MonoidElementWiseMaskedVertexVectorAddition<
 }
 
 impl<
-        LeftArgument: ValueType + SparseVertexMatrixForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexMatrixForValueType<RightArgument>,
-        Product: ValueType + SparseVertexMatrixForValueType<Product>,
-        Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
+        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
         EvaluationDomain: ValueType,
     >
     MonoidElementWiseMaskedVertexVectorAddition<

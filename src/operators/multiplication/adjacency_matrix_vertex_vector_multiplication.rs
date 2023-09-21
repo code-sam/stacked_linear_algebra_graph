@@ -21,7 +21,7 @@ use crate::graph::graph::Graph;
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::graph::graph::VertexTypeIndex;
-use crate::graph::value_type::SparseVertexMatrixForValueType;
+use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::{
     error::GraphComputingError,
@@ -252,9 +252,9 @@ pub trait AdjacencyMatrixMultiplicationMasked<
 
 impl<
         LeftArgument: ValueType,
-        RightArgument: ValueType + SparseVertexMatrixForValueType<RightArgument>,
-        Product: ValueType + SparseVertexMatrixForValueType<Product>,
-        Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
+        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
         EvaluationDomain: ValueType,
     >
     AdjacencyMatrixMultiplicationMasked<

@@ -2,6 +2,7 @@ use std::fmt::Debug;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GraphblasSparseMatrixTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::GraphblasSparseVectorTrait;
 use graphblas_sparse_linear_algebra::value_type::ValueType as GraphblasValueType;
 use graphblas_sparse_linear_algebra::{
     collections::{sparse_matrix::SparseMatrix, sparse_vector::SparseVector},
@@ -11,9 +12,9 @@ use graphblas_sparse_linear_algebra::{
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
 };
-use crate::graph::vertex_store::SparseVertexMatrix;
+use crate::graph::vertex_store::SparseVertexVector;
 use crate::graph::{
-    edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, vertex_store::VertexMatrix,
+    edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, vertex_store::VertexVector,
 };
 
 use super::implement_macro_for_all_native_value_types;
@@ -123,30 +124,30 @@ impl ValueTypeIndexer<bool> for bool {
     }
 }
 
-pub trait SparseVertexMatrixForValueType<T: ValueType>
+pub trait SparseVertexVectorForValueType<T: ValueType>
 where
-    SparseMatrix<T>: GraphblasSparseMatrixTrait,
+    SparseVector<T>: GraphblasSparseVectorTrait,
 {
-    fn sparse_matrix_ref(vertex_matrix: &VertexMatrix) -> &SparseMatrix<T>;
-    fn sparse_matrix_mut_ref(vertex_matrix: &mut VertexMatrix) -> &mut SparseMatrix<T>;
+    fn sparse_vector_ref(vertex_vector: &VertexVector) -> &SparseVector<T>;
+    fn sparse_vector_mut_ref(vertex_vector: &mut VertexVector) -> &mut SparseVector<T>;
 }
 
-macro_rules! implement_sparse_vertex_matrix_for_value_type {
+macro_rules! implement_sparse_vertex_vector_for_value_type {
     ($value_type: ty) => {
-        impl SparseVertexMatrixForValueType<$value_type> for $value_type {
-            fn sparse_matrix_ref(vertex_matrix: &VertexMatrix) -> &SparseMatrix<$value_type> {
-                SparseVertexMatrix::<$value_type>::sparse_matrix_ref(vertex_matrix)
+        impl SparseVertexVectorForValueType<$value_type> for $value_type {
+            fn sparse_vector_ref(vertex_matrix: &VertexVector) -> &SparseVector<$value_type> {
+                SparseVertexVector::<$value_type>::sparse_vector_ref(vertex_matrix)
             }
 
-            fn sparse_matrix_mut_ref(
-                vertex_matrix: &mut VertexMatrix,
-            ) -> &mut SparseMatrix<$value_type> {
-                SparseVertexMatrix::<$value_type>::sparse_matrix_mut_ref(vertex_matrix)
+            fn sparse_vector_mut_ref(
+                vertex_vector: &mut VertexVector,
+            ) -> &mut SparseVector<$value_type> {
+                SparseVertexVector::<$value_type>::sparse_vector_mut_ref(vertex_vector)
             }
         }
     };
 }
-implement_macro_for_all_native_value_types!(implement_sparse_vertex_matrix_for_value_type);
+implement_macro_for_all_native_value_types!(implement_sparse_vertex_vector_for_value_type);
 
 // pub trait SparseAdjacencyMatrixForValueType<T: ValueType>
 // where

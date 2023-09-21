@@ -8,7 +8,7 @@ use graphblas_sparse_linear_algebra::{
 };
 
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::{value_type::SparseVertexMatrixForValueType, vertex_store::VertexStoreTrait};
+use crate::graph::{value_type::SparseVertexVectorForValueType, vertex_store::VertexStoreTrait};
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -20,8 +20,8 @@ use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
 pub trait ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
-    Product: ValueType + SparseVertexMatrixForValueType<Product>,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
     EvaluationDomain: ValueType,
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -55,8 +55,8 @@ where
 }
 
 impl<
-        VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
-        Product: ValueType + SparseVertexMatrixForValueType<Product>,
+        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+        Product: ValueType + SparseVertexVectorForValueType<Product>,
         EvaluationDomain: ValueType,
     > ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
@@ -161,12 +161,12 @@ where
 
 pub trait ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
 where
-    VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
     SparseVector<VertexVector>: VectorMask,
-    Product: ValueType + SparseVertexMatrixForValueType<Product>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -201,9 +201,9 @@ where
 }
 
 impl<
-        VertexVector: ValueType + SparseVertexMatrixForValueType<VertexVector>,
-        Product: ValueType + SparseVertexMatrixForValueType<Product>,
-        Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
+        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+        Product: ValueType + SparseVertexVectorForValueType<Product>,
+        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
         EvaluationDomain: ValueType,
     > ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
     for Graph

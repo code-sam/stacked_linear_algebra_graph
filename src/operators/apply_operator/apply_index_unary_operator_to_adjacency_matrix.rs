@@ -10,7 +10,7 @@ use graphblas_sparse_linear_algebra::{
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
-use crate::graph::vertex_store::SparseVertexMatrix;
+use crate::graph::vertex_store::SparseVertexVector;
 use crate::graph::{
     edge::EdgeTypeKeyRef, edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
 };
@@ -21,7 +21,7 @@ use crate::graph::{
         },
         EdgeStoreTrait,
     },
-    value_type::SparseVertexMatrixForValueType,
+    value_type::SparseVertexVectorForValueType,
 };
 use crate::{
     error::GraphComputingError,

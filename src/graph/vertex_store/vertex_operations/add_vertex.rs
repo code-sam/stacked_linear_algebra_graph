@@ -8,6 +8,10 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GraphblasSparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElement;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
 use crate::error::{GraphComputingError, GraphComputingErrorType};
@@ -16,7 +20,7 @@ use crate::error::{LogicError, LogicErrorType};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::indexer::{AssignedIndex, AssignedIndexTrait};
 use crate::graph::value_type::implement_1_type_macro_with_typed_indentifier_for_all_value_types;
-use crate::graph::value_type::SparseVertexMatrixForValueType;
+use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::value_type::ValueType;
 
 use crate::graph::vertex::vertex::GetVertexValue;
@@ -26,12 +30,13 @@ use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKeyTrait;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKeyTrait;
+use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
-use crate::graph::vertex_store::ReadVertexValueInVertexMatrix;
-use crate::graph::vertex_store::SetVertexMatrixValue;
-use crate::graph::vertex_store::SparseVertexMatrix;
-use crate::graph::vertex_store::VertexMatrix;
-use crate::graph::vertex_store::VertexMatrixTrait;
+use crate::graph::vertex_store::ReadVertexValueInVertexVector;
+use crate::graph::vertex_store::SetVertexVectorValue;
+use crate::graph::vertex_store::SparseVertexVector;
+use crate::graph::vertex_store::VertexVector;
+use crate::graph::vertex_store::VertexVectorTrait;
 
 pub(crate) trait AddVertex<T>
 where
@@ -81,77 +86,54 @@ where
 impl<T> AddVertex<T> for VertexStore
 where
     T: ValueType
-        + SparseVertexMatrixForValueType<T>
-        + GetMatrixElementValueTyped<T>
-        + SetMatrixElementTyped<T>
+        + SparseVertexVectorForValueType<T>
+        + GetVectorElementValueTyped<T>
+        + SetVectorElementTyped<T>
         + Default
         + Copy,
-    VertexMatrix: SparseVertexMatrix<T>,
+    VertexVector: SparseVertexVector<T>,
     SparseMatrix<T>: Display,
 {
     fn add_new_key_defined_vertex(
         &mut self,
         vertex: VertexDefinedByKey<T>,
     ) -> Result<AssignedIndex, GraphComputingError> {
-        println!("{:?}", vertex);
         let type_index = *self
             .vertex_type_indexer_ref()
             .try_index_for_key(vertex.type_key_ref())?;
-        println!("type index: {:?}", type_index);
         let vertex_index = self
             .element_indexer_mut_ref()
             .add_or_reuse_key(vertex.key_ref())?;
 
-        println!("vertex index: {:?}", vertex_index);
-        println!(
-            "vertex matrix {}",
-            SparseVertexMatrix::<T>::sparse_matrix_ref(self.vertex_matrix_ref())
-        );
-        println!("vertex element indexer: {:?}", self.element_indexer_ref());
-        println!(
-            "vertex element indexer capacity: {:?}",
-            self.element_indexer_ref().index_capacity()
-        );
+        let vertex_vector: &mut SparseVector<T> = self
+            .vertex_vector_mut_ref_by_index_unchecked(&type_index)
+            .sparse_vector_mut_ref();
 
         match vertex_index.new_index_capacity() {
             Some(new_capacity) => {
-                self.vertex_matrix_mut_ref()
-                    .set_vertex_capacity(new_capacity)?;
-                self.vertex_matrix_mut_ref().set_vertex_value(
-                    &type_index,
-                    vertex_index.index_ref(),
-                    *vertex.value_ref(),
-                )?;
+                self.resize_vertex_vectors(new_capacity)?;
             }
             None => {
-                match ReadVertexValueInVertexMatrix::<T>::get_vertex_value(
-                    self.vertex_matrix_ref(),
-                    &type_index,
-                    vertex_index.index_ref(),
-                )? {
+                match vertex_vector.get_element_value(vertex_index.index_ref())? {
                     Some(_) => {
                         // The index alrady exists, no need to roll-back index assignment.
                         return Err(
-                                    LogicError::new(
-                                        LogicErrorType::VertexAlreadyExists,
-                                        format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
-                                        vertex.type_key_ref(),
-                                        vertex.key_ref(),
-                                        std::any::type_name::<T>()),
-                                        None).into()
-                                );
+                                LogicError::new(
+                                    LogicErrorType::VertexAlreadyExists,
+                                    format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
+                                    vertex.type_key_ref(),
+                                    vertex.key_ref(),
+                                    std::any::type_name::<T>()),
+                                    None).into()
+                            );
                     }
-                    None => {
-                        self.vertex_matrix_mut_ref().set_vertex_value(
-                            &type_index,
-                            vertex_index.index_ref(),
-                            *vertex.value_ref(),
-                        )?;
-                    }
+                    None => {}
                 }
             }
         }
-        Ok(vertex_index)
+
+    vertex_vector.set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
+    Ok(vertex_index)
     }
 
     fn add_new_vertex_with_type_index_and_vertex_key(
@@ -165,44 +147,37 @@ where
             .element_indexer_mut_ref()
             .add_or_reuse_key(vertex.key_ref())?;
 
+        let vertex_vector: &mut SparseVector<T> = self
+            .vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
+            .sparse_vector_mut_ref();
+
         match vertex_index.new_index_capacity() {
             Some(new_capacity) => {
-                self.vertex_matrix_mut_ref()
-                    .set_vertex_capacity(new_capacity)?;
-                self.vertex_matrix_mut_ref().set_vertex_value(
-                    vertex.type_index_ref(),
-                    vertex_index.index_ref(),
-                    *vertex.value_ref(),
-                )?;
+                self.resize_vertex_vectors(new_capacity)?;
             }
             None => {
-                match ReadVertexValueInVertexMatrix::<T>::get_vertex_value(
-                    self.vertex_matrix_ref(),
-                    vertex_index.index_ref(),
-                    vertex_index.index_ref(),
-                )? {
+
+                match vertex_vector.get_element_value(vertex_index.index_ref())? {
                     Some(_) => {
                         // The index alrady exists, no need to roll-back index assignment.
                         return Err(
-                                        LogicError::new(
-                                            LogicErrorType::VertexAlreadyExists,
-                                            format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
-                                            self.vertex_type_indexer_ref().key_for_index_unchecked(vertex.type_index_ref()),
-                                            vertex.key_ref(),
-                                            std::any::type_name::<T>()),
-                                            None).into()
-                                    );
+                                LogicError::new(
+                                    LogicErrorType::VertexAlreadyExists,
+                                    format!("Vertex already exists for vertex type {}, vertex type {}, value type {}",
+                                    self.vertex_type_indexer_ref().key_for_index_unchecked(vertex.type_index_ref()),
+                                    vertex.key_ref(),
+                                    std::any::type_name::<T>()),
+                                    None).into()
+                            );
                     }
                     None => {
-                        self.vertex_matrix_mut_ref().set_vertex_value(
-                            vertex.type_index_ref(),
-                            vertex_index.index_ref(),
-                            *vertex.value_ref(),
-                        )?;
                     }
                 }
             }
         }
+
+        vertex_vector
+        .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
         Ok(vertex_index)
     }
 
@@ -210,11 +185,11 @@ where
         &mut self,
         vertex: VertexDefinedByIndex<T>,
     ) -> Result<(), GraphComputingError> {
-        match ReadVertexValueInVertexMatrix::<T>::get_vertex_value(
-            self.vertex_matrix_ref(),
-            vertex.type_index_ref(),
-            vertex.index_ref(),
-        )? {
+        let vertex_vector: &mut SparseVector<T> = self
+            .vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
+            .sparse_vector_mut_ref();
+
+        match vertex_vector.get_element_value(vertex.index_ref())? {
             Some(_) => {
                 // The index alrady exists, no need to roll-back index assignment.
                 return Err(LogicError::new(
@@ -233,11 +208,9 @@ where
             }
             None => {}
         }
-        Ok(self.vertex_matrix_mut_ref().set_vertex_value(
-            vertex.type_index_ref(),
-            vertex.index_ref(),
-            *vertex.value_ref(),
-        )?)
+
+        vertex_vector.set_element((*vertex.index_ref(), *vertex.value_ref()).into())?;
+        Ok(())
     }
 
     // fn add_or_replace_key_defined_vertex(
@@ -276,13 +249,12 @@ where
         let type_index = *self
             .vertex_type_indexer_ref()
             .try_index_for_key(vertex.type_key_ref())?;
+
         match self.element_indexer_mut_ref().add_new_key(vertex.key_ref()) {
             Ok(vertex_index) => {
-                self.vertex_matrix_mut_ref().set_vertex_value(
-                    &type_index,
-                    vertex_index.index_ref(),
-                    *vertex.value_ref(),
-                )?;
+                self.vertex_vector_mut_ref_by_index(&type_index)?
+                    .sparse_vector_mut_ref()
+                    .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
                 return Ok(Some(vertex_index));
             }
             Err(error) => match error.error_type() {
@@ -304,11 +276,9 @@ where
                                         }
                                     }
 
-                    self.vertex_matrix_mut_ref().set_vertex_value(
-                        &type_index,
-                        &vertex_index,
-                        *vertex.value_ref(),
-                    )?;
+                    self.vertex_vector_mut_ref_by_index(&type_index)?
+                        .sparse_vector_mut_ref()
+                        .set_element((vertex_index, *vertex.value_ref()).into())?;
                     Ok(None)
                 }
                 _ => return Err(error),
@@ -343,11 +313,11 @@ where
         &mut self,
         vertex: VertexDefinedByIndex<T>,
     ) -> Result<(), GraphComputingError> {
-        Ok(self.vertex_matrix_mut_ref().set_vertex_value(
-            vertex.type_index_ref(),
-            vertex.index_ref(),
-            *vertex.value_ref(),
-        )?)
+        let vertex_vector: &mut SparseVector<T> = self
+            .vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
+            .sparse_vector_mut_ref();
+        vertex_vector.set_element((*vertex.index_ref(), *vertex.value_ref()).into())?;
+        Ok(())
     }
 
     fn add_or_update_vertex_with_type_index_and_vertex_key(
@@ -356,11 +326,9 @@ where
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
         match self.element_indexer_mut_ref().add_new_key(vertex.key_ref()) {
             Ok(vertex_index) => {
-                self.vertex_matrix_mut_ref().set_vertex_value(
-                    vertex.type_index_ref(),
-                    vertex_index.index_ref(),
-                    *vertex.value_ref(),
-                )?;
+                self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
+                    .sparse_vector_mut_ref()
+                    .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
                 return Ok(Some(vertex_index));
             }
             Err(error) => match error.error_type() {
@@ -371,25 +339,24 @@ where
 
         let vertex_index;
         match self
-                    .element_indexer_ref()
-                    .index_for_key(vertex.key_ref())
-                {
-                    Some(index_ref) => {
-                        vertex_index = *index_ref;
-                    },
-                    None => {
-                        return Err(
-                            LogicError::new(
-                                LogicErrorType::Other,
-                                format!("Unable to find index for vertex key, although the key was checked for validity before"),
-                                None).into())
-                    }
-                }
-        self.vertex_matrix_mut_ref().set_vertex_value(
-            vertex.type_index_ref(),
-            &vertex_index,
-            *vertex.value_ref(),
-        )?;
+        .element_indexer_ref()
+        .index_for_key(vertex.key_ref())
+    {
+        Some(index_ref) => {
+            vertex_index = *index_ref;
+        },
+        None => {
+            return Err(
+                LogicError::new(
+                    LogicErrorType::Other,
+                    format!("Unable to find index for vertex key, although the key was checked for validity before"),
+                    None).into())
+        }
+    }
+
+        self.vertex_vector_mut_ref_by_index(vertex.type_index_ref())?
+            .sparse_vector_mut_ref()
+            .set_element((vertex_index, *vertex.value_ref()).into())?;
         Ok(None)
 
         // // TODO: do not clone self.element_indexer_ref()

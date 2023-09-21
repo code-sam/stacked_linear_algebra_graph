@@ -12,7 +12,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge_store::EdgeStore,
-        vertex_store::{VertexMatrixTrait, VertexStoreTrait},
+        vertex_store::{VertexStoreTrait, VertexVectorTrait},
     },
 };
 
@@ -79,8 +79,7 @@ impl GraphTrait for Graph {
         vertex_capacity: &ElementCount,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
-            .vertex_matrix_mut_ref()
-            .set_vertex_capacity(*vertex_capacity)?;
+            .resize_vertex_vectors(*vertex_capacity)?;
         self.edge_store_mut_ref()
             .resize_adjacency_matrices(*vertex_capacity)?;
         Ok(())

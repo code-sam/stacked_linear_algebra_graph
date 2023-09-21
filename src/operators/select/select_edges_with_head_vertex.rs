@@ -1,5 +1,5 @@
 use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
-use crate::graph::value_type::{self, SparseVertexMatrixForValueType};
+use crate::graph::value_type::{self, SparseVertexVectorForValueType};
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
@@ -28,7 +28,7 @@ use crate::{
 pub trait SelectEdgesWithHeadVertex<AdjacencyMatrix, SelectTo>
 where
     AdjacencyMatrix: ValueType,
-    SelectTo: ValueType + SparseVertexMatrixForValueType<SelectTo>,
+    SelectTo: ValueType + SparseVertexVectorForValueType<SelectTo>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<SelectTo>: VectorMask,
 {
@@ -65,7 +65,7 @@ where
 
 impl<
         AdjacencyMatrix,
-        EvaluationDomain: ValueType + SparseVertexMatrixForValueType<EvaluationDomain>,
+        EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
     > SelectEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain> for Graph
 where
     AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
@@ -188,7 +188,7 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SelectTo: ValueType,
     SparseMatrix<SelectTo>: MatrixMask,
-    Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -227,7 +227,7 @@ where
 
 impl<
         AdjacencyMatrix: ValueType,
-        Mask: ValueType + SparseVertexMatrixForValueType<Mask>,
+        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
         EvaluationDomain: ValueType,
     > SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
 where
