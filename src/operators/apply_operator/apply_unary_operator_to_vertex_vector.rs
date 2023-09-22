@@ -57,14 +57,14 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector,
-        Product,
-        EvaluationDomain,
-    > ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<VertexVector, Product, EvaluationDomain>
+    ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask, VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
+    SparseVector<Product>: VectorMask,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

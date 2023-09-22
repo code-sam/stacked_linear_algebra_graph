@@ -248,13 +248,7 @@ pub trait VertexVectorAdjacencyMatrixMultiplicationWithMask<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument,
-        RightArgument,
-        Product,
-        Mask,
-        EvaluationDomain,
-    >
+impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
     VertexVectorAdjacencyMatrixMultiplicationWithMask<
         LeftArgument,
         RightArgument,
@@ -266,7 +260,12 @@ where
     SparseVector<LeftArgument>: VectorMask,
     SparseMatrix<RightArgument>: MatrixMask,
     SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask, LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>, RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>, Product: ValueType + SparseVertexVectorForValueType<Product>, Mask: ValueType + SparseVertexVectorForValueType<Mask>, EvaluationDomain: ValueType
+    SparseVector<Mask>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

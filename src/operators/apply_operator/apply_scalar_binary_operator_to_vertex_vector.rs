@@ -90,15 +90,15 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector,
-        Product,
-        EvaluationDomain,
-    > ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<VertexVector, Product, EvaluationDomain>
+    ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
-    BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>, VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
+    BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn with_index_defined_vertex_vector_as_left_argument(
         &mut self,

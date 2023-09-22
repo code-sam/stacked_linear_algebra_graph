@@ -69,15 +69,15 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        AdjacencyMatrix,
-        Product,
-        EvaluationDomain,
-    > ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
+impl<AdjacencyMatrix, Product, EvaluationDomain>
+    ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
-    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>, AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>, Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>, EvaluationDomain: ValueType
+    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn with_index(
         &mut self,

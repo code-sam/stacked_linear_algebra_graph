@@ -53,15 +53,15 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        Argument,
-        Product,
-        EvaluationDomain,
-    > SelectFromVertexVector<Argument, Product, EvaluationDomain> for Graph
+impl<Argument, Product, EvaluationDomain>
+    SelectFromVertexVector<Argument, Product, EvaluationDomain> for Graph
 where
     SparseVector<Argument>: VectorMask,
     SparseVector<Product>: VectorMask,
-    VectorSelector: SelectFromVector<EvaluationDomain>, Argument: ValueType + SparseVertexVectorForValueType<Argument>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
+    VectorSelector: SelectFromVector<EvaluationDomain>,
+    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -209,17 +209,17 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        Argument,
-        Product,
-        EvaluationDomain,
-        Mask,
-    > SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask> for Graph
+impl<Argument, Product, EvaluationDomain, Mask>
+    SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask> for Graph
 where
     SparseVector<Argument>: VectorMask,
     SparseVector<Product>: VectorMask,
     SparseVector<Mask>: VectorMask,
-    VectorSelector: SelectFromVector<EvaluationDomain>, Argument: ValueType + SparseVertexVectorForValueType<Argument>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType, Mask: ValueType + SparseVertexVectorForValueType<Mask>
+    VectorSelector: SelectFromVector<EvaluationDomain>,
+    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
 {
     fn by_index(
         &mut self,

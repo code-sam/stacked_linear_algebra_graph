@@ -64,14 +64,14 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        AdjacencyMatrix,
-        EvaluationDomain,
-    > SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain> for Graph
+impl<AdjacencyMatrix, EvaluationDomain> SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain>
+    for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<EvaluationDomain>: VectorMask,
-    VertexVector: SparseVertexVector<EvaluationDomain>, AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>, EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>
+    VertexVector: SparseVertexVector<EvaluationDomain>,
+    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
 {
     fn by_index(
         &mut self,
@@ -232,16 +232,16 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        AdjacencyMatrix,
-        Mask,
-        EvaluationDomain,
-    > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
+impl<AdjacencyMatrix, Mask, EvaluationDomain>
+    SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<Mask>: VectorMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
-    VertexVector: SparseVertexVector<EvaluationDomain>, AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>, Mask: ValueType + SparseVertexVectorForValueType<Mask>, EvaluationDomain: ValueType
+    VertexVector: SparseVertexVector<EvaluationDomain>,
+    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

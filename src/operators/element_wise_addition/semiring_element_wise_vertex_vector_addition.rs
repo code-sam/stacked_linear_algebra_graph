@@ -62,18 +62,17 @@ pub trait SemiringElementWiseVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-    >
+impl<LeftArgument, RightArgument, Product, EvaluationDomain>
     SemiringElementWiseVertexVectorAddition<LeftArgument, RightArgument, Product, EvaluationDomain>
     for Graph
 where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask, LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>, RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
+    SparseVector<Product>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -237,13 +236,7 @@ pub trait SemiringElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument,
-        RightArgument,
-        Product,
-        Mask,
-        EvaluationDomain,
-    >
+impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
     SemiringElementWiseMaskedVertexVectorAddition<
         LeftArgument,
         RightArgument,
@@ -255,7 +248,12 @@ where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask, LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>, RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>, Product: ValueType + SparseVertexVectorForValueType<Product>, Mask: ValueType + SparseVertexVectorForValueType<Mask>, EvaluationDomain: ValueType
+    SparseVector<Mask>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

@@ -61,15 +61,15 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector,
-        Product,
-        EvaluationDomain,
-    > ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<VertexVector, Product, EvaluationDomain>
+    ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
-    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>, VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
+    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn with_index(
         &mut self,
