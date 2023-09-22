@@ -62,12 +62,7 @@ pub trait BinaryOperatorElementWiseVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-    >
+impl<LeftArgument, RightArgument, Product, EvaluationDomain>
     BinaryOperatorElementWiseVertexVectorMultiplication<
         LeftArgument,
         RightArgument,
@@ -77,7 +72,11 @@ impl<
 where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask, LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>, RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
+    SparseVector<Product>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
