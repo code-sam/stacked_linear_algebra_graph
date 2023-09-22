@@ -1,5 +1,10 @@
 // use graphblas_sparse_linear_algebra::value_type::ValueType;
 
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
+    GetMatrixElementListTyped, GetMatrixElementValueTyped, SetMatrixElementTyped,
+};
+use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
+
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 
 use crate::graph::edge::{
@@ -13,6 +18,7 @@ use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatr
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
     AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
 };
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 
 use crate::graph::graph::{Graph, GraphTrait};
 
@@ -51,140 +57,135 @@ pub trait AddEdge<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_add_edge {
-    ($value_type:ty) => {
-        impl AddEdge<$value_type> for Graph {
-            fn add_new_edge_using_keys(
-                &mut self,
-                edge: WeightedDirectedEdgeDefinedByKeys<$value_type>,
-            ) -> Result<(), GraphComputingError> {
-                let tail_index =
-                    *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
-                let head_index =
-                    *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
+impl<T> AddEdge<T> for Graph
+where
+    T: ValueType
+        + SparseWeightedAdjacencyMatrixForValueType<T>
+        + GetMatrixElementListTyped<T>
+        + GetMatrixElementValueTyped<T>
+        + AnyMonoidTyped<T>
+        + SetMatrixElementTyped<T>
+        + Default
+        + Copy,
+{
+    fn add_new_edge_using_keys(
+        &mut self,
+        edge: WeightedDirectedEdgeDefinedByKeys<T>,
+    ) -> Result<(), GraphComputingError> {
+        let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
+        let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
 
-                let adjacency_matrix = self
-                    .edge_store_mut_ref()
-                    .adjacency_matrix_mut_ref_for_key(edge.coordinate_ref().edge_type_ref())?;
+        let adjacency_matrix = self
+            .edge_store_mut_ref()
+            .adjacency_matrix_mut_ref_for_key(edge.coordinate_ref().edge_type_ref())?;
 
-                if Indexing::<$value_type>::is_edge(
-                    adjacency_matrix,
-                    &AdjacencyMatrixCoordinate::new(tail_index, head_index),
-                )? {
-                    return Err(LogicError::new(
-                        LogicErrorType::EdgeAlreadyExists,
-                        format!("An edge already existis for: {:?}", edge.coordinate_ref()),
-                        None,
-                    )
-                    .into());
-                }
-
-                adjacency_matrix.add_edge_defined_by_indices_without_edge_type_unchecked(
-                    &tail_index,
-                    &head_index,
-                    edge.weight_ref(),
-                )?;
-                Ok(())
-            }
-
-            fn add_or_replace_edge_using_keys(
-                &mut self,
-                edge: WeightedDirectedEdgeDefinedByKeys<$value_type>,
-            ) -> Result<(), GraphComputingError> {
-                let tail_index =
-                    *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
-                let head_index =
-                    *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
-
-                let adjacency_matrix = self
-                    .edge_store_mut_ref()
-                    .adjacency_matrix_mut_ref_for_key(edge.coordinate_ref().edge_type_ref())?;
-
-                adjacency_matrix.add_edge_defined_by_indices_without_edge_type_unchecked(
-                    &tail_index,
-                    &head_index,
-                    edge.weight_ref(),
-                )?;
-                Ok(())
-            }
-
-            /// If the EdgeType already exists, then the edge is added to it.
-            /// Existing edges for the EdgesType remain unaffected.
-            fn add_new_edge_and_edge_type_using_keys(
-                &mut self,
-                edge: WeightedDirectedEdgeDefinedByKeys<$value_type>,
-            ) -> Result<EdgeTypeIndex, GraphComputingError> {
-                let edge_type_index = self
-                    .edge_store_mut_ref()
-                    .add_new_edge_type(edge.coordinate_ref().edge_type_ref())?;
-
-                let tail_index =
-                    *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
-                let head_index =
-                    *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
-
-                self.edge_store_mut_ref()
-                    .adjacency_matrix_mut_ref_for_index_unchecked(&edge_type_index)
-                    .add_edge_defined_by_indices_without_edge_type_unchecked(
-                        &tail_index,
-                        &head_index,
-                        edge.weight_ref(),
-                    )?;
-                Ok(edge_type_index)
-            }
-
-            fn add_new_edge_using_indices(
-                &mut self,
-                edge: WeightedDirectedEdgeDefinedByIndices<$value_type>,
-            ) -> Result<(), GraphComputingError> {
-                self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
-                self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
-
-                let adjacency_matrix = self
-                    .edge_store_mut_ref()
-                    .try_adjacency_matrix_mut_ref_for_index(
-                        edge.coordinate_ref().edge_type_ref(),
-                    )?;
-
-                if Indexing::<$value_type>::is_edge(
-                    adjacency_matrix,
-                    &AdjacencyMatrixCoordinate::new(
-                        *edge.coordinate_ref().tail_ref(),
-                        *edge.coordinate_ref().head_ref(),
-                    ),
-                )? {
-                    return Err(LogicError::new(
-                        LogicErrorType::EdgeAlreadyExists,
-                        format!("An edge already existis for: {:?}", edge.coordinate_ref()),
-                        None,
-                    )
-                    .into());
-                }
-
-                adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
-                Ok(())
-            }
-
-            fn add_or_replace_edge_using_indices(
-                &mut self,
-                edge: WeightedDirectedEdgeDefinedByIndices<$value_type>,
-            ) -> Result<(), GraphComputingError> {
-                self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
-                self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
-
-                let adjacency_matrix = self
-                    .edge_store_mut_ref()
-                    .try_adjacency_matrix_mut_ref_for_index(
-                        edge.coordinate_ref().edge_type_ref(),
-                    )?;
-
-                adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
-                Ok(())
-            }
+        if Indexing::<T>::is_edge(
+            adjacency_matrix,
+            &AdjacencyMatrixCoordinate::new(tail_index, head_index),
+        )? {
+            return Err(LogicError::new(
+                LogicErrorType::EdgeAlreadyExists,
+                format!("An edge already existis for: {:?}", edge.coordinate_ref()),
+                None,
+            )
+            .into());
         }
-    };
+
+        adjacency_matrix.add_edge_defined_by_indices_without_edge_type_unchecked(
+            &tail_index,
+            &head_index,
+            edge.weight_ref(),
+        )?;
+        Ok(())
+    }
+
+    fn add_or_replace_edge_using_keys(
+        &mut self,
+        edge: WeightedDirectedEdgeDefinedByKeys<T>,
+    ) -> Result<(), GraphComputingError> {
+        let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
+        let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
+
+        let adjacency_matrix = self
+            .edge_store_mut_ref()
+            .adjacency_matrix_mut_ref_for_key(edge.coordinate_ref().edge_type_ref())?;
+
+        adjacency_matrix.add_edge_defined_by_indices_without_edge_type_unchecked(
+            &tail_index,
+            &head_index,
+            edge.weight_ref(),
+        )?;
+        Ok(())
+    }
+
+    /// If the EdgeType already exists, then the edge is added to it.
+    /// Existing edges for the EdgesType remain unaffected.
+    fn add_new_edge_and_edge_type_using_keys(
+        &mut self,
+        edge: WeightedDirectedEdgeDefinedByKeys<T>,
+    ) -> Result<EdgeTypeIndex, GraphComputingError> {
+        let edge_type_index = self
+            .edge_store_mut_ref()
+            .add_new_edge_type(edge.coordinate_ref().edge_type_ref())?;
+
+        let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
+        let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
+
+        self.edge_store_mut_ref()
+            .adjacency_matrix_mut_ref_for_index_unchecked(&edge_type_index)
+            .add_edge_defined_by_indices_without_edge_type_unchecked(
+                &tail_index,
+                &head_index,
+                edge.weight_ref(),
+            )?;
+        Ok(edge_type_index)
+    }
+
+    fn add_new_edge_using_indices(
+        &mut self,
+        edge: WeightedDirectedEdgeDefinedByIndices<T>,
+    ) -> Result<(), GraphComputingError> {
+        self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
+        self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
+
+        let adjacency_matrix = self
+            .edge_store_mut_ref()
+            .try_adjacency_matrix_mut_ref_for_index(edge.coordinate_ref().edge_type_ref())?;
+
+        if Indexing::<T>::is_edge(
+            adjacency_matrix,
+            &AdjacencyMatrixCoordinate::new(
+                *edge.coordinate_ref().tail_ref(),
+                *edge.coordinate_ref().head_ref(),
+            ),
+        )? {
+            return Err(LogicError::new(
+                LogicErrorType::EdgeAlreadyExists,
+                format!("An edge already existis for: {:?}", edge.coordinate_ref()),
+                None,
+            )
+            .into());
+        }
+
+        adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
+        Ok(())
+    }
+
+    fn add_or_replace_edge_using_indices(
+        &mut self,
+        edge: WeightedDirectedEdgeDefinedByIndices<T>,
+    ) -> Result<(), GraphComputingError> {
+        self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
+        self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
+
+        let adjacency_matrix = self
+            .edge_store_mut_ref()
+            .try_adjacency_matrix_mut_ref_for_index(edge.coordinate_ref().edge_type_ref())?;
+
+        adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
+        Ok(())
+    }
 }
-implement_macro_for_all_native_value_types!(implement_add_edge);
 
 #[cfg(test)]
 mod tests {

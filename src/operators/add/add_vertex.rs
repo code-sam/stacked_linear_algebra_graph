@@ -1,13 +1,23 @@
+use std::fmt::Display;
+
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
+    GetVectorElementValueTyped, SetVectorElementTyped,
+};
+
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 
 use crate::graph::indexer::AssignedIndexTrait;
-use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::ValueType;
+use crate::graph::value_type::{
+    implement_macro_for_all_native_value_types, SparseVertexVectorForValueType,
+};
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
 use crate::graph::vertex_store::vertex_operations::AddVertex as AddVertexToStore;
+use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
 
 pub trait AddVertex<T: ValueType> {
     fn add_new_key_defined_vertex(
@@ -38,107 +48,113 @@ pub trait AddVertex<T: ValueType> {
     ) -> Result<Option<VertexIndex>, GraphComputingError>;
 }
 
-macro_rules! implement_add_vertex {
-    ($value_type:ty) => {
-        impl AddVertex<$value_type> for Graph {
-            fn add_new_key_defined_vertex(
-                &mut self,
-                vertex: VertexDefinedByKey<$value_type>,
-            ) -> Result<VertexIndex, GraphComputingError> {
-                let new_index = self
-                    .vertex_store_mut_ref()
-                    .add_new_key_defined_vertex(vertex)?;
-                match new_index.new_index_capacity() {
-                    Some(new_vertex_capacity) => {
-                        self.edge_store_mut_ref()
-                            .resize_adjacency_matrices(new_vertex_capacity)?;
-                    }
-                    None => (),
-                }
-                Ok(*new_index.index_ref())
+impl<T> AddVertex<T> for Graph
+where
+    T: ValueType
+        + SparseVertexVectorForValueType<T>
+        + GetVectorElementValueTyped<T>
+        + SetVectorElementTyped<T>
+        + Default
+        + Copy
+        + Display,
+    VertexVector: SparseVertexVector<T>,
+    SparseMatrix<T>: Display,
+{
+    fn add_new_key_defined_vertex(
+        &mut self,
+        vertex: VertexDefinedByKey<T>,
+    ) -> Result<VertexIndex, GraphComputingError> {
+        let new_index = self
+            .vertex_store_mut_ref()
+            .add_new_key_defined_vertex(vertex)?;
+        match new_index.new_index_capacity() {
+            Some(new_vertex_capacity) => {
+                self.edge_store_mut_ref()
+                    .resize_adjacency_matrices(new_vertex_capacity)?;
             }
-
-            fn add_new_vertex_defined_by_type_index_and_vertex_key(
-                &mut self,
-                vertex: VertexDefinedByTypeIndexAndVertexKey<$value_type>,
-            ) -> Result<VertexIndex, GraphComputingError> {
-                let new_index = self
-                    .vertex_store_mut_ref()
-                    .add_new_vertex_with_type_index_and_vertex_key(vertex)?;
-                match new_index.new_index_capacity() {
-                    Some(new_vertex_capacity) => {
-                        self.edge_store_mut_ref()
-                            .resize_adjacency_matrices(new_vertex_capacity)?;
-                    }
-                    None => (),
-                }
-                Ok(*new_index.index_ref())
-            }
-
-            // fn add_or_replace_vertex(
-            //     &mut self,
-            //     vertex: VertexDefinedByKey<$value_type>,
-            // ) -> Result<VertexIndex, GraphComputingError> {
-            //     let new_index = self
-            //         .vertex_store_mut_ref()
-            //         .add_or_replace_key_defined_vertex(vertex)?;
-            //     match new_index.new_index_capacity() {
-            //         Some(new_capacity) => {
-            //             self.update_vertex_capacity(&new_capacity)?;
-            //         }
-            //         None => (),
-            //     }
-            //     Ok(*new_index.index_ref())
-            // }
-
-            fn add_or_update_key_defined_vertex(
-                &mut self,
-                vertex: VertexDefinedByKey<$value_type>,
-            ) -> Result<Option<VertexIndex>, GraphComputingError> {
-                match self
-                    .vertex_store_mut_ref()
-                    .add_or_update_key_defined_vertex(vertex)?
-                {
-                    Some(new_index) => {
-                        match new_index.new_index_capacity() {
-                            Some(new_vertex_capacity) => {
-                                self.edge_store_mut_ref()
-                                    .resize_adjacency_matrices(new_vertex_capacity)?;
-                            }
-                            None => (),
-                        }
-                        Ok(Some(*new_index.index_ref()))
-                    }
-                    None => Ok(None),
-                }
-            }
-
-            fn add_or_update_vertex_defined_by_type_index_and_vertex_key(
-                &mut self,
-
-                vertex: VertexDefinedByTypeIndexAndVertexKey<$value_type>,
-            ) -> Result<Option<VertexIndex>, GraphComputingError> {
-                match self
-                    .vertex_store_mut_ref()
-                    .add_or_update_vertex_with_type_index_and_vertex_key(vertex)?
-                {
-                    Some(new_index) => {
-                        match new_index.new_index_capacity() {
-                            Some(new_vertex_capacity) => {
-                                self.edge_store_mut_ref()
-                                    .resize_adjacency_matrices(new_vertex_capacity)?;
-                            }
-                            None => (),
-                        }
-                        Ok(Some(*new_index.index_ref()))
-                    }
-                    None => Ok(None),
-                }
-            }
+            None => (),
         }
-    };
+        Ok(*new_index.index_ref())
+    }
+
+    fn add_new_vertex_defined_by_type_index_and_vertex_key(
+        &mut self,
+        vertex: VertexDefinedByTypeIndexAndVertexKey<T>,
+    ) -> Result<VertexIndex, GraphComputingError> {
+        let new_index = self
+            .vertex_store_mut_ref()
+            .add_new_vertex_with_type_index_and_vertex_key(vertex)?;
+        match new_index.new_index_capacity() {
+            Some(new_vertex_capacity) => {
+                self.edge_store_mut_ref()
+                    .resize_adjacency_matrices(new_vertex_capacity)?;
+            }
+            None => (),
+        }
+        Ok(*new_index.index_ref())
+    }
+
+    // fn add_or_replace_vertex(
+    //     &mut self,
+    //     vertex: VertexDefinedByKey<$value_type>,
+    // ) -> Result<VertexIndex, GraphComputingError> {
+    //     let new_index = self
+    //         .vertex_store_mut_ref()
+    //         .add_or_replace_key_defined_vertex(vertex)?;
+    //     match new_index.new_index_capacity() {
+    //         Some(new_capacity) => {
+    //             self.update_vertex_capacity(&new_capacity)?;
+    //         }
+    //         None => (),
+    //     }
+    //     Ok(*new_index.index_ref())
+    // }
+
+    fn add_or_update_key_defined_vertex(
+        &mut self,
+        vertex: VertexDefinedByKey<T>,
+    ) -> Result<Option<VertexIndex>, GraphComputingError> {
+        match self
+            .vertex_store_mut_ref()
+            .add_or_update_key_defined_vertex(vertex)?
+        {
+            Some(new_index) => {
+                match new_index.new_index_capacity() {
+                    Some(new_vertex_capacity) => {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(new_vertex_capacity)?;
+                    }
+                    None => (),
+                }
+                Ok(Some(*new_index.index_ref()))
+            }
+            None => Ok(None),
+        }
+    }
+
+    fn add_or_update_vertex_defined_by_type_index_and_vertex_key(
+        &mut self,
+
+        vertex: VertexDefinedByTypeIndexAndVertexKey<T>,
+    ) -> Result<Option<VertexIndex>, GraphComputingError> {
+        match self
+            .vertex_store_mut_ref()
+            .add_or_update_vertex_with_type_index_and_vertex_key(vertex)?
+        {
+            Some(new_index) => {
+                match new_index.new_index_capacity() {
+                    Some(new_vertex_capacity) => {
+                        self.edge_store_mut_ref()
+                            .resize_adjacency_matrices(new_vertex_capacity)?;
+                    }
+                    None => (),
+                }
+                Ok(Some(*new_index.index_ref()))
+            }
+            None => Ok(None),
+        }
+    }
 }
-implement_macro_for_all_native_value_types!(implement_add_vertex);
 
 #[cfg(test)]
 mod tests {

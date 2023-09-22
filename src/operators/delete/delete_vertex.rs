@@ -4,13 +4,13 @@ use crate::{
         edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnectionsForAllTypes,
         graph::{GraphTrait, VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
-        value_type::implement_macro_for_all_native_value_types,
+        value_type::{implement_macro_for_all_native_value_types, SparseVertexVectorForValueType},
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
             vertex_operations::{
                 DeleteVertexElement as DeleteVertexElementFromVertexStore, DeleteVertexForAllTypes,
             },
-            VertexStoreTrait,
+            SparseVertexVector, VertexStoreTrait, VertexVector,
         },
     },
 };
@@ -77,36 +77,35 @@ impl DeleteVertex for Graph {
     }
 }
 
-macro_rules! implement_delete_vertex_element {
-    ($value_type: ty) => {
-        impl DeleteVertexElement<$value_type> for Graph {
-            fn delete_vertex_element_by_key(
-                &mut self,
-                vertex_type_key: &VertexTypeKeyRef,
-                vertex_element_key: &VertexKeyRef,
-            ) -> Result<(), GraphComputingError> {
-                DeleteVertexElementFromVertexStore::<$value_type>::delete_vertex_element_by_key(
-                    self.vertex_store_mut_ref(),
-                    vertex_type_key,
-                    vertex_element_key,
-                )
-            }
+impl<T> DeleteVertexElement<T> for Graph
+where
+    T: ValueType + SparseVertexVectorForValueType<T>,
+    VertexVector: SparseVertexVector<T>,
+{
+    fn delete_vertex_element_by_key(
+        &mut self,
+        vertex_type_key: &VertexTypeKeyRef,
+        vertex_element_key: &VertexKeyRef,
+    ) -> Result<(), GraphComputingError> {
+        DeleteVertexElementFromVertexStore::<T>::delete_vertex_element_by_key(
+            self.vertex_store_mut_ref(),
+            vertex_type_key,
+            vertex_element_key,
+        )
+    }
 
-            fn delete_vertex_element_by_index(
-                &mut self,
-                vertex_type_index: &VertexTypeIndex,
-                vertex_element_index: &VertexIndex,
-            ) -> Result<(), GraphComputingError> {
-                DeleteVertexElementFromVertexStore::<$value_type>::delete_vertex_element_by_index(
-                    self.vertex_store_mut_ref(),
-                    vertex_type_index,
-                    vertex_element_index,
-                )
-            }
-        }
-    };
+    fn delete_vertex_element_by_index(
+        &mut self,
+        vertex_type_index: &VertexTypeIndex,
+        vertex_element_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        DeleteVertexElementFromVertexStore::<T>::delete_vertex_element_by_index(
+            self.vertex_store_mut_ref(),
+            vertex_type_index,
+            vertex_element_index,
+        )
+    }
 }
-implement_macro_for_all_native_value_types!(implement_delete_vertex_element);
 
 #[cfg(test)]
 mod tests {
