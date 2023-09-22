@@ -4,7 +4,7 @@ use crate::{
         edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnectionsForAllTypes,
         graph::{GraphTrait, VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
-        value_type::{implement_macro_for_all_native_value_types, SparseVertexVectorForValueType},
+        value_type::{SparseVertexVectorForValueType},
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
             vertex_operations::{

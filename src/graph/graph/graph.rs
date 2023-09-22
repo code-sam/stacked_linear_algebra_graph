@@ -12,7 +12,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge_store::EdgeStore,
-        vertex_store::{VertexStoreTrait, VertexVectorTrait},
+        vertex_store::{VertexStoreTrait},
     },
 };
 

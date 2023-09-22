@@ -1,13 +1,13 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
+
 
 use crate::{
     error::GraphComputingError,
     graph::{
         graph::VertexTypeIndex,
-        indexer::{AssignedIndexTrait, IndexerTrait},
+        indexer::{IndexerTrait},
         vertex::vertex::VertexTypeKeyRef,
         vertex_store::{
-            vertex_store::VertexStoreTrait, VertexStore, VertexVector, VertexVectorTrait,
+            vertex_store::VertexStoreTrait, VertexStore,
         },
     },
 };

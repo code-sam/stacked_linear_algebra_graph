@@ -3,11 +3,11 @@ use std::sync::Arc;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::Size;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
+
+
+
+
+
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
@@ -17,27 +17,27 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElement;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
-use graphblas_sparse_linear_algebra::index::ElementIndexSelector;
-use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
-use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixRow;
+
+
+
 use graphblas_sparse_linear_algebra::operators::extract::MatrixRowExtractor;
-use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
+
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use once_cell::sync::Lazy;
 
 use crate::error::LogicError;
 use crate::error::LogicErrorType;
 use crate::graph::graph::VertexIndex;
-use crate::graph::graph::VertexTypeIndex;
-use crate::graph::value_type::implement_macro_for_all_native_value_types;
+
+
 use crate::graph::value_type::SparseVertexVectorForValueType;
 // use crate::graph::value_type::ValueTypeIndex;
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
-use crate::graph::vertex::vertex::VertexTypeKey;
-use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::vertex_store::VertexStoreTrait;
+
+
+
 use crate::{error::GraphComputingError, graph::index::ElementCount};
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =

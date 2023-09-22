@@ -12,7 +12,7 @@ use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 use crate::graph::indexer::AssignedIndexTrait;
 use crate::graph::value_type::ValueType;
 use crate::graph::value_type::{
-    implement_macro_for_all_native_value_types, SparseVertexVectorForValueType,
+    SparseVertexVectorForValueType,
 };
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;

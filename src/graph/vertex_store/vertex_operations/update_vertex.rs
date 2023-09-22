@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
+
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElement;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
@@ -8,7 +8,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::indexer::IndexerTrait;
 
-use crate::graph::value_type::implement_macro_for_all_native_value_types;
+
 use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::GetVertexValue;
@@ -23,8 +23,8 @@ use crate::graph::vertex_store::VertexVector;
 // use crate::graph::vertex_store::type_operations::get_vertex_matrix::GetVertexMatrix;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 use crate::graph::vertex_store::vertex_vector::SparseVertexVector;
-use crate::graph::vertex_store::IsElementInVertexVector;
-use crate::graph::vertex_store::SetVertexVectorValue;
+
+
 
 pub(crate) trait UpdateVertex<T: ValueType> {
     fn update_key_defined_vertex(

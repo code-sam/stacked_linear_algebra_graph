@@ -1,6 +1,6 @@
 use crate::graph::{
     graph::VertexTypeIndex,
-    value_type::{implement_macro_for_all_native_value_types, ValueType},
+    value_type::{ValueType},
 };
 
 use super::vertex::{VertexKey, VertexKeyRef, VertexTypeKeyRef};

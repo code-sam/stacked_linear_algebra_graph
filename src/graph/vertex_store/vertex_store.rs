@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
+
+
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
@@ -10,7 +10,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::index::ElementCount;
 
-use crate::graph::indexer::{Indexer, IndexerTrait, MINIMUM_INDEXER_CAPACITY};
+use crate::graph::indexer::{Indexer, IndexerTrait};
 
 use super::{VertexVector, VertexVectorTrait};
 

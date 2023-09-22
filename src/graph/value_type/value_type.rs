@@ -1,20 +1,17 @@
 use std::fmt::Debug;
 
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::GraphblasSparseMatrixTrait;
+
+
 use graphblas_sparse_linear_algebra::collections::sparse_vector::GraphblasSparseVectorTrait;
 use graphblas_sparse_linear_algebra::value_type::ValueType as GraphblasValueType;
 use graphblas_sparse_linear_algebra::{
-    collections::{sparse_matrix::SparseMatrix, sparse_vector::SparseVector},
-    operators::mask::VectorMask,
+    collections::{sparse_vector::SparseVector},
 };
 
-use crate::graph::edge_store::weighted_adjacency_matrix::{
-    SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
-};
+
 use crate::graph::vertex_store::SparseVertexVector;
 use crate::graph::{
-    edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, vertex_store::VertexVector,
+    vertex_store::VertexVector,
 };
 
 use super::implement_macro_for_all_native_value_types;
@@ -112,7 +109,7 @@ pub enum ValueTypeIndex {
 }
 
 impl ValueTypeIndex {
-    fn from_index(index: u8) -> Self {
+    fn from_index(_index: u8) -> Self {
         // https://stackoverflow.com/questions/28028854/how-do-i-match-enum-values-with-an-integer
         todo!()
     }

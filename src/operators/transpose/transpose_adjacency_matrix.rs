@@ -18,7 +18,7 @@ use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
-    graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
+    graph::{edge::EdgeTypeIndex, value_type::ValueType},
 };
 
 pub trait TransposeAdjacencyMatrix<Argument, Product, EvaluationDomain>

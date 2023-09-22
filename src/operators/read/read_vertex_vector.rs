@@ -9,7 +9,7 @@ use crate::{
     graph::{
         graph::{Graph, GraphTrait, VertexTypeIndex},
         value_type::{
-            implement_macro_for_all_native_value_types, SparseVertexVectorForValueType, ValueType,
+            SparseVertexVectorForValueType, ValueType,
         },
         vertex::vertex::VertexTypeKeyRef,
         vertex_store::type_operations::get_vertex_vector::GetVertexVector,

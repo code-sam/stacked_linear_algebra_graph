@@ -1,5 +1,5 @@
 use crate::graph::graph::{VertexIndex, VertexTypeIndex};
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
+use crate::graph::value_type::{ValueType};
 use crate::graph::vertex::vertex::GetVertexValue;
 
 pub trait VertexDefinedByIndexTrait<T: ValueType> {

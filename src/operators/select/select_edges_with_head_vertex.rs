@@ -1,5 +1,5 @@
 use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
-use crate::graph::value_type::{self, SparseVertexVectorForValueType};
+use crate::graph::value_type::{SparseVertexVectorForValueType};
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;

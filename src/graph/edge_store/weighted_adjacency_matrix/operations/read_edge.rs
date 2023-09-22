@@ -10,7 +10,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     WeightedAdjacencyMatrix,
 };
 
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
+use crate::graph::value_type::{ValueType};
 
 pub(crate) trait ReadEdge<T: ValueType> {
     fn edge_weight_unchecked(

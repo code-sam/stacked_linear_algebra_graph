@@ -3,10 +3,10 @@ use std::fmt::Display;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::Coordinate;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::GraphblasSparseMatrixTrait;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
+
+
+
+
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
@@ -19,7 +19,7 @@ use crate::error::{LogicError, LogicErrorType};
 
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::indexer::{AssignedIndex, AssignedIndexTrait};
-use crate::graph::value_type::implement_1_type_macro_with_typed_indentifier_for_all_value_types;
+
 use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::value_type::ValueType;
 
@@ -32,11 +32,11 @@ use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::Ve
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKeyTrait;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
-use crate::graph::vertex_store::ReadVertexValueInVertexVector;
-use crate::graph::vertex_store::SetVertexVectorValue;
+
+
 use crate::graph::vertex_store::SparseVertexVector;
 use crate::graph::vertex_store::VertexVector;
-use crate::graph::vertex_store::VertexVectorTrait;
+
 
 pub(crate) trait AddVertex<T>
 where

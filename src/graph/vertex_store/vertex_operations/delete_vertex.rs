@@ -6,12 +6,12 @@ use crate::{
         graph::{VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
         value_type::{
-            implement_macro_for_all_native_value_types, SparseVertexVectorForValueType, ValueType,
+            SparseVertexVectorForValueType, ValueType,
         },
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
-            DeleteVertexValueInVertexVector, DeleteVertexValueInVertexVectorTyped,
-            SparseVertexVector, VertexStore, VertexStoreTrait, VertexVector, VertexVectorTrait,
+            DeleteVertexValueInVertexVector,
+            SparseVertexVector, VertexStore, VertexStoreTrait, VertexVector,
         },
     },
 };

@@ -7,7 +7,6 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::{Graph, GraphTrait},
-        value_type::implement_macro_for_all_native_value_types,
         vertex_store::vertex_operations::UpdateVertex,
     },
 };

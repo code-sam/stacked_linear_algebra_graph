@@ -1,10 +1,10 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
+
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
 
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex};
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
+use crate::graph::value_type::{ValueType};
 use crate::graph::vertex::vertex::{VertexKeyRef, VertexTypeKeyRef};
 use crate::graph::vertex_store::vertex_operations::ReadVertex;
 use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
