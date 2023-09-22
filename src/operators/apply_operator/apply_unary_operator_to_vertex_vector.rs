@@ -23,8 +23,8 @@ use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
 pub trait ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -58,13 +58,13 @@ where
 }
 
 impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
+        VertexVector,
+        Product,
+        EvaluationDomain,
     > ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
+    SparseVector<Product>: VectorMask, VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
 {
     fn by_index(
         &mut self,

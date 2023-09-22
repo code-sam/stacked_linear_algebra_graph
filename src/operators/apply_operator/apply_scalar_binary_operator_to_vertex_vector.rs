@@ -23,8 +23,8 @@ use crate::{
 
 pub trait ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -91,14 +91,14 @@ where
 }
 
 impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
+        VertexVector,
+        Product,
+        EvaluationDomain,
     > ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
-    BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
+    BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>, VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
 {
     fn with_index_defined_vertex_vector_as_left_argument(
         &mut self,

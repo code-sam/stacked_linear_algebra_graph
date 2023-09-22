@@ -23,9 +23,9 @@ pub trait SemiringElementWiseVertexVectorAddition<
     Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
@@ -63,17 +63,17 @@ pub trait SemiringElementWiseVertexVectorAddition<
 }
 
 impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
+        LeftArgument,
+        RightArgument,
+        Product,
+        EvaluationDomain,
     >
     SemiringElementWiseVertexVectorAddition<LeftArgument, RightArgument, Product, EvaluationDomain>
     for Graph
 where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
+    SparseVector<Product>: VectorMask, LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>, RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
 {
     fn by_index(
         &mut self,
@@ -193,14 +193,14 @@ pub trait SemiringElementWiseMaskedVertexVectorAddition<
     EvaluationDomain,
     Mask,
 > where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Product: ValueType,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -238,11 +238,11 @@ pub trait SemiringElementWiseMaskedVertexVectorAddition<
 }
 
 impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
+        LeftArgument,
+        RightArgument,
+        Product,
+        Mask,
+        EvaluationDomain,
     >
     SemiringElementWiseMaskedVertexVectorAddition<
         LeftArgument,
@@ -255,7 +255,7 @@ where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
+    SparseVector<Mask>: VectorMask, LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>, RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>, Product: ValueType + SparseVertexVectorForValueType<Product>, Mask: ValueType + SparseVertexVectorForValueType<Mask>, EvaluationDomain: ValueType
 {
     fn by_index(
         &mut self,

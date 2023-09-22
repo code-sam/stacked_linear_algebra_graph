@@ -29,7 +29,7 @@ use crate::{
 pub trait SelectEdgesWithTailVertex<AdjacencyMatrix, ExtractTo>
 where
     AdjacencyMatrix: ValueType,
-    ExtractTo: ValueType + SparseVertexVectorForValueType<ExtractTo>,
+    ExtractTo: ValueType,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<ExtractTo>: VectorMask,
 {
@@ -65,13 +65,13 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
+        AdjacencyMatrix,
+        EvaluationDomain,
     > SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<EvaluationDomain>: VectorMask,
-    VertexVector: SparseVertexVector<EvaluationDomain>,
+    VertexVector: SparseVertexVector<EvaluationDomain>, AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>, EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>
 {
     fn by_index(
         &mut self,
@@ -195,7 +195,7 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     ExtractTo: ValueType,
     SparseMatrix<ExtractTo>: MatrixMask,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -233,15 +233,15 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
+        AdjacencyMatrix,
+        Mask,
+        EvaluationDomain,
     > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<Mask>: VectorMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
-    VertexVector: SparseVertexVector<EvaluationDomain>,
+    VertexVector: SparseVertexVector<EvaluationDomain>, AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>, Mask: ValueType + SparseVertexVectorForValueType<Mask>, EvaluationDomain: ValueType
 {
     fn by_index(
         &mut self,

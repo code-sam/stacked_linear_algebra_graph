@@ -37,8 +37,6 @@ where
     AdjacencyMatrix: ValueType,
     Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn with_index(
         &mut self,
@@ -72,14 +70,14 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
+        AdjacencyMatrix,
+        Product,
+        EvaluationDomain,
     > ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
-    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>, AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>, Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>, EvaluationDomain: ValueType
 {
     fn with_index(
         &mut self,

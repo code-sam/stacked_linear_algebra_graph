@@ -26,11 +26,9 @@ use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
 pub trait ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn with_index(
         &mut self,
@@ -64,14 +62,14 @@ where
 }
 
 impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
+        VertexVector,
+        Product,
+        EvaluationDomain,
     > ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
-    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>, VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
 {
     fn with_index(
         &mut self,

@@ -29,7 +29,7 @@ use crate::{
 pub trait SelectEdgesWithHeadVertex<AdjacencyMatrix, SelectTo>
 where
     AdjacencyMatrix: ValueType,
-    SelectTo: ValueType + SparseVertexVectorForValueType<SelectTo>,
+    SelectTo: ValueType,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<SelectTo>: VectorMask,
 {
@@ -66,12 +66,12 @@ where
 
 impl<
         AdjacencyMatrix,
-        EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
+        EvaluationDomain,
     > SelectEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain> for Graph
 where
     AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseVector<EvaluationDomain>: VectorMask,
+    SparseVector<EvaluationDomain>: VectorMask, EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>
 {
     fn by_index(
         &mut self,
@@ -189,7 +189,7 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SelectTo: ValueType,
     SparseMatrix<SelectTo>: MatrixMask,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -227,14 +227,14 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
+        AdjacencyMatrix,
+        Mask,
+        EvaluationDomain,
     > SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
-    SparseVector<Mask>: VectorMask,
+    SparseVector<Mask>: VectorMask, AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>, Mask: ValueType + SparseVertexVectorForValueType<Mask>, EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>
 {
     fn by_index(
         &mut self,
