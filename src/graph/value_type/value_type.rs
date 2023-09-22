@@ -1,18 +1,11 @@
 use std::fmt::Debug;
 
-
-
 use graphblas_sparse_linear_algebra::collections::sparse_vector::GraphblasSparseVectorTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::value_type::ValueType as GraphblasValueType;
-use graphblas_sparse_linear_algebra::{
-    collections::{sparse_vector::SparseVector},
-};
-
 
 use crate::graph::vertex_store::SparseVertexVector;
-use crate::graph::{
-    vertex_store::VertexVector,
-};
+use crate::graph::vertex_store::VertexVector;
 
 use super::implement_macro_for_all_native_value_types;
 

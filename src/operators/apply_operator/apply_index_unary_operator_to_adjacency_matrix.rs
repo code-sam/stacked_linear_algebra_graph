@@ -11,16 +11,14 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 
-use crate::graph::{
-    edge::EdgeTypeKeyRef, edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
+use crate::graph::edge_store::{
+    weighted_adjacency_matrix::{
+        SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
+    },
+    EdgeStoreTrait,
 };
 use crate::graph::{
-    edge_store::{
-        weighted_adjacency_matrix::{
-            SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
-        },
-        EdgeStoreTrait,
-    },
+    edge::EdgeTypeKeyRef, edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
 };
 use crate::{
     error::GraphComputingError,

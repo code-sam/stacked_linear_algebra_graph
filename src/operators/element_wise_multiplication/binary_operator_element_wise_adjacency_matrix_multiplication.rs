@@ -63,7 +63,7 @@ pub trait BinaryOperatorElementWiseAdjacencyMatrixMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
+impl<LeftArgument, RightArgument, Product, EvaluationDomain>
     BinaryOperatorElementWiseAdjacencyMatrixMultiplication<
         LeftArgument,
         RightArgument,
@@ -77,6 +77,7 @@ where
     SparseMatrix<LeftArgument>: MatrixMask,
     SparseMatrix<RightArgument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

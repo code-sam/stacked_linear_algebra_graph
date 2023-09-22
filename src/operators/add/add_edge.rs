@@ -22,7 +22,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacency
 
 use crate::graph::graph::{Graph, GraphTrait};
 
-use crate::graph::value_type::{ValueType};
+use crate::graph::value_type::ValueType;
 
 use crate::operators::indexing::Indexing as GraphIndexing;
 

@@ -13,7 +13,7 @@ use crate::{
             weighted_adjacency_matrix::SparseWeightedAdjacencyMatrix,
         },
         graph::{EdgeTypeIndex, Graph, GraphTrait},
-        value_type::{ValueType},
+        value_type::ValueType,
     },
 };
 

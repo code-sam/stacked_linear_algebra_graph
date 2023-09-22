@@ -13,9 +13,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
 use crate::graph::value_type::ValueType;
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, graph::VertexIndex,
-    },
+    graph::{edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, graph::VertexIndex},
 };
 use crate::{
     error::{LogicError, LogicErrorType},

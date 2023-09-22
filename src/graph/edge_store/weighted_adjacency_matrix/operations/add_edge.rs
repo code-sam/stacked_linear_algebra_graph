@@ -2,7 +2,6 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Set
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
 
-
 use crate::error::GraphComputingError;
 use crate::graph::edge::DirectedEdgeCoordinateDefinedByIndicesTrait;
 use crate::graph::edge::WeightedDirectedEdgeDefinedByIndices;
@@ -11,7 +10,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacency
 use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::index::ElementIndex;
-use crate::graph::value_type::{ValueType};
+use crate::graph::value_type::ValueType;
 
 pub(crate) trait AddEdge<T: ValueType> {
     fn add_edge_defined_by_indices_unchecked(

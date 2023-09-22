@@ -1,7 +1,4 @@
-use crate::graph::{
-    graph::VertexIndex,
-    value_type::{ValueType},
-};
+use crate::graph::{graph::VertexIndex, value_type::ValueType};
 
 use super::vertex::{VertexTypeKey, VertexTypeKeyRef};
 use crate::graph::vertex::vertex::GetVertexValue;

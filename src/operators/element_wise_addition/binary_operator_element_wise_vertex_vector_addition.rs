@@ -240,13 +240,7 @@ pub trait BinaryOperatorElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    >
+impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
     BinaryOperatorElementWiseMaskedVertexVectorAddition<
         LeftArgument,
         RightArgument,
@@ -259,6 +253,11 @@ where
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
     SparseVector<Mask>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

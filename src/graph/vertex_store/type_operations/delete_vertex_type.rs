@@ -1,14 +1,10 @@
-
-
 use crate::{
     error::GraphComputingError,
     graph::{
         graph::VertexTypeIndex,
-        indexer::{IndexerTrait},
+        indexer::IndexerTrait,
         vertex::vertex::VertexTypeKeyRef,
-        vertex_store::{
-            vertex_store::VertexStoreTrait, VertexStore,
-        },
+        vertex_store::{vertex_store::VertexStoreTrait, VertexStore},
     },
 };
 

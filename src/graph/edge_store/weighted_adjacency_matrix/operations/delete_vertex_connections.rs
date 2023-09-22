@@ -1,4 +1,3 @@
-
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector;
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
@@ -17,7 +16,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait,
 };
 use crate::graph::graph::VertexIndex;
-use crate::graph::value_type::{ValueType};
+use crate::graph::value_type::ValueType;
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());

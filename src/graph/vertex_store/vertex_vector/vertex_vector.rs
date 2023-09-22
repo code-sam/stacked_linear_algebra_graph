@@ -4,10 +4,6 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Get
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
 
-
-
-
-
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
@@ -18,8 +14,6 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTra
 use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElement;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
-
-
 use graphblas_sparse_linear_algebra::operators::extract::MatrixRowExtractor;
 
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
@@ -29,14 +23,11 @@ use crate::error::LogicError;
 use crate::error::LogicErrorType;
 use crate::graph::graph::VertexIndex;
 
-
 use crate::graph::value_type::SparseVertexVectorForValueType;
 // use crate::graph::value_type::ValueTypeIndex;
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
-
-
 
 use crate::{error::GraphComputingError, graph::index::ElementCount};
 

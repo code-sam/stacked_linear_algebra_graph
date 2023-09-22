@@ -7,7 +7,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     WeightedAdjacencyMatrix,
 };
 
-use crate::graph::value_type::{ValueType};
+use crate::graph::value_type::ValueType;
 
 pub(crate) trait DeleteEdge<T: ValueType> {
     fn delete_edge_unchecked(

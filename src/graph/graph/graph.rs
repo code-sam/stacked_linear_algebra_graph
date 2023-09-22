@@ -10,10 +10,7 @@ use crate::graph::index::ElementCount;
 use crate::graph::{indexer::Index, vertex_store::VertexStore};
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge_store::EdgeStore,
-        vertex_store::{VertexStoreTrait},
-    },
+    graph::{edge_store::EdgeStore, vertex_store::VertexStoreTrait},
 };
 
 use super::GraphblasOperatorApplierCollection;

@@ -23,9 +23,9 @@ pub trait BinaryOperatorElementWiseVertexVectorMultiplication<
     Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
@@ -63,10 +63,10 @@ pub trait BinaryOperatorElementWiseVertexVectorMultiplication<
 }
 
 impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
+        LeftArgument,
+        RightArgument,
+        Product,
+        EvaluationDomain,
     >
     BinaryOperatorElementWiseVertexVectorMultiplication<
         LeftArgument,
@@ -77,7 +77,7 @@ impl<
 where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
+    SparseVector<Product>: VectorMask, LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>, RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>, Product: ValueType + SparseVertexVectorForValueType<Product>, EvaluationDomain: ValueType
 {
     fn by_index(
         &mut self,

@@ -10,10 +10,8 @@ use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 
 use crate::graph::indexer::AssignedIndexTrait;
+use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::value_type::ValueType;
-use crate::graph::value_type::{
-    SparseVertexVectorForValueType,
-};
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
 use crate::graph::vertex_store::vertex_operations::AddVertex as AddVertexToStore;

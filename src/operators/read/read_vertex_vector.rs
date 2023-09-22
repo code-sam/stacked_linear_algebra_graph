@@ -8,9 +8,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::{Graph, GraphTrait, VertexTypeIndex},
-        value_type::{
-            SparseVertexVectorForValueType, ValueType,
-        },
+        value_type::{SparseVertexVectorForValueType, ValueType},
         vertex::vertex::VertexTypeKeyRef,
         vertex_store::type_operations::get_vertex_vector::GetVertexVector,
     },

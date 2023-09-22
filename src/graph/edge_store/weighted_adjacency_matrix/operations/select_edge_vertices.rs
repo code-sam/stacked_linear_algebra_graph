@@ -16,7 +16,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
     WeightedAdjacencyMatrix,
 };
-use crate::graph::value_type::{ValueType};
+use crate::graph::value_type::ValueType;
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());

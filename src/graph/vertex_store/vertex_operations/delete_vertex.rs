@@ -5,13 +5,11 @@ use crate::{
     graph::{
         graph::{VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
-        value_type::{
-            SparseVertexVectorForValueType, ValueType,
-        },
+        value_type::{SparseVertexVectorForValueType, ValueType},
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
-            DeleteVertexValueInVertexVector,
-            SparseVertexVector, VertexStore, VertexStoreTrait, VertexVector,
+            DeleteVertexValueInVertexVector, SparseVertexVector, VertexStore, VertexStoreTrait,
+            VertexVector,
         },
     },
 };

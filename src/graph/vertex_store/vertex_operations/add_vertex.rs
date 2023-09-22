@@ -4,9 +4,6 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Get
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
 
-
-
-
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
@@ -33,10 +30,8 @@ use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::Ve
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
 
-
 use crate::graph::vertex_store::SparseVertexVector;
 use crate::graph::vertex_store::VertexVector;
-
 
 pub(crate) trait AddVertex<T>
 where

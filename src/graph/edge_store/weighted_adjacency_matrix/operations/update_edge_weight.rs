@@ -11,7 +11,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     WeightedAdjacencyMatrix,
 };
 
-use crate::graph::value_type::{ValueType};
+use crate::graph::value_type::ValueType;
 
 pub(crate) trait UpdateEdgeWeight<T: ValueType> {
     fn update_edge_weight_unchecked(
