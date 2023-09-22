@@ -105,15 +105,19 @@ where
             .element_indexer_mut_ref()
             .add_or_reuse_key(vertex.key_ref())?;
 
-        let vertex_vector: &mut SparseVector<T> = self
-            .vertex_vector_mut_ref_by_index_unchecked(&type_index)
-            .sparse_vector_mut_ref();
-
         match vertex_index.new_index_capacity() {
             Some(new_capacity) => {
                 self.resize_vertex_vectors(new_capacity)?;
+                let vertex_vector: &mut SparseVector<T> = self
+                    .vertex_vector_mut_ref_by_index_unchecked(&type_index)
+                    .sparse_vector_mut_ref();
+                vertex_vector
+                    .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
             }
             None => {
+                let vertex_vector: &mut SparseVector<T> = self
+                    .vertex_vector_mut_ref_by_index_unchecked(&type_index)
+                    .sparse_vector_mut_ref();
                 match vertex_vector.get_element_value(vertex_index.index_ref())? {
                     Some(_) => {
                         // The index alrady exists, no need to roll-back index assignment.
@@ -127,13 +131,15 @@ where
                                     None).into()
                             );
                     }
-                    None => {}
+                    None => {
+                        vertex_vector
+                            .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
+                    }
                 }
             }
         }
 
-    vertex_vector.set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
-    Ok(vertex_index)
+        Ok(vertex_index)
     }
 
     fn add_new_vertex_with_type_index_and_vertex_key(
@@ -147,16 +153,19 @@ where
             .element_indexer_mut_ref()
             .add_or_reuse_key(vertex.key_ref())?;
 
-        let vertex_vector: &mut SparseVector<T> = self
-            .vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
-            .sparse_vector_mut_ref();
-
         match vertex_index.new_index_capacity() {
             Some(new_capacity) => {
                 self.resize_vertex_vectors(new_capacity)?;
+                let vertex_vector: &mut SparseVector<T> = self
+                    .vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
+                    .sparse_vector_mut_ref();
+                vertex_vector
+                    .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
             }
             None => {
-
+                let vertex_vector: &mut SparseVector<T> = self
+                    .vertex_vector_mut_ref_by_index_unchecked(vertex.type_index_ref())
+                    .sparse_vector_mut_ref();
                 match vertex_vector.get_element_value(vertex_index.index_ref())? {
                     Some(_) => {
                         // The index alrady exists, no need to roll-back index assignment.
@@ -171,13 +180,13 @@ where
                             );
                     }
                     None => {
+                        vertex_vector
+                            .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
                     }
                 }
             }
         }
 
-        vertex_vector
-        .set_element((*vertex_index.index_ref(), *vertex.value_ref()).into())?;
         Ok(vertex_index)
     }
 

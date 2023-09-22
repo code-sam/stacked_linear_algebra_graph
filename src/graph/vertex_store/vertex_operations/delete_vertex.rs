@@ -10,8 +10,8 @@ use crate::{
         },
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
-            DeleteVertexValueInVertexVectorTyped, SparseVertexVector, VertexStore, VertexStoreTrait,
-            VertexVector, VertexVectorTrait, DeleteVertexValueInVertexVector,
+            DeleteVertexValueInVertexVector, DeleteVertexValueInVertexVectorTyped,
+            SparseVertexVector, VertexStore, VertexStoreTrait, VertexVector, VertexVectorTrait,
         },
     },
 };
@@ -41,7 +41,9 @@ pub(crate) trait DeleteVertexForAllTypes {
 }
 
 impl<T: ValueType + SparseVertexVectorForValueType<T>> DeleteVertexElement<T> for VertexStore
-where VertexVector: SparseVertexVector<T> {
+where
+    VertexVector: SparseVertexVector<T>,
+{
     fn delete_vertex_element_by_key(
         &mut self,
         vertex_type_key: &VertexTypeKeyRef,
@@ -103,5 +105,4 @@ impl DeleteVertexForAllTypes for VertexStore {
         self.element_indexer_mut_ref()
             .free_index_unchecked(*vertex_element_index)
     }
-
 }

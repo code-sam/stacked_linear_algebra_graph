@@ -1,5 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{GetVectorElementValue, GetVectorElementValueTyped};
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
+    GetVectorElementValue, GetVectorElementValueTyped,
+};
 
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
@@ -81,10 +83,9 @@ pub(crate) trait ReadVertex<T: ValueType> {
     ) -> Result<T, GraphComputingError>;
 }
 
-impl<
-        T: ValueType + GetVectorElementValueTyped<T> + GetMatrixElementValueTyped<T> + Default,
-    > ReadVertex<T> for VertexStore
-    where VertexVector: GetVectorElementValueTyped<T> + SparseVertexVector<T>
+impl<T: ValueType + GetVectorElementValueTyped<T> + Default> ReadVertex<T> for VertexStore
+where
+    VertexVector: SparseVertexVector<T>,
 {
     fn vertex_value_by_key(
         &self,
@@ -142,7 +143,6 @@ impl<
             .vertex_vector_ref_by_index_unchecked(vertex_type_index)
             .sparse_vector_ref()
             .get_element_value(vertex_index)?)
-
     }
 
     fn try_vertex_value_by_index_unchecked(
@@ -175,7 +175,7 @@ impl<
         self.element_indexer_ref()
             .try_index_validity(vertex_index)?;
 
-            Ok(self
+        Ok(self
             .vertex_vector_ref_by_index_unchecked(vertex_type_index)
             .sparse_vector_ref()
             .get_element_value_or_default(vertex_index)?)
@@ -198,7 +198,7 @@ impl<
         vertex_type_index: &VertexTypeIndex,
         vertex_index: &VertexIndex,
     ) -> Result<T, GraphComputingError> {
-            match self
+        match self
             .vertex_vector_ref_by_index(vertex_type_index)?
             .sparse_vector_ref()
             .get_element_value(vertex_index)? {

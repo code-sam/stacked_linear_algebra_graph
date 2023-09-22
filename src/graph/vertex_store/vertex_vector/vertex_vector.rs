@@ -293,9 +293,7 @@ pub(crate) trait DeleteVertexValueInVertexVector {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl DeleteVertexValueInVertexVector
-    for VertexVector
-{
+impl DeleteVertexValueInVertexVector for VertexVector {
     fn delete_vertex_value_for_all_value_types(
         &mut self,
         vertex_index: &VertexIndex,
@@ -317,7 +315,10 @@ impl DeleteVertexValueInVertexVector
     }
 }
 
-pub(crate) trait DeleteVertexValueInVertexVectorTyped<T: ValueType + SparseVertexVectorForValueType<T>> {
+pub(crate) trait DeleteVertexValueInVertexVectorTyped<
+    T: ValueType + SparseVertexVectorForValueType<T>,
+>
+{
     fn delete_vertex_value(
         &mut self,
         vertex_index: &VertexIndex,

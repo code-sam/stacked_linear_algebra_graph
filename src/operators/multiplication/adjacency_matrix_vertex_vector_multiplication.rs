@@ -23,6 +23,7 @@ use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::graph::graph::VertexTypeIndex;
 use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
+use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::{
     error::GraphComputingError,
     graph::{edge::EdgeTypeIndex, value_type::ValueType},
@@ -82,8 +83,8 @@ impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
     > for Graph
 where
     LeftArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
-    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
     SparseMatrix<LeftArgument>: MatrixMask,
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -251,7 +252,7 @@ pub trait AdjacencyMatrixMultiplicationMasked<
 }
 
 impl<
-        LeftArgument: ValueType,
+        LeftArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<LeftArgument>,
         RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
         Product: ValueType + SparseVertexVectorForValueType<Product>,
         Mask: ValueType + SparseVertexVectorForValueType<Mask>,

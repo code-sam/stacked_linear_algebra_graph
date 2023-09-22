@@ -1,11 +1,18 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElementList as VertexVectorElementList;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementList;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::{
+    SparseVector, VectorElementList as VertexVectorElementList,
+};
 
+use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
 use crate::{
     error::GraphComputingError,
     graph::{
         graph::{Graph, GraphTrait, VertexTypeIndex},
-        value_type::{implement_macro_for_all_native_value_types, ValueType},
+        value_type::{
+            implement_macro_for_all_native_value_types, SparseVertexVectorForValueType, ValueType,
+        },
         vertex::vertex::VertexTypeKeyRef,
+        vertex_store::type_operations::get_vertex_vector::GetVertexVector,
     },
 };
 
@@ -24,41 +31,42 @@ pub trait ReadVertexVectorElementList<T: ValueType> {
     ) -> Result<VertexVectorElementList<T>, GraphComputingError>;
 }
 
-macro_rules! implement_read_vertex_vector {
-    ($value_type: ty) => {
-        impl ReadVertexVectorElementList<$value_type> for Graph {
-            fn with_index(
-                &self,
-                type_index: &VertexTypeIndex,
-            ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(<$value_type>::sparse_vector_ref(
-                    self.vertex_store_ref()
-                        .vertex_vector_ref_by_index(type_index)?,
-                )
-                .get_element_list()?)
-            }
+impl<T> ReadVertexVectorElementList<T> for Graph
+where
+    T: ValueType + SparseVertexVectorForValueType<T>,
+    VertexVector: SparseVertexVector<T>,
+    SparseVector<T>: GetVectorElementList<T>,
+{
+    fn with_index(
+        &self,
+        type_index: &VertexTypeIndex,
+    ) -> Result<VertexVectorElementList<T>, GraphComputingError> {
+        Ok(self
+            .vertex_store_ref()
+            .vertex_vector_ref_by_index(type_index)?
+            .sparse_vector_ref()
+            .get_element_list()?)
+    }
 
-            fn with_index_unchecked(
-                &self,
-                type_index: &VertexTypeIndex,
-            ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(<$value_type>::sparse_vector_ref(
-                    self.vertex_store_ref()
-                        .vertex_vector_ref_by_index_unchecked(type_index),
-                )
-                .get_element_list()?)
-            }
+    fn with_index_unchecked(
+        &self,
+        type_index: &VertexTypeIndex,
+    ) -> Result<VertexVectorElementList<T>, GraphComputingError> {
+        Ok(self
+            .vertex_store_ref()
+            .vertex_vector_ref_by_index_unchecked(type_index)
+            .sparse_vector_ref()
+            .get_element_list()?)
+    }
 
-            fn with_key(
-                &self,
-                type_key: &VertexTypeKeyRef,
-            ) -> Result<VertexVectorElementList<$value_type>, GraphComputingError> {
-                Ok(<$value_type>::sparse_vector_ref(
-                    self.vertex_store_ref().vertex_vector_ref_by_key(type_key)?,
-                )
-                .get_element_list()?)
-            }
-        }
-    };
+    fn with_key(
+        &self,
+        type_key: &VertexTypeKeyRef,
+    ) -> Result<VertexVectorElementList<T>, GraphComputingError> {
+        Ok(self
+            .vertex_store_ref()
+            .vertex_vector_ref_by_key(type_key)?
+            .sparse_vector_ref()
+            .get_element_list()?)
+    }
 }
-implement_macro_for_all_native_value_types!(implement_read_vertex_vector);

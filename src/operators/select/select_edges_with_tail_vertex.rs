@@ -1,4 +1,6 @@
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::value_type::SparseVertexVectorForValueType;
+use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixRow;
@@ -13,12 +15,12 @@ use graphblas_sparse_linear_algebra::{
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 
-use crate::graph::graph::GraphTrait;
 use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
+use crate::graph::graph::{GraphTrait, GraphblasOperatorApplierCollectionTrait};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::vertex::vertex::VertexKeyRef;
-use crate::graph::vertex_store::SparseVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
+use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
 use crate::{
     error::GraphComputingError,
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
@@ -63,12 +65,13 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType,
+        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
         EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
     > SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<EvaluationDomain>: VectorMask,
+    VertexVector: SparseVertexVector<EvaluationDomain>,
 {
     fn by_index(
         &mut self,
@@ -230,7 +233,7 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType,
+        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
         Mask: ValueType + SparseVertexVectorForValueType<Mask>,
         EvaluationDomain: ValueType,
     > SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
@@ -238,6 +241,7 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<Mask>: VectorMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
+    VertexVector: SparseVertexVector<EvaluationDomain>,
 {
     fn by_index(
         &mut self,

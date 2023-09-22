@@ -9,8 +9,10 @@ use graphblas_sparse_linear_algebra::{
 };
 
 use crate::graph::{
-    edge::EdgeTypeKeyRef, value_type::SparseVertexVectorForValueType,
-    vertex_store::VertexStoreTrait,
+    edge::EdgeTypeKeyRef,
+    graph::GraphblasOperatorApplierCollectionTrait,
+    value_type::SparseVertexVectorForValueType,
+    vertex_store::{type_operations::get_vertex_vector::GetVertexVector, VertexStoreTrait},
 };
 use crate::{
     error::GraphComputingError,

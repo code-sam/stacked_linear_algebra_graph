@@ -1,5 +1,6 @@
 use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::value_type::{self, SparseVertexVectorForValueType};
+use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
@@ -15,8 +16,8 @@ use graphblas_sparse_linear_algebra::{
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 
-use crate::graph::graph::GraphTrait;
 use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
+use crate::graph::graph::{GraphTrait, GraphblasOperatorApplierCollectionTrait};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::vertex::vertex::VertexKeyRef;
 use crate::graph::vertex_store::VertexStoreTrait;
@@ -226,9 +227,9 @@ where
 }
 
 impl<
-        AdjacencyMatrix: ValueType,
+        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
         Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
+        EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
     > SelectMaskedEdgesWithHeadVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
