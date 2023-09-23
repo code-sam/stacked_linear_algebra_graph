@@ -9,15 +9,13 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
+use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::graph::graph::{Graph, VertexTypeIndex};
+use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
-use crate::{
-    error::GraphComputingError,
-    graph::value_type::{SparseVertexVectorForValueType, ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait BinaryOperatorElementWiseVertexVectorAddition<
     LeftArgument,
@@ -25,9 +23,9 @@ pub trait BinaryOperatorElementWiseVertexVectorAddition<
     Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
@@ -64,12 +62,7 @@ pub trait BinaryOperatorElementWiseVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
-    >
+impl<LeftArgument, RightArgument, Product, EvaluationDomain>
     BinaryOperatorElementWiseVertexVectorAddition<
         LeftArgument,
         RightArgument,
@@ -80,6 +73,10 @@ where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -243,13 +240,7 @@ pub trait BinaryOperatorElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    >
+impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
     BinaryOperatorElementWiseMaskedVertexVectorAddition<
         LeftArgument,
         RightArgument,
@@ -262,6 +253,11 @@ where
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
     SparseVector<Mask>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

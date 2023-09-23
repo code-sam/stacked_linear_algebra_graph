@@ -1,7 +1,4 @@
-use crate::graph::{
-    graph::VertexIndex,
-    value_type::{implement_macro_for_all_native_value_types, ValueType},
-};
+use crate::graph::{graph::VertexIndex, value_type::ValueType};
 
 use super::vertex::{VertexTypeKey, VertexTypeKeyRef};
 use crate::graph::vertex::vertex::GetVertexValue;
@@ -18,41 +15,27 @@ pub struct VertexDefinedByTypeKeyAndVertexIndex<T: ValueType> {
     value: T,
 }
 
-macro_rules! implement_vertex_defined_by_type_key_and_vertex_index_trait {
-    ($value_type:ty) => {
-        impl VertexDefinedByTypeKeyAndVertexIndexTrait<$value_type>
-            for VertexDefinedByTypeKeyAndVertexIndex<$value_type>
-        {
-            fn type_key_ref(&self) -> &VertexTypeKeyRef {
-                &self.vertex_type
-            }
+impl<T: ValueType> VertexDefinedByTypeKeyAndVertexIndexTrait<T>
+    for VertexDefinedByTypeKeyAndVertexIndex<T>
+{
+    fn type_key_ref(&self) -> &VertexTypeKeyRef {
+        &self.vertex_type
+    }
 
-            fn index_ref(&self) -> &VertexIndex {
-                &self.index
-            }
+    fn index_ref(&self) -> &VertexIndex {
+        &self.index
+    }
 
-            fn value_ref(&self) -> &$value_type {
-                &self.value
-            }
-        }
-    };
+    fn value_ref(&self) -> &T {
+        &self.value
+    }
 }
-implement_macro_for_all_native_value_types!(
-    implement_vertex_defined_by_type_key_and_vertex_index_trait
-);
 
-macro_rules! implement_get_vertex_value_for_vertex_defined_by_type_key_and_vertex_index {
-    ($value_type:ty) => {
-        impl GetVertexValue<$value_type> for VertexDefinedByTypeKeyAndVertexIndex<$value_type> {
-            fn value_ref(&self) -> &$value_type {
-                &self.value
-            }
-        }
-    };
+impl<T: ValueType> GetVertexValue<T> for VertexDefinedByTypeKeyAndVertexIndex<T> {
+    fn value_ref(&self) -> &T {
+        &self.value
+    }
 }
-implement_macro_for_all_native_value_types!(
-    implement_get_vertex_value_for_vertex_defined_by_type_key_and_vertex_index
-);
 
 impl<T: ValueType + Clone> VertexDefinedByTypeKeyAndVertexIndex<T> {
     pub fn new(vertex_type: &VertexTypeKeyRef, index: &VertexIndex, value: &T) -> Self {

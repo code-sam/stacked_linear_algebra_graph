@@ -7,12 +7,11 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
-use crate::graph::vertex_store::VertexStoreTrait;
 use crate::graph::{
-    value_type::SparseVertexVectorForValueType, vertex::vertex::VertexTypeKeyRef,
+    graph::GraphblasOperatorApplierCollectionTrait, vertex::vertex::VertexTypeKeyRef,
     vertex_store::type_operations::get_vertex_vector::GetVertexVector,
 };
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::{value_type::SparseVertexVectorForValueType, vertex_store::VertexStoreTrait};
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -24,8 +23,8 @@ use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
 pub trait ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -58,14 +57,14 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<VertexVector, Product, EvaluationDomain>
+    ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

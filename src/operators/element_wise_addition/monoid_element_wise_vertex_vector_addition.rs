@@ -9,15 +9,13 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
+use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::graph::graph::{Graph, VertexTypeIndex};
+use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
-use crate::{
-    error::GraphComputingError,
-    graph::value_type::{SparseVertexVectorForValueType, ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait MonoidElementWiseVertexVectorAddition<
     LeftArgument,
@@ -25,9 +23,9 @@ pub trait MonoidElementWiseVertexVectorAddition<
     Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
@@ -64,17 +62,17 @@ pub trait MonoidElementWiseVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > MonoidElementWiseVertexVectorAddition<LeftArgument, RightArgument, Product, EvaluationDomain>
+impl<LeftArgument, RightArgument, Product, EvaluationDomain>
+    MonoidElementWiseVertexVectorAddition<LeftArgument, RightArgument, Product, EvaluationDomain>
     for Graph
 where
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -194,11 +192,11 @@ pub trait MonoidElementWiseMaskedVertexVectorAddition<
     EvaluationDomain,
     Mask,
 > where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseVector<RightArgument>: VectorMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Product: ValueType,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
     Mask: ValueType + SparseVertexVectorForValueType<Mask>,
@@ -238,13 +236,7 @@ pub trait MonoidElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    >
+impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
     MonoidElementWiseMaskedVertexVectorAddition<
         LeftArgument,
         RightArgument,
@@ -257,6 +249,11 @@ where
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
     SparseVector<Mask>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

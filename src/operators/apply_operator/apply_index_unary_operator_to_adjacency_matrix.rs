@@ -4,16 +4,22 @@ use graphblas_sparse_linear_algebra::{
         apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
         binary_operator::AccumulatorBinaryOperator,
         index_unary_operator::IndexUnaryOperator,
+        mask::MatrixMask,
         options::OperatorOptions,
     },
 };
 
-use crate::graph::edge_store::EdgeStoreTrait;
+use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
+
+use crate::graph::edge_store::{
+    weighted_adjacency_matrix::{
+        SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
+    },
+    EdgeStoreTrait,
+};
 use crate::graph::{
     edge::EdgeTypeKeyRef, edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
-    value_type::SparseAdjacencyMatrixForValueType,
 };
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -22,15 +28,12 @@ use crate::{
         vertex::vertex::VertexTypeKeyRef,
     },
 };
-use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
 
 pub trait ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
 where
-    AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    AdjacencyMatrix: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn with_index(
         &mut self,
@@ -63,15 +66,15 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
+impl<AdjacencyMatrix, Product, EvaluationDomain>
+    ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn with_index(
         &mut self,
@@ -181,12 +184,12 @@ pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
     EvaluationDomain,
     Mask,
 > where
-    AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    AdjacencyMatrix: ValueType,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    Product: ValueType,
     SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
+    Mask: ValueType,
     SparseMatrix<Mask>: MatrixMask,
 {
     fn with_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
@@ -224,9 +227,9 @@ pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
 }
 
 impl<
-        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
+        AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+        Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+        Mask: ValueType + SparseWeightedAdjacencyMatrixForValueType<Mask>,
         EvaluationDomain: ValueType,
     >
     ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
@@ -275,7 +278,7 @@ where
                 argument,
                 accumlator,
                 Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                SparseWeightedAdjacencyMatrix::<Mask>::sparse_matrix_ref(adjacency_matrix_mask),
                 options,
             )?)
     }

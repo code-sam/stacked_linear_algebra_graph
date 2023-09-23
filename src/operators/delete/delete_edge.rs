@@ -1,5 +1,3 @@
-use graphblas_sparse_linear_algebra::value_type::ValueType;
-
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::{
@@ -11,10 +9,11 @@ use crate::graph::edge::{
 };
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteEdge as DeleteEdgeInAdjacencyMatrix;
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::indexer::IndexerTrait;
-use crate::graph::value_type::implement_macro_for_all_native_value_types;
+use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::VertexStoreTrait;
 
 pub trait DeleteEdge<T: ValueType> {
@@ -29,50 +28,48 @@ pub trait DeleteEdge<T: ValueType> {
     // fn delete_selected_edges(&mut self, edge_selection_to_delete: &EdgeSelection) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_delete_edge {
-    ($value_type:ty) => {
-        impl DeleteEdge<$value_type> for Graph {
-            fn delete_edge_defined_by_keys(
-                &mut self,
-                edge_to_delete: &DirectedEdgeCoordinateDefinedByKeys,
-            ) -> Result<(), GraphComputingError> {
-                let edge_type_index = *self
-                    .edge_store_ref()
-                    .edge_type_indexer_ref()
-                    .try_index_for_key(edge_to_delete.edge_type_ref())?;
-                let coordinate_to_delete = AdjacencyMatrixCoordinate::new(
-                    *self
-                        .vertex_store_ref()
-                        .element_indexer_ref()
-                        .try_index_for_key(edge_to_delete.tail_ref())?,
-                    *self
-                        .vertex_store_ref()
-                        .element_indexer_ref()
-                        .try_index_for_key(edge_to_delete.head_ref())?,
-                );
-                DeleteEdgeInAdjacencyMatrix::<$value_type>::delete_edge_unchecked(
-                    self.edge_store_mut_ref()
-                        .try_adjacency_matrix_mut_ref_for_index(&edge_type_index)?,
-                    &coordinate_to_delete,
-                )?;
-                Ok(())
-            }
+impl<T> DeleteEdge<T> for Graph
+where
+    T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T>,
+{
+    fn delete_edge_defined_by_keys(
+        &mut self,
+        edge_to_delete: &DirectedEdgeCoordinateDefinedByKeys,
+    ) -> Result<(), GraphComputingError> {
+        let edge_type_index = *self
+            .edge_store_ref()
+            .edge_type_indexer_ref()
+            .try_index_for_key(edge_to_delete.edge_type_ref())?;
+        let coordinate_to_delete = AdjacencyMatrixCoordinate::new(
+            *self
+                .vertex_store_ref()
+                .element_indexer_ref()
+                .try_index_for_key(edge_to_delete.tail_ref())?,
+            *self
+                .vertex_store_ref()
+                .element_indexer_ref()
+                .try_index_for_key(edge_to_delete.head_ref())?,
+        );
+        DeleteEdgeInAdjacencyMatrix::<T>::delete_edge_unchecked(
+            self.edge_store_mut_ref()
+                .try_adjacency_matrix_mut_ref_for_index(&edge_type_index)?,
+            &coordinate_to_delete,
+        )?;
+        Ok(())
+    }
 
-            fn delete_edge_defined_by_indices(
-                &mut self,
-                edge_to_delete: &DirectedEdgeCoordinateDefinedByIndices,
-            ) -> Result<(), GraphComputingError> {
-                DeleteEdgeInAdjacencyMatrix::<$value_type>::delete_edge_unchecked(
-                    self.edge_store_mut_ref()
-                        .try_adjacency_matrix_mut_ref_for_index(edge_to_delete.edge_type_ref())?,
-                    &edge_to_delete.adjacency_matrix_coordinate(),
-                )?;
-                Ok(())
-            }
-        }
-    };
+    fn delete_edge_defined_by_indices(
+        &mut self,
+        edge_to_delete: &DirectedEdgeCoordinateDefinedByIndices,
+    ) -> Result<(), GraphComputingError> {
+        DeleteEdgeInAdjacencyMatrix::<T>::delete_edge_unchecked(
+            self.edge_store_mut_ref()
+                .try_adjacency_matrix_mut_ref_for_index(edge_to_delete.edge_type_ref())?,
+            &edge_to_delete.adjacency_matrix_coordinate(),
+        )?;
+        Ok(())
+    }
 }
-implement_macro_for_all_native_value_types!(implement_delete_edge);
 
 #[cfg(test)]
 mod tests {

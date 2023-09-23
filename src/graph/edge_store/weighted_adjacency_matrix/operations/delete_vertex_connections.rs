@@ -12,10 +12,11 @@ use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
-    WeightedAdjacencyMatrix, WeightedAdjacencyMatrixSparseMatrixTrait, WeightedAdjacencyMatrixTrait,
+    SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
+    WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait,
 };
 use crate::graph::graph::VertexIndex;
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
+use crate::graph::value_type::ValueType;
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
@@ -40,44 +41,42 @@ pub(crate) trait DeleteVertexConnectionsForAllTypes {
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_delete_vertex_connections {
-    ($value_type:ty) => {
-        impl DeleteVertexConnections<$value_type> for WeightedAdjacencyMatrix {
-            fn delete_vertex_connections_unchecked(
-                &mut self,
-                vertex_index: &VertexIndex,
-            ) -> Result<(), GraphComputingError> {
-                let empty_column = SparseVector::<$value_type>::new(
-                    &self.graphblas_context_ref(),
-                    &self.vertex_capacity()?,
-                )?;
+impl<T> DeleteVertexConnections<T> for WeightedAdjacencyMatrix
+where
+    T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T>,
+    InsertVectorIntoColumn: InsertVectorIntoColumnTrait<T, T>,
+    InsertVectorIntoRow: InsertVectorIntoRowTrait<T, T>,
+{
+    fn delete_vertex_connections_unchecked(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        let empty_column =
+            SparseVector::<T>::new(&self.graphblas_context_ref(), &self.vertex_capacity()?)?;
 
-                // TODO: cache the accumulator for better performance
-                let accumulator = Assignment::<$value_type>::new();
+        // TODO: cache the accumulator for better performance
+        let accumulator = Assignment::<T>::new();
 
-                // TODO: is inserting an empty vector the fastest way to delete a row/column?
-                INSERT_VECTOR_INTO_COLUMN_OPERATOR.apply(
-                    self.sparse_matrix_mut_ref(),
-                    &ElementIndexSelector::All,
-                    vertex_index,
-                    &empty_column,
-                    &accumulator,
-                    &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                )?;
-                INSERT_VECTOR_INTO_ROW_OPERATOR.apply(
-                    self.sparse_matrix_mut_ref(),
-                    &ElementIndexSelector::All,
-                    vertex_index,
-                    &empty_column,
-                    &accumulator,
-                    &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-                )?;
-                Ok(())
-            }
-        }
-    };
+        // TODO: is inserting an empty vector the fastest way to delete a row/column?
+        INSERT_VECTOR_INTO_COLUMN_OPERATOR.apply(
+            self.sparse_matrix_mut_ref(),
+            &ElementIndexSelector::All,
+            vertex_index,
+            &empty_column,
+            &accumulator,
+            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+        )?;
+        INSERT_VECTOR_INTO_ROW_OPERATOR.apply(
+            self.sparse_matrix_mut_ref(),
+            &ElementIndexSelector::All,
+            vertex_index,
+            &empty_column,
+            &accumulator,
+            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+        )?;
+        Ok(())
+    }
 }
-implement_macro_for_all_native_value_types!(implement_delete_vertex_connections);
 
 impl DeleteVertexConnectionsForAllTypes for WeightedAdjacencyMatrix {
     fn delete_vertex_connections_for_all_value_types_unchecked(

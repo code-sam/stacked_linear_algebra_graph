@@ -1,15 +1,17 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SetMatrixElement;
-
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
+    SetMatrixElement, SetMatrixElementTyped,
+};
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
 
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::AdjacencyMatrixCoordinate;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
-    WeightedAdjacencyMatrix, WeightedAdjacencyMatrixSparseMatrixTrait,
+    SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
+    WeightedAdjacencyMatrix,
 };
 
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueType};
+use crate::graph::value_type::ValueType;
 
 pub(crate) trait UpdateEdgeWeight<T: ValueType> {
     fn update_edge_weight_unchecked(
@@ -19,22 +21,17 @@ pub(crate) trait UpdateEdgeWeight<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_update_edge_weigth {
-    ($value_type:ty) => {
-        impl UpdateEdgeWeight<$value_type> for WeightedAdjacencyMatrix {
-            fn update_edge_weight_unchecked(
-                &mut self,
-                coordinate: &AdjacencyMatrixCoordinate,
-                weigth: &$value_type,
-            ) -> Result<(), GraphComputingError> {
-                Ok(
-                    WeightedAdjacencyMatrixSparseMatrixTrait::<$value_type>::sparse_matrix_mut_ref(
-                        self,
-                    )
-                    .set_element(MatrixElement::new(*coordinate, *weigth))?,
-                )
-            }
-        }
-    };
+impl<
+        T: ValueType + Copy + SparseWeightedAdjacencyMatrixForValueType<T> + SetMatrixElementTyped<T>,
+    > UpdateEdgeWeight<T> for WeightedAdjacencyMatrix
+{
+    fn update_edge_weight_unchecked(
+        &mut self,
+        coordinate: &AdjacencyMatrixCoordinate,
+        weigth: &T,
+    ) -> Result<(), GraphComputingError> {
+        Ok(self
+            .sparse_matrix_mut_ref()
+            .set_element(MatrixElement::new(*coordinate, *weigth))?)
+    }
 }
-implement_macro_for_all_native_value_types!(implement_update_edge_weigth);

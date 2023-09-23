@@ -8,12 +8,12 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
-use crate::graph::vertex_store::VertexStoreTrait;
 use crate::graph::{
-    edge::EdgeTypeKeyRef, value_type::SparseVertexVectorForValueType,
-    vertex_store::type_operations::get_vertex_vector::GetVertexVector,
+    edge::EdgeTypeKeyRef,
+    graph::GraphblasOperatorApplierCollectionTrait,
+    value_type::SparseVertexVectorForValueType,
+    vertex_store::{type_operations::get_vertex_vector::GetVertexVector, VertexStoreTrait},
 };
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -26,11 +26,9 @@ use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
 pub trait ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn with_index(
         &mut self,
@@ -63,15 +61,15 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<VertexVector, Product, EvaluationDomain>
+    ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn with_index(
         &mut self,

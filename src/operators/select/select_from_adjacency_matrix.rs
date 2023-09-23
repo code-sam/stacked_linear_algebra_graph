@@ -11,22 +11,19 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::Graph;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge::EdgeTypeIndex,
-        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
-        vertex::vertex::VertexTypeKeyRef,
-    },
+    graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
 pub trait SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain>
 where
-    Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    Argument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
@@ -62,12 +59,11 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
+impl<Argument, Product, EvaluationDomain: ValueType>
+    SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
 where
+    Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     MatrixSelector: SelectFromMatrix<EvaluationDomain>,
@@ -176,12 +172,12 @@ where
 
 pub trait SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask>
 where
-    Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
+    Argument: ValueType,
     SparseMatrix<Argument>: MatrixMask,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    Product: ValueType,
     SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
+    Mask: ValueType,
     SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
@@ -218,13 +214,12 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        Argument: ValueType + SparseAdjacencyMatrixForValueType<Argument>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
-        Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-    > SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
+impl<Argument, Product, EvaluationDomain: ValueType, Mask>
+    SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
 where
+    Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    Mask: ValueType + SparseWeightedAdjacencyMatrixForValueType<Mask>,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     SparseMatrix<Mask>: MatrixMask,

@@ -1,117 +1,144 @@
 use std::sync::Arc;
 
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValue;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
+
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElement;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElement;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
+use graphblas_sparse_linear_algebra::operators::extract::MatrixRowExtractor;
+
+use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
+use once_cell::sync::Lazy;
+
+use crate::error::LogicError;
+use crate::error::LogicErrorType;
 use crate::graph::graph::VertexIndex;
+
+use crate::graph::value_type::SparseVertexVectorForValueType;
 // use crate::graph::value_type::ValueTypeIndex;
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
-use crate::graph::vertex::vertex::VertexTypeKey;
-use crate::graph::vertex::vertex::VertexTypeKeyRef;
+
 use crate::{error::GraphComputingError, graph::index::ElementCount};
+
+static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
+    Lazy::new(|| OperatorOptions::new_default());
+
+static EXTRACT_MATRIX_ROW_OPERATOR: Lazy<MatrixRowExtractor> =
+    Lazy::new(|| MatrixRowExtractor::new());
 
 #[derive(Clone, Debug)]
 pub struct VertexVector {
-    vertex_type: VertexTypeKey,
     graphblas_context: Arc<GraphBLASContext>,
-    sparse_vector_bool: SparseVector<bool>,
-    sparse_vector_i8: SparseVector<i8>,
-    sparse_vector_i16: SparseVector<i16>,
-    sparse_vector_i32: SparseVector<i32>,
-    sparse_vector_i64: SparseVector<i64>,
-    sparse_vector_u8: SparseVector<u8>,
-    sparse_vector_u16: SparseVector<u16>,
-    sparse_vector_u32: SparseVector<u32>,
-    sparse_vector_u64: SparseVector<u64>,
-    sparse_vector_f32: SparseVector<f32>,
-    sparse_vector_f64: SparseVector<f64>,
-    sparse_vector_isize: SparseVector<isize>,
-    sparse_vector_usize: SparseVector<usize>,
-    // pub(crate) sparse_vector_bool: SparseVector<bool>,
-    // pub(crate) sparse_vector_i8: SparseVector<i8>,
-    // pub(crate) sparse_vector_i16: SparseVector<i16>,
-    // pub(crate) sparse_vector_i32: SparseVector<i32>,
-    // pub(crate) sparse_vector_i64: SparseVector<i64>,
-    // pub(crate) sparse_vector_u8: SparseVector<u8>,
-    // pub(crate) sparse_vector_u16: SparseVector<u16>,
-    // pub(crate) sparse_vector_u32: SparseVector<u32>,
-    // pub(crate) sparse_vector_u64: SparseVector<u64>,
-    // pub(crate) sparse_vector_f32: SparseVector<f32>,
-    // pub(crate) sparse_vector_f64: SparseVector<f64>,
-    // pub(crate) sparse_vector_isize: SparseVector<isize>,
-    // pub(crate) sparse_vector_usize: SparseVector<usize>,
+    vertex_vector_bool: SparseVector<bool>,
+    vertex_vector_i8: SparseVector<i8>,
+    vertex_vector_i16: SparseVector<i16>,
+    vertex_vector_i32: SparseVector<i32>,
+    vertex_vector_i64: SparseVector<i64>,
+    vertex_vector_u8: SparseVector<u8>,
+    vertex_vector_u16: SparseVector<u16>,
+    vertex_vector_u32: SparseVector<u32>,
+    vertex_vector_u64: SparseVector<u64>,
+    vertex_vector_f32: SparseVector<f32>,
+    vertex_vector_f64: SparseVector<f64>,
+    vertex_vector_isize: SparseVector<isize>,
+    vertex_vector_usize: SparseVector<usize>,
 }
 
 impl VertexVector {
     pub(crate) fn new(
         graphblas_context: &Arc<GraphBLASContext>,
         initial_vertex_capacity: &ElementCount,
-        vertex_type: &VertexTypeKeyRef,
     ) -> Result<Self, GraphComputingError> {
         Ok(Self {
-            vertex_type: vertex_type.to_owned(),
             graphblas_context: graphblas_context.clone(),
-            sparse_vector_bool: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_i8: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_i16: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_i32: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_i64: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_u8: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_u16: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_u32: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_u64: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_f32: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_f64: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_isize: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
-            sparse_vector_usize: SparseVector::new(graphblas_context, initial_vertex_capacity)?,
+            vertex_vector_bool: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_i8: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_i16: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_i32: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_i64: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_u8: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_u16: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_u32: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_u64: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_f32: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_f64: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_isize: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
+            vertex_vector_usize: SparseVector::new(graphblas_context, &initial_vertex_capacity)?,
         })
     }
+
+    // pub(crate) fn map_mut_all_value_types<F>(
+    //     &mut self,
+    //     function_to_apply: F,
+    // ) -> Result<(), GraphComputingError>
+    // where
+    //     F: Fn(&mut SparseVector<T: ValueType>) -> Result<(), GraphComputingError> + Send + Sync,
+    // {
+    //     self.vertex_vectors
+    //         .as_mut_slice()
+    //         .into_par_iter()
+    //         .try_for_each(function_to_apply)?;
+    //     Ok(())
+    // }
 }
 
-// pub(crate) trait SparseVertexVectorDynamicDispatch<T: ValueType> {
-//     fn sparse_vector_ref(&self) -> &dyn GraphblasSparseVectorTrait;
-//     fn sparse_vector_mut_ref(&mut self) -> &mut dyn GraphblasSparseVectorTrait;
+// pub(crate) trait SparseVertexVector<T: ValueType> {
+//     fn extract_sparse_vector(
+//         &self,
+//         vertex_type_index: &VertexTypeIndex,
+//     ) -> Result<SparseVector<T>, GraphComputingError>;
+
+//     // REVIEW: mutating the cloned vector doesn't apply to the source vertex matrix.
+//     // fn sparse_vector_mut_ref(&mut self, vertex_type_index: &VertexTypeIndex) -> &mut SparseVector<T>;
 // }
 
-// impl<T: ValueType> SparseVertexVectorDynamicDispatch<T> for VertexVector {
-//     fn sparse_vector_ref(&self) -> &dyn GraphblasSparseVectorTrait {
-//         match T::value_type_enum() {
-//             ValueTypeIndex::Boolean => &self.sparse_vector_bool,
-//             ValueTypeIndex::Integer8Bit => &self.sparse_vector_i8,
-//             ValueTypeIndex::Integer16Bit => &self.sparse_vector_i16,
-//             ValueTypeIndex::Integer32Bit => &self.sparse_vector_i32,
-//             ValueTypeIndex::Integer64Bit => &self.sparse_vector_i64,
-//             ValueTypeIndex::UnsignedInteger8Bit => &self.sparse_vector_u8,
-//             ValueTypeIndex::UnsignedInteger16Bit => &self.sparse_vector_u16,
-//             ValueTypeIndex::UnsignedInteger32Bit => &self.sparse_vector_u32,
-//             ValueTypeIndex::UnsignedInteger64Bit => &self.sparse_vector_u64,
-//             ValueTypeIndex::FloatingPoint32Bit => &self.sparse_vector_u32,
-//             ValueTypeIndex::FloatingPoint64Bit => &self.sparse_vector_u64,
-//             ValueTypeIndex::PointerSizedInteger => &self.sparse_vector_isize,
-//             ValueTypeIndex::PointerSizedUnsizedInteger => &self.sparse_vector_usize,
+// TODO: implement type-generically
+// macro_rules! implement_vertex_vector_trait {
+//     ($typed_sparse_matrix:ident, $value_type: ty) => {
+//         impl SparseVertexVector<$value_type> for VertexMatrix {
+//             fn extract_sparse_vector(
+//                 &self,
+//                 vertex_type_index: &VertexTypeIndex,
+//             ) -> Result<SparseVector<$value_type>, GraphComputingError> {
+//                 let mut vertex_vector = SparseVector::<$value_type>::new(
+//                     &self.graphblas_context_ref(),
+//                     &self.vertex_capacity()?,
+//                 )?;
+
+//                 // TODO: cache the accumulator for better performance
+//                 let accumulator = Assignment::<$value_type>::new();
+
+//                 EXTRACT_MATRIX_ROW_OPERATOR.apply(
+//                     &self.$typed_sparse_matrix,
+//                     vertex_type_index,
+//                     &ElementIndexSelector::All,
+//                     &accumulator,
+//                     &mut vertex_vector,
+//                     &SelectEntireVector::new(&self.graphblas_context_ref()), // TODO: cache this for better performance
+//                     &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+//                 )?;
+
+//                 Ok(vertex_vector)
+//             }
 //         }
-//     }
-//     fn sparse_vector_mut_ref(&mut self) -> &mut dyn GraphblasSparseVectorTrait {
-//         match T::value_type_enum() {
-//             ValueTypeIndex::Boolean => &mut self.sparse_vector_bool,
-//             ValueTypeIndex::Integer8Bit => &mut self.sparse_vector_i8,
-//             ValueTypeIndex::Integer16Bit => &mut self.sparse_vector_i16,
-//             ValueTypeIndex::Integer32Bit => &mut self.sparse_vector_i32,
-//             ValueTypeIndex::Integer64Bit => &mut self.sparse_vector_i64,
-//             ValueTypeIndex::UnsignedInteger8Bit => &mut self.sparse_vector_u8,
-//             ValueTypeIndex::UnsignedInteger16Bit => &mut self.sparse_vector_u16,
-//             ValueTypeIndex::UnsignedInteger32Bit => &mut self.sparse_vector_u32,
-//             ValueTypeIndex::UnsignedInteger64Bit => &mut self.sparse_vector_u64,
-//             ValueTypeIndex::FloatingPoint32Bit => &mut self.sparse_vector_u32,
-//             ValueTypeIndex::FloatingPoint64Bit => &mut self.sparse_vector_u64,
-//             ValueTypeIndex::PointerSizedInteger => &mut self.sparse_vector_isize,
-//             ValueTypeIndex::PointerSizedUnsizedInteger => &mut self.sparse_vector_usize,
-//         }
-//     }
+//     };
 // }
+
+// implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
+//     implement_vertex_vector_trait,
+//     vertex_matrix
+// );
 
 pub(crate) trait SparseVertexVector<T: ValueType> {
     fn sparse_vector_ref(&self) -> &SparseVector<T>;
@@ -133,83 +160,185 @@ macro_rules! implement_vertex_vector_trait {
 
 implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
     implement_vertex_vector_trait,
-    sparse_vector
+    vertex_vector
 );
 
 pub(crate) trait VertexVectorTrait {
-    fn vertex_type_ref(&self) -> &VertexTypeKeyRef;
     fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext>;
 
     // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
     fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError>;
 
-    // TODO: this probably needs a lifetime, or a clone
-    // pub fn size_ref(&self) -> Result<&Size, GraphComputingError>;
-
-    fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError>;
-    fn length(&self) -> Result<ElementCount, GraphComputingError>;
-
-    fn delete_element_for_all_value_types(
+    fn set_vertex_capacity(
         &mut self,
-        element_index: &VertexIndex,
+        new_vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl VertexVectorTrait for VertexVector {
-    fn vertex_type_ref(&self) -> &VertexTypeKeyRef {
-        &self.vertex_type.as_str()
-    }
-
     fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext> {
         &self.graphblas_context
     }
 
     // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
     fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError> {
-        Ok(self.sparse_vector_bool.length()?)
+        Ok(self.vertex_vector_bool.length()?)
     }
 
     // TODO: find a more generic solution, e.g. by using TAITs as soon as they are stable
     // https://github.com/rust-lang/rust/issues/63063
-    fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError> {
-        self.sparse_vector_bool.resize(new_vertex_capacity)?;
-        self.sparse_vector_i8.resize(new_vertex_capacity)?;
-        self.sparse_vector_i16.resize(new_vertex_capacity)?;
-        self.sparse_vector_i32.resize(new_vertex_capacity)?;
-        self.sparse_vector_i64.resize(new_vertex_capacity)?;
-        self.sparse_vector_u8.resize(new_vertex_capacity)?;
-        self.sparse_vector_u16.resize(new_vertex_capacity)?;
-        self.sparse_vector_u32.resize(new_vertex_capacity)?;
-        self.sparse_vector_u64.resize(new_vertex_capacity)?;
-        self.sparse_vector_f32.resize(new_vertex_capacity)?;
-        self.sparse_vector_f64.resize(new_vertex_capacity)?;
-        self.sparse_vector_isize.resize(new_vertex_capacity)?;
-        self.sparse_vector_usize.resize(new_vertex_capacity)?;
-        Ok(())
-    }
-
-    fn length(&self) -> Result<ElementCount, GraphComputingError> {
-        // Size is the same for all types
-        Ok(self.sparse_vector_bool.length()?)
-    }
-
-    fn delete_element_for_all_value_types(
+    fn set_vertex_capacity(
         &mut self,
-        element_index: &VertexIndex,
+        new_vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError> {
-        self.sparse_vector_bool.drop_element(*element_index)?;
-        self.sparse_vector_i8.drop_element(*element_index)?;
-        self.sparse_vector_i16.drop_element(*element_index)?;
-        self.sparse_vector_i32.drop_element(*element_index)?;
-        self.sparse_vector_i64.drop_element(*element_index)?;
-        self.sparse_vector_u8.drop_element(*element_index)?;
-        self.sparse_vector_u16.drop_element(*element_index)?;
-        self.sparse_vector_u32.drop_element(*element_index)?;
-        self.sparse_vector_u64.drop_element(*element_index)?;
-        self.sparse_vector_f32.drop_element(*element_index)?;
-        self.sparse_vector_f64.drop_element(*element_index)?;
-        self.sparse_vector_isize.drop_element(*element_index)?;
-        self.sparse_vector_usize.drop_element(*element_index)?;
+        self.vertex_vector_bool.resize(new_vertex_capacity)?;
+        self.vertex_vector_i8.resize(new_vertex_capacity)?;
+        self.vertex_vector_i16.resize(new_vertex_capacity)?;
+        self.vertex_vector_i32.resize(new_vertex_capacity)?;
+        self.vertex_vector_i64.resize(new_vertex_capacity)?;
+        self.vertex_vector_u8.resize(new_vertex_capacity)?;
+        self.vertex_vector_u16.resize(new_vertex_capacity)?;
+        self.vertex_vector_u32.resize(new_vertex_capacity)?;
+        self.vertex_vector_u64.resize(new_vertex_capacity)?;
+        self.vertex_vector_f32.resize(new_vertex_capacity)?;
+        self.vertex_vector_f64.resize(new_vertex_capacity)?;
+        self.vertex_vector_isize.resize(new_vertex_capacity)?;
+        self.vertex_vector_usize.resize(new_vertex_capacity)?;
         Ok(())
+    }
+}
+
+pub(crate) trait SetVertexVectorValue<T: ValueType> {
+    fn set_vertex_value(
+        &mut self,
+        vertex_index: &VertexIndex,
+        vertex_value: T,
+    ) -> Result<(), GraphComputingError>;
+}
+
+impl<T: ValueType + SparseVertexVectorForValueType<T> + SetVectorElementTyped<T>>
+    SetVertexVectorValue<T> for VertexVector
+{
+    fn set_vertex_value(
+        &mut self,
+        vertex_index: &VertexIndex,
+        vertex_value: T,
+    ) -> Result<(), GraphComputingError> {
+        let element = VectorElement::new(*vertex_index, vertex_value);
+        Ok(T::sparse_vector_mut_ref(self).set_element(element)?)
+    }
+}
+
+pub(crate) trait ReadVertexValueInVertexVector<T: ValueType> {
+    fn get_vertex_value(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<Option<T>, GraphComputingError>;
+
+    fn try_vertex_value(&self, vertex_index: &VertexIndex) -> Result<T, GraphComputingError>;
+
+    fn get_vertex_value_or_default(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<T, GraphComputingError>;
+}
+
+impl<
+        T: ValueType + SparseVertexVectorForValueType<T> + GetVectorElementValueTyped<T> + Default,
+    > ReadVertexValueInVertexVector<T> for VertexVector
+{
+    fn get_vertex_value(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<Option<T>, GraphComputingError> {
+        Ok(T::sparse_vector_ref(self).get_element_value(vertex_index)?)
+    }
+
+    fn try_vertex_value(&self, vertex_index: &VertexIndex) -> Result<T, GraphComputingError> {
+        match self.get_vertex_value(vertex_index)? {
+            Some(value) => Ok(value),
+            None => Err(LogicError::new(
+                LogicErrorType::VertexMustExist,
+                format!("No vertex for vertex index: {}", vertex_index),
+                None,
+            )
+            .into()),
+        }
+    }
+
+    fn get_vertex_value_or_default(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<T, GraphComputingError> {
+        Ok(T::get_element_value_or_default(
+            T::sparse_vector_ref(self),
+            vertex_index,
+        )?)
+    }
+}
+
+pub(crate) trait DeleteVertexValueInVertexVector {
+    fn delete_vertex_value_for_all_value_types(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
+}
+
+impl DeleteVertexValueInVertexVector for VertexVector {
+    fn delete_vertex_value_for_all_value_types(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_vector_bool.drop_element(*vertex_index)?;
+        self.vertex_vector_i8.drop_element(*vertex_index)?;
+        self.vertex_vector_i16.drop_element(*vertex_index)?;
+        self.vertex_vector_i32.drop_element(*vertex_index)?;
+        self.vertex_vector_i64.drop_element(*vertex_index)?;
+        self.vertex_vector_u8.drop_element(*vertex_index)?;
+        self.vertex_vector_u16.drop_element(*vertex_index)?;
+        self.vertex_vector_u32.drop_element(*vertex_index)?;
+        self.vertex_vector_u64.drop_element(*vertex_index)?;
+        self.vertex_vector_f32.drop_element(*vertex_index)?;
+        self.vertex_vector_f64.drop_element(*vertex_index)?;
+        self.vertex_vector_isize.drop_element(*vertex_index)?;
+        self.vertex_vector_usize.drop_element(*vertex_index)?;
+        Ok(())
+    }
+}
+
+pub(crate) trait DeleteVertexValueInVertexVectorTyped<
+    T: ValueType + SparseVertexVectorForValueType<T>,
+>
+{
+    fn delete_vertex_value(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
+}
+
+impl<T: ValueType + SparseVertexVectorForValueType<T>> DeleteVertexValueInVertexVectorTyped<T>
+    for VertexVector
+{
+    fn delete_vertex_value(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        Ok(T::sparse_vector_mut_ref(self).drop_element(*vertex_index)?)
+    }
+}
+
+pub(crate) trait IsElementInVertexVector<T: ValueType> {
+    fn is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<bool, GraphComputingError>;
+
+    fn try_is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<(), GraphComputingError>;
+}
+
+impl<T: ValueType + SparseVertexVectorForValueType<T>> IsElementInVertexVector<T> for VertexVector {
+    fn is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<bool, GraphComputingError> {
+        Ok(T::sparse_vector_ref(self).is_element(*vertex_index)?)
+    }
+
+    fn try_is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<(), GraphComputingError> {
+        Ok(T::sparse_vector_ref(self).try_is_element(*vertex_index)?)
     }
 }

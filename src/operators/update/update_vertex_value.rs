@@ -2,11 +2,11 @@ use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex_defined_by_index::VertexDefinedByIndex;
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
+use crate::graph::vertex_store::VertexStore;
 use crate::{
     error::GraphComputingError,
     graph::{
         graph::{Graph, GraphTrait},
-        value_type::implement_macro_for_all_native_value_types,
         vertex_store::vertex_operations::UpdateVertex,
     },
 };
@@ -31,43 +31,42 @@ pub trait UpdateVertexValue<T: ValueType> {
     // ) -> Result<(), GraphComputingError>;
 }
 
-macro_rules! implement_update_vertex_value {
-    ($value_type:ty) => {
-        impl UpdateVertexValue<$value_type> for Graph {
-            fn update_vertex_value_by_key(
-                &mut self,
-                vertex: &VertexDefinedByKey<$value_type>,
-            ) -> Result<(), GraphComputingError> {
-                self.vertex_store_mut_ref()
-                    .update_key_defined_vertex(vertex)
-            }
+impl<T> UpdateVertexValue<T> for Graph
+where
+    T: ValueType,
+    VertexStore: UpdateVertex<T>,
+{
+    fn update_vertex_value_by_key(
+        &mut self,
+        vertex: &VertexDefinedByKey<T>,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store_mut_ref()
+            .update_key_defined_vertex(vertex)
+    }
 
-            fn update_vertex_value_by_index(
-                &mut self,
-                vertex: &VertexDefinedByIndex<$value_type>,
-            ) -> Result<(), GraphComputingError> {
-                self.vertex_store_mut_ref()
-                    .update_index_defined_vertex(vertex)
-            }
+    fn update_vertex_value_by_index(
+        &mut self,
+        vertex: &VertexDefinedByIndex<T>,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store_mut_ref()
+            .update_index_defined_vertex(vertex)
+    }
 
-            fn update_vertex_defined_by_type_index_and_vertex_key(
-                &mut self,
-                vertex: &VertexDefinedByTypeIndexAndVertexKey<$value_type>,
-            ) -> Result<(), GraphComputingError> {
-                self.vertex_store_mut_ref()
-                    .update_vertex_defined_by_type_index_and_vertex_key(vertex)
-            }
+    fn update_vertex_defined_by_type_index_and_vertex_key(
+        &mut self,
+        vertex: &VertexDefinedByTypeIndexAndVertexKey<T>,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store_mut_ref()
+            .update_vertex_defined_by_type_index_and_vertex_key(vertex)
+    }
 
-            // fn update_vertex_defined_by_type_key_and_vertex_index(
-            //     &mut self,
-            //     vertex: &VertexDefinedByTypeKeyAndVertexIndex<$value_type>
-            // ) -> Result<(), GraphComputingError> {
-            //     self.vertex_store_mut_ref().update_vertex_defined_by_type_key_and_vertex_index(vertex)
-            // }
-        }
-    };
+    // fn update_vertex_defined_by_type_key_and_vertex_index(
+    //     &mut self,
+    //     vertex: &VertexDefinedByTypeKeyAndVertexIndex<$value_type>
+    // ) -> Result<(), GraphComputingError> {
+    //     self.vertex_store_mut_ref().update_vertex_defined_by_type_key_and_vertex_index(vertex)
+    // }
 }
-implement_macro_for_all_native_value_types!(implement_update_vertex_value);
 
 #[cfg(test)]
 mod tests {

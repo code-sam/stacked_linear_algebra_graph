@@ -3,9 +3,11 @@ use std::collections::VecDeque;
 use std::fmt::Debug;
 use std::sync::Arc;
 
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
+    GetVectorElementIndices, GetVectorElementValue, SetVectorElement,
+};
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    GetElementIndices, GetVectorElementValue, SetVectorElement, SparseVector, SparseVectorTrait,
-    VectorElement,
+    SparseVector, SparseVectorTrait, VectorElement,
 };
 use graphblas_sparse_linear_algebra::collections::Collection;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
@@ -19,6 +21,8 @@ pub type Index = ElementIndex;
 
 pub type Key = String;
 pub type KeyRef = str;
+
+pub(crate) const MINIMUM_INDEXER_CAPACITY: usize = 1;
 
 #[derive(Debug)]
 pub(crate) struct AssignedIndex {
@@ -275,6 +279,10 @@ impl IndexerTrait for Indexer {
 }
 
 impl Indexer {
+    // NOTE: setting and enforcing this minimum improves performance,
+    // as the minimum is guaranteed once and no longer needs checking upon capacity expansion.
+    // However, the API is slightly misleading for initial_capacity = 0.
+
     pub fn new(graphblas_context: &Arc<GraphBLASContext>) -> Result<Self, GraphComputingError> {
         let default_initial_capacity = 256;
         Self::with_initial_capacity(graphblas_context, &default_initial_capacity)
@@ -285,11 +293,7 @@ impl Indexer {
         graphblas_context: &Arc<GraphBLASContext>,
         initial_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
-        // NOTE: setting and enforcing this minimum improves performance,
-        // as the minimum is guaranteed once and no longer needs checking upon capacity expansion.
-        // However, the API is slightly misleading for initial_capacity = 0.
-        let minimum_initial_capacity = 1;
-        let initial_capacity = max(initial_capacity.clone(), minimum_initial_capacity);
+        let initial_capacity = max(initial_capacity.clone(), MINIMUM_INDEXER_CAPACITY);
 
         let mut key_to_index_map: HashMap<Key, Index> = HashMap::default();
         key_to_index_map.reserve(initial_capacity);
@@ -359,7 +363,6 @@ impl Indexer {
 mod tests {
     use super::*;
 
-    use graphblas_sparse_linear_algebra::collections::sparse_vector::GetVectorElementValue;
     use graphblas_sparse_linear_algebra::context::Mode as GraphBLASMode;
 
     #[test]

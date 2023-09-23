@@ -8,23 +8,23 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
-use crate::graph::graph::VertexTypeIndex;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::{
+    graph::{GraphblasOperatorApplierCollectionTrait, VertexTypeIndex},
+    value_type::SparseVertexVectorForValueType,
+    vertex_store::type_operations::get_vertex_vector::GetVertexVector,
+};
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::Graph,
-        value_type::{SparseVertexVectorForValueType, ValueType},
-        vertex::vertex::VertexTypeKeyRef,
+        graph::Graph, value_type::ValueType, vertex::vertex::VertexTypeKeyRef,
         vertex_store::VertexStoreTrait,
     },
 };
 
 pub trait ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -90,15 +90,15 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<VertexVector, Product, EvaluationDomain>
+    ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
 where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
+    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    EvaluationDomain: ValueType,
 {
     fn with_index_defined_vertex_vector_as_left_argument(
         &mut self,

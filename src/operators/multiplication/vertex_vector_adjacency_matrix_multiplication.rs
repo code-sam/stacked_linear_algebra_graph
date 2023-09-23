@@ -12,19 +12,16 @@ use graphblas_sparse_linear_algebra::{
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 
-use crate::graph::graph::Graph;
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
+use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait};
 
 use crate::graph::graph::VertexTypeIndex;
 use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge::EdgeTypeIndex,
-        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
-    },
+    graph::{edge::EdgeTypeIndex, value_type::ValueType},
 };
 
 pub trait VertexVectorAdjacencyMatrixMultiplication<
@@ -34,7 +31,7 @@ pub trait VertexVectorAdjacencyMatrixMultiplication<
     EvaluationDomain,
 > where
     LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
+    RightArgument: ValueType,
     Product: ValueType + SparseVertexVectorForValueType<Product>,
     EvaluationDomain: ValueType,
     SparseVector<LeftArgument>: VectorMask,
@@ -74,7 +71,7 @@ pub trait VertexVectorAdjacencyMatrixMultiplication<
 
 impl<
         LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
+        RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
         Product: ValueType + SparseVertexVectorForValueType<Product>,
         EvaluationDomain: ValueType,
     >
@@ -207,14 +204,14 @@ pub trait VertexVectorAdjacencyMatrixMultiplicationWithMask<
     EvaluationDomain,
     Mask,
 > where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
     SparseVector<LeftArgument>: VectorMask,
     SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Product: ValueType,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
     SparseVector<Mask>: VectorMask,
 {
     fn by_index(
@@ -251,13 +248,7 @@ pub trait VertexVectorAdjacencyMatrixMultiplicationWithMask<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    >
+impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
     VertexVectorAdjacencyMatrixMultiplicationWithMask<
         LeftArgument,
         RightArgument,
@@ -270,6 +261,11 @@ where
     SparseMatrix<RightArgument>: MatrixMask,
     SparseVector<Product>: VectorMask,
     SparseVector<Mask>: VectorMask,
+    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
+    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,

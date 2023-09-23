@@ -7,12 +7,15 @@ use graphblas_sparse_linear_algebra::{
     },
 };
 
-use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::{
     edge::EdgeTypeKeyRef, edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
-    value_type::SparseAdjacencyMatrixForValueType,
 };
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::{
+    edge_store::{
+        weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType, EdgeStoreTrait,
+    },
+    graph::GraphblasOperatorApplierCollectionTrait,
+};
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -24,8 +27,8 @@ use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
 
 pub trait ApplyUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
 where
-    AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    AdjacencyMatrix: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
@@ -58,12 +61,11 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
-    > ApplyUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
+impl<AdjacencyMatrix, Product, EvaluationDomain: ValueType>
+    ApplyUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
 where
+    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
 {
@@ -169,12 +171,12 @@ pub trait ApplyUnaryOperatorToMaskedAdjacencyMatrix<
     EvaluationDomain,
     Mask,
 > where
-    AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    AdjacencyMatrix: ValueType,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    Product: ValueType,
     SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
+    Mask: ValueType,
     SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
@@ -208,14 +210,13 @@ pub trait ApplyUnaryOperatorToMaskedAdjacencyMatrix<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        AdjacencyMatrix: ValueType + SparseAdjacencyMatrixForValueType<AdjacencyMatrix>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    > ApplyUnaryOperatorToMaskedAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain, Mask>
+impl<AdjacencyMatrix, Product, Mask, EvaluationDomain: ValueType>
+    ApplyUnaryOperatorToMaskedAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain, Mask>
     for Graph
 where
+    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    Mask: ValueType + SparseWeightedAdjacencyMatrixForValueType<Mask>,
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     SparseMatrix<Mask>: MatrixMask,

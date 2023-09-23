@@ -10,15 +10,12 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::EdgeStoreTrait;
-use crate::graph::graph::Graph;
-use crate::operators::graphblas_operator_applier::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait};
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge::EdgeTypeIndex,
-        value_type::{SparseAdjacencyMatrixForValueType, ValueType},
-    },
+    graph::{edge::EdgeTypeIndex, value_type::ValueType},
 };
 
 pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
@@ -27,9 +24,9 @@ pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
     Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
     SparseMatrix<LeftArgument>: MatrixMask,
     SparseMatrix<RightArgument>: MatrixMask,
@@ -66,12 +63,7 @@ pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        EvaluationDomain: ValueType,
-    >
+impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
     BinaryOperatorElementWiseAdjacencyMatrixAddition<
         LeftArgument,
         RightArgument,
@@ -79,6 +71,9 @@ impl<
         EvaluationDomain,
     > for Graph
 where
+    LeftArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
     SparseMatrix<LeftArgument>: MatrixMask,
     SparseMatrix<RightArgument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
@@ -201,14 +196,14 @@ pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
     EvaluationDomain,
     Mask,
 > where
-    LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
+    LeftArgument: ValueType,
+    RightArgument: ValueType,
     SparseMatrix<LeftArgument>: MatrixMask,
     SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
+    Product: ValueType,
     SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
+    Mask: ValueType,
     SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
@@ -245,13 +240,7 @@ pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseAdjacencyMatrixForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseAdjacencyMatrixForValueType<RightArgument>,
-        Product: ValueType + SparseAdjacencyMatrixForValueType<Product>,
-        Mask: ValueType + SparseAdjacencyMatrixForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    >
+impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain: ValueType>
     BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
         LeftArgument,
         RightArgument,
@@ -260,6 +249,10 @@ impl<
         Mask,
     > for Graph
 where
+    LeftArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<LeftArgument>,
+    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
+    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    Mask: ValueType + SparseWeightedAdjacencyMatrixForValueType<Mask>,
     SparseMatrix<LeftArgument>: MatrixMask,
     SparseMatrix<RightArgument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
