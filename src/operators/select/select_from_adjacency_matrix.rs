@@ -11,7 +11,6 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -62,8 +61,8 @@ where
 impl<Argument, Product, EvaluationDomain: ValueType>
     SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
 where
-    Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
-    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
+    Argument: ValueType,
+    Product: ValueType,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     MatrixSelector: SelectFromMatrix<EvaluationDomain>,
@@ -95,9 +94,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                adjacency_matrix_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                adjacency_matrix_product,
                 unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
@@ -126,9 +125,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                adjacency_matrix_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                adjacency_matrix_product,
                 unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
@@ -161,9 +160,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                adjacency_matrix_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                adjacency_matrix_product,
                 unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
@@ -217,9 +216,9 @@ where
 impl<Argument, Product, EvaluationDomain: ValueType, Mask>
     SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
 where
-    Argument: ValueType + SparseWeightedAdjacencyMatrixForValueType<Argument>,
-    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
-    Mask: ValueType + SparseWeightedAdjacencyMatrixForValueType<Mask>,
+    Argument: ValueType,
+    Product: ValueType,
+    Mask: ValueType,
     SparseMatrix<Argument>: MatrixMask,
     SparseMatrix<Product>: MatrixMask,
     SparseMatrix<Mask>: MatrixMask,
@@ -256,10 +255,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                adjacency_matrix_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                adjacency_matrix_product,
+                adjacency_matrix_mask,
                 options,
             )?)
     }
@@ -291,10 +290,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                adjacency_matrix_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                adjacency_matrix_product,
+                adjacency_matrix_mask,
                 options,
             )?)
     }
@@ -329,10 +328,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_matrix_ref(adjacency_matrix_argument),
+                adjacency_matrix_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                adjacency_matrix_product,
+                adjacency_matrix_mask,
                 options,
             )?)
     }
@@ -395,9 +394,12 @@ mod tests {
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())

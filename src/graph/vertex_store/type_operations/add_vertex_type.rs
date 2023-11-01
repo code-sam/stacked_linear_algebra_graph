@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorLength;
 
 use crate::{
     error::GraphComputingError,
@@ -6,9 +6,7 @@ use crate::{
         graph::VertexTypeIndex,
         indexer::{AssignedIndexTrait, IndexerTrait},
         vertex::vertex::VertexTypeKeyRef,
-        vertex_store::{
-            vertex_store::VertexStoreTrait, VertexStore, VertexVector, VertexVectorTrait,
-        },
+        vertex_store::{vertex_store::VertexStoreTrait, VertexStore, VertexVector},
     },
 };
 

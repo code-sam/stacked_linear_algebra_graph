@@ -1,5 +1,10 @@
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetGraphblasSparseMatrix;
+
 use crate::graph::edge_store::edge_store::EdgeStoreTrait;
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+};
+use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -9,7 +14,7 @@ use crate::{
     },
 };
 
-pub(crate) trait AddEdgeType {
+pub(crate) trait AddEdgeType<T: ValueType> {
     fn add_new_edge_type(
         &mut self,
         key: &EdgeTypeKeyRef,
@@ -21,7 +26,7 @@ pub(crate) trait AddEdgeType {
     ) -> Result<EdgeTypeIndex, GraphComputingError>;
 }
 
-impl AddEdgeType for EdgeStore {
+impl<T: ValueType + GetValueTypeIdentifier> AddEdgeType<T> for EdgeStore {
     fn add_new_edge_type(
         &mut self,
         key: &EdgeTypeKeyRef,
@@ -32,11 +37,12 @@ impl AddEdgeType for EdgeStore {
             self.adjacency_matrices_mut()
                 .reserve(new_capacity - current_capacity);
         }
-        let new_adjacency_matrix = WeightedAdjacencyMatrix::new(
-            self.graphblas_context_ref(),
-            key,
-            self.adjacency_matrix_size_ref(),
-        )?;
+        let new_adjacency_matrix =
+            <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<T>>::new(
+                self.graphblas_context_ref(),
+                key,
+                self.adjacency_matrix_size_ref(),
+            )?;
         if *new_type_index.index_ref() >= self.adjacency_matrices_ref().len() {
             self.adjacency_matrices_mut().push(new_adjacency_matrix);
         } else {
@@ -52,7 +58,7 @@ impl AddEdgeType for EdgeStore {
         // TODO: review if there are checks than can be dropped in the process. This should improve performance.
         match self.edge_type_indexer_mut_ref().index_for_key(key) {
             Some(index) => Ok(*index),
-            None => self.add_new_edge_type(key),
+            None => <EdgeStore as AddEdgeType<T>>::add_new_edge_type(self, key),
         }
     }
 }

@@ -46,7 +46,7 @@ The graph resides in-memory and does currently not exist in persistent storage.
 
 ## Minimum example
 ```rust
-use graphblas_sparse_linear_algebra::operators::binary_operator::{
+    use graphblas_sparse_linear_algebra::operators::binary_operator::{
         Assignment, Plus,
     };
     use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
@@ -93,9 +93,11 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
             );
         }
 
-        let odd_number_sequence_edge_type_index = graph
-            .add_new_edge_type(odd_number_sequence_edge_type_key)
-            .unwrap();
+        let odd_number_sequence_edge_type_index = <Graph as AddEdgeType<i32>>::add_new_edge_type(
+            &mut graph,
+            odd_number_sequence_edge_type_key,
+        )
+        .unwrap();
 
         // Define a sequence of subsequent odd numbers
         for i in [1, 3, 5, 7, 9] {

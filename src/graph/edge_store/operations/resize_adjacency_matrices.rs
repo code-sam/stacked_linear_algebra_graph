@@ -2,7 +2,9 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge_store::{
-            weighted_adjacency_matrix::{WeightedAdjacencyMatrix, WeightedAdjacencyMatrixTrait},
+            weighted_adjacency_matrix::{
+                operations::ResizeWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+            },
             EdgeStore, EdgeStoreTrait,
         },
         index::ElementCount,

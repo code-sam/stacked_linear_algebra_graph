@@ -1,7 +1,7 @@
 // use graphblas_sparse_linear_algebra::value_type::ValueType;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
-    GetMatrixElementListTyped, GetMatrixElementValueTyped, SetMatrixElementTyped,
+    GetSparseMatrixElementListTyped, GetSparseMatrixElementValueTyped, SetSparseMatrixElementTyped,
 };
 use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
 
@@ -18,15 +18,13 @@ use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatr
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
     AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
 };
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
+use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 
 use crate::graph::graph::{Graph, GraphTrait};
 
-use crate::graph::value_type::ValueType;
+use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 
 use crate::operators::indexing::Indexing as GraphIndexing;
-
-use super::add_edge_type::AddEdgeType as AddEdgeTypeToGraph;
 
 pub trait AddEdge<T: ValueType> {
     fn add_new_edge_using_keys(
@@ -60,11 +58,12 @@ pub trait AddEdge<T: ValueType> {
 impl<T> AddEdge<T> for Graph
 where
     T: ValueType
-        + SparseWeightedAdjacencyMatrixForValueType<T>
-        + GetMatrixElementListTyped<T>
-        + GetMatrixElementValueTyped<T>
+        + IntoSparseMatrixForValueType<T>
+        + GetSparseMatrixElementListTyped<T>
+        + GetSparseMatrixElementValueTyped<T>
+        + GetValueTypeIdentifier
         + AnyMonoidTyped<T>
-        + SetMatrixElementTyped<T>
+        + SetSparseMatrixElementTyped<T>
         + Default
         + Copy,
 {
@@ -124,9 +123,10 @@ where
         &mut self,
         edge: WeightedDirectedEdgeDefinedByKeys<T>,
     ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        let edge_type_index = self
-            .edge_store_mut_ref()
-            .add_new_edge_type(edge.coordinate_ref().edge_type_ref())?;
+        let edge_type_index = AddEdgeType::<T>::add_new_edge_type(
+            self.edge_store_mut_ref(),
+            edge.coordinate_ref().edge_type_ref(),
+        )?;
 
         let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
         let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;

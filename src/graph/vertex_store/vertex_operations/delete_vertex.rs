@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::DeleteSparseVectorElement;
 
 use crate::{
     error::{GraphComputingError, LogicError},

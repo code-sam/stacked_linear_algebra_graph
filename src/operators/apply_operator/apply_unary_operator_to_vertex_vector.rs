@@ -377,9 +377,12 @@ mod tests {
         let vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<i32>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())

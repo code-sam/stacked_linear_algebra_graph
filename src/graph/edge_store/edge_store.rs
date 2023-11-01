@@ -4,13 +4,13 @@ use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 
+use super::weighted_adjacency_matrix::operations::ResizeWeightedAdjacencyMatrix;
 use super::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
 use crate::error::GraphComputingError;
 
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
+use crate::graph::edge_store::weighted_adjacency_matrix::GetEdgeType;
 
 use crate::graph::index::ElementCount;
 use crate::graph::indexer::Indexer as EdgeTypeIndexer;

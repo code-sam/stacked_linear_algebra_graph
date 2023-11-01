@@ -1,14 +1,27 @@
+use std::fmt::Display;
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
-use graphblas_sparse_linear_algebra::collections::Collection;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetSparseMatrixSize;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
+    new_graphblas_matrix, GetGraphblasSparseMatrix,
+};
+
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::clone_graphblas_matrix;
+use graphblas_sparse_linear_algebra::context::GetContext;
+use graphblas_sparse_linear_algebra::graphblas_bindings::{GrB_Matrix, GrB_Matrix_free};
+use graphblas_sparse_linear_algebra::operators::apply::{ApplyUnaryOperator, UnaryOperatorApplier};
+use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
+use graphblas_sparse_linear_algebra::operators::mask::{MatrixMask, SelectEntireMatrix};
+use graphblas_sparse_linear_algebra::operators::unary_operator::Identity;
 
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::index::ElementCount;
 use crate::graph::value_type::{
-    implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
+    implement_1_type_macro_with_enum_type_indentifier_for_all_value_types,
+    implement_macro_for_all_native_value_types, GetValueTypeIdentifier, GetValueTypeIdentifierRef,
+    ValueType, ValueTypeIdentifier,
 };
 
 use crate::graph::edge::{EdgeTypeKey, EdgeTypeKeyRef};
@@ -16,523 +29,257 @@ use crate::graph::edge::{EdgeTypeKey, EdgeTypeKeyRef};
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::{Size, SparseMatrix},
     context::Context as GraphBLASContext,
-    index::ElementIndex,
     operators::options::OperatorOptions,
 };
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
 
-static GRAPHBLAS_OPERATOR_OPTIONS_TRANSPOSE_INPUT0: Lazy<OperatorOptions> =
-    Lazy::new(|| OperatorOptions::new(false, false, false, true, false));
-// static GRAPHBLAS_ANY_MONOID: Lazy<Any<bool>> =
-//     Lazy::new(|| Any::<bool>::new());
+static UNARY_OPERATOR_APPLIER: Lazy<UnaryOperatorApplier> =
+    Lazy::new(|| UnaryOperatorApplier::new());
 
-// static GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION: Lazy<MonoidReducer<ValueType, ValueType>> =
-//     Lazy::new(|| {
-//         MonoidReducer::<ValueType, ValueType>::new(
-//             &Any::<ValueType>::new(),
-//             &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-//             None,
-//         )
-//     });
-
-// static GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION: Lazy<MonoidReducer<bool, bool>> = Lazy::new(|| {
-//     MonoidReducer::<bool, bool>::new(
-//         &Any::<bool>::new(),
-//         &GRAPHBLAS_OPERATOR_OPTIONS_TRANSPOSE_INPUT0,
-//         None,
-//     )
-// });
-
-// static GRAPHBLAS_VECTOR_OR_OPERATOR: Lazy<ElementWiseVectorAdditionMonoidOperator<bool>> =
-//     Lazy::new(|| {
-//         ElementWiseVectorAdditionMonoidOperator::<bool>::new(
-//             &LogicalOr::<bool>::new(),
-//             &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
-//             None,
-//         )
-//     });
+unsafe impl Send for WeightedAdjacencyMatrix {}
+unsafe impl Sync for WeightedAdjacencyMatrix {}
 
 #[derive(Clone, Debug)]
-pub struct WeightedAdjacencyMatrix {
+pub(crate) struct WeightedAdjacencyMatrix {
     edge_type: EdgeTypeKey,
     graphblas_context: Arc<GraphBLASContext>,
-    sparse_matrix_bool: SparseMatrix<bool>,
-    sparse_matrix_i8: SparseMatrix<i8>,
-    sparse_matrix_i16: SparseMatrix<i16>,
-    sparse_matrix_i32: SparseMatrix<i32>,
-    sparse_matrix_i64: SparseMatrix<i64>,
-    sparse_matrix_u8: SparseMatrix<u8>,
-    sparse_matrix_u16: SparseMatrix<u16>,
-    sparse_matrix_u32: SparseMatrix<u32>,
-    sparse_matrix_u64: SparseMatrix<u64>,
-    sparse_matrix_f32: SparseMatrix<f32>,
-    sparse_matrix_f64: SparseMatrix<f64>,
-    sparse_matrix_isize: SparseMatrix<isize>,
-    sparse_matrix_usize: SparseMatrix<usize>,
+    value_type: ValueTypeIdentifier,
+    sparse_matrix: GrB_Matrix,
 }
 
-impl WeightedAdjacencyMatrix {
-    pub(crate) fn new(
+pub(crate) trait GetEdgeType {
+    fn edge_type_ref(&self) -> &EdgeTypeKeyRef;
+}
+
+impl GetEdgeType for WeightedAdjacencyMatrix {
+    fn edge_type_ref(&self) -> &EdgeTypeKeyRef {
+        &self.edge_type.as_str()
+    }
+}
+
+pub(crate) trait CreateWeightedAdjacencyMatrix<T> {
+    fn new(
         graphblas_context: &Arc<GraphBLASContext>,
         edge_type: &EdgeTypeKeyRef,
         initial_vertex_capacity: &ElementCount,
-    ) -> Result<Self, GraphComputingError> {
-        let size = (*initial_vertex_capacity, *initial_vertex_capacity).into();
-        Ok(Self {
-            edge_type: edge_type.to_owned(),
-            graphblas_context: graphblas_context.clone(),
-            sparse_matrix_bool: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_i8: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_i16: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_i32: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_i64: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_u8: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_u16: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_u32: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_u64: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_f32: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_f64: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_isize: SparseMatrix::new(graphblas_context, &size)?,
-            sparse_matrix_usize: SparseMatrix::new(graphblas_context, &size)?,
-        })
-    }
-
-    // TODO: this approach should work once Type Alias Impl Trait (TAIT) is stable
-    // https://github.com/rust-lang/rust/issues/63063
-    // fn apply_to_adjacency_matrices_of_all_value_types<T: ValueType, F: Fn(&SparseMatrix<T>) -> Result<(), GraphComputingError>>(&self, f: F) -> Result<(), GraphComputingError> {
-    //     f(&self.sparse_matrix_bool)?;
-    //     Ok(())
-    // }
+    ) -> Result<WeightedAdjacencyMatrix, GraphComputingError>;
 }
 
-pub(crate) trait SparseWeightedAdjacencyMatrix<T: ValueType> {
-    fn sparse_matrix_ref(&self) -> &SparseMatrix<T>;
-    fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<T>;
-    fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError>;
-}
-
-impl<T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T>> SparseWeightedAdjacencyMatrix<T>
+impl<T: ValueType + GetValueTypeIdentifier> CreateWeightedAdjacencyMatrix<T>
     for WeightedAdjacencyMatrix
 {
-    fn sparse_matrix_ref(&self) -> &SparseMatrix<T> {
-        T::sparse_matrix_ref(self)
-    }
-
-    fn sparse_matrix_mut_ref(&mut self) -> &mut SparseMatrix<T> {
-        T::sparse_matrix_mut_ref(self)
-    }
-
-    fn number_of_edges(&self) -> Result<ElementIndex, GraphComputingError> {
-        T::number_of_edges(self)
+    fn new(
+        graphblas_context: &Arc<GraphBLASContext>,
+        edge_type: &EdgeTypeKeyRef,
+        initial_vertex_capacity: &ElementCount,
+    ) -> Result<WeightedAdjacencyMatrix, GraphComputingError> {
+        Ok(WeightedAdjacencyMatrix {
+            edge_type: edge_type.to_owned(),
+            graphblas_context: graphblas_context.clone(),
+            sparse_matrix: unsafe {
+                new_graphblas_matrix(
+                    graphblas_context,
+                    &Size::new(*initial_vertex_capacity, *initial_vertex_capacity),
+                    T::to_graphblas_type(),
+                )?
+            },
+            value_type: T::value_type_identifier(),
+        })
     }
 }
 
-pub(crate) trait SparseWeightedAdjacencyMatrixForValueType<T: ValueType> {
-    fn sparse_matrix_ref(adjacency_matrix: &WeightedAdjacencyMatrix) -> &SparseMatrix<T>;
-    fn sparse_matrix_mut_ref(
-        adjacency_matrix: &mut WeightedAdjacencyMatrix,
-    ) -> &mut SparseMatrix<T>;
-    fn number_of_edges(
-        adjacency_matrix: &WeightedAdjacencyMatrix,
-    ) -> Result<ElementIndex, GraphComputingError>;
+impl Drop for WeightedAdjacencyMatrix {
+    fn drop(&mut self) -> () {
+        let _ = self
+            .graphblas_context
+            .call_without_detailed_error_information(|| unsafe {
+                GrB_Matrix_free(&mut self.sparse_matrix)
+            });
+    }
 }
 
-macro_rules! implement_weighted_adjacency_matrix_sparse_matrix_trait {
-    ($typed_sparse_vector:ident, $value_type: ty) => {
-        impl SparseWeightedAdjacencyMatrixForValueType<$value_type> for $value_type {
-            fn sparse_matrix_ref(
-                adjacency_matrix: &WeightedAdjacencyMatrix,
-            ) -> &SparseMatrix<$value_type> {
-                &adjacency_matrix.$typed_sparse_vector
-            }
-            fn sparse_matrix_mut_ref(
-                adjacency_matrix: &mut WeightedAdjacencyMatrix,
-            ) -> &mut SparseMatrix<$value_type> {
-                &mut adjacency_matrix.$typed_sparse_vector
-            }
-            fn number_of_edges(
-                adjacency_matrix: &WeightedAdjacencyMatrix,
-            ) -> Result<ElementIndex, GraphComputingError> {
-                Ok(adjacency_matrix
-                    .$typed_sparse_vector
-                    .number_of_stored_elements()?)
-            }
-        }
-    };
+impl Display for WeightedAdjacencyMatrix {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "WeightedAdjacencyMatrix:");
+        writeln!(f, "edge_type: {:?}", self.edge_type);
+        writeln!(f, "graphblas_context: {:?}", self.graphblas_context);
+        writeln!(f, "value_type: {:?}", self.value_type);
+        writeln!(
+            f,
+            "sparse_matrix: \n{}",
+            <WeightedAdjacencyMatrix as IntoSparseMatrix<f64>>::sparse_matrix(self).unwrap()
+        );
+        return writeln!(f, "");
+    }
 }
-implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
-    implement_weighted_adjacency_matrix_sparse_matrix_trait,
-    sparse_matrix
-);
 
-pub(crate) trait WeightedAdjacencyMatrixTrait<T: ValueType> {
-    fn edge_type_ref(&self) -> &EdgeTypeKeyRef;
+pub(crate) trait GetGraphblasContext {
+    fn graphblas_context(&self) -> Arc<GraphBLASContext>;
     fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext>;
-
-    // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
-    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;
-
-    // TODO: this probably needs a lifetime, or a clone
-    // pub fn size_ref(&self) -> Result<&Size, GraphComputingError>;
-
-    fn resize(&mut self, new_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError>;
-    fn size(&self) -> Result<Size, GraphComputingError>;
 }
 
-impl WeightedAdjacencyMatrixTrait<bool> for WeightedAdjacencyMatrix {
-    fn edge_type_ref(&self) -> &EdgeTypeKeyRef {
-        &self.edge_type.as_str()
+impl GetGraphblasContext for WeightedAdjacencyMatrix {
+    fn graphblas_context(&self) -> Arc<GraphBLASContext> {
+        self.graphblas_context.clone()
     }
 
     fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext> {
         &self.graphblas_context
     }
+}
 
-    // The API suggests a design problem. Returning a ref would be safer, but technically not possible.
-    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
-        Ok(self.sparse_matrix_bool.row_height()?)
+impl GetContext for WeightedAdjacencyMatrix {
+    fn context(&self) -> Arc<GraphBLASContext> {
+        self.graphblas_context.clone()
     }
 
-    // TODO: this probably needs a lifetime, or a clone
-    // pub fn size_ref(&self) -> Result<&Size, GraphComputingError> {
-    //     Ok(&self.sparse_matrix.size()?)
-    // }
-
-    // TODO: find a more generic solution, e.g. by using TAITs as soon as they are stable
-    // https://github.com/rust-lang/rust/issues/63063
-    fn resize(&mut self, new_vertex_capacity: ElementIndex) -> Result<(), GraphComputingError> {
-        self.sparse_matrix_bool
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_i8
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_i16
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_i32
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_i64
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_u8
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_u16
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_u32
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_u64
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_f32
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_f64
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_isize
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        self.sparse_matrix_usize
-            .resize(&Size::new(new_vertex_capacity, new_vertex_capacity))?;
-        Ok(())
-    }
-
-    fn size(&self) -> Result<Size, GraphComputingError> {
-        // Size is the same for all types
-        Ok(self.sparse_matrix_bool.size()?)
+    fn context_ref(&self) -> &Arc<GraphBLASContext> {
+        &self.graphblas_context
     }
 }
 
-// macro_rules! implement_display {
-// ($value_type:ty) => {
-// impl std::fmt::Display for WeightedAdjacencyMatrix {
-//     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-//         writeln! {f, "Edge type: {}", self.edge_type};
-//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_bool};
-//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i8};
-//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i16};
-//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i32};
-//         writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_i64};
-//         return writeln! {f, "Adjancency matrix: {}", self.sparse_matrix_usize};
-//     }
+impl GetGraphblasSparseMatrix for WeightedAdjacencyMatrix {
+    unsafe fn graphblas_matrix(&self) -> GrB_Matrix {
+        self.sparse_matrix
+    }
+
+    unsafe fn graphblas_matrix_ref(&self) -> &GrB_Matrix {
+        &self.sparse_matrix
+    }
+
+    unsafe fn graphblas_matrix_mut_ref(&mut self) -> &mut GrB_Matrix {
+        &mut self.sparse_matrix
+    }
+}
+
+impl MatrixMask for WeightedAdjacencyMatrix {
+    unsafe fn graphblas_matrix(&self) -> GrB_Matrix {
+        self.sparse_matrix
+    }
+}
+
+impl GetValueTypeIdentifierRef for WeightedAdjacencyMatrix {
+    fn value_type_ref(&self) -> &ValueTypeIdentifier {
+        &self.value_type
+    }
+}
+
+// TODO: this approach should work once Type Alias Impl Trait (TAIT) is stable
+// https://github.com/rust-lang/rust/issues/63063
+// fn apply_to_adjacency_matrices_of_all_value_types<T: ValueType, F: Fn(&SparseMatrix<T>) -> Result<(), GraphComputingError>>(&self, f: F) -> Result<(), GraphComputingError> {
+//     f(&self.sparse_matrix_bool)?;
+//     Ok(())
 // }
-// };
-// }
-// implement_macro_for_all_native_value_types!(implement_display);
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+pub trait IntoSparseMatrix<T: ValueType> {
+    fn sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError>;
+}
 
-//     use graphblas_sparse_linear_algebra::collections::sparse_vector::GetVectorElementValue;
-//     use graphblas_sparse_linear_algebra::context::Mode;
+impl<T: ValueType + IntoSparseMatrixForValueType<T>> IntoSparseMatrix<T>
+    for WeightedAdjacencyMatrix
+{
+    fn sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError> {
+        T::sparse_matrix(self)
+    }
+}
 
-//     #[test]
-//     fn test_adjacency_matrix_construction() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
+pub(crate) trait IntoSparseMatrixForValueType<T: ValueType> {
+    fn sparse_matrix(
+        matrix: &(impl GetContext
+              + GetGraphblasSparseMatrix
+              + GetSparseMatrixSize
+              + GetValueTypeIdentifierRef),
+    ) -> Result<SparseMatrix<T>, GraphComputingError>;
+}
 
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
+macro_rules! implement_into_sparse_matrix_for_value_type {
+    ($value_type_identifier:ident, $value_type:ty) => {
+        impl IntoSparseMatrixForValueType<$value_type> for $value_type {
+            fn sparse_matrix(
+                matrix: &(impl GetContext
+                      + GetGraphblasSparseMatrix
+                      + GetSparseMatrixSize
+                      + GetValueTypeIdentifierRef),
+            ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
+                match matrix.value_type_ref() {
+                    &ValueTypeIdentifier::$value_type_identifier => unsafe {
+                        Ok(SparseMatrix::<$value_type>::from_graphblas_matrix(
+                            matrix.context_ref(),
+                            clone_graphblas_matrix(
+                                matrix.context_ref(),
+                                matrix.graphblas_matrix_ref(),
+                            )?,
+                        )?)
+                    },
+                    _ => {
+                        let mut product_matrix = SparseMatrix::<$value_type>::new(
+                            matrix.context_ref(),
+                            &matrix.size()?,
+                        )?;
 
-//         let adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-//     }
+                        UNARY_OPERATOR_APPLIER.apply_to_matrix(
+                            &Identity::<$value_type>::new(),
+                            matrix,
+                            &Assignment::<$value_type>::new(),
+                            &mut product_matrix,
+                            &SelectEntireMatrix::new(matrix.context_ref()),
+                            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                        )?;
 
-//     #[test]
-//     fn test_basic_operations() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
+                        return Ok(product_matrix);
+                    }
+                }
+            }
+        }
+    };
+}
+implement_1_type_macro_with_enum_type_indentifier_for_all_value_types!(
+    implement_into_sparse_matrix_for_value_type
+);
 
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
+pub(crate) trait CreateSparseMatrixForValueType<T: ValueType> {
+    fn new_sparse_matrix(
+        graphblas_context: &Arc<GraphBLASContext>,
+        initial_vertex_capacity: &ElementCount,
+    ) -> Result<SparseMatrix<T>, GraphComputingError>;
+}
 
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
+macro_rules! implement_create_sparse_matrix_for_value_type {
+    ($value_type:ty) => {
+        impl CreateSparseMatrixForValueType<$value_type> for $value_type {
+            fn new_sparse_matrix(
+                graphblas_context: &Arc<GraphBLASContext>,
+                initial_vertex_capacity: &ElementCount,
+            ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
+                let size = (*initial_vertex_capacity, *initial_vertex_capacity).into();
+                Ok(SparseMatrix::<$value_type>::new(graphblas_context, &size)?)
+            }
+        }
+    };
+}
+implement_macro_for_all_native_value_types!(implement_create_sparse_matrix_for_value_type);
 
-//         let edge_to_add = EdgeCoordinate::new(2, 1);
-//         assert!(!adjacency_matrix.is_edge(&edge_to_add).unwrap());
+#[cfg(test)]
+mod tests {
+    use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::sparse_matrix_size;
+    use graphblas_sparse_linear_algebra::context::Mode;
 
-//         adjacency_matrix.add_edge(&edge_to_add).unwrap();
-//         assert!(adjacency_matrix.is_edge(&edge_to_add).unwrap());
+    use super::*;
 
-//         adjacency_matrix.delete_edge(&edge_to_add).unwrap();
-//         assert!(!adjacency_matrix.is_edge(&edge_to_add).unwrap());
-//     }
-
-//     #[test]
-//     fn test_get_edge_coordinates() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         let edge_to_add_1 = EdgeCoordinate::new(2, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_1).unwrap();
-
-//         let edge_to_add_2 = EdgeCoordinate::new(1, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_2).unwrap();
-
-//         let edge_coordinates = adjacency_matrix.get_edge_coordinates().unwrap();
-//         assert_eq!(edge_coordinates.len(), 2);
-//         assert!(edge_coordinates.contains(&edge_to_add_1));
-//         assert!(edge_coordinates.contains(&edge_to_add_2));
-//     }
-
-//     #[test]
-//     fn test_vector_index_conversion() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         // let coordinate = Coordinate::new(0, 1);
-//         // let vector_index = adjacency_matrix.convert_coordinate_to_vector_index(coordinate);
-//         // assert_eq!(vector_index, 10);
-//         // let retrieved_coordinate =
-//         //     adjacency_matrix.convert_vector_index_to_coordinate(vector_index);
-//         // assert_eq!(retrieved_coordinate, coordinate);
-
-//         // let coordinate = Coordinate::new(1, 1);
-//         // let vector_index = adjacency_matrix.convert_coordinate_to_vector_index(coordinate);
-//         // assert_eq!(vector_index, 11);
-//         // let retrieved_coordinate =
-//         //     adjacency_matrix.convert_vector_index_to_coordinate(vector_index);
-//         // assert_eq!(retrieved_coordinate, coordinate);
-
-//         // let coordinate = Coordinate::new(3, 3);
-//         // let vector_index = adjacency_matrix.convert_coordinate_to_vector_index(coordinate);
-//         // assert_eq!(vector_index, 33);
-//         // let retrieved_coordinate =
-//         //     adjacency_matrix.convert_vector_index_to_coordinate(vector_index);
-//         // assert_eq!(retrieved_coordinate, coordinate);
-
-//         // let coordinate = Coordinate::new(0, 0);
-//         // let vector_index = adjacency_matrix.convert_coordinate_to_vector_index(coordinate);
-//         // assert_eq!(vector_index, 0);
-//         // let retrieved_coordinate =
-//         //     adjacency_matrix.convert_vector_index_to_coordinate(vector_index);
-//         // assert_eq!(retrieved_coordinate, coordinate);
-//     }
-
-//     #[test]
-//     fn test_get_from_vertex_index_mask() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         let edge_to_add_1 = EdgeCoordinate::new(2, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_1).unwrap();
-
-//         let edge_to_add_2 = EdgeCoordinate::new(1, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_2).unwrap();
-
-//         let from_vertex_index_map = adjacency_matrix.get_from_vertex_index_mask().unwrap();
-//         assert_eq!(
-//             from_vertex_index_map
-//                 .get_element_value_or_default(&0)
-//                 .unwrap(),
-//             false
-//         );
-//         assert_eq!(
-//             from_vertex_index_map
-//                 .get_element_value_or_default(&1)
-//                 .unwrap(),
-//             true
-//         );
-//         assert_eq!(
-//             from_vertex_index_map
-//                 .get_element_value_or_default(&2)
-//                 .unwrap(),
-//             true
-//         );
-//         assert_eq!(
-//             from_vertex_index_map
-//                 .get_element_value_or_default(&3)
-//                 .unwrap(),
-//             false
-//         );
-//     }
-
-//     #[test]
-//     fn test_get_from_vertex_indices() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         let edge_to_add_1 = EdgeCoordinate::new(2, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_1).unwrap();
-
-//         let edge_to_add_2 = EdgeCoordinate::new(1, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_2).unwrap();
-
-//         let from_vertex_indices = adjacency_matrix.get_from_vertex_indices().unwrap();
-//         assert_eq!(from_vertex_indices.len(), 2);
-//         assert!(from_vertex_indices.contains(&VertexIndex::new(1)));
-//         assert!(from_vertex_indices.contains(&VertexIndex::new(2)));
-//     }
-
-//     #[test]
-//     fn test_get_to_vertex_index_mask() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         let edge_to_add_1 = EdgeCoordinate::new(2, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_1).unwrap();
-
-//         let edge_to_add_2 = EdgeCoordinate::new(1, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_2).unwrap();
-
-//         let to_vertex_index_map = adjacency_matrix.get_to_vertex_index_mask().unwrap();
-//         assert_eq!(
-//             to_vertex_index_map
-//                 .get_element_value_or_default(&0)
-//                 .unwrap(),
-//             false
-//         );
-//         assert_eq!(
-//             to_vertex_index_map
-//                 .get_element_value_or_default(&1)
-//                 .unwrap(),
-//             true
-//         );
-//         assert_eq!(
-//             to_vertex_index_map
-//                 .get_element_value_or_default(&2)
-//                 .unwrap(),
-//             false
-//         );
-//         assert_eq!(
-//             to_vertex_index_map
-//                 .get_element_value_or_default(&3)
-//                 .unwrap(),
-//             false
-//         );
-//     }
-
-//     #[test]
-//     fn test_get_to_vertex_indices() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         let edge_to_add_1 = EdgeCoordinate::new(2, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_1).unwrap();
-
-//         let edge_to_add_2 = EdgeCoordinate::new(1, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_2).unwrap();
-
-//         let to_vertex_indices = adjacency_matrix.get_to_vertex_indices().unwrap();
-//         assert_eq!(to_vertex_indices.len(), 1);
-//         assert!(to_vertex_indices.contains(&VertexIndex::new(1)));
-//     }
-
-//     #[test]
-//     fn test_get_vertex_index_mask() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         let edge_to_add_1 = EdgeCoordinate::new(2, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_1).unwrap();
-
-//         let edge_to_add_2 = EdgeCoordinate::new(1, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_2).unwrap();
-//         println!("{}", adjacency_matrix);
-
-//         let vertex_index_map = adjacency_matrix.get_vertex_index_mask().unwrap();
-//         println!("{}", vertex_index_map);
-//         assert_eq!(
-//             vertex_index_map.get_element_value_or_default(&0).unwrap(),
-//             false
-//         );
-//         assert_eq!(
-//             vertex_index_map.get_element_value_or_default(&1).unwrap(),
-//             true
-//         );
-//         assert_eq!(
-//             vertex_index_map.get_element_value_or_default(&2).unwrap(),
-//             true
-//         );
-//         assert_eq!(
-//             vertex_index_map.get_element_value_or_default(&3).unwrap(),
-//             false
-//         );
-//     }
-
-//     #[test]
-//     fn test_get_vertex_indices() {
-//         let context = Context::init_ready(Mode::NonBlocking).unwrap();
-//         let vertex_capacity = 10;
-//         let edge_type: EdgeTypeKey = String::from("Test edge type");
-
-//         let mut adjacency_matrix =
-//             WeightedAdjacencyMatrix::new(&context, edge_type, vertex_capacity).unwrap();
-
-//         let edge_to_add_1 = EdgeCoordinate::new(2, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_1).unwrap();
-
-//         let edge_to_add_2 = EdgeCoordinate::new(1, 1);
-//         adjacency_matrix.add_edge(&edge_to_add_2).unwrap();
-
-//         let vertex_indices = adjacency_matrix.get_vertex_indices().unwrap();
-//         assert_eq!(vertex_indices.len(), 2);
-//         assert!(vertex_indices.contains(&VertexIndex::new(1)));
-//         assert!(vertex_indices.contains(&VertexIndex::new(2)));
-//     }
-// }
+    #[test]
+    fn new_adjacency_matrix() {
+        let weighted_adjacency_matrix =
+            <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<f32>>::new(
+                &GraphBLASContext::init_ready(Mode::NonBlocking).unwrap(),
+                "edge_type",
+                &10,
+            )
+            .unwrap();
+        assert_eq!(
+            sparse_matrix_size(&weighted_adjacency_matrix).unwrap(),
+            Size::new(10, 10)
+        );
+    }
+}

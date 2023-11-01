@@ -11,12 +11,11 @@ use graphblas_sparse_linear_algebra::operators::reduce::{MonoidReducer, MonoidVe
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
-use crate::graph::edge_store::weighted_adjacency_matrix::{
-    SparseWeightedAdjacencyMatrix, SparseWeightedAdjacencyMatrixForValueType,
-    WeightedAdjacencyMatrix,
-};
+use crate::graph::edge_store::weighted_adjacency_matrix::GetGraphblasContext;
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::value_type::ValueType;
+
+use super::GetMatrixSize;
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
@@ -31,9 +30,7 @@ pub(crate) trait SelectEdgeVertices<T: ValueType> {
     fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError>;
 }
 
-impl<T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T> + AnyMonoidTyped<T>>
-    SelectEdgeVertices<T> for WeightedAdjacencyMatrix
-{
+impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacencyMatrix {
     fn select_vertices_with_outgoing_edges(
         &self,
     ) -> Result<SparseVector<bool>, GraphComputingError> {
@@ -49,7 +46,7 @@ impl<T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T> + AnyMonoidType
         //     );
         MonoidReducer::new().to_column_vector(
             &Any::<T>::new(),
-            SparseWeightedAdjacencyMatrix::<T>::sparse_matrix_ref(self),
+            self,
             &Assignment::new(),
             &mut from_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context_ref()),
@@ -77,7 +74,7 @@ impl<T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T> + AnyMonoidType
         // )?;
         MonoidReducer::new().to_row_vector(
             &Any::<T>::new(),
-            SparseWeightedAdjacencyMatrix::<T>::sparse_matrix_ref(self),
+            self,
             &Assignment::new(),
             &mut to_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context_ref()),

@@ -1,13 +1,10 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElementTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetSparseMatrixElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge::DirectedEdgeCoordinateDefinedByIndicesTrait;
 use crate::graph::edge::WeightedDirectedEdgeDefinedByIndices;
 use crate::graph::edge::WeightedDirectedEdgeDefinedByIndicesTrait;
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::index::ElementIndex;
 use crate::graph::value_type::ValueType;
@@ -28,7 +25,7 @@ pub(crate) trait AddEdge<T: ValueType> {
 
 impl<T> AddEdge<T> for WeightedAdjacencyMatrix
 where
-    T: ValueType + Copy + SetMatrixElementTyped<T> + SparseWeightedAdjacencyMatrixForValueType<T>,
+    T: ValueType + Copy + SetSparseMatrixElementTyped<T>,
 {
     fn add_edge_defined_by_indices_unchecked(
         &mut self,
@@ -43,7 +40,7 @@ where
             *edge.weight_ref(),
         );
 
-        self.sparse_matrix_mut_ref().set_element(element)?;
+        T::set_graphblas_matrix_element(self, element)?;
         Ok(())
     }
 
@@ -53,8 +50,8 @@ where
         head: &ElementIndex,
         weight: &T,
     ) -> Result<(), GraphComputingError> {
-        self.sparse_matrix_mut_ref()
-            .set_element(MatrixElement::new((*tail, *head).into(), *weight))?;
+        let element = MatrixElement::new((*tail, *head).into(), *weight);
+        T::set_graphblas_matrix_element(self, element)?;
         Ok(())
     }
 }

@@ -9,7 +9,6 @@ use crate::graph::edge::{
 };
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteEdge as DeleteEdgeInAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::indexer::IndexerTrait;
@@ -30,7 +29,7 @@ pub trait DeleteEdge<T: ValueType> {
 
 impl<T> DeleteEdge<T> for Graph
 where
-    T: ValueType + SparseWeightedAdjacencyMatrixForValueType<T>,
+    T: ValueType,
 {
     fn delete_edge_defined_by_keys(
         &mut self,
@@ -124,8 +123,10 @@ mod tests {
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_2).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())

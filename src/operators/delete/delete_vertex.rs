@@ -1,7 +1,7 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnectionsForAllTypes,
+        edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnections,
         graph::{GraphTrait, VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
         value_type::SparseVertexVectorForValueType,
@@ -67,8 +67,7 @@ impl DeleteVertex for Graph {
         // TODO: Consider restricting to valid indices for improved performance
         self.edge_store_mut_ref().map_mut_all_adjacency_matrices(
             |adjacency_matrix: &mut WeightedAdjacencyMatrix| {
-                adjacency_matrix
-                    .delete_vertex_connections_for_all_value_types_unchecked(vertex_index)
+                adjacency_matrix.delete_vertex_connections_unchecked(vertex_index)
             },
         )?;
 

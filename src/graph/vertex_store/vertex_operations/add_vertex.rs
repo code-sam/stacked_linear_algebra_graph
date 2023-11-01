@@ -1,9 +1,5 @@
 use std::fmt::Display;
 
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValue;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
-
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;

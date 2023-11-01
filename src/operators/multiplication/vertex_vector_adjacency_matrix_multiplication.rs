@@ -12,7 +12,6 @@ use graphblas_sparse_linear_algebra::{
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait};
 
 use crate::graph::graph::VertexTypeIndex;
@@ -71,7 +70,7 @@ pub trait VertexVectorAdjacencyMatrixMultiplication<
 
 impl<
         LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
+        RightArgument: ValueType,
         Product: ValueType + SparseVertexVectorForValueType<Product>,
         EvaluationDomain: ValueType,
     >
@@ -117,7 +116,7 @@ where
             .apply(
                 LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
                 Product::sparse_vector_mut_ref(vertex_vector_product),
                 options,
@@ -151,7 +150,7 @@ where
             .apply(
                 LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
                 Product::sparse_vector_mut_ref(vertex_vector_product),
                 options,
@@ -189,7 +188,7 @@ where
             .apply(
                 LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
                 Product::sparse_vector_mut_ref(vertex_vector_product),
                 options,
@@ -262,7 +261,7 @@ where
     SparseVector<Product>: VectorMask,
     SparseVector<Mask>: VectorMask,
     LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
+    RightArgument: ValueType,
     Product: ValueType + SparseVertexVectorForValueType<Product>,
     Mask: ValueType + SparseVertexVectorForValueType<Mask>,
     EvaluationDomain: ValueType,
@@ -301,7 +300,7 @@ where
             .apply_with_mask(
                 LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
                 Product::sparse_vector_mut_ref(vertex_vector_product),
                 Mask::sparse_vector_ref(vertex_vector_mask),
@@ -339,7 +338,7 @@ where
             .apply_with_mask(
                 LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
                 Product::sparse_vector_mut_ref(vertex_vector_product),
                 Mask::sparse_vector_ref(vertex_vector_mask),
@@ -381,7 +380,7 @@ where
             .apply_with_mask(
                 LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
                 Product::sparse_vector_mut_ref(vertex_vector_product),
                 Mask::sparse_vector_ref(vertex_vector_mask),
@@ -447,9 +446,12 @@ mod tests {
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())

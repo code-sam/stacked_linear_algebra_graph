@@ -1,7 +1,6 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::IsSparseVectorElement;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElement;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 
 use crate::error::GraphComputingError;
 

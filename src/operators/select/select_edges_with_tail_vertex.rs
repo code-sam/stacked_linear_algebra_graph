@@ -1,4 +1,3 @@
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
@@ -70,8 +69,8 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<EvaluationDomain>: VectorMask,
     VertexVector: SparseVertexVector<EvaluationDomain>,
-    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
-    EvaluationDomain: ValueType + SparseVertexVectorForValueType<EvaluationDomain>,
+    AdjacencyMatrix: ValueType,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -99,7 +98,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_row_extractor()
             .apply(
-                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                adjacency_matrix_adjacency_matrix,
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -133,7 +132,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_row_extractor()
             .apply(
-                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                adjacency_matrix_adjacency_matrix,
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -176,7 +175,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_row_extractor()
             .apply(
-                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                adjacency_matrix_adjacency_matrix,
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
@@ -239,7 +238,7 @@ where
     SparseVector<Mask>: VectorMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
     VertexVector: SparseVertexVector<EvaluationDomain>,
-    AdjacencyMatrix: ValueType + SparseWeightedAdjacencyMatrixForValueType<AdjacencyMatrix>,
+    AdjacencyMatrix: ValueType,
     Mask: ValueType + SparseVertexVectorForValueType<Mask>,
     EvaluationDomain: ValueType,
 {
@@ -273,7 +272,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_row_extractor()
             .apply(
-                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                adjacency_matrix_adjacency_matrix,
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -311,7 +310,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_row_extractor()
             .apply(
-                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                adjacency_matrix_adjacency_matrix,
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -358,7 +357,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_row_extractor()
             .apply(
-                AdjacencyMatrix::sparse_matrix_ref(adjacency_matrix_adjacency_matrix),
+                adjacency_matrix_adjacency_matrix,
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
@@ -429,9 +428,12 @@ mod tests {
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<isize>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())

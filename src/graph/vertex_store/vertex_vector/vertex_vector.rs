@@ -1,16 +1,14 @@
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValue;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetMatrixElement;
-
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrixTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::DeleteSparseVectorElement;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorLength;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::IsSparseVectorElement;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::ResizeSparseVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElement;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElement;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 

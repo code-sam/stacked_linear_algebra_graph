@@ -1,4 +1,3 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     GetVectorElementValue, GetVectorElementValueTyped,
 };
