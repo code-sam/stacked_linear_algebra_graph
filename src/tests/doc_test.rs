@@ -64,7 +64,7 @@ fn main() {
     let selected_vertices_index: usize =
         AddVertexType::<i32>::add_new_vertex_type(&mut graph, selected_vertices_key).unwrap();
 
-    ApplyIndexUnaryOperatorToVertexVector::<u8, u8, u8>::with_key(
+    ApplyIndexUnaryOperatorToVertexVector::<u8>::with_key(
         &mut graph,
         numbers_vertex_type_key,
         &IsValueEqualTo::<u8>::new(),
@@ -76,7 +76,7 @@ fn main() {
     .unwrap();
 
     for _i in 0..2 {
-        VertexVectorAdjacencyMatrixMultiplication::<u8, bool, u8, u8>::by_index(
+        VertexVectorAdjacencyMatrixMultiplication::<u8>::by_index(
             &mut graph,
             &selected_vertices_index,
             &PlusTimes::<u8>::new(),
@@ -88,7 +88,7 @@ fn main() {
         .unwrap();
     }
 
-    BinaryOperatorElementWiseVertexVectorMultiplication::<u8, u8, u8, u8>::by_key(
+    BinaryOperatorElementWiseVertexVectorMultiplication::<u8>::by_key(
         &mut graph,
         selected_vertices_key,
         &Plus::<u8>::new(),

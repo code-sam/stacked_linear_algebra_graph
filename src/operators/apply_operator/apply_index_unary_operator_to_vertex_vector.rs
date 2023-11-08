@@ -23,10 +23,8 @@ use crate::{
 };
 use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
-pub trait ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
+pub trait ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain>
 where
-    VertexVector: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn with_index(
@@ -60,14 +58,10 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<VertexVector, Product, EvaluationDomain>
-    ApplyIndexUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain>
+    ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
-    VertexVector: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn with_index(
@@ -173,18 +167,9 @@ where
 }
 
 pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
-    VertexVector,
-    Product,
     EvaluationDomain,
-    Mask,
 > where
-    VertexVector: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn with_index_defined_vertex_vector_as_vertex_vector_and_mask(
         &mut self,
@@ -220,13 +205,10 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<VertexVector: ValueType, Product: ValueType, Mask: ValueType, EvaluationDomain: ValueType>
-    ApplyScalarBinaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
+impl<EvaluationDomain: ValueType>
+    ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
     for Graph
 where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
 {
     fn with_index_defined_vertex_vector_as_vertex_vector_and_mask(
@@ -417,7 +399,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyIndexUnaryOperatorToVertexVector::<u8, u16, f32>::with_key(
+        ApplyIndexUnaryOperatorToVertexVector::<f32>::with_key(
             &mut graph,
             &vertex_type_key,
             &IsValueGreaterThan::<f32>::new(),

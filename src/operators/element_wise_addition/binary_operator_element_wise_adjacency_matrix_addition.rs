@@ -18,18 +18,9 @@ use crate::{
 };
 
 pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
-    LeftArgument,
-    RightArgument,
-    Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -62,20 +53,10 @@ pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     BinaryOperatorElementWiseAdjacencyMatrixAddition<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -189,21 +170,9 @@ where
 }
 
 pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-    Mask,
+    EvaluationDomain
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
-    EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
+    EvaluationDomain: ValueType
 {
     fn by_index(
         &mut self,
@@ -239,23 +208,10 @@ pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-        Mask,
+        EvaluationDomain
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -454,7 +410,7 @@ mod tests {
             .unwrap();
 
         for _i in 0..2 {
-            BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8, u8, u16, u8>::by_key(
+            BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8>::by_key(
                 &mut graph,
                 &edge_type_1_key,
                 &Plus::<u8>::new(),
@@ -479,7 +435,7 @@ mod tests {
             Some(4)
         );
 
-        BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8, usize, u16, u8>::by_key(
+        BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &Plus::<u8>::new(),
@@ -504,7 +460,7 @@ mod tests {
         );
 
         // Test if ownership issues arise if the product overwrites the argument
-        BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8, u8, u8, u8>::by_key(
+        BinaryOperatorElementWiseAdjacencyMatrixAddition::<u8>::by_key(
             &mut graph,
             edge_type_1_key,
             &Plus::<u8>::new(),

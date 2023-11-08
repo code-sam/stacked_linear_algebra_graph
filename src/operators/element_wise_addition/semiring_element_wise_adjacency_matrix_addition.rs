@@ -20,18 +20,9 @@ use crate::{
 };
 
 pub trait SemiringElementWiseAdjacencyMatrixAddition<
-    LeftArgument,
-    RightArgument,
-    Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -64,20 +55,10 @@ pub trait SemiringElementWiseAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     SemiringElementWiseAdjacencyMatrixAddition<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -191,21 +172,9 @@ where
 }
 
 pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-    Mask,
+    EvaluationDomain
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -241,23 +210,10 @@ pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     SemiringElementWiseMaskedAdjacencyMatrixAddition<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-        Mask,
+        EvaluationDomain
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -458,7 +414,7 @@ mod tests {
             .unwrap();
 
         for _i in 0..2 {
-            SemiringElementWiseAdjacencyMatrixAddition::<u8, u8, u16, u8>::by_key(
+            SemiringElementWiseAdjacencyMatrixAddition::<u8>::by_key(
                 &mut graph,
                 &edge_type_1_key,
                 &PlusTimes::<u8>::new(),
@@ -486,7 +442,7 @@ mod tests {
         // println!("{}", graph.edge_store_ref().try_adjacency_matrix_ref_for_index(&_edge_type_1_index).unwrap());
         // println!("{}", graph.edge_store_ref().try_adjacency_matrix_ref_for_index(&_edge_type_2_index).unwrap());
 
-        SemiringElementWiseAdjacencyMatrixAddition::<u8, usize, u16, u8>::by_key(
+        SemiringElementWiseAdjacencyMatrixAddition::<u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &PlusTimes::<u8>::new(),

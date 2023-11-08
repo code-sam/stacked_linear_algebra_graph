@@ -17,18 +17,9 @@ use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait BinaryOperatorElementWiseVertexVectorMultiplication<
-    LeftArgument,
-    RightArgument,
-    Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<LeftArgument>: VectorMask,
-    SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -61,20 +52,11 @@ pub trait BinaryOperatorElementWiseVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain>
+impl<EvaluationDomain>
     BinaryOperatorElementWiseVertexVectorMultiplication<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
     > for Graph
 where
-    SparseVector<LeftArgument>: VectorMask,
-    SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -189,21 +171,9 @@ where
 }
 
 pub trait BinaryOperatorElementWiseMaskedVertexVectorMultiplication<
-    LeftArgument,
-    RightArgument,
-    Product,
     EvaluationDomain,
-    Mask,
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseVector<LeftArgument>: VectorMask,
-    SparseVector<RightArgument>: VectorMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -239,23 +209,11 @@ pub trait BinaryOperatorElementWiseMaskedVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
+impl<EvaluationDomain>
     BinaryOperatorElementWiseMaskedVertexVectorMultiplication<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
-        Mask,
     > for Graph
 where
-    SparseVector<LeftArgument>: VectorMask,
-    SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -405,7 +363,7 @@ mod tests {
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        BinaryOperatorElementWiseMaskedVertexVectorMultiplication::<u8, u8, u16, u8, u8>::by_key(
+        BinaryOperatorElementWiseMaskedVertexVectorMultiplication::<u8>::by_key(
             &mut graph,
             vertex_type_key,
             &Plus::<u8>::new(),

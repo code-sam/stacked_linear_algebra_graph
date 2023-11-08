@@ -21,13 +21,9 @@ use crate::{
 };
 use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
 
-pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
+pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn with_index_defined_adjacency_matrix_as_left_argument(
         &mut self,
@@ -90,13 +86,9 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<AdjacencyMatrix, Product, EvaluationDomain: ValueType>
-    ApplyScalarBinaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain: ValueType>
+    ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph
 where
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
 {
     fn with_index_defined_adjacency_matrix_as_left_argument(
@@ -303,18 +295,9 @@ where
 }
 
 pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-    AdjacencyMatrix,
-    Product,
     EvaluationDomain,
-    Mask,
 > where
-    AdjacencyMatrix: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn with_index_defined_adjacency_matrix_as_left_argument_and_mask(
         &mut self,
@@ -383,20 +366,11 @@ pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<AdjacencyMatrix, Product, Mask, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-        AdjacencyMatrix,
-        Product,
         EvaluationDomain,
-        Mask,
     > for Graph
 where
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
 {
     fn with_index_defined_adjacency_matrix_as_left_argument_and_mask(
@@ -698,7 +672,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8, u16, u8>::with_key_defined_adjacency_matrix_as_left_argument(
+        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_key_defined_adjacency_matrix_as_left_argument(
             &mut graph,
             &edge_type_1_key,
             &Plus::<u8>::new(),
@@ -721,7 +695,7 @@ mod tests {
             Some(2)
         );
 
-        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u32, u16, u8>::with_key_defined_adjacency_matrix_as_left_argument(
+        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_key_defined_adjacency_matrix_as_left_argument(
             &mut graph,
             &edge_type_2_key,
             &Plus::<u8>::new(),
@@ -744,7 +718,7 @@ mod tests {
             Some(2)
         );
 
-        ApplyScalarBinaryOperatorToAdjacencyMatrix::<usize, usize, u8>::with_key_defined_adjacency_matrix_as_left_argument(
+        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_key_defined_adjacency_matrix_as_left_argument(
             &mut graph,
             &edge_type_1_key,
             &Plus::<u8>::new(),

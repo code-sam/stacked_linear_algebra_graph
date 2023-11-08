@@ -20,15 +20,9 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType},
 };
 
-pub trait AdjacencyMatrixMultiplication<LeftArgument, RightArgument, Product, EvaluationDomain>
+pub trait AdjacencyMatrixMultiplication<EvaluationDomain>
 where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -61,15 +55,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
-    AdjacencyMatrixMultiplication<LeftArgument, RightArgument, Product, EvaluationDomain> for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
+impl<EvaluationDomain: ValueType>
+    AdjacencyMatrixMultiplication<EvaluationDomain> for Graph
 {
     fn by_index(
         &mut self,
@@ -180,21 +167,9 @@ where
 }
 
 pub trait AdjacencyMatrixMultiplicationMasked<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-    Mask,
+    EvaluationDomain
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -230,23 +205,10 @@ pub trait AdjacencyMatrixMultiplicationMasked<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     AdjacencyMatrixMultiplicationMasked<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
-        Mask,
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -445,7 +407,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        AdjacencyMatrixMultiplication::<u8, u8, u16, u8>::by_key(
+        AdjacencyMatrixMultiplication::<u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &PlusTimes::<u8>::new(),

@@ -28,18 +28,9 @@ use crate::{
 };
 
 pub trait AdjacencyMatrixVertexVectorMultiplication<
-    LeftArgument,
-    RightArgument,
-    Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -72,20 +63,10 @@ pub trait AdjacencyMatrixVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     AdjacencyMatrixVertexVectorMultiplication<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -199,21 +180,9 @@ where
 }
 
 pub trait AdjacencyMatrixMultiplicationMasked<
-    LeftArgument,
-    RightArgument,
-    Product,
     EvaluationDomain,
-    Mask,
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseVector<RightArgument>: VectorMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -250,24 +219,11 @@ pub trait AdjacencyMatrixMultiplicationMasked<
 }
 
 impl<
-        LeftArgument: ValueType,
-        RightArgument: ValueType,
-        Product: ValueType,
-        Mask: ValueType,
         EvaluationDomain: ValueType,
     >
     AdjacencyMatrixMultiplicationMasked<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
-        Mask,
     > for Graph
-where
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseVector<RightArgument>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -467,7 +423,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        AdjacencyMatrixVertexVectorMultiplication::<u8, u8, u16, u8>::by_key(
+        AdjacencyMatrixVertexVectorMultiplication::<u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &PlusTimes::<u8>::new(),

@@ -19,13 +19,9 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain>
+pub trait SelectFromAdjacencyMatrix<EvaluationDomain>
 where
-    Argument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<Argument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -58,13 +54,9 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<Argument, Product, EvaluationDomain: ValueType>
-    SelectFromAdjacencyMatrix<Argument, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain: ValueType>
+    SelectFromAdjacencyMatrix<EvaluationDomain> for Graph
 where
-    Argument: ValueType,
-    Product: ValueType,
-    SparseMatrix<Argument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
     MatrixSelector: SelectFromMatrix<EvaluationDomain>,
 {
     fn by_index(
@@ -169,15 +161,9 @@ where
     }
 }
 
-pub trait SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask>
+pub trait SelectFromMaskedAdjacencyMatrix<EvaluationDomain>
 where
-    Argument: ValueType,
-    SparseMatrix<Argument>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -213,15 +199,9 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<Argument, Product, EvaluationDomain: ValueType, Mask>
-    SelectFromMaskedAdjacencyMatrix<Argument, Product, EvaluationDomain, Mask> for Graph
+impl<EvaluationDomain: ValueType>
+    SelectFromMaskedAdjacencyMatrix<EvaluationDomain> for Graph
 where
-    Argument: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Argument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
     MatrixSelector: SelectFromMatrix<EvaluationDomain>,
 {
     fn by_index(
@@ -412,7 +392,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        SelectFromAdjacencyMatrix::<u8, u16, u8>::by_key(
+        SelectFromAdjacencyMatrix::<u8>::by_key(
             &mut graph,
             &IsValueGreaterThan::<u8>::new(),
             &1,

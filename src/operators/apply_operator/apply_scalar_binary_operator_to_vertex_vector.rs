@@ -20,13 +20,9 @@ use crate::{
     },
 };
 
-pub trait ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
+pub trait ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain>
 where
-    VertexVector: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn with_index_defined_vertex_vector_as_left_argument(
         &mut self,
@@ -89,14 +85,10 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<VertexVector, Product, EvaluationDomain>
-    ApplyScalarBinaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain>
+    ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
-    VertexVector: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn with_index_defined_vertex_vector_as_left_argument(
@@ -303,18 +295,9 @@ where
 }
 
 pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
-    VertexVector,
-    Product,
     EvaluationDomain,
-    Mask,
 > where
-    VertexVector: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn with_index_defined_vertex_vector_as_left_argument_and_mask(
         &mut self,
@@ -383,13 +366,10 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<VertexVector: ValueType, Product: ValueType, Mask: ValueType, EvaluationDomain: ValueType>
-    ApplyScalarBinaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
+impl<EvaluationDomain: ValueType>
+    ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
     for Graph
 where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
 {
     fn with_index_defined_vertex_vector_as_left_argument_and_mask(

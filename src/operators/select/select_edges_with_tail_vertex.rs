@@ -24,19 +24,16 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait SelectEdgesWithTailVertex<AdjacencyMatrix, ExtractTo>
+pub trait SelectEdgesWithTailVertex<EvaluationDomain>
 where
-    AdjacencyMatrix: ValueType,
-    ExtractTo: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseVector<ExtractTo>: VectorMask,
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
         // head_vertex_selector: &VertexSelector,
-        accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -46,7 +43,7 @@ where
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
         // head_vertex_selector: &VertexSelector,
-        accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -56,18 +53,15 @@ where
         adjacency_matrix: &EdgeTypeKeyRef,
         tail_vertex: &VertexKeyRef,
         // head_vertex_selector: &VertexSelector,
-        accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<AdjacencyMatrix, EvaluationDomain> SelectEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain>
+impl<EvaluationDomain> SelectEdgesWithTailVertex<EvaluationDomain>
     for Graph
 where
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseVector<EvaluationDomain>: VectorMask,
-    AdjacencyMatrix: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -180,21 +174,17 @@ where
     }
 }
 
-pub trait SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, ExtractTo, Mask>
+pub trait SelectMaskedEdgesWithTailVertex<EvaluationDomain>
 where
-    AdjacencyMatrix: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    ExtractTo: ValueType,
-    SparseMatrix<ExtractTo>: MatrixMask,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
+    EvaluationDomain: ValueType,
+    SparseMatrix<EvaluationDomain>: MatrixMask,
 {
     fn by_index(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
         // head_vertex_selector: &VertexSelector,
-        accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
         options: &OperatorOptions,
@@ -205,7 +195,7 @@ where
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
         // head_vertex_selector: &VertexSelector,
-        accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
         options: &OperatorOptions,
@@ -216,21 +206,17 @@ where
         adjacency_matrix: &EdgeTypeKeyRef,
         tail_vertex: &VertexKeyRef,
         // head_vertex_selector: &VertexSelector,
-        accumlator: &impl AccumulatorBinaryOperator<ExtractTo>,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeKeyRef,
         mask: &VertexTypeKeyRef,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<AdjacencyMatrix, Mask, EvaluationDomain>
-    SelectMaskedEdgesWithTailVertex<AdjacencyMatrix, EvaluationDomain, Mask> for Graph
+impl<EvaluationDomain>
+    SelectMaskedEdgesWithTailVertex<EvaluationDomain> for Graph
 where
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseVector<Mask>: VectorMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
-    AdjacencyMatrix: ValueType,
-    Mask: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -432,7 +418,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        SelectEdgesWithTailVertex::<u8, isize>::by_key(
+        SelectEdgesWithTailVertex::< isize>::by_key(
             &mut graph,
             &edge_type_1_key,
             vertex_1.key_ref(),
@@ -453,7 +439,7 @@ mod tests {
             Some(1)
         );
 
-        SelectEdgesWithTailVertex::<usize, isize>::by_key(
+        SelectEdgesWithTailVertex::<isize>::by_key(
             &mut graph,
             &edge_type_1_key,
             vertex_2.key_ref(),

@@ -19,18 +19,9 @@ use crate::{
 };
 
 pub trait MonoidElementWiseAdjacencyMatrixMultiplication<
-    LeftArgument,
-    RightArgument,
-    Product,
     EvaluationDomain,
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -63,20 +54,10 @@ pub trait MonoidElementWiseAdjacencyMatrixMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     MonoidElementWiseAdjacencyMatrixMultiplication<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -190,21 +171,9 @@ where
 }
 
 pub trait MonoidElementWiseMaskedAdjacencyMatrixMultiplication<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-    Mask,
+    EvaluationDomain
 > where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -240,23 +209,10 @@ pub trait MonoidElementWiseMaskedAdjacencyMatrixMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain: ValueType>
+impl<EvaluationDomain: ValueType>
     MonoidElementWiseMaskedAdjacencyMatrixMultiplication<
-        LeftArgument,
-        RightArgument,
-        Product,
         EvaluationDomain,
-        Mask,
     > for Graph
-where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -456,7 +412,7 @@ mod tests {
             .unwrap();
 
         for _i in 0..2 {
-            MonoidElementWiseAdjacencyMatrixMultiplication::<u8, u8, u16, u8>::by_key(
+            MonoidElementWiseAdjacencyMatrixMultiplication::<u8>::by_key(
                 &mut graph,
                 &edge_type_1_key,
                 &Plus::<u8>::new(),
@@ -481,7 +437,7 @@ mod tests {
             Some(4)
         );
 
-        MonoidElementWiseAdjacencyMatrixMultiplication::<u8, usize, u16, u8>::by_key(
+        MonoidElementWiseAdjacencyMatrixMultiplication::<u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &Plus::<u8>::new(),

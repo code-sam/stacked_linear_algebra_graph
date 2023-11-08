@@ -24,10 +24,8 @@ use crate::{
     },
 };
 
-pub trait ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
+pub trait ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn with_index(
@@ -61,14 +59,10 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<AdjacencyMatrix, Product, EvaluationDomain>
-    ApplyIndexUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain>
+    ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph
 where
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn with_index(
@@ -174,18 +168,9 @@ where
 }
 
 pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-    AdjacencyMatrix,
-    Product,
     EvaluationDomain,
-    Mask,
 > where
-    AdjacencyMatrix: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn with_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
         &mut self,
@@ -222,21 +207,12 @@ pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
 }
 
 impl<
-        AdjacencyMatrix: ValueType,
-        Product: ValueType,
-        Mask: ValueType,
         EvaluationDomain: ValueType,
     >
     ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-        AdjacencyMatrix,
-        Product,
         EvaluationDomain,
-        Mask,
     > for Graph
 where
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
 {
     fn with_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
@@ -430,7 +406,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyIndexUnaryOperatorToAdjacencyMatrix::<u8, u16, f32>::with_key(
+        ApplyIndexUnaryOperatorToAdjacencyMatrix::<f32>::with_key(
             &mut graph,
             &edge_type_1_key,
             &IsValueGreaterThan::<f32>::new(),

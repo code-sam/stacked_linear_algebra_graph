@@ -20,13 +20,9 @@ use crate::{
 };
 use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
 
-pub trait ApplyUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain>
+pub trait ApplyUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -56,13 +52,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<AdjacencyMatrix, Product, EvaluationDomain: ValueType>
-    ApplyUnaryOperatorToAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain> for Graph
-where
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
+impl<EvaluationDomain: ValueType>
+    ApplyUnaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph
 {
     fn by_index(
         &mut self,
@@ -161,18 +152,9 @@ where
 }
 
 pub trait ApplyUnaryOperatorToMaskedAdjacencyMatrix<
-    AdjacencyMatrix,
-    Product,
-    EvaluationDomain,
-    Mask,
+    EvaluationDomain
 > where
-    AdjacencyMatrix: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -205,16 +187,9 @@ pub trait ApplyUnaryOperatorToMaskedAdjacencyMatrix<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<AdjacencyMatrix, Product, Mask, EvaluationDomain: ValueType>
-    ApplyUnaryOperatorToMaskedAdjacencyMatrix<AdjacencyMatrix, Product, EvaluationDomain, Mask>
+impl<EvaluationDomain: ValueType>
+    ApplyUnaryOperatorToMaskedAdjacencyMatrix<EvaluationDomain>
     for Graph
-where
-    AdjacencyMatrix: ValueType,
-    Product: ValueType,
-    Mask: ValueType,
-    SparseMatrix<AdjacencyMatrix>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -398,7 +373,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyUnaryOperatorToAdjacencyMatrix::<u8, u16, i32>::by_key(
+        ApplyUnaryOperatorToAdjacencyMatrix::<i32>::by_key(
             &mut graph,
             &ColumnIndex::<i32>::new(),
             &edge_type_1_key,

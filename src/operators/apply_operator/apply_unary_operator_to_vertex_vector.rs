@@ -21,13 +21,9 @@ use crate::{
 };
 use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
-pub trait ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
+pub trait ApplyUnaryOperatorToVertexVector<EvaluationDomain>
 where
-    VertexVector: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -57,13 +53,9 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<VertexVector, Product, EvaluationDomain>
-    ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain>
+    ApplyUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    VertexVector: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -162,15 +154,9 @@ where
     }
 }
 
-pub trait ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
+pub trait ApplyUnaryOperatorToMaskedVertexVector<EvaluationDomain>
 where
-    VertexVector: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -203,12 +189,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<VertexVector: ValueType, Product: ValueType, Mask: ValueType, EvaluationDomain: ValueType>
-    ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask> for Graph
-where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
+impl<EvaluationDomain: ValueType>
+    ApplyUnaryOperatorToMaskedVertexVector<EvaluationDomain> for Graph
 {
     fn by_index(
         &mut self,
@@ -390,7 +372,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyUnaryOperatorToVertexVector::<u8, u16, i32>::by_key(
+        ApplyUnaryOperatorToVertexVector::<i32>::by_key(
             &mut graph,
             &ColumnIndex::<i32>::new(),
             &vertex_type_key,

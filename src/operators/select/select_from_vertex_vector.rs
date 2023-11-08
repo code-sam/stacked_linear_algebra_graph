@@ -13,13 +13,9 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait SelectFromVertexVector<Argument, Product, EvaluationDomain>
+pub trait SelectFromVertexVector<EvaluationDomain>
 where
-    Argument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<Argument>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -52,14 +48,10 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<Argument, Product, EvaluationDomain>
-    SelectFromVertexVector<Argument, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain>
+    SelectFromVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<Argument>: VectorMask,
-    SparseVector<Product>: VectorMask,
     VectorSelector: SelectFromVector<EvaluationDomain>,
-    Argument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -164,15 +156,9 @@ where
     }
 }
 
-pub trait SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask>
+pub trait SelectFromMaskedVertexVector<EvaluationDomain>
 where
-    Argument: ValueType,
-    SparseVector<Argument>: VectorMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -208,17 +194,11 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<Argument, Product, EvaluationDomain, Mask>
-    SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask> for Graph
+impl<EvaluationDomain>
+    SelectFromMaskedVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<Argument>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
     VectorSelector: SelectFromVector<EvaluationDomain>,
-    Argument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
 {
     fn by_index(
         &mut self,
@@ -406,7 +386,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        SelectFromVertexVector::<u8, u16, u8>::by_key(
+        SelectFromVertexVector::<u8>::by_key(
             &mut graph,
             &IsValueGreaterThan::<u8>::new(),
             &1,
