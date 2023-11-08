@@ -1,9 +1,7 @@
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
+    binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+    options::OperatorOptions,
 };
 
 use crate::graph::{
@@ -18,7 +16,6 @@ use crate::{
         vertex::vertex::VertexTypeKeyRef,
     },
 };
-
 
 pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where
@@ -85,8 +82,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph
+impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
+    for Graph
 where
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
 {
@@ -293,9 +290,8 @@ where
     }
 }
 
-pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-    EvaluationDomain,
-> where
+pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn with_index_defined_adjacency_matrix_as_left_argument_and_mask(
@@ -365,10 +361,8 @@ pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<EvaluationDomain>
+    for Graph
 where
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
 {

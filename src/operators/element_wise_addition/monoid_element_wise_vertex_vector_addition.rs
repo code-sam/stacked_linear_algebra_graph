@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionMonoidOperator;
 use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -15,9 +13,8 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait MonoidElementWiseVertexVectorAddition<
-    EvaluationDomain,
-> where
+pub trait MonoidElementWiseVertexVectorAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -51,9 +48,7 @@ pub trait MonoidElementWiseVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    MonoidElementWiseVertexVectorAddition<EvaluationDomain>
-    for Graph
+impl<EvaluationDomain> MonoidElementWiseVertexVectorAddition<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -168,9 +163,8 @@ where
     }
 }
 
-pub trait MonoidElementWiseMaskedVertexVectorAddition<
-    EvaluationDomain,
-> where
+pub trait MonoidElementWiseMaskedVertexVectorAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -207,10 +201,7 @@ pub trait MonoidElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    MonoidElementWiseMaskedVertexVectorAddition<
-        EvaluationDomain
-    > for Graph
+impl<EvaluationDomain> MonoidElementWiseMaskedVertexVectorAddition<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -340,7 +331,6 @@ mod tests {
 
     use super::*;
 
-    
     use crate::graph::vertex::vertex_defined_by_key::{
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };
@@ -382,6 +372,5 @@ mod tests {
             .unwrap(),
             Some(4)
         );
-
     }
 }

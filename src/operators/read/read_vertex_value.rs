@@ -7,7 +7,6 @@ use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::{VertexKeyRef, VertexTypeKeyRef};
 use crate::graph::vertex_store::{IntoSparseVectorForValueType, ReadVertex};
 
-
 pub trait ReadVertexValue<T: ValueType> {
     fn vertex_value_by_key(
         &self,

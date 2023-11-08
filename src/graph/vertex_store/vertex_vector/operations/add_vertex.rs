@@ -8,9 +8,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     SetVectorElement, SetVectorElementTyped,
 };
 
-
 use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElement;
-
 
 use crate::error::{GraphComputingError, GraphComputingErrorType};
 use crate::error::{LogicError, LogicErrorType};

@@ -59,8 +59,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain> SelectEdgesWithTailVertex<EvaluationDomain>
-    for Graph
+impl<EvaluationDomain> SelectEdgesWithTailVertex<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -213,8 +212,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SelectMaskedEdgesWithTailVertex<EvaluationDomain> for Graph
+impl<EvaluationDomain> SelectMaskedEdgesWithTailVertex<EvaluationDomain> for Graph
 where
     SparseMatrix<EvaluationDomain>: MatrixMask,
     EvaluationDomain: ValueType,
@@ -418,7 +416,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        SelectEdgesWithTailVertex::< isize>::by_key(
+        SelectEdgesWithTailVertex::<isize>::by_key(
             &mut graph,
             &edge_type_1_key,
             vertex_1.key_ref(),

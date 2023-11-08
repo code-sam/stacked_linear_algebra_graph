@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::App
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationMonoidOperator;
 use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -15,9 +13,8 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait MonoidElementWiseVertexVectorMultiplication<
-    EvaluationDomain,
-> where
+pub trait MonoidElementWiseVertexVectorMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -51,10 +48,7 @@ pub trait MonoidElementWiseVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    MonoidElementWiseVertexVectorMultiplication<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain> MonoidElementWiseVertexVectorMultiplication<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -169,9 +163,8 @@ where
     }
 }
 
-pub trait MonoidElementWiseMaskedVertexVectorMultiplication<
-    EvaluationDomain,
-> where
+pub trait MonoidElementWiseMaskedVertexVectorMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -208,10 +201,7 @@ pub trait MonoidElementWiseMaskedVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    MonoidElementWiseMaskedVertexVectorMultiplication<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain> MonoidElementWiseMaskedVertexVectorMultiplication<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -341,7 +331,6 @@ mod tests {
 
     use super::*;
 
-    
     use crate::graph::vertex::vertex_defined_by_key::{
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };

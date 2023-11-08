@@ -60,8 +60,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain> SelectEdgesWithHeadVertex<EvaluationDomain>
-    for Graph
+impl<EvaluationDomain> SelectEdgesWithHeadVertex<EvaluationDomain> for Graph
 where
     SparseVector<EvaluationDomain>: VectorMask,
     EvaluationDomain: ValueType,
@@ -215,8 +214,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SelectMaskedEdgesWithHeadVertex<EvaluationDomain> for Graph
+impl<EvaluationDomain> SelectMaskedEdgesWithHeadVertex<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {

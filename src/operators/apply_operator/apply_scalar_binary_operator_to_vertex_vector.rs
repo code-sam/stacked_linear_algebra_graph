@@ -1,9 +1,7 @@
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
+    binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+    options::OperatorOptions,
 };
 
 use crate::graph::{
@@ -83,8 +81,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain> for Graph
+impl<EvaluationDomain> ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
     EvaluationDomain: ValueType,
@@ -292,9 +289,8 @@ where
     }
 }
 
-pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
-    EvaluationDomain,
-> where
+pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn with_index_defined_vertex_vector_as_left_argument_and_mask(
@@ -364,8 +360,7 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
+impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
     for Graph
 where
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,

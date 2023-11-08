@@ -3,10 +3,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::App
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyMatrices;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
@@ -54,9 +52,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    AdjacencyMatrixMultiplication<EvaluationDomain> for Graph
-{
+impl<EvaluationDomain: ValueType> AdjacencyMatrixMultiplication<EvaluationDomain> for Graph {
     fn by_index(
         &mut self,
         left_argument: &EdgeTypeIndex,
@@ -165,9 +161,8 @@ impl<EvaluationDomain: ValueType>
     }
 }
 
-pub trait AdjacencyMatrixMultiplicationMasked<
-    EvaluationDomain
-> where
+pub trait AdjacencyMatrixMultiplicationMasked<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -204,11 +199,7 @@ pub trait AdjacencyMatrixMultiplicationMasked<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    AdjacencyMatrixMultiplicationMasked<
-        EvaluationDomain,
-    > for Graph
-{
+impl<EvaluationDomain: ValueType> AdjacencyMatrixMultiplicationMasked<EvaluationDomain> for Graph {
     fn by_index(
         &mut self,
         left_argument: &EdgeTypeIndex,

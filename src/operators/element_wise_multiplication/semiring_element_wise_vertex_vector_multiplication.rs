@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::App
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -15,9 +13,8 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait SemiringElementWiseVertexVectorMultiplication<
-    EvaluationDomain,
-> where
+pub trait SemiringElementWiseVertexVectorMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -51,10 +48,7 @@ pub trait SemiringElementWiseVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SemiringElementWiseVertexVectorMultiplication<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain> SemiringElementWiseVertexVectorMultiplication<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -169,9 +163,8 @@ where
     }
 }
 
-pub trait SemiringElementWiseMaskedVertexVectorMultiplication<
-    EvaluationDomain,
-> where
+pub trait SemiringElementWiseMaskedVertexVectorMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -208,10 +201,8 @@ pub trait SemiringElementWiseMaskedVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SemiringElementWiseMaskedVertexVectorMultiplication<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain> SemiringElementWiseMaskedVertexVectorMultiplication<EvaluationDomain>
+    for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -341,7 +332,6 @@ mod tests {
 
     use super::*;
 
-    
     use crate::graph::vertex::vertex_defined_by_key::{
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };

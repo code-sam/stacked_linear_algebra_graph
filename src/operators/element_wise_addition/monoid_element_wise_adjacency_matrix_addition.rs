@@ -1,10 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionMonoidOperator;
 use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
@@ -17,9 +15,8 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait MonoidElementWiseAdjacencyMatrixAddition<
-    EvaluationDomain,
-> where
+pub trait MonoidElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -53,8 +50,7 @@ pub trait MonoidElementWiseAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    MonoidElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+impl<EvaluationDomain: ValueType> MonoidElementWiseAdjacencyMatrixAddition<EvaluationDomain>
     for Graph
 {
     fn by_index(
@@ -168,10 +164,9 @@ impl<EvaluationDomain: ValueType>
     }
 }
 
-pub trait MonoidElementWiseMaskedAdjacencyMatrixAddition<
-    EvaluationDomain
-> where
-    EvaluationDomain: ValueType
+pub trait MonoidElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -207,10 +202,8 @@ pub trait MonoidElementWiseMaskedAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    MonoidElementWiseMaskedAdjacencyMatrixAddition<
-        EvaluationDomain
-    > for Graph
+impl<EvaluationDomain: ValueType> MonoidElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,

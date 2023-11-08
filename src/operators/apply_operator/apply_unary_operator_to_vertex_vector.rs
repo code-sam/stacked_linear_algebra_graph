@@ -1,9 +1,7 @@
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-        unary_operator::UnaryOperator,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
+    unary_operator::UnaryOperator,
 };
 
 use crate::graph::vertex_store::VertexStoreTrait;
@@ -18,7 +16,6 @@ use crate::{
         value_type::ValueType,
     },
 };
-
 
 pub trait ApplyUnaryOperatorToVertexVector<EvaluationDomain>
 where
@@ -52,8 +49,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    ApplyUnaryOperatorToVertexVector<EvaluationDomain> for Graph
+impl<EvaluationDomain> ApplyUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -188,8 +184,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    ApplyUnaryOperatorToMaskedVertexVector<EvaluationDomain> for Graph
+impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToMaskedVertexVector<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,

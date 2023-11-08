@@ -1,10 +1,8 @@
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
-        binary_operator::AccumulatorBinaryOperator,
-        index_unary_operator::IndexUnaryOperator,
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
+    binary_operator::AccumulatorBinaryOperator,
+    index_unary_operator::IndexUnaryOperator,
+    options::OperatorOptions,
 };
 
 use crate::graph::{
@@ -20,7 +18,6 @@ use crate::{
         vertex::vertex::VertexTypeKeyRef,
     },
 };
-
 
 pub trait ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain>
 where
@@ -57,8 +54,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain> for Graph
+impl<EvaluationDomain> ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
     EvaluationDomain: ValueType,
@@ -165,9 +161,8 @@ where
     }
 }
 
-pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
-    EvaluationDomain,
-> where
+pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn with_index_defined_vertex_vector_as_vertex_vector_and_mask(
@@ -204,8 +199,7 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
+impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToMaskedVertexVector<EvaluationDomain>
     for Graph
 where
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,

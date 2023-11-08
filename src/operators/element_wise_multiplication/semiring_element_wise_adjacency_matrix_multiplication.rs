@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::App
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationSemiring;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
@@ -18,9 +16,8 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait SemiringElementWiseAdjacencyMatrixMultiplication<
-    EvaluationDomain,
-> where
+pub trait SemiringElementWiseAdjacencyMatrixMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -54,10 +51,8 @@ pub trait SemiringElementWiseAdjacencyMatrixMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    SemiringElementWiseAdjacencyMatrixMultiplication<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixMultiplication<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,
@@ -170,9 +165,8 @@ impl<EvaluationDomain: ValueType>
     }
 }
 
-pub trait SemiringElementWiseMaskedAdjacencyMatrixMultiplication<
-    EvaluationDomain
-> where
+pub trait SemiringElementWiseMaskedAdjacencyMatrixMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -210,9 +204,7 @@ pub trait SemiringElementWiseMaskedAdjacencyMatrixMultiplication<
 }
 
 impl<EvaluationDomain: ValueType>
-    SemiringElementWiseMaskedAdjacencyMatrixMultiplication<
-        EvaluationDomain
-    > for Graph
+    SemiringElementWiseMaskedAdjacencyMatrixMultiplication<EvaluationDomain> for Graph
 {
     fn by_index(
         &mut self,

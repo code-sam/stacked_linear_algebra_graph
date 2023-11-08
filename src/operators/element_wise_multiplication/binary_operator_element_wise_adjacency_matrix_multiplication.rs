@@ -189,9 +189,8 @@ where
     }
 }
 
-pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixMultiplication<
-    EvaluationDomain
-> where
+pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -229,9 +228,7 @@ pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixMultiplication<
 }
 
 impl<EvaluationDomain: ValueType>
-    BinaryOperatorElementWiseMaskedAdjacencyMatrixMultiplication<
-        EvaluationDomain
-    > for Graph
+    BinaryOperatorElementWiseMaskedAdjacencyMatrixMultiplication<EvaluationDomain> for Graph
 {
     fn by_index(
         &mut self,

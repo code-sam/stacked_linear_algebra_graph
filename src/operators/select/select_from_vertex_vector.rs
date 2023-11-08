@@ -1,9 +1,7 @@
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait, VertexTypeIndex};
@@ -47,8 +45,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SelectFromVertexVector<EvaluationDomain> for Graph
+impl<EvaluationDomain> SelectFromVertexVector<EvaluationDomain> for Graph
 where
     VectorSelector: SelectFromVector<EvaluationDomain>,
     EvaluationDomain: ValueType,
@@ -193,8 +190,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SelectFromMaskedVertexVector<EvaluationDomain> for Graph
+impl<EvaluationDomain> SelectFromMaskedVertexVector<EvaluationDomain> for Graph
 where
     VectorSelector: SelectFromVector<EvaluationDomain>,
     EvaluationDomain: ValueType,

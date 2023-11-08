@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionSemiring;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
@@ -18,9 +16,8 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait SemiringElementWiseAdjacencyMatrixAddition<
-    EvaluationDomain,
-> where
+pub trait SemiringElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -54,10 +51,8 @@ pub trait SemiringElementWiseAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    SemiringElementWiseAdjacencyMatrixAddition<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,
@@ -170,9 +165,8 @@ impl<EvaluationDomain: ValueType>
     }
 }
 
-pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<
-    EvaluationDomain
-> where
+pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -209,10 +203,8 @@ pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    SemiringElementWiseMaskedAdjacencyMatrixAddition<
-        EvaluationDomain
-    > for Graph
+impl<EvaluationDomain: ValueType> SemiringElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,
@@ -346,7 +338,7 @@ mod tests {
     use crate::graph::edge::{
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
     };
-    
+
     use crate::graph::vertex::vertex_defined_by_key::{
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };

@@ -1,10 +1,8 @@
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
-        binary_operator::AccumulatorBinaryOperator,
-        index_unary_operator::IndexUnaryOperator,
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
+    binary_operator::AccumulatorBinaryOperator,
+    index_unary_operator::IndexUnaryOperator,
+    options::OperatorOptions,
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -57,8 +55,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph
+impl<EvaluationDomain> ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph
 where
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
     EvaluationDomain: ValueType,
@@ -165,9 +162,8 @@ where
     }
 }
 
-pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-    EvaluationDomain,
-> where
+pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn with_index_defined_adjacency_matrix_as_adjacency_matrix_and_mask(
@@ -204,12 +200,8 @@ pub trait ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        EvaluationDomain: ValueType,
-    >
-    ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToMaskedAdjacencyMatrix<EvaluationDomain>
+    for Graph
 where
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
 {

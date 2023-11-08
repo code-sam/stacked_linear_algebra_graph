@@ -11,7 +11,6 @@ use crate::graph::index::ElementCount;
 
 use crate::graph::indexer::{Indexer, IndexerTrait};
 
-
 use super::{ResizeWeightedAdjacencyMatrix, VertexVector};
 
 pub(crate) type SparseVertexVector<T> = SparseVector<T>;

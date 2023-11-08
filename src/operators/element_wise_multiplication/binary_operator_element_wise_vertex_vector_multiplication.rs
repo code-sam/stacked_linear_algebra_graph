@@ -1,10 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationBinaryOperator;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+    options::OperatorOptions,
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -14,9 +12,8 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait BinaryOperatorElementWiseVertexVectorMultiplication<
-    EvaluationDomain,
-> where
+pub trait BinaryOperatorElementWiseVertexVectorMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -50,10 +47,8 @@ pub trait BinaryOperatorElementWiseVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    BinaryOperatorElementWiseVertexVectorMultiplication<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain> BinaryOperatorElementWiseVertexVectorMultiplication<EvaluationDomain>
+    for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -168,9 +163,8 @@ where
     }
 }
 
-pub trait BinaryOperatorElementWiseMaskedVertexVectorMultiplication<
-    EvaluationDomain,
-> where
+pub trait BinaryOperatorElementWiseMaskedVertexVectorMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -207,10 +201,8 @@ pub trait BinaryOperatorElementWiseMaskedVertexVectorMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    BinaryOperatorElementWiseMaskedVertexVectorMultiplication<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain> BinaryOperatorElementWiseMaskedVertexVectorMultiplication<EvaluationDomain>
+    for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -340,7 +332,6 @@ mod tests {
 
     use super::*;
 
-    
     use crate::graph::vertex::vertex_defined_by_key::{
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };
@@ -382,6 +373,5 @@ mod tests {
             .unwrap(),
             Some(4)
         );
-
     }
 }

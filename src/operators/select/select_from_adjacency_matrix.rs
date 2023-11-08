@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
@@ -53,8 +51,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    SelectFromAdjacencyMatrix<EvaluationDomain> for Graph
+impl<EvaluationDomain: ValueType> SelectFromAdjacencyMatrix<EvaluationDomain> for Graph
 where
     MatrixSelector: SelectFromMatrix<EvaluationDomain>,
 {
@@ -198,8 +195,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    SelectFromMaskedAdjacencyMatrix<EvaluationDomain> for Graph
+impl<EvaluationDomain: ValueType> SelectFromMaskedAdjacencyMatrix<EvaluationDomain> for Graph
 where
     MatrixSelector: SelectFromMatrix<EvaluationDomain>,
 {

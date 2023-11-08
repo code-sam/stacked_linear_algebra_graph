@@ -1,10 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionBinaryOperator;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+    options::OperatorOptions,
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -14,9 +12,8 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait BinaryOperatorElementWiseVertexVectorAddition<
-    EvaluationDomain,
-> where
+pub trait BinaryOperatorElementWiseVertexVectorAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -50,10 +47,7 @@ pub trait BinaryOperatorElementWiseVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    BinaryOperatorElementWiseVertexVectorAddition<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain> BinaryOperatorElementWiseVertexVectorAddition<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -168,10 +162,9 @@ where
     }
 }
 
-pub trait BinaryOperatorElementWiseMaskedVertexVectorAddition<
-    EvaluationDomain
-> where
-    EvaluationDomain: ValueType
+pub trait BinaryOperatorElementWiseMaskedVertexVectorAddition<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -207,10 +200,8 @@ pub trait BinaryOperatorElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    BinaryOperatorElementWiseMaskedVertexVectorAddition<
-        EvaluationDomain
-    > for Graph
+impl<EvaluationDomain> BinaryOperatorElementWiseMaskedVertexVectorAddition<EvaluationDomain>
+    for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -381,6 +372,5 @@ mod tests {
             .unwrap(),
             Some(4)
         );
-        
     }
 }

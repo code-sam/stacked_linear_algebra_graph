@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -15,9 +13,8 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait SemiringElementWiseVertexVectorAddition<
-    EvaluationDomain,
-> where
+pub trait SemiringElementWiseVertexVectorAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -51,9 +48,7 @@ pub trait SemiringElementWiseVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SemiringElementWiseVertexVectorAddition<EvaluationDomain>
-    for Graph
+impl<EvaluationDomain> SemiringElementWiseVertexVectorAddition<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -168,10 +163,9 @@ where
     }
 }
 
-pub trait SemiringElementWiseMaskedVertexVectorAddition<
-    EvaluationDomain
-> where
-    EvaluationDomain: ValueType
+pub trait SemiringElementWiseMaskedVertexVectorAddition<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -207,10 +201,7 @@ pub trait SemiringElementWiseMaskedVertexVectorAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain>
-    SemiringElementWiseMaskedVertexVectorAddition<
-        EvaluationDomain
-    > for Graph
+impl<EvaluationDomain> SemiringElementWiseMaskedVertexVectorAddition<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
@@ -381,6 +372,5 @@ mod tests {
             .unwrap(),
             Some(4)
         );
-
     }
 }

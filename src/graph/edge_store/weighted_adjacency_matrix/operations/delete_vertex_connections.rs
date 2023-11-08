@@ -1,8 +1,6 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector;
-use graphblas_sparse_linear_algebra::operators::binary_operator::{
-    Assignment,
-};
+use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::insert::{
     InsertVectorIntoColumn, InsertVectorIntoColumnTrait,
 };

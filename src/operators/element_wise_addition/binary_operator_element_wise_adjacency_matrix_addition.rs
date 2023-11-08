@@ -1,9 +1,7 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionBinaryOperator;
-use graphblas_sparse_linear_algebra::{
-    operators::{
-        binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+    options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
@@ -15,9 +13,8 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType},
 };
 
-pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
-    EvaluationDomain,
-> where
+pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -51,10 +48,8 @@ pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<EvaluationDomain: ValueType>
-    BinaryOperatorElementWiseAdjacencyMatrixAddition<
-        EvaluationDomain,
-    > for Graph
+impl<EvaluationDomain: ValueType> BinaryOperatorElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,
@@ -167,10 +162,9 @@ impl<EvaluationDomain: ValueType>
     }
 }
 
-pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
-    EvaluationDomain
-> where
-    EvaluationDomain: ValueType
+pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
 {
     fn by_index(
         &mut self,
@@ -207,9 +201,7 @@ pub trait BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
 }
 
 impl<EvaluationDomain: ValueType>
-    BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<
-        EvaluationDomain
-    > for Graph
+    BinaryOperatorElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain> for Graph
 {
     fn by_index(
         &mut self,
