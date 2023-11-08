@@ -119,7 +119,8 @@ mod tests {
             3u8,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 

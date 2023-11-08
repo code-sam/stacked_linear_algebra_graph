@@ -11,8 +11,7 @@ use graphblas_sparse_linear_algebra::{
 use crate::graph::{
     edge::EdgeTypeKeyRef,
     graph::GraphblasOperatorApplierCollectionTrait,
-    value_type::SparseVertexVectorForValueType,
-    vertex_store::{type_operations::get_vertex_vector::GetVertexVector, VertexStoreTrait},
+    vertex_store::{operations::get_vertex_vector::GetVertexVector, VertexStoreTrait},
 };
 use crate::{
     error::GraphComputingError,
@@ -67,8 +66,8 @@ where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn with_index(
@@ -96,11 +95,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .index_unary_operator_applier()
             .apply_to_vector(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -127,11 +126,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .index_unary_operator_applier()
             .apply_to_vector(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -162,11 +161,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .index_unary_operator_applier()
             .apply_to_vector(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -179,12 +178,12 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     EvaluationDomain,
     Mask,
 > where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    VertexVector: ValueType,
     SparseVector<VertexVector>: VectorMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Product: ValueType,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
     SparseVector<Mask>: VectorMask,
 {
     fn with_index_defined_vertex_vector_as_vertex_vector_and_mask(
@@ -221,12 +220,8 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    > ApplyScalarBinaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
+impl<VertexVector: ValueType, Product: ValueType, Mask: ValueType, EvaluationDomain: ValueType>
+    ApplyScalarBinaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
     for Graph
 where
     SparseVector<VertexVector>: VectorMask,
@@ -262,12 +257,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .index_unary_operator_applier()
             .apply_to_vector(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -296,12 +291,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .index_unary_operator_applier()
             .apply_to_vector(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -334,12 +329,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .index_unary_operator_applier()
             .apply_to_vector(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -400,7 +395,8 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 

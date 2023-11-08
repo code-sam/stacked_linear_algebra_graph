@@ -20,9 +20,8 @@ use crate::graph::graph::Graph;
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::graph::graph::VertexTypeIndex;
-use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::{
     error::GraphComputingError,
     graph::{edge::EdgeTypeIndex, value_type::ValueType},
@@ -82,8 +81,8 @@ impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
     > for Graph
 where
     LeftArgument: ValueType,
-    RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    RightArgument: ValueType,
+    Product: ValueType,
     SparseMatrix<LeftArgument>: MatrixMask,
     SparseVector<RightArgument>: VectorMask,
     SparseVector<Product>: VectorMask,
@@ -119,9 +118,9 @@ where
             .apply(
                 adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                vertex_vector_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 options,
             )?)
     }
@@ -153,9 +152,9 @@ where
             .apply(
                 adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                vertex_vector_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 options,
             )?)
     }
@@ -191,9 +190,9 @@ where
             .apply(
                 adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                vertex_vector_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 options,
             )?)
     }
@@ -252,9 +251,9 @@ pub trait AdjacencyMatrixMultiplicationMasked<
 
 impl<
         LeftArgument: ValueType,
-        RightArgument: ValueType + SparseVertexVectorForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+        RightArgument: ValueType,
+        Product: ValueType,
+        Mask: ValueType,
         EvaluationDomain: ValueType,
     >
     AdjacencyMatrixMultiplicationMasked<
@@ -304,10 +303,10 @@ where
             .apply_with_mask(
                 adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                vertex_vector_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -342,10 +341,10 @@ where
             .apply_with_mask(
                 adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                vertex_vector_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -384,10 +383,10 @@ where
             .apply_with_mask(
                 adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_vector_ref(vertex_vector_right_argument),
+                vertex_vector_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -407,7 +406,7 @@ mod tests {
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
-    use crate::operators::read::ReadVertexValue;
+    use crate::operators::read::{ReadVertexValue, ReadVertexVectorElementList, ReadAdjacencyMatrixElementList};
 
     #[test]
     fn multiply_vertex_vector_with_adjacency_matrix() {
@@ -446,7 +445,8 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
@@ -478,6 +478,8 @@ mod tests {
         )
         .unwrap();
 
+        // println!("{:?}", ReadAdjacencyMatrixElementList::<u16>::with_key(&graph, edge_type_1_key).unwrap());
+
         // println!(
         //     "{:?}",
         //     ReadVertexVectorElementList::<u16>::with_key(&graph, vertex_type_key).unwrap()
@@ -490,7 +492,7 @@ mod tests {
                 vertex_1.key_ref()
             )
             .unwrap(),
-            Some(2)
+            Some(3)
         );
     }
 }

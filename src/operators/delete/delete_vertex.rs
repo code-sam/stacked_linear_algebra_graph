@@ -4,13 +4,10 @@ use crate::{
         edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnections,
         graph::{GraphTrait, VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
-        value_type::SparseVertexVectorForValueType,
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
-            vertex_operations::{
-                DeleteVertexElement as DeleteVertexElementFromVertexStore, DeleteVertexForAllTypes,
-            },
-            SparseVertexVector, VertexStoreTrait, VertexVector,
+            VertexStoreTrait,
+            {DeleteVertexElement as DeleteVertexElementFromVertexStore, DeleteVertexForAllTypes},
         },
     },
 };
@@ -78,8 +75,7 @@ impl DeleteVertex for Graph {
 
 impl<T> DeleteVertexElement<T> for Graph
 where
-    T: ValueType + SparseVertexVectorForValueType<T>,
-    VertexVector: SparseVertexVector<T>,
+    T: ValueType,
 {
     fn delete_vertex_element_by_key(
         &mut self,

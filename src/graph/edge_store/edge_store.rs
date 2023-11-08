@@ -10,8 +10,6 @@ use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
 use crate::error::GraphComputingError;
 
-use crate::graph::edge_store::weighted_adjacency_matrix::GetEdgeType;
-
 use crate::graph::index::ElementCount;
 use crate::graph::indexer::Indexer as EdgeTypeIndexer;
 use crate::graph::indexer::IndexerTrait;

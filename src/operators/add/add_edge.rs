@@ -203,9 +203,10 @@ mod tests {
         let vertex_type_1_key = String::from("vertex_type_1");
         let _vertex_type_2_key = String::from("vertex_type_2");
 
-        let _vertex_type_index = graph
-            .add_new_vertex_type(vertex_type_1_key.as_str())
-            .unwrap();
+        let _vertex_type_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_1_key.as_str())
+                .unwrap();
+
         let vertex_1 = VertexDefinedByKey::new(
             vertex_type_1_key.as_str(),
             String::from("vertex_1").as_str(),

@@ -1,5 +1,4 @@
-use crate::graph::value_type::SparseVertexVectorForValueType;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixRow;
@@ -68,7 +67,6 @@ impl<AdjacencyMatrix, EvaluationDomain> SelectEdgesWithTailVertex<AdjacencyMatri
 where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<EvaluationDomain>: VectorMask,
-    VertexVector: SparseVertexVector<EvaluationDomain>,
     AdjacencyMatrix: ValueType,
     EvaluationDomain: ValueType,
 {
@@ -102,9 +100,7 @@ where
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                vertex_vector_extract_to,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -136,9 +132,7 @@ where
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                vertex_vector_extract_to,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -179,9 +173,7 @@ where
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
+                vertex_vector_extract_to,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -237,9 +229,8 @@ where
     SparseMatrix<AdjacencyMatrix>: MatrixMask,
     SparseVector<Mask>: VectorMask,
     SparseMatrix<EvaluationDomain>: MatrixMask,
-    VertexVector: SparseVertexVector<EvaluationDomain>,
     AdjacencyMatrix: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -276,10 +267,8 @@ where
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_extract_to,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -314,10 +303,8 @@ where
                 tail_vertex,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_extract_to,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -361,10 +348,8 @@ where
                 head_vertex_index,
                 &VertexSelector::All,
                 accumlator,
-                SparseVertexVector::<EvaluationDomain>::sparse_vector_mut_ref(
-                    vertex_vector_extract_to,
-                ),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_extract_to,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -423,8 +408,10 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
-        let _vertex_type_2_index = graph.add_new_vertex_type(vertex_result_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
+        let _vertex_type_2_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_result_type_key).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 

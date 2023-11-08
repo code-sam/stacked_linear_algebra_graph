@@ -10,8 +10,7 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::graph::{
     graph::{GraphblasOperatorApplierCollectionTrait, VertexTypeIndex},
-    value_type::SparseVertexVectorForValueType,
-    vertex_store::type_operations::get_vertex_vector::GetVertexVector,
+    vertex_store::operations::get_vertex_vector::GetVertexVector,
 };
 use crate::{
     error::GraphComputingError,
@@ -96,8 +95,8 @@ where
     SparseVector<VertexVector>: VectorMask,
     SparseVector<Product>: VectorMask,
     BinaryOperatorApplier: ApplyGraphBlasBinaryOperator<EvaluationDomain>,
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    VertexVector: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn with_index_defined_vertex_vector_as_left_argument(
@@ -125,11 +124,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .binary_operator_applier()
             .apply_with_vector_as_left_argument(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -162,9 +161,9 @@ where
             .apply_with_vector_as_right_argument(
                 left_argument,
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -191,11 +190,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .binary_operator_applier()
             .apply_with_vector_as_left_argument(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -224,9 +223,9 @@ where
             .apply_with_vector_as_right_argument(
                 left_argument,
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -257,11 +256,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .binary_operator_applier()
             .apply_with_vector_as_left_argument(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -294,9 +293,9 @@ where
             .apply_with_vector_as_right_argument(
                 left_argument,
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -309,12 +308,12 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     EvaluationDomain,
     Mask,
 > where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
+    VertexVector: ValueType,
     SparseVector<VertexVector>: VectorMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Product: ValueType,
     SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
     SparseVector<Mask>: VectorMask,
 {
     fn with_index_defined_vertex_vector_as_left_argument_and_mask(
@@ -384,12 +383,8 @@ pub trait ApplyScalarBinaryOperatorToMaskedVertexVector<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    > ApplyScalarBinaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
+impl<VertexVector: ValueType, Product: ValueType, Mask: ValueType, EvaluationDomain: ValueType>
+    ApplyScalarBinaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
     for Graph
 where
     SparseVector<VertexVector>: VectorMask,
@@ -425,12 +420,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .binary_operator_applier()
             .apply_with_vector_as_left_argument(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -465,10 +460,10 @@ where
             .apply_with_vector_as_right_argument(
                 left_argument,
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -497,12 +492,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .binary_operator_applier()
             .apply_with_vector_as_left_argument(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -533,10 +528,10 @@ where
             .apply_with_vector_as_right_argument(
                 left_argument,
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -569,12 +564,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .binary_operator_applier()
             .apply_with_vector_as_left_argument(
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 operator,
                 right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -609,10 +604,10 @@ where
             .apply_with_vector_as_right_argument(
                 left_argument,
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }

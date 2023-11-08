@@ -8,9 +8,8 @@ use graphblas_sparse_linear_algebra::{
 };
 
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait, VertexTypeIndex};
-use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
@@ -59,8 +58,8 @@ where
     SparseVector<Argument>: VectorMask,
     SparseVector<Product>: VectorMask,
     VectorSelector: SelectFromVector<EvaluationDomain>,
-    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Argument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -90,9 +89,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -121,9 +120,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -156,9 +155,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -216,10 +215,10 @@ where
     SparseVector<Product>: VectorMask,
     SparseVector<Mask>: VectorMask,
     VectorSelector: SelectFromVector<EvaluationDomain>,
-    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+    Argument: ValueType,
+    Product: ValueType,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
+    Mask: ValueType,
 {
     fn by_index(
         &mut self,
@@ -251,10 +250,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -285,10 +284,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -323,10 +322,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -385,7 +384,8 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 

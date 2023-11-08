@@ -19,13 +19,14 @@ use crate::operators::read::ReadVertexValue;
 fn main() {
     let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
-    let numbers_vertex_type_key = "numbers";
-    let odd_number_sequence_edge_type_key = "odd_number_sequence";
+    let numbers_vertex_type_key: &str = "numbers";
+    let odd_number_sequence_edge_type_key: &str = "odd_number_sequence";
 
-    let _vertex_type_1_index = graph.add_new_vertex_type(numbers_vertex_type_key).unwrap();
+    let _vertex_type_1_index: usize =
+        AddVertexType::<i32>::add_new_vertex_type(&mut graph, numbers_vertex_type_key).unwrap();
 
     // Add vertices
-    let mut vertex_indices = Vec::new();
+    let mut vertex_indices: Vec<usize> = Vec::new();
     for n in 0..12 {
         vertex_indices.push(
             graph
@@ -59,8 +60,9 @@ fn main() {
     }
 
     // Find the fourth number in the sequence, starting at 1
-    let selected_vertices_key = "selected_vertices";
-    let selected_vertices_index = graph.add_new_vertex_type(selected_vertices_key).unwrap();
+    let selected_vertices_key: &str = "selected_vertices";
+    let selected_vertices_index: usize =
+        AddVertexType::<i32>::add_new_vertex_type(&mut graph, selected_vertices_key).unwrap();
 
     ApplyIndexUnaryOperatorToVertexVector::<u8, u8, u8>::with_key(
         &mut graph,

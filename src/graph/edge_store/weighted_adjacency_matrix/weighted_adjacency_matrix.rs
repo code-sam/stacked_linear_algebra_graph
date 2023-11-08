@@ -1,7 +1,6 @@
 use std::fmt::Display;
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetSparseMatrixSize;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     new_graphblas_matrix, GetGraphblasSparseMatrix,
 };
@@ -24,13 +23,13 @@ use crate::graph::value_type::{
     ValueType, ValueTypeIdentifier,
 };
 
-use crate::graph::edge::{EdgeTypeKey, EdgeTypeKeyRef};
-
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::{Size, SparseMatrix},
     context::Context as GraphBLASContext,
     operators::options::OperatorOptions,
 };
+
+use super::operations::GetMatrixSize;
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
     Lazy::new(|| OperatorOptions::new_default());
@@ -43,26 +42,14 @@ unsafe impl Sync for WeightedAdjacencyMatrix {}
 
 #[derive(Clone, Debug)]
 pub(crate) struct WeightedAdjacencyMatrix {
-    edge_type: EdgeTypeKey,
     graphblas_context: Arc<GraphBLASContext>,
     value_type: ValueTypeIdentifier,
     sparse_matrix: GrB_Matrix,
 }
 
-pub(crate) trait GetEdgeType {
-    fn edge_type_ref(&self) -> &EdgeTypeKeyRef;
-}
-
-impl GetEdgeType for WeightedAdjacencyMatrix {
-    fn edge_type_ref(&self) -> &EdgeTypeKeyRef {
-        &self.edge_type.as_str()
-    }
-}
-
 pub(crate) trait CreateWeightedAdjacencyMatrix<T> {
     fn new(
         graphblas_context: &Arc<GraphBLASContext>,
-        edge_type: &EdgeTypeKeyRef,
         initial_vertex_capacity: &ElementCount,
     ) -> Result<WeightedAdjacencyMatrix, GraphComputingError>;
 }
@@ -72,11 +59,9 @@ impl<T: ValueType + GetValueTypeIdentifier> CreateWeightedAdjacencyMatrix<T>
 {
     fn new(
         graphblas_context: &Arc<GraphBLASContext>,
-        edge_type: &EdgeTypeKeyRef,
         initial_vertex_capacity: &ElementCount,
     ) -> Result<WeightedAdjacencyMatrix, GraphComputingError> {
         Ok(WeightedAdjacencyMatrix {
-            edge_type: edge_type.to_owned(),
             graphblas_context: graphblas_context.clone(),
             sparse_matrix: unsafe {
                 new_graphblas_matrix(
@@ -103,7 +88,6 @@ impl Drop for WeightedAdjacencyMatrix {
 impl Display for WeightedAdjacencyMatrix {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "WeightedAdjacencyMatrix:");
-        writeln!(f, "edge_type: {:?}", self.edge_type);
         writeln!(f, "graphblas_context: {:?}", self.graphblas_context);
         writeln!(f, "value_type: {:?}", self.value_type);
         writeln!(
@@ -189,7 +173,7 @@ pub(crate) trait IntoSparseMatrixForValueType<T: ValueType> {
     fn sparse_matrix(
         matrix: &(impl GetContext
               + GetGraphblasSparseMatrix
-              + GetSparseMatrixSize
+              + GetMatrixSize
               + GetValueTypeIdentifierRef),
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
@@ -200,7 +184,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
             fn sparse_matrix(
                 matrix: &(impl GetContext
                       + GetGraphblasSparseMatrix
-                      + GetSparseMatrixSize
+                      + GetMatrixSize
                       + GetValueTypeIdentifierRef),
             ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
                 match matrix.value_type_ref() {
@@ -273,7 +257,6 @@ mod tests {
         let weighted_adjacency_matrix =
             <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<f32>>::new(
                 &GraphBLASContext::init_ready(Mode::NonBlocking).unwrap(),
-                "edge_type",
                 &10,
             )
             .unwrap();

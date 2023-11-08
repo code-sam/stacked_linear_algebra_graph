@@ -13,7 +13,7 @@ repository = "https://github.com/code-sam/stacked_linear_algebra_graph"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-graphblas_sparse_linear_algebra = {version = "0.33.4"}
+graphblas_sparse_linear_algebra = {version = "0.34.0"}
 # graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "simpler-operators"}
 hashbrown = {version = "0.13", features = ["rayon"]}
 once_cell = {version = "1.17"}
