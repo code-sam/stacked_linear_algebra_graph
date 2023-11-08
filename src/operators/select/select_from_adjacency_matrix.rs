@@ -3,9 +3,8 @@ use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnary
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
     },
 };
 

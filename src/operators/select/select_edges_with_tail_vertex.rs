@@ -1,8 +1,8 @@
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
+
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixRow;
-use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
+
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{
@@ -18,7 +18,7 @@ use crate::graph::graph::{GraphTrait, GraphblasOperatorApplierCollectionTrait};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::vertex::vertex::VertexKeyRef;
 use crate::graph::vertex_store::VertexStoreTrait;
-use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
+
 use crate::{
     error::GraphComputingError,
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},

@@ -1,5 +1,4 @@
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
         apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
         binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
@@ -18,7 +17,7 @@ use crate::{
         value_type::ValueType,
     },
 };
-use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
+
 
 pub trait ApplyUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where

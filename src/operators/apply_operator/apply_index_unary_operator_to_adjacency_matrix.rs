@@ -1,10 +1,8 @@
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
         apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
         binary_operator::AccumulatorBinaryOperator,
         index_unary_operator::IndexUnaryOperator,
-        mask::MatrixMask,
         options::OperatorOptions,
     },
 };

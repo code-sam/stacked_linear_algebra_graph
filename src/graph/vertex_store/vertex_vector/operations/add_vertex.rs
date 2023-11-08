@@ -2,15 +2,15 @@ use std::fmt::Display;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::is_element;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
+
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     SetVectorElement, SetVectorElementTyped,
 };
-use graphblas_sparse_linear_algebra::collections::sparse_vector::GetGraphblasSparseVector;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
+
+
 use graphblas_sparse_linear_algebra::collections::sparse_vector::VectorElement;
-use graphblas_sparse_linear_algebra::context::GetContext;
+
 
 use crate::error::{GraphComputingError, GraphComputingErrorType};
 use crate::error::{LogicError, LogicErrorType};

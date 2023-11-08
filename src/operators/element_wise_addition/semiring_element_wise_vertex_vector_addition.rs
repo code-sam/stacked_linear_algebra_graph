@@ -3,9 +3,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
     operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::VectorMask, options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
     },
 };
 

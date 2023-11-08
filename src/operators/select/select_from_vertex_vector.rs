@@ -1,9 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
     operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::VectorMask, options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
     },
 };
 

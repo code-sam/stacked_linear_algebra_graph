@@ -1,5 +1,5 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    is_element, try_is_element, IsSparseVectorElement,
+    is_element, try_is_element,
 };
 
 use crate::{

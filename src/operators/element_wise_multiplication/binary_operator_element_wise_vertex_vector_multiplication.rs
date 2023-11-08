@@ -1,10 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
     operators::{
         binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        mask::VectorMask,
         options::OperatorOptions,
     },
 };

@@ -1,9 +1,7 @@
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
     operators::{
         apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
         binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        mask::VectorMask,
         options::OperatorOptions,
     },
 };

@@ -1,5 +1,4 @@
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
         apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
         binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
@@ -19,7 +18,7 @@ use crate::{
         vertex::vertex::VertexTypeKeyRef,
     },
 };
-use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
+
 
 pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where

@@ -1,6 +1,6 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
     is_sparse_matrix_element, try_is_sparse_matrix_element, GetSparseMatrixElementList,
-    GetSparseMatrixElementListTyped, GetSparseMatrixElementValueTyped,
+    GetSparseMatrixElementListTyped,
 };
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElementList;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementList;

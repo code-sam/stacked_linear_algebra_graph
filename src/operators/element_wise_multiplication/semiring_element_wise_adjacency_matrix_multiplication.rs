@@ -3,9 +3,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::App
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
     },
 };
 

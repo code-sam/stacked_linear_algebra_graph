@@ -10,11 +10,11 @@ use crate::error::GraphComputingError;
 use crate::graph::index::ElementCount;
 
 use crate::graph::indexer::{Indexer, IndexerTrait};
-use crate::graph::value_type::ValueType;
+
 
 use super::{ResizeWeightedAdjacencyMatrix, VertexVector};
 
-pub(crate) type SparseVertexVector<T: ValueType> = SparseVector<T>;
+pub(crate) type SparseVertexVector<T> = SparseVector<T>;
 
 pub(crate) type VertexTypeIndexer = Indexer;
 pub(crate) type VertexElementIndexer = Indexer;

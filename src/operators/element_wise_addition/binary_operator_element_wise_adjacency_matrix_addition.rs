@@ -1,9 +1,7 @@
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionBinaryOperator;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
         binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-        mask::MatrixMask,
         options::OperatorOptions,
     },
 };

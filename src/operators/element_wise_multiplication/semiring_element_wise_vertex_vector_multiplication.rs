@@ -3,9 +3,8 @@ use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::App
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
     operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::VectorMask, options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
     },
 };
 
@@ -342,13 +341,11 @@ mod tests {
 
     use super::*;
 
-    use crate::graph::edge::{
-        DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
-    };
+    
     use crate::graph::vertex::vertex_defined_by_key::{
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };
-    use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::add::{AddVertex, AddVertexType};
     use crate::operators::read::ReadVertexValue;
 
     #[test]

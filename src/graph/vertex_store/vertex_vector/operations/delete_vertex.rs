@@ -1,5 +1,5 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    drop_sparse_vector_element, DeleteSparseVectorElement,
+    drop_sparse_vector_element,
 };
 
 use crate::{
@@ -9,7 +9,7 @@ use crate::{
         indexer::IndexerTrait,
         value_type::ValueType,
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
-        vertex_store::{SparseVertexVector, VertexStore, VertexStoreTrait, VertexVector},
+        vertex_store::{VertexStore, VertexStoreTrait, VertexVector},
     },
 };
 

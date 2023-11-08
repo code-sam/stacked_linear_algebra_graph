@@ -1,5 +1,4 @@
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
     operators::{
         apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
         binary_operator::AccumulatorBinaryOperator,
@@ -21,7 +20,7 @@ use crate::{
         vertex::vertex::VertexTypeKeyRef,
     },
 };
-use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
+
 
 pub trait ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain>
 where

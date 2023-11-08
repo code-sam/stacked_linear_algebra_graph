@@ -1,15 +1,14 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
+
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationSemiring;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
-use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
+
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyMatrices;
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyMatrixByVector;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
     },
 };
 
@@ -362,7 +361,7 @@ mod tests {
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
-    use crate::operators::read::{ReadVertexValue, ReadVertexVectorElementList, ReadAdjacencyMatrixElementList};
+    use crate::operators::read::{ReadVertexValue};
 
     #[test]
     fn multiply_vertex_vector_with_adjacency_matrix() {

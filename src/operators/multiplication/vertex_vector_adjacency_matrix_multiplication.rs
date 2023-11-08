@@ -1,11 +1,10 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
-use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
+
+
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyVectorByMatrix;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
     operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
+        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
     },
 };
 
