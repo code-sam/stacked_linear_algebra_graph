@@ -5,7 +5,7 @@ use crate::{
     graph::{
         graph::{Graph, GraphTrait, VertexIndex},
         vertex::vertex::VertexKeyRef,
-        vertex_store::vertex_operations::AddVertexKey as AddVertexKeyToVertexStore,
+        vertex_store::AddVertexKey as AddVertexKeyToVertexStore,
     },
 };
 

@@ -62,6 +62,27 @@ macro_rules! implement_1_type_macro_with_typed_indentifier_for_all_value_types {
 }
 pub(crate) use implement_1_type_macro_with_typed_indentifier_for_all_value_types;
 
+macro_rules! implement_1_type_macro_with_enum_type_indentifier_for_all_value_types {
+    ($macro_identifier:ident) => {
+        paste::paste! {
+            $macro_identifier!(Bool, bool);
+            $macro_identifier!(Int8, i8);
+            $macro_identifier!(Int16, i16);
+            $macro_identifier!(Int32, i32);
+            $macro_identifier!(Int64, i64);
+            $macro_identifier!(UInt8, u8);
+            $macro_identifier!(UInt16, u16);
+            $macro_identifier!(UInt32, u32);
+            $macro_identifier!(UInt64, u64);
+            $macro_identifier!(Float32, f32);
+            $macro_identifier!(Float64, f64);
+            $macro_identifier!(ISize, isize);
+            $macro_identifier!(USize, usize);
+        }
+    };
+}
+pub(crate) use implement_1_type_macro_with_enum_type_indentifier_for_all_value_types;
+
 macro_rules! implement_1_type_macro_with_2_typed_indentifiers_for_all_value_types {
     ($macro_identifier:ident, $untyped_ident_1:ident, $untyped_ident_2:ident) => {
         paste::paste! {

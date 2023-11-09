@@ -4,11 +4,10 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    GetVectorElementIndices, GetVectorElementValue, SetVectorElement,
+    DeleteSparseVectorElement, GetSparseVectorLength, GetVectorElementIndices,
+    GetVectorElementValue, ResizeSparseVector, SetVectorElement,
 };
-use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    SparseVector, SparseVectorTrait, VectorElement,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_vector::{SparseVector, VectorElement};
 use graphblas_sparse_linear_algebra::collections::Collection;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 use graphblas_sparse_linear_algebra::index::ElementIndex;

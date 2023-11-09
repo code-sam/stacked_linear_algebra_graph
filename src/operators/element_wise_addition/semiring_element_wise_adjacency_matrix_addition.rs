@@ -2,16 +2,12 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseMatrixAdditionSemiring;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
@@ -20,19 +16,9 @@ use crate::{
     graph::{edge::EdgeTypeIndex, value_type::ValueType, vertex::vertex::VertexTypeKeyRef},
 };
 
-pub trait SemiringElementWiseAdjacencyMatrixAddition<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-> where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    Product: ValueType,
+pub trait SemiringElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -65,20 +51,8 @@ pub trait SemiringElementWiseAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, EvaluationDomain: ValueType>
-    SemiringElementWiseAdjacencyMatrixAddition<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-    > for Graph
-where
-    LeftArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
-    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
+impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixAddition<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,
@@ -108,11 +82,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .element_wise_matrix_addition_semiring_operator()
             .apply(
-                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                adjacency_matrix_product,
                 unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
@@ -142,11 +116,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .element_wise_matrix_addition_semiring_operator()
             .apply(
-                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                adjacency_matrix_product,
                 unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
@@ -180,33 +154,20 @@ where
             .graphblas_operator_applier_collection_ref()
             .element_wise_matrix_addition_semiring_operator()
             .apply(
-                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
+                adjacency_matrix_product,
                 unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
                 options,
             )?)
     }
 }
 
-pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-    Mask,
-> where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType,
-    SparseMatrix<Product>: MatrixMask,
+pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseMatrix<Mask>: MatrixMask,
 {
     fn by_index(
         &mut self,
@@ -242,23 +203,8 @@ pub trait SemiringElementWiseMaskedAdjacencyMatrixAddition<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain: ValueType>
-    SemiringElementWiseMaskedAdjacencyMatrixAddition<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-        Mask,
-    > for Graph
-where
-    LeftArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
-    Product: ValueType + SparseWeightedAdjacencyMatrixForValueType<Product>,
-    Mask: ValueType + SparseWeightedAdjacencyMatrixForValueType<Mask>,
-    SparseMatrix<LeftArgument>: MatrixMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseMatrix<Product>: MatrixMask,
-    SparseMatrix<Mask>: MatrixMask,
+impl<EvaluationDomain: ValueType> SemiringElementWiseMaskedAdjacencyMatrixAddition<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,
@@ -292,12 +238,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .element_wise_matrix_addition_semiring_operator()
             .apply(
-                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                adjacency_matrix_product,
+                adjacency_matrix_mask,
                 options,
             )?)
     }
@@ -330,12 +276,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .element_wise_matrix_addition_semiring_operator()
             .apply(
-                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                adjacency_matrix_product,
+                adjacency_matrix_mask,
                 options,
             )?)
     }
@@ -371,12 +317,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .element_wise_matrix_addition_semiring_operator()
             .apply(
-                LeftArgument::sparse_matrix_ref(adjacency_matrix_left_argument),
+                adjacency_matrix_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_matrix_mut_ref(adjacency_matrix_product),
-                Mask::sparse_matrix_ref(adjacency_matrix_mask),
+                adjacency_matrix_product,
+                adjacency_matrix_mask,
                 options,
             )?)
     }
@@ -392,6 +338,7 @@ mod tests {
     use crate::graph::edge::{
         DirectedEdgeCoordinateDefinedByKeys, WeightedDirectedEdgeDefinedByKeys,
     };
+
     use crate::graph::vertex::vertex_defined_by_key::{
         VertexDefinedByKey, VertexDefinedByKeyTrait,
     };
@@ -435,13 +382,17 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())
@@ -454,7 +405,7 @@ mod tests {
             .unwrap();
 
         for _i in 0..2 {
-            SemiringElementWiseAdjacencyMatrixAddition::<u8, u8, u16, u8>::by_key(
+            SemiringElementWiseAdjacencyMatrixAddition::<u8>::by_key(
                 &mut graph,
                 &edge_type_1_key,
                 &PlusTimes::<u8>::new(),
@@ -479,7 +430,10 @@ mod tests {
             Some(4)
         );
 
-        SemiringElementWiseAdjacencyMatrixAddition::<u8, usize, u16, u8>::by_key(
+        // println!("{}", graph.edge_store_ref().try_adjacency_matrix_ref_for_index(&_edge_type_1_index).unwrap());
+        // println!("{}", graph.edge_store_ref().try_adjacency_matrix_ref_for_index(&_edge_type_2_index).unwrap());
+
+        SemiringElementWiseAdjacencyMatrixAddition::<u8>::by_key(
             &mut graph,
             &edge_type_1_key,
             &PlusTimes::<u8>::new(),
@@ -490,6 +444,7 @@ mod tests {
         )
         .unwrap();
 
+        // println!("{}", graph.edge_store_ref().try_adjacency_matrix_ref_for_index(&_result_edge_type_index).unwrap());
         assert_eq!(
             ReadEdgeWeight::<u16>::key_defined_edge_weight(
                 &graph,
@@ -500,7 +455,7 @@ mod tests {
                 ),
             )
             .unwrap(),
-            None
+            Some(25)
         );
     }
 }

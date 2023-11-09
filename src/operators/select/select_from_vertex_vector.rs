@@ -1,26 +1,18 @@
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::VectorMask, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait, VertexTypeIndex};
-use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::VertexStoreTrait;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait SelectFromVertexVector<Argument, Product, EvaluationDomain>
+pub trait SelectFromVertexVector<EvaluationDomain>
 where
-    Argument: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<Argument>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -53,14 +45,9 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<Argument, Product, EvaluationDomain>
-    SelectFromVertexVector<Argument, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain> SelectFromVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<Argument>: VectorMask,
-    SparseVector<Product>: VectorMask,
     VectorSelector: SelectFromVector<EvaluationDomain>,
-    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -90,9 +77,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -121,9 +108,9 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -156,24 +143,18 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
     }
 }
 
-pub trait SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask>
+pub trait SelectFromMaskedVertexVector<EvaluationDomain>
 where
-    Argument: ValueType,
-    SparseVector<Argument>: VectorMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -209,17 +190,10 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<Argument, Product, EvaluationDomain, Mask>
-    SelectFromMaskedVertexVector<Argument, Product, EvaluationDomain, Mask> for Graph
+impl<EvaluationDomain> SelectFromMaskedVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<Argument>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
     VectorSelector: SelectFromVector<EvaluationDomain>,
-    Argument: ValueType + SparseVertexVectorForValueType<Argument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
 {
     fn by_index(
         &mut self,
@@ -251,10 +225,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -285,10 +259,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -323,10 +297,10 @@ where
             .apply(
                 selector,
                 selector_argument,
-                Argument::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -385,13 +359,17 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())
@@ -403,7 +381,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        SelectFromVertexVector::<u8, u16, u8>::by_key(
+        SelectFromVertexVector::<u8>::by_key(
             &mut graph,
             &IsValueGreaterThan::<u8>::new(),
             &1,

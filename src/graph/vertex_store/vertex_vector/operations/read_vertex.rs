@@ -1,4 +1,3 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     GetVectorElementValue, GetVectorElementValueTyped,
 };
@@ -8,16 +7,13 @@ use crate::error::{LogicError, LogicErrorType};
 use crate::graph::graph::VertexIndex;
 use crate::graph::graph::VertexTypeIndex;
 use crate::graph::indexer::IndexerTrait;
-use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::value_type::ValueType;
 
 use crate::graph::vertex::vertex::VertexKeyRef;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
-// use crate::graph::vertex_store::type_operations::get_vertex_matrix::GetVertexMatrix;
+use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
-use crate::graph::vertex_store::vertex_vector::SparseVertexVector;
-use crate::graph::vertex_store::VertexVector;
+use crate::graph::vertex_store::{IntoSparseVector, IntoSparseVectorForValueType};
 
 pub(crate) trait ReadVertex<T: ValueType> {
     fn vertex_value_by_key(
@@ -81,9 +77,8 @@ pub(crate) trait ReadVertex<T: ValueType> {
     ) -> Result<T, GraphComputingError>;
 }
 
-impl<T: ValueType + GetVectorElementValueTyped<T> + Default> ReadVertex<T> for VertexStore
-where
-    VertexVector: SparseVertexVector<T>,
+impl<T: ValueType + IntoSparseVectorForValueType<T> + GetVectorElementValueTyped<T> + Default>
+    ReadVertex<T> for VertexStore
 {
     fn vertex_value_by_key(
         &self,
@@ -137,9 +132,11 @@ where
         vertex_type_index: &VertexTypeIndex,
         vertex_index: &VertexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
+        // Ok(T::get_element_value(self
+        //     .vertex_vector_ref_by_index_unchecked(vertex_type_index), vertex_index)?)
         Ok(self
             .vertex_vector_ref_by_index_unchecked(vertex_type_index)
-            .sparse_vector_ref()
+            .sparse_vector()?
             .get_element_value(vertex_index)?)
     }
 
@@ -150,7 +147,7 @@ where
     ) -> Result<T, GraphComputingError> {
         match self
         .vertex_vector_ref_by_index_unchecked(vertex_type_index)
-        .sparse_vector_ref()
+        .sparse_vector()?
         .get_element_value(vertex_index)? {
             Some(weight) => Ok(weight),
             None => Err(LogicError::new(
@@ -175,7 +172,7 @@ where
 
         Ok(self
             .vertex_vector_ref_by_index_unchecked(vertex_type_index)
-            .sparse_vector_ref()
+            .sparse_vector()?
             .get_element_value_or_default(vertex_index)?)
     }
 
@@ -198,7 +195,7 @@ where
     ) -> Result<T, GraphComputingError> {
         match self
             .vertex_vector_ref_by_index(vertex_type_index)?
-            .sparse_vector_ref()
+            .sparse_vector()?
             .get_element_value(vertex_index)? {
                 Some(weight) => Ok(weight),
                 None => Err(LogicError::new(
@@ -218,7 +215,7 @@ where
     ) -> Result<T, GraphComputingError> {
         Ok(self
             .vertex_vector_ref_by_index_unchecked(vertex_type_index)
-            .sparse_vector_ref()
+            .sparse_vector()?
             .get_element_value_or_default(vertex_index)?)
     }
 }

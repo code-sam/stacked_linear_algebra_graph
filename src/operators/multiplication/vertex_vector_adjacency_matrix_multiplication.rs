@@ -1,42 +1,25 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
-use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyVectorByMatrix;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
 };
 
 use crate::graph::edge::EdgeTypeKeyRef;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait};
 
 use crate::graph::graph::VertexTypeIndex;
-use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::vertex::vertex::VertexTypeKeyRef;
-use crate::graph::vertex_store::type_operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::{
     error::GraphComputingError,
     graph::{edge::EdgeTypeIndex, value_type::ValueType},
 };
 
-pub trait VertexVectorAdjacencyMatrixMultiplication<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-> where
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
+pub trait VertexVectorAdjacencyMatrixMultiplication<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
-    SparseVector<LeftArgument>: VectorMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -69,22 +52,8 @@ pub trait VertexVectorAdjacencyMatrixMultiplication<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-        RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        EvaluationDomain: ValueType,
-    >
-    VertexVectorAdjacencyMatrixMultiplication<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-    > for Graph
-where
-    SparseVector<LeftArgument>: VectorMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseVector<Product>: VectorMask,
+impl<EvaluationDomain: ValueType> VertexVectorAdjacencyMatrixMultiplication<EvaluationDomain>
+    for Graph
 {
     fn by_index(
         &mut self,
@@ -115,11 +84,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .vector_matrix_multiplication_operator()
             .apply(
-                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                vertex_vector_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 options,
             )?)
     }
@@ -149,11 +118,11 @@ where
             .graphblas_operator_applier_collection_ref()
             .vector_matrix_multiplication_operator()
             .apply(
-                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                vertex_vector_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 options,
             )?)
     }
@@ -187,32 +156,19 @@ where
             .graphblas_operator_applier_collection_ref()
             .vector_matrix_multiplication_operator()
             .apply(
-                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                vertex_vector_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 options,
             )?)
     }
 }
 
-pub trait VertexVectorAdjacencyMatrixMultiplicationWithMask<
-    LeftArgument,
-    RightArgument,
-    Product,
-    EvaluationDomain,
-    Mask,
-> where
-    LeftArgument: ValueType,
-    RightArgument: ValueType,
-    SparseVector<LeftArgument>: VectorMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    Product: ValueType,
-    SparseVector<Product>: VectorMask,
+pub trait VertexVectorAdjacencyMatrixMultiplicationWithMask<EvaluationDomain>
+where
     EvaluationDomain: ValueType,
-    Mask: ValueType,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -248,23 +204,8 @@ pub trait VertexVectorAdjacencyMatrixMultiplicationWithMask<
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<LeftArgument, RightArgument, Product, Mask, EvaluationDomain>
-    VertexVectorAdjacencyMatrixMultiplicationWithMask<
-        LeftArgument,
-        RightArgument,
-        Product,
-        EvaluationDomain,
-        Mask,
-    > for Graph
+impl<EvaluationDomain> VertexVectorAdjacencyMatrixMultiplicationWithMask<EvaluationDomain> for Graph
 where
-    SparseVector<LeftArgument>: VectorMask,
-    SparseMatrix<RightArgument>: MatrixMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
-    LeftArgument: ValueType + SparseVertexVectorForValueType<LeftArgument>,
-    RightArgument: ValueType + SparseWeightedAdjacencyMatrixForValueType<RightArgument>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -299,12 +240,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .vector_matrix_multiplication_operator()
             .apply_with_mask(
-                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                vertex_vector_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -337,12 +278,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .vector_matrix_multiplication_operator()
             .apply_with_mask(
-                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                vertex_vector_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -379,12 +320,12 @@ where
             .graphblas_operator_applier_collection_ref()
             .vector_matrix_multiplication_operator()
             .apply_with_mask(
-                LeftArgument::sparse_vector_ref(vertex_vector_left_argument),
+                vertex_vector_left_argument,
                 operator,
-                RightArgument::sparse_matrix_ref(adjacency_matrix_right_argument),
+                adjacency_matrix_right_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -443,13 +384,17 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
         let _vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())
@@ -461,7 +406,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        VertexVectorAdjacencyMatrixMultiplication::<u8, u8, u16, u8>::by_key(
+        VertexVectorAdjacencyMatrixMultiplication::<u8>::by_key(
             &mut graph,
             &vertex_type_key,
             &PlusTimes::<u8>::new(),
@@ -484,7 +429,7 @@ mod tests {
                 vertex_1.key_ref()
             )
             .unwrap(),
-            Some(4)
+            Some(5)
         );
     }
 }

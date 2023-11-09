@@ -5,8 +5,7 @@ use crate::error::GraphComputingError;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::{VertexKeyRef, VertexTypeKeyRef};
-use crate::graph::vertex_store::vertex_operations::ReadVertex;
-use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
+use crate::graph::vertex_store::{IntoSparseVectorForValueType, ReadVertex};
 
 pub trait ReadVertexValue<T: ValueType> {
     fn vertex_value_by_key(
@@ -54,8 +53,7 @@ pub trait ReadVertexValue<T: ValueType> {
 
 impl<T> ReadVertexValue<T> for Graph
 where
-    T: ValueType + GetVectorElementValueTyped<T> + Default,
-    VertexVector: SparseVertexVector<T>,
+    T: ValueType + GetVectorElementValueTyped<T> + IntoSparseVectorForValueType<T> + Default,
 {
     fn vertex_value_by_key(
         &self,

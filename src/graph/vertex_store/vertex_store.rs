@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
@@ -10,7 +11,9 @@ use crate::graph::index::ElementCount;
 
 use crate::graph::indexer::{Indexer, IndexerTrait};
 
-use super::{VertexVector, VertexVectorTrait};
+use super::{ResizeWeightedAdjacencyMatrix, VertexVector};
+
+pub(crate) type SparseVertexVector<T> = SparseVector<T>;
 
 pub(crate) type VertexTypeIndexer = Indexer;
 pub(crate) type VertexElementIndexer = Indexer;
@@ -144,7 +147,7 @@ impl VertexStoreTrait for VertexStore {
         new_vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError> {
         self.map_mut_all_vertex_vectors(|vertex_vector: &mut VertexVector| {
-            vertex_vector.set_vertex_capacity(new_vertex_capacity)
+            vertex_vector.resize(new_vertex_capacity)
         })?;
         Ok(())
     }

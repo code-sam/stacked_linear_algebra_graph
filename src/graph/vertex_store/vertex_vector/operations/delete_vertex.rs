@@ -1,16 +1,13 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVectorTrait;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::drop_sparse_vector_element;
 
 use crate::{
     error::{GraphComputingError, LogicError},
     graph::{
         graph::{VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
-        value_type::{SparseVertexVectorForValueType, ValueType},
+        value_type::ValueType,
         vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
-        vertex_store::{
-            DeleteVertexValueInVertexVector, SparseVertexVector, VertexStore, VertexStoreTrait,
-            VertexVector,
-        },
+        vertex_store::{VertexStore, VertexStoreTrait, VertexVector},
     },
 };
 
@@ -38,10 +35,7 @@ pub(crate) trait DeleteVertexForAllTypes {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T: ValueType + SparseVertexVectorForValueType<T>> DeleteVertexElement<T> for VertexStore
-where
-    VertexVector: SparseVertexVector<T>,
-{
+impl<T: ValueType> DeleteVertexElement<T> for VertexStore {
     fn delete_vertex_element_by_key(
         &mut self,
         vertex_type_key: &VertexTypeKeyRef,
@@ -52,10 +46,9 @@ where
             .try_index_for_key(vertex_type_key)?;
         let vertex_index = *self.element_indexer_ref().try_index_for_key(vertex_key)?;
 
-        SparseVertexVector::<T>::sparse_vector_mut_ref(
-            &mut self.vertex_vector_for_all_vertex_types_mut_ref()[vertex_type_index],
-        )
-        .drop_element(vertex_index)?;
+        let vertex_vector =
+            &mut self.vertex_vector_for_all_vertex_types_mut_ref()[vertex_type_index];
+        drop_sparse_vector_element(vertex_vector, vertex_index)?;
         Ok(())
     }
 
@@ -78,8 +71,7 @@ where
                 .into());
             }
         };
-        SparseVertexVector::<T>::sparse_vector_mut_ref(vertex_vector)
-            .drop_element(*vertex_index)?;
+        drop_sparse_vector_element(vertex_vector, *vertex_index)?;
         Ok(())
     }
 }
@@ -98,7 +90,10 @@ impl DeleteVertexForAllTypes for VertexStore {
         vertex_element_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
         self.map_mut_all_vertex_vectors(|vertex_vector: &mut VertexVector| {
-            vertex_vector.delete_vertex_value_for_all_value_types(vertex_element_index)
+            Ok(drop_sparse_vector_element(
+                vertex_vector,
+                *vertex_element_index,
+            )?)
         })?;
         self.element_indexer_mut_ref()
             .free_index_unchecked(*vertex_element_index)

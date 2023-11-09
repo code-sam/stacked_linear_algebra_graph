@@ -5,7 +5,6 @@ use crate::graph::edge::{
 };
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::UpdateEdgeWeight as UpdateEdgeWeightInEdgeStore;
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrixTrait;
 
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::value_type::ValueType;

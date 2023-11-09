@@ -1,17 +1,14 @@
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_vector::SparseVector,
-    operators::{
-        apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
-        binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-        unary_operator::UnaryOperator,
-    },
+use graphblas_sparse_linear_algebra::operators::{
+    apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
+    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
+    unary_operator::UnaryOperator,
 };
 
+use crate::graph::vertex_store::VertexStoreTrait;
 use crate::graph::{
     graph::GraphblasOperatorApplierCollectionTrait, vertex::vertex::VertexTypeKeyRef,
-    vertex_store::type_operations::get_vertex_vector::GetVertexVector,
+    vertex_store::operations::get_vertex_vector::GetVertexVector,
 };
-use crate::graph::{value_type::SparseVertexVectorForValueType, vertex_store::VertexStoreTrait};
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -19,15 +16,10 @@ use crate::{
         value_type::ValueType,
     },
 };
-use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
 
-pub trait ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain>
+pub trait ApplyUnaryOperatorToVertexVector<EvaluationDomain>
 where
-    VertexVector: ValueType,
-    Product: ValueType,
     EvaluationDomain: ValueType,
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -57,13 +49,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<VertexVector, Product, EvaluationDomain>
-    ApplyUnaryOperatorToVertexVector<VertexVector, Product, EvaluationDomain> for Graph
+impl<EvaluationDomain> ApplyUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
     EvaluationDomain: ValueType,
 {
     fn by_index(
@@ -91,9 +78,9 @@ where
             .unary_operator_applier()
             .apply_to_vector(
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -120,9 +107,9 @@ where
             .unary_operator_applier()
             .apply_to_vector(
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
@@ -153,24 +140,18 @@ where
             .unary_operator_applier()
             .apply_to_vector(
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
+                vertex_vector_product,
                 unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
                 options,
             )?)
     }
 }
 
-pub trait ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
+pub trait ApplyUnaryOperatorToMaskedVertexVector<EvaluationDomain>
 where
-    VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-    SparseVector<VertexVector>: VectorMask,
-    Product: ValueType + SparseVertexVectorForValueType<Product>,
-    SparseVector<Product>: VectorMask,
     EvaluationDomain: ValueType,
-    Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -203,17 +184,8 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<
-        VertexVector: ValueType + SparseVertexVectorForValueType<VertexVector>,
-        Product: ValueType + SparseVertexVectorForValueType<Product>,
-        Mask: ValueType + SparseVertexVectorForValueType<Mask>,
-        EvaluationDomain: ValueType,
-    > ApplyUnaryOperatorToMaskedVertexVector<VertexVector, Product, EvaluationDomain, Mask>
+impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToMaskedVertexVector<EvaluationDomain>
     for Graph
-where
-    SparseVector<VertexVector>: VectorMask,
-    SparseVector<Product>: VectorMask,
-    SparseVector<Mask>: VectorMask,
 {
     fn by_index(
         &mut self,
@@ -243,10 +215,10 @@ where
             .unary_operator_applier()
             .apply_to_vector(
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -275,10 +247,10 @@ where
             .unary_operator_applier()
             .apply_to_vector(
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -311,10 +283,10 @@ where
             .unary_operator_applier()
             .apply_to_vector(
                 operator,
-                VertexVector::sparse_vector_ref(vertex_vector_argument),
+                vertex_vector_argument,
                 accumlator,
-                Product::sparse_vector_mut_ref(vertex_vector_product),
-                Mask::sparse_vector_ref(vertex_vector_mask),
+                vertex_vector_product,
+                vertex_vector_mask,
                 options,
             )?)
     }
@@ -373,13 +345,17 @@ mod tests {
             3u32,
         );
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(vertex_type_key).unwrap();
+        let _vertex_type_1_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key).unwrap();
         let vertex_1_index = graph.add_new_key_defined_vertex(vertex_1.clone()).unwrap();
         let _vertex_2_index = graph.add_new_key_defined_vertex(vertex_2.clone()).unwrap();
 
-        let _edge_type_1_index = graph.add_new_edge_type(edge_type_1_key).unwrap();
-        let _edge_type_2_index = graph.add_new_edge_type(edge_type_2_key).unwrap();
-        let _result_edge_type_index = graph.add_new_edge_type(result_type_key).unwrap();
+        let _edge_type_1_index =
+            AddEdgeType::<u8>::add_new_edge_type(&mut graph, edge_type_1_key).unwrap();
+        let _edge_type_2_index =
+            AddEdgeType::<u16>::add_new_edge_type(&mut graph, edge_type_2_key).unwrap();
+        let _result_edge_type_index =
+            AddEdgeType::<i32>::add_new_edge_type(&mut graph, result_type_key).unwrap();
 
         graph
             .add_new_edge_using_keys(edge_vertex1_vertex2.clone())
@@ -391,7 +367,7 @@ mod tests {
             .add_new_edge_using_keys(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        ApplyUnaryOperatorToVertexVector::<u8, u16, i32>::by_key(
+        ApplyUnaryOperatorToVertexVector::<i32>::by_key(
             &mut graph,
             &ColumnIndex::<i32>::new(),
             &vertex_type_key,

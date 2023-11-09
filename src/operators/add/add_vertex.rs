@@ -10,12 +10,10 @@ use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 
 use crate::graph::indexer::AssignedIndexTrait;
-use crate::graph::value_type::SparseVertexVectorForValueType;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
 use crate::graph::vertex::vertex_defined_by_vertex_type_index_and_vertex_key::VertexDefinedByTypeIndexAndVertexKey;
-use crate::graph::vertex_store::vertex_operations::AddVertex as AddVertexToStore;
-use crate::graph::vertex_store::{SparseVertexVector, VertexVector};
+use crate::graph::vertex_store::AddVertex as AddVertexToStore;
 
 pub trait AddVertex<T: ValueType> {
     fn add_new_key_defined_vertex(
@@ -49,13 +47,11 @@ pub trait AddVertex<T: ValueType> {
 impl<T> AddVertex<T> for Graph
 where
     T: ValueType
-        + SparseVertexVectorForValueType<T>
         + GetVectorElementValueTyped<T>
         + SetVectorElementTyped<T>
         + Default
         + Copy
         + Display,
-    VertexVector: SparseVertexVector<T>,
     SparseMatrix<T>: Display,
 {
     fn add_new_key_defined_vertex(
@@ -216,7 +212,8 @@ mod tests {
             vertex_key.as_str(),
             &vertex_property,
         );
-        let vertex_type_index = graph.add_new_vertex_type(vertex_type_key.as_str()).unwrap();
+        let vertex_type_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key.as_str()).unwrap();
         let index1 = graph
             .add_or_update_key_defined_vertex(vertex_to_add.clone())
             .unwrap()
@@ -259,7 +256,8 @@ mod tests {
             vertex_key.as_str(),
             &vertex_property,
         );
-        let vertex_type_index = graph.add_new_vertex_type(vertex_type_key.as_str()).unwrap();
+        let vertex_type_index =
+            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_key.as_str()).unwrap();
         graph
             .add_new_key_defined_vertex(vertex_to_add.clone())
             .unwrap();
@@ -294,9 +292,11 @@ mod tests {
         let mut graph = Graph::with_initial_capacity(&1, &1, &1).unwrap();
 
         for i in 0..3 {
-            graph
-                .add_new_vertex_type(format!("vertex_type_{}", i).as_str())
-                .unwrap();
+            AddVertexType::<u8>::add_new_vertex_type(
+                &mut graph,
+                format!("vertex_type_{}", i).as_str(),
+            )
+            .unwrap();
         }
 
         for i in 0..50 {

@@ -5,48 +5,40 @@ An embedded and in-memory graph using sparse linear algebra.
 ## Capabilities
 
 ### Architecture
-The Stacked Linear Algebra Graph implements a [directed graph](https://en.wikipedia.org/wiki/Directed_graph) using GrapBLAS sparse linear algebra.
+The Stacked Linear Algebra Graph implements a [directed graph](https://en.wikipedia.org/wiki/Directed_graph) with a weight on each vertex and edge.
 The graph models vertices and adjacency matrices as GraphBLAS sparse vectors and matrices respectively. 
 The graph operates on its vertex vectors and adjacency matrices using GraphBLAS operators.
 
 ### Data types
-The graph stores Rust primitive numeric types in its vertices and edges:
-- bool,
-- i8
-- i16
-- i32
-- i64
-- u8
-- u16
-- u32
-- u64
-- f32,
-- f64,
-- isize
-- usize
+The graph stores the following Rust primitive numeric types in its vertices and edges:
+bool; i8; i16; i32; i64; u8; u16; u32; u64; f32; f64; isize; usize
 
 ### Indexing
 The graph has a dual indexing system - string keys for human understandability and numerical indices for efficiency. Each coordinate maps to both a user-defined unique string key and an unsigned integer index assigned by the graph. Integer indices may be reused by the graph after its key was deleted.
-
-Upon creating a new vertex type, the graph creates a vertex vector for each supported primitive numeric type. Equivalently, upon creating a new edge type the graph creates a new adjacency matrix for each supported value type.
 
 The numerical vertex indices, and their associated keys, reference the same coordinates in all vertex vectors and adjacency matrices. All vertex vectors and adjacency matrices thus have compatible sizes.
 
 Each combination of vertex vector and adjacency matrix thus defines a separate graph. All graphs share the same coordinates.
 
+### Type casting
+Each vertex vector and adjacency matrix has a single data datatype. The data type is set upon adding the vertex vector or adjacency matrix to the graph.
+
+Operations involving different value types will use type casting according to ANSI C, with the following exceptions:
+- +-Inf or integer values outside their maximum range are clipped
+- NaN casts to zero
+
 ### Linear algebra operations
 Graph operators apply to any applicable combination of vertex vector and adjacency matrix.
 
-
-### ACID
-Cairn Knowledge Graph does currently not guarantee [ACID](https://en.wikipedia.org/wiki/ACID) database transaction properties.
+### Transactions
+Cairn Knowledge Graph does not guarantee [ACID](https://en.wikipedia.org/wiki/ACID) database transaction properties.
 
 ### Persistence
-The graph resides in-memory and does currently not exist in persistent storage.
+The graph resides in-memory and does not exist in persistent storage.
 
 ## Minimum example
 ```rust
-use graphblas_sparse_linear_algebra::operators::binary_operator::{
+    use graphblas_sparse_linear_algebra::operators::binary_operator::{
         Assignment, Plus,
     };
     use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
@@ -74,13 +66,14 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
     fn main() {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
-        let numbers_vertex_type_key = "numbers";
-        let odd_number_sequence_edge_type_key = "odd_number_sequence";
+        let numbers_vertex_type_key: &str = "numbers";
+        let odd_number_sequence_edge_type_key: &str = "odd_number_sequence";
 
-        let _vertex_type_1_index = graph.add_new_vertex_type(numbers_vertex_type_key).unwrap();
+        let _vertex_type_1_index: usize =
+            AddVertexType::<i32>::add_new_vertex_type(&mut graph, numbers_vertex_type_key).unwrap();
 
         // Add vertices
-        let mut vertex_indices = Vec::new();
+        let mut vertex_indices: Vec<usize> = Vec::new();
         for n in 0..12 {
             vertex_indices.push(
                 graph
@@ -93,9 +86,11 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
             );
         }
 
-        let odd_number_sequence_edge_type_index = graph
-            .add_new_edge_type(odd_number_sequence_edge_type_key)
-            .unwrap();
+        let odd_number_sequence_edge_type_index = <Graph as AddEdgeType<i32>>::add_new_edge_type(
+            &mut graph,
+            odd_number_sequence_edge_type_key,
+        )
+        .unwrap();
 
         // Define a sequence of subsequent odd numbers
         for i in [1, 3, 5, 7, 9] {
@@ -112,10 +107,11 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
         }
 
         // Find the fourth number in the sequence, starting at 1
-        let selected_vertices_key = "selected_vertices";
-        let selected_vertices_index = graph.add_new_vertex_type(selected_vertices_key).unwrap();
+        let selected_vertices_key: &str = "selected_vertices";
+        let selected_vertices_index: usize =
+            AddVertexType::<i32>::add_new_vertex_type(&mut graph, selected_vertices_key).unwrap();
 
-        ApplyIndexUnaryOperatorToVertexVector::<u8, u8, u8>::with_key(
+        ApplyIndexUnaryOperatorToVertexVector::<u8>::with_key(
             &mut graph,
             numbers_vertex_type_key,
             &IsValueEqualTo::<u8>::new(),
@@ -127,7 +123,7 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
         .unwrap();
 
         for _i in 0..2 {
-            VertexVectorAdjacencyMatrixMultiplication::<u8, bool, u8, u8>::by_index(
+            VertexVectorAdjacencyMatrixMultiplication::<u8>::by_index(
                 &mut graph,
                 &selected_vertices_index,
                 &PlusTimes::<u8>::new(),
@@ -139,7 +135,7 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
             .unwrap();
         }
 
-        BinaryOperatorElementWiseVertexVectorMultiplication::<u8, u8, u8, u8>::by_key(
+        BinaryOperatorElementWiseVertexVectorMultiplication::<u8>::by_key(
             &mut graph,
             selected_vertices_key,
             &Plus::<u8>::new(),

@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetMatrixElementValueTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetSparseMatrixElementValueTyped;
 
 use crate::error::GraphComputingError;
 
@@ -9,7 +9,7 @@ use crate::graph::edge::{
 };
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::ReadEdge;
-use crate::graph::edge_store::weighted_adjacency_matrix::SparseWeightedAdjacencyMatrixForValueType;
+use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait};
 use crate::graph::indexer::IndexerTrait;
@@ -50,10 +50,7 @@ pub trait ReadEdgeWeight<T: ValueType> {
 
 impl<T> ReadEdgeWeight<T> for Graph
 where
-    T: ValueType
-        + SparseWeightedAdjacencyMatrixForValueType<T>
-        + GetMatrixElementValueTyped<T>
-        + Default,
+    T: ValueType + IntoSparseMatrixForValueType<T> + GetSparseMatrixElementValueTyped<T> + Default,
 {
     fn index_defined_edge_weight(
         &self,

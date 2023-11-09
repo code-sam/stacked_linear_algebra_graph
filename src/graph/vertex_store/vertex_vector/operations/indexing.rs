@@ -1,24 +1,27 @@
-// use std::marker::PhantomData;
-// use std::sync::Arc;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
+    is_element, try_is_element,
+};
 
-// use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
-//     MatrixElement, SetMatrixElement, Size, SparseMatrix, SparseMatrixTrait,
-// };
-// use graphblas_sparse_linear_algebra::context::Context;
+use crate::{
+    error::GraphComputingError,
+    graph::{graph::VertexIndex, value_type::ValueType, vertex_store::VertexVector},
+};
 
-// use crate::error::GraphComputingError;
-// use crate::graph::graph::VertexIndex;
-// use crate::graph::index::ElementCount;
-// use crate::graph::index::Index;
-// use crate::graph::value_type::NativeDataType as GraphNativeDataType;
-// use crate::graph::value_type::ValueType;
-// use crate::graph::value_type::{
-//     implement_macro_for_all_native_value_types, ConvertScalarToMatrixType,
-// };
-// use crate::graph::vertex::VertexKeyRef;
-// use crate::graph::vertex_store::{VertexStore, VertexStoreTrait};
+pub(crate) trait IsElementInVertexVector<T: ValueType> {
+    fn is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<bool, GraphComputingError>;
 
-// use crate::graph::indexer::{Indexer, IndexerTrait, Key, KeyRef};
+    fn try_is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<(), GraphComputingError>;
+}
+
+impl<T: ValueType> IsElementInVertexVector<T> for VertexVector {
+    fn is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<bool, GraphComputingError> {
+        Ok(is_element(self, *vertex_index)?)
+    }
+
+    fn try_is_vertex_element(&self, vertex_index: &VertexIndex) -> Result<(), GraphComputingError> {
+        Ok(try_is_element(self, *vertex_index)?)
+    }
+}
 
 // pub(crate) trait Indexing {
 //     fn is_valid_index(&self, index: &VertexIndex) -> Result<bool, GraphComputingError>;
