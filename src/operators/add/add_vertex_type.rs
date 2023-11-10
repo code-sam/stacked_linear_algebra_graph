@@ -13,6 +13,12 @@ pub trait AddVertexType<T: ValueType> {
         &mut self,
         vertex_type: &VertexTypeKeyRef,
     ) -> Result<VertexTypeIndex, GraphComputingError>;
+
+    /// If the VertexType already exits, returns a duplicate of its VertexTypeIndex
+    fn add_new_vertex_type_or_return_existing_index(
+        &mut self,
+        vertex_type: &VertexTypeKeyRef,
+    ) -> Result<VertexTypeIndex, GraphComputingError>;
 }
 
 impl<T: ValueType + GetValueTypeIdentifier> AddVertexType<T> for Graph {
@@ -23,6 +29,16 @@ impl<T: ValueType + GetValueTypeIdentifier> AddVertexType<T> for Graph {
         AddVertexTypeToVertexStore::<T>::add_new_vertex_type(
             self.vertex_store_mut_ref(),
             vertex_type_key,
+        )
+    }
+
+    fn add_new_vertex_type_or_return_existing_index(
+        &mut self,
+        vertex_type: &VertexTypeKeyRef,
+    ) -> Result<VertexTypeIndex, GraphComputingError> {
+        AddVertexTypeToVertexStore::<T>::add_new_vertex_type_or_return_existing_index(
+            self.vertex_store_mut_ref(),
+            vertex_type,
         )
     }
 }
