@@ -1,57 +1,44 @@
-// use graphblas_sparse_linear_algebra::value_type::ValueType;
-
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
     GetSparseMatrixElementListTyped, GetSparseMatrixElementValueTyped, SetSparseMatrixElementTyped,
 };
 use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
-
-use crate::graph::edge::{
-    AdjacencyMatrixCoordinate, DirectedEdgeCoordinateDefinedByIndicesTrait,
-    DirectedEdgeCoordinateDefinedByKeysTrait, EdgeTypeIndex, WeightedDirectedEdgeDefinedByIndices,
-    WeightedDirectedEdgeDefinedByIndicesTrait, WeightedDirectedEdgeDefinedByKeys,
-    WeightedDirectedEdgeDefinedByKeysTrait,
-};
-use crate::graph::edge_store::operations::add_edge_type::AddEdgeType;
+use crate::graph::edge::{EdgeTypeIndex, GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
     AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
 };
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
-
-use crate::graph::graph::{Graph, GraphTrait};
-
+use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
-
 use crate::operators::indexing::Indexing as GraphIndexing;
 
 pub trait AddEdge<T: ValueType> {
-    fn add_new_edge_using_keys(
+    fn new_edge_from_edge(
         &mut self,
-        edge: WeightedDirectedEdgeDefinedByKeys<T>,
+        edge: impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>,
     ) -> Result<(), GraphComputingError>;
 
-    fn add_or_replace_edge_using_keys(
+    fn new_edge(
         &mut self,
-        edge: WeightedDirectedEdgeDefinedByKeys<T>,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+        weight: T,
     ) -> Result<(), GraphComputingError>;
 
-    /// If the EdgeType already exists, then the edge is added to it.
-    /// Existing edges for the EdgesType remain unaffected.
-    fn add_new_edge_and_edge_type_using_keys(
+    fn add_or_replace_edge_from_edge(
         &mut self,
-        edge: WeightedDirectedEdgeDefinedByKeys<T>,
-    ) -> Result<EdgeTypeIndex, GraphComputingError>;
-
-    fn add_new_edge_using_indices(
-        &mut self,
-        edge: WeightedDirectedEdgeDefinedByIndices<T>,
+        edge: impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>,
     ) -> Result<(), GraphComputingError>;
 
-    fn add_or_replace_edge_using_indices(
+    fn add_or_replace_edge(
         &mut self,
-        edge: WeightedDirectedEdgeDefinedByIndices<T>,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+        weight: T,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -67,257 +54,193 @@ where
         + Default
         + Copy,
 {
-    fn add_new_edge_using_keys(
+    fn new_edge_from_edge(
         &mut self,
-        edge: WeightedDirectedEdgeDefinedByKeys<T>,
+        edge: impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>,
     ) -> Result<(), GraphComputingError> {
-        let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
-        let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
+        AddEdge::<T>::new_edge(
+            self,
+            edge.edge_type_ref(),
+            edge.tail_ref(),
+            edge.head_ref(),
+            *edge.weight_ref(),
+        )
+    }
+
+    fn new_edge(
+        &mut self,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+        weight: T,
+    ) -> Result<(), GraphComputingError> {
+        self.try_vertex_index_validity(tail)?;
+        self.try_vertex_index_validity(head)?;
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .adjacency_matrix_mut_ref_for_key(edge.coordinate_ref().edge_type_ref())?;
+            .try_adjacency_matrix_mut_ref(edge_type)?;
 
-        if Indexing::<T>::is_edge(
-            adjacency_matrix,
-            &AdjacencyMatrixCoordinate::new(tail_index, head_index),
-        )? {
+        if Indexing::<T>::is_edge(adjacency_matrix, tail, head)? {
             return Err(LogicError::new(
                 LogicErrorType::EdgeAlreadyExists,
-                format!("An edge already existis for: {:?}", edge.coordinate_ref()),
+                format!(
+                    "An edge already existis for: [edge_type: {:?}, tail: {:?}, head: {:?}]",
+                    edge_type, tail, head
+                ),
                 None,
             )
             .into());
         }
 
-        adjacency_matrix.add_edge_defined_by_indices_without_edge_type_unchecked(
-            &tail_index,
-            &head_index,
-            edge.weight_ref(),
-        )?;
+        adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
         Ok(())
     }
 
-    fn add_or_replace_edge_using_keys(
+    fn add_or_replace_edge_from_edge(
         &mut self,
-        edge: WeightedDirectedEdgeDefinedByKeys<T>,
+        edge: impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>,
     ) -> Result<(), GraphComputingError> {
-        let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
-        let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
+        AddEdge::<T>::new_edge(
+            self,
+            edge.edge_type_ref(),
+            edge.tail_ref(),
+            edge.head_ref(),
+            *edge.weight_ref(),
+        )
+    }
+
+    fn add_or_replace_edge(
+        &mut self,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+        weight: T,
+    ) -> Result<(), GraphComputingError> {
+        self.try_vertex_index_validity(tail)?;
+        self.try_vertex_index_validity(head)?;
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .adjacency_matrix_mut_ref_for_key(edge.coordinate_ref().edge_type_ref())?;
+            .try_adjacency_matrix_mut_ref(edge_type)?;
 
-        adjacency_matrix.add_edge_defined_by_indices_without_edge_type_unchecked(
-            &tail_index,
-            &head_index,
-            edge.weight_ref(),
-        )?;
-        Ok(())
-    }
-
-    /// If the EdgeType already exists, then the edge is added to it.
-    /// Existing edges for the EdgesType remain unaffected.
-    fn add_new_edge_and_edge_type_using_keys(
-        &mut self,
-        edge: WeightedDirectedEdgeDefinedByKeys<T>,
-    ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        let edge_type_index = AddEdgeType::<T>::add_new_edge_type(
-            self.edge_store_mut_ref(),
-            edge.coordinate_ref().edge_type_ref(),
-        )?;
-
-        let tail_index = *self.try_vertex_index_for_key(edge.coordinate_ref().tail_ref())?;
-        let head_index = *self.try_vertex_index_for_key(edge.coordinate_ref().head_ref())?;
-
-        self.edge_store_mut_ref()
-            .adjacency_matrix_mut_ref_for_index_unchecked(&edge_type_index)
-            .add_edge_defined_by_indices_without_edge_type_unchecked(
-                &tail_index,
-                &head_index,
-                edge.weight_ref(),
-            )?;
-        Ok(edge_type_index)
-    }
-
-    fn add_new_edge_using_indices(
-        &mut self,
-        edge: WeightedDirectedEdgeDefinedByIndices<T>,
-    ) -> Result<(), GraphComputingError> {
-        self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
-        self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
-
-        let adjacency_matrix = self
-            .edge_store_mut_ref()
-            .try_adjacency_matrix_mut_ref_for_index(edge.coordinate_ref().edge_type_ref())?;
-
-        if Indexing::<T>::is_edge(
-            adjacency_matrix,
-            &AdjacencyMatrixCoordinate::new(
-                *edge.coordinate_ref().tail_ref(),
-                *edge.coordinate_ref().head_ref(),
-            ),
-        )? {
-            return Err(LogicError::new(
-                LogicErrorType::EdgeAlreadyExists,
-                format!("An edge already existis for: {:?}", edge.coordinate_ref()),
-                None,
-            )
-            .into());
-        }
-
-        adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
-        Ok(())
-    }
-
-    fn add_or_replace_edge_using_indices(
-        &mut self,
-        edge: WeightedDirectedEdgeDefinedByIndices<T>,
-    ) -> Result<(), GraphComputingError> {
-        self.try_vertex_index_validity(edge.coordinate_ref().tail_ref())?;
-        self.try_vertex_index_validity(edge.coordinate_ref().head_ref())?;
-
-        let adjacency_matrix = self
-            .edge_store_mut_ref()
-            .try_adjacency_matrix_mut_ref_for_index(edge.coordinate_ref().edge_type_ref())?;
-
-        adjacency_matrix.add_edge_defined_by_indices_unchecked(&edge)?;
+        adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
-    use crate::graph::edge::DirectedEdgeCoordinateDefinedByKeys;
+    use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
     use crate::graph::graph::Graph;
-    use crate::graph::vertex::vertex_defined_by_key::VertexDefinedByKey;
-    use crate::operators::add::{AddVertex, AddVertexType};
+    use crate::graph::vertex::vertex::{GetVertexIndex, VertexDefinition};
+    use crate::operators::add::{AddEdge, AddVertexType, CreateVertexIndex, AddEdgeType};
+    use crate::operators::read::GetEdgeWeight;
 
     #[test]
     fn add_edge() {
         let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
 
-        let vertex_type_1_key = String::from("vertex_type_1");
-        let _vertex_type_2_key = String::from("vertex_type_2");
+        let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_index_2 = AddVertexType::<u8>::apply(&mut graph).unwrap();
 
-        let _vertex_type_index =
-            AddVertexType::<u8>::add_new_vertex_type(&mut graph, vertex_type_1_key.as_str())
-                .unwrap();
+        let vertex1_index = graph.new_vertex_index().unwrap();
+        let vertex2_index = graph.new_vertex_index().unwrap();
 
-        let vertex_1 = VertexDefinedByKey::new(
-            vertex_type_1_key.as_str(),
-            String::from("vertex_1").as_str(),
-            &1u8,
-        );
-        let vertex_2 = VertexDefinedByKey::new(
-            vertex_type_1_key.as_str(),
-            String::from("vertex_2").as_str(),
-            &2u8,
-        );
+        let vertex_1 = VertexDefinition::new(vertex_type_index, vertex1_index, 1u8);
+        let vertex_2 = VertexDefinition::new(vertex_type_index, vertex2_index, 2u8);
 
-        let _vertex1_index = graph
-            .add_or_update_key_defined_vertex(vertex_1.clone())
-            .unwrap()
-            .unwrap();
-        let _vertex2_index = graph
-            .add_or_update_key_defined_vertex(vertex_2.clone())
-            .unwrap()
-            .unwrap();
+        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
 
-        let _edge_vertex1_vertex2 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_1", "vertex_1", "vertex_2"),
+        let edge_vertex1_vertex2 = WeightedDirectedEdge::new(
+            DirectedEdgeCoordinate::new(
+                edge_type_1_index,
+                *vertex_1.index_ref(),
+                *vertex_2.index_ref(),
+            ),
             1u8,
         );
-        let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_1", "vertex_2", "vertex_1"),
+        let edge_vertex2_vertex1 = WeightedDirectedEdge::new(
+            DirectedEdgeCoordinate::new(
+                edge_type_1_index,
+                *vertex_2.index_ref(),
+                *vertex_1.index_ref(),
+            ),
             2u8,
         );
 
-        let _edge_vertex2_vertex1_type2 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_2", "vertex_2", "vertex_1"),
-            2u8,
-        );
-
-        let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_2", "vertex_2", "vertex_1"),
+        let edge_vertex1_vertex2_type_2 = WeightedDirectedEdge::new(
+            DirectedEdgeCoordinate::new(
+                edge_type_2_index,
+                *vertex_1.index_ref(),
+                *vertex_2.index_ref(),
+            ),
             3u8,
         );
-        let _edge_vertex2_vertex1 = WeightedDirectedEdgeDefinedByKeys::new(
-            DirectedEdgeCoordinateDefinedByKeys::new("edge_type_2", "vertex_1", "vertex_2"),
+        let edge_vertex2_vertex1_type_2 = WeightedDirectedEdge::new(
+            DirectedEdgeCoordinate::new(
+                vertex_type_index_2,
+                *vertex_2.index_ref(),
+                *vertex_1.index_ref(),
+            ),
             4u8,
         );
 
-        // graph
-        //     .add_new_edge_and_edge_type_using_keys(edge_vertex1_vertex2.clone())
-        //     .unwrap();
-        // assert_eq!(
-        //     graph
-        //         .is_key_defined_edge_in_graph(&edge_vertex1_vertex2)
-        //         .unwrap(),
-        //     true
-        // );
-        // assert!(!graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex2_vertex1)
-        //     .unwrap());
-        // assert!(!graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex1_vertex2_type2)
-        //     .unwrap());
+        graph.new_edge_from_edge(edge_vertex1_vertex2).unwrap();
+        graph.new_edge_from_edge(edge_vertex2_vertex1).unwrap();
+        graph
+            .new_edge_from_edge(edge_vertex1_vertex2_type_2)
+            .unwrap();
+        graph
+            .new_edge_from_edge(edge_vertex2_vertex1_type_2)
+            .unwrap();
 
-        // graph
-        //     .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2.clone())
-        //     .unwrap();
-        // graph
-        //     .add_edge_and_edge_type_using_keys(edge_vertex2_vertex1.clone())
-        //     .unwrap();
-        // assert!(graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex1_vertex2)
-        //     .unwrap());
-        // assert!(graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex2_vertex1)
-        //     .unwrap());
-        // assert!(!graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex1_vertex2_type2)
-        //     .unwrap());
-
-        // graph
-        //     .add_edge_and_edge_type_using_keys(edge_vertex1_vertex2_type2.clone())
-        //     .unwrap();
-        // assert!(graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex1_vertex2)
-        //     .unwrap());
-        // assert!(graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex2_vertex1)
-        //     .unwrap());
-        // assert!(graph
-        //     .is_key_defined_edge_in_graph(&edge_vertex1_vertex2_type2)
-        //     .unwrap());
-    }
-
-    #[test]
-    fn add_edge_errors() {
-        // let mut graph = Graph::new(5, 5).unwrap();
-
-        // let vertex_1 = Vertex::new(String::from("vertex_1"), String::from("vertex_1").into());
-        // let vertex_2 = Vertex::new(String::from("vertex_2"), String::from("vertex_2").into());
-
-        // let edge_vertex1_vertex2 = WeightedDirectedEdgeDefinedByKeys::new(
-        //     vertex_1.clone().into(),
-        //     String::from("edge_type_1"),
-        //     vertex_2.clone().into(),
-        // );
-
-        // match graph.add_edge_and_edge_type_using_keys(edge_vertex1_vertex2.clone()) {
-        //     Err(_) => assert!(true),
-        //     Ok(_) => assert!(false),
-        // }
-
-        // graph.add_or_replace_vertex(vertex_1.clone()).unwrap();
-        // match graph.add_edge_and_edge_type_using_keys(edge_vertex1_vertex2) {
-        //     Err(_) => assert!(true),
-        //     Ok(_) => assert!(false),
-        // }
+        assert_eq!(
+            GetEdgeWeight::<u8>::try_apply(
+                &graph,
+                &edge_type_1_index,
+                vertex_1.index_ref(),
+                vertex_2.index_ref()
+            )
+            .unwrap(),
+            1u8
+        );
+        assert_eq!(
+            GetEdgeWeight::<u8>::try_apply_for_coordinate(
+                &graph,
+                &DirectedEdgeCoordinate::new(
+                    edge_type_1_index,
+                    *vertex_2.index_ref(),
+                    *vertex_1.index_ref()
+                )
+            )
+            .unwrap(),
+            2u8
+        );
+        assert_eq!(
+            GetEdgeWeight::<u8>::try_apply_for_coordinate(
+                &graph,
+                &DirectedEdgeCoordinate::new(
+                    edge_type_2_index,
+                    *vertex_1.index_ref(),
+                    *vertex_2.index_ref()
+                )
+            )
+            .unwrap(),
+            3u8
+        );
+        assert_eq!(
+            GetEdgeWeight::<u8>::try_apply_for_coordinate(
+                &graph,
+                &DirectedEdgeCoordinate::new(
+                    edge_type_2_index,
+                    *vertex_2.index_ref(),
+                    *vertex_1.index_ref()
+                )
+            )
+            .unwrap(),
+            4u8
+        );
     }
 }

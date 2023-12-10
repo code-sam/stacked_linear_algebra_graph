@@ -6,30 +6,19 @@ use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge::{EdgeTypeIndex, EdgeTypeKeyRef},
+        edge::EdgeTypeIndex,
         edge_store::EdgeStore,
-        indexer::{AssignedIndexTrait, IndexerTrait},
+        indexer::{GetAssignedIndexData, IndexerTrait},
     },
 };
 
 pub(crate) trait AddEdgeType<T: ValueType> {
-    fn add_new_edge_type(
-        &mut self,
-        key: &EdgeTypeKeyRef,
-    ) -> Result<EdgeTypeIndex, GraphComputingError>;
-
-    fn add_new_edge_type_or_return_existing_index(
-        &mut self,
-        key: &EdgeTypeKeyRef,
-    ) -> Result<EdgeTypeIndex, GraphComputingError>;
+    fn add_new_edge_type(&mut self) -> Result<EdgeTypeIndex, GraphComputingError>;
 }
 
 impl<T: ValueType + GetValueTypeIdentifier> AddEdgeType<T> for EdgeStore {
-    fn add_new_edge_type(
-        &mut self,
-        key: &EdgeTypeKeyRef,
-    ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        let new_type_index = self.edge_type_indexer_mut_ref().add_new_key(key)?;
+    fn add_new_edge_type(&mut self) -> Result<EdgeTypeIndex, GraphComputingError> {
+        let new_type_index = self.edge_type_indexer_mut_ref().new_index()?;
         if let Some(new_capacity) = new_type_index.new_index_capacity() {
             let current_capacity = self.adjacency_matrices_ref().len();
             self.adjacency_matrices_mut()
@@ -46,16 +35,5 @@ impl<T: ValueType + GetValueTypeIdentifier> AddEdgeType<T> for EdgeStore {
             self.adjacency_matrices_mut_ref()[*new_type_index.index_ref()] = new_adjacency_matrix;
         }
         Ok(*new_type_index.index_ref())
-    }
-
-    fn add_new_edge_type_or_return_existing_index(
-        &mut self,
-        key: &EdgeTypeKeyRef,
-    ) -> Result<EdgeTypeIndex, GraphComputingError> {
-        // TODO: review if there are checks than can be dropped in the process. This should improve performance.
-        match self.edge_type_indexer_mut_ref().index_for_key(key) {
-            Some(index) => Ok(*index),
-            None => <EdgeStore as AddEdgeType<T>>::add_new_edge_type(self, key),
-        }
     }
 }

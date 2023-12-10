@@ -1,61 +1,72 @@
-use crate::graph::value_type::ValueType;
+use crate::graph::{
+    edge_store::weighted_adjacency_matrix::{
+        AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices,
+    },
+    graph::{EdgeTypeIndex, VertexIndex},
+    value_type::ValueType,
+};
 
-use super::{DirectedEdgeCoordinateDefinedByIndices, DirectedEdgeCoordinateDefinedByKeys};
+use super::{DirectedEdgeCoordinate, GetDirectedEdgeCoordinateIndex};
 
 #[derive(Clone, Debug)]
-pub struct WeightedDirectedEdgeDefinedByIndices<T: ValueType> {
-    coordinate: DirectedEdgeCoordinateDefinedByIndices,
+pub struct WeightedDirectedEdge<T: ValueType> {
+    coordinate: DirectedEdgeCoordinate,
     weight: T,
 }
 
-impl<T: ValueType> WeightedDirectedEdgeDefinedByIndices<T> {
-    pub fn new(coordinate: DirectedEdgeCoordinateDefinedByIndices, weight: T) -> Self {
+impl<T: ValueType> WeightedDirectedEdge<T> {
+    pub fn new(coordinate: DirectedEdgeCoordinate, weight: T) -> Self {
         Self { coordinate, weight }
     }
 }
 
-pub trait WeightedDirectedEdgeDefinedByIndicesTrait<T: ValueType> {
-    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByIndices;
+pub trait GetEdgeWeight<T: ValueType> {
     fn weight_ref(&self) -> &T;
 }
 
-impl<T: ValueType> WeightedDirectedEdgeDefinedByIndicesTrait<T>
-    for WeightedDirectedEdgeDefinedByIndices<T>
-{
-    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByIndices {
-        &self.coordinate
-    }
-
+impl<T: ValueType> GetEdgeWeight<T> for WeightedDirectedEdge<T> {
     fn weight_ref(&self) -> &T {
         &self.weight
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct WeightedDirectedEdgeDefinedByKeys<T: ValueType> {
-    coordinate: DirectedEdgeCoordinateDefinedByKeys,
-    weight: T,
+pub trait GetDirectedEdgeCoordinate {
+    fn directed_coordinate_ref(&self) -> &DirectedEdgeCoordinate;
 }
 
-impl<T: ValueType> WeightedDirectedEdgeDefinedByKeys<T> {
-    pub fn new(coordinate: DirectedEdgeCoordinateDefinedByKeys, weight: T) -> Self {
-        Self { coordinate, weight }
-    }
-}
-
-pub trait WeightedDirectedEdgeDefinedByKeysTrait<T: ValueType> {
-    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByKeys;
-    fn weight_ref(&self) -> &T;
-}
-
-impl<T: ValueType> WeightedDirectedEdgeDefinedByKeysTrait<T>
-    for WeightedDirectedEdgeDefinedByKeys<T>
-{
-    fn coordinate_ref(&self) -> &DirectedEdgeCoordinateDefinedByKeys {
+impl<T: ValueType> GetDirectedEdgeCoordinate for WeightedDirectedEdge<T> {
+    fn directed_coordinate_ref(&self) -> &DirectedEdgeCoordinate {
         &self.coordinate
     }
+}
 
-    fn weight_ref(&self) -> &T {
-        &self.weight
+impl<T: ValueType> GetDirectedEdgeCoordinateIndex for WeightedDirectedEdge<T> {
+    fn edge_type_ref(&self) -> &EdgeTypeIndex {
+        self.coordinate.edge_type_ref()
+    }
+
+    fn tail_ref(&self) -> &VertexIndex {
+        self.coordinate.tail_ref()
+    }
+
+    fn head_ref(&self) -> &VertexIndex {
+        self.coordinate.head_ref()
+    }
+
+    fn adjacency_matrix_coordinate(&self) -> AdjacencyMatrixCoordinate {
+        AdjacencyMatrixCoordinate::new(
+            self.coordinate.tail_ref().to_owned(),
+            self.coordinate.head_ref().to_owned(),
+        )
+    }
+}
+
+impl<T: ValueType> GetAdjacencyMatrixCoordinateIndices for WeightedDirectedEdge<T> {
+    fn tail_ref(&self) -> &VertexIndex {
+        self.coordinate.tail_ref()
+    }
+
+    fn head_ref(&self) -> &VertexIndex {
+        self.coordinate.head_ref()
     }
 }

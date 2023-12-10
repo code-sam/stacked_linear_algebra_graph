@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 
-use crate::graph::edge::{EdgeTypeIndex, EdgeTypeKeyRef};
+use crate::graph::edge::EdgeTypeIndex;
 
 use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphTrait};
@@ -8,27 +8,11 @@ use crate::graph::indexer::IndexerTrait;
 
 pub trait DropEdgeType {
     /// Deletes the edge type, and all its edges
-    fn drop_edge_type_with_key(
-        &mut self,
-        edge_type: &EdgeTypeKeyRef,
-    ) -> Result<(), GraphComputingError>;
-    fn drop_edge_type_with_index(
-        &mut self,
-        edge_type: &EdgeTypeIndex,
-    ) -> Result<(), GraphComputingError>;
+    fn drop_edge_type(&mut self, edge_type: &EdgeTypeIndex) -> Result<(), GraphComputingError>;
 }
 
 impl DropEdgeType for Graph {
-    fn drop_edge_type_with_key(
-        &mut self,
-        edge_type: &EdgeTypeKeyRef,
-    ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .edge_type_indexer_mut_ref()
-            .free_key(edge_type)
-    }
-
-    fn drop_edge_type_with_index(
+    fn drop_edge_type(
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {

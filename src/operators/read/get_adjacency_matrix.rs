@@ -9,7 +9,6 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge::EdgeTypeKeyRef,
         edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
         graph::{EdgeTypeIndex, Graph, GraphTrait},
         value_type::ValueType,
@@ -17,15 +16,14 @@ use crate::{
 };
 
 pub trait GetSparseAdjacencyMatrix<T: ValueType> {
-    fn with_index(
+    fn sparse_adjacency_matrix(
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
-    fn with_index_unchecked(
+    fn sparse_adjacency_matrix_unchecked(
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
-    fn with_key(&self, type_key: &EdgeTypeKeyRef) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
 impl<T> GetSparseAdjacencyMatrix<T> for Graph
@@ -33,84 +31,62 @@ where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
     T: ValueType + IntoSparseMatrixForValueType<T>,
 {
-    fn with_index(
+    fn sparse_adjacency_matrix(
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
-            .try_adjacency_matrix_ref_for_index(type_index)?
+            .try_adjacency_matrix_ref(type_index)?
             .sparse_matrix()?)
     }
 
-    fn with_index_unchecked(
+    fn sparse_adjacency_matrix_unchecked(
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
-            .adjacency_matrix_ref_for_index_unchecked(type_index)
-            .sparse_matrix()?)
-    }
-
-    fn with_key(&self, type_key: &EdgeTypeKeyRef) -> Result<SparseMatrix<T>, GraphComputingError> {
-        Ok(self
-            .edge_store_ref()
-            .adjacency_matrix_ref_for_key(type_key)?
+            .adjacency_matrix_ref_unchecked(type_index)
             .sparse_matrix()?)
     }
 }
 
-pub trait ReadAdjacencyMatrixElementList<T: ValueType> {
-    fn with_index(
+pub trait GetAdjacencyMatrixElementList<T: ValueType> {
+    fn adjacency_matrix_element_list(
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
-    fn with_index_unchecked(
+    fn adjacency_matrix_element_list_unchecked(
         &self,
         type_index: &EdgeTypeIndex,
-    ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
-    fn with_key(
-        &self,
-        type_key: &EdgeTypeKeyRef,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
 
-impl<T> ReadAdjacencyMatrixElementList<T> for Graph
+impl<T> GetAdjacencyMatrixElementList<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
     T: ValueType + IntoSparseMatrixForValueType<T>,
 {
-    fn with_index(
+    fn adjacency_matrix_element_list(
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
-            .try_adjacency_matrix_ref_for_index(type_index)?
+            .try_adjacency_matrix_ref(type_index)?
             .sparse_matrix()?
-            .get_element_list()?)
+            .element_list()?)
     }
 
-    fn with_index_unchecked(
+    fn adjacency_matrix_element_list_unchecked(
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
-            .adjacency_matrix_ref_for_index_unchecked(type_index)
+            .adjacency_matrix_ref_unchecked(type_index)
             .sparse_matrix()?
-            .get_element_list()?)
-    }
-
-    fn with_key(
-        &self,
-        type_key: &EdgeTypeKeyRef,
-    ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
-        Ok(self
-            .edge_store_ref()
-            .adjacency_matrix_ref_for_key(type_key)?
-            .sparse_matrix()?
-            .get_element_list()?)
+            .element_list()?)
     }
 }

@@ -4,9 +4,8 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::VertexTypeIndex,
-        indexer::{AssignedIndexTrait, IndexerTrait},
+        indexer::{GetAssignedIndexData, IndexerTrait},
         value_type::{GetValueTypeIdentifier, ValueType},
-        vertex::vertex::VertexTypeKeyRef,
         vertex_store::{
             vertex_store::VertexStoreTrait, CreateVertexVector, VertexStore, VertexVector,
         },
@@ -14,23 +13,12 @@ use crate::{
 };
 
 pub(crate) trait AddVertexType<T: ValueType> {
-    fn add_new_vertex_type(
-        &mut self,
-        key: &VertexTypeKeyRef,
-    ) -> Result<VertexTypeIndex, GraphComputingError>;
-
-    fn add_new_vertex_type_or_return_existing_index(
-        &mut self,
-        key: &VertexTypeKeyRef,
-    ) -> Result<VertexTypeIndex, GraphComputingError>;
+    fn new_vertex_type(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
 }
 
 impl<T: ValueType + GetValueTypeIdentifier> AddVertexType<T> for VertexStore {
-    fn add_new_vertex_type(
-        &mut self,
-        key: &VertexTypeKeyRef,
-    ) -> Result<VertexTypeIndex, GraphComputingError> {
-        let new_type_index = self.vertex_type_indexer_mut_ref().add_new_key(key)?;
+    fn new_vertex_type(&mut self) -> Result<VertexTypeIndex, GraphComputingError> {
+        let new_type_index = self.vertex_type_indexer_mut_ref().new_index()?;
 
         self.synchronize_vector_with_vertex_vectors(&new_type_index);
 
@@ -45,17 +33,6 @@ impl<T: ValueType + GetValueTypeIdentifier> AddVertexType<T> for VertexStore {
         self.add_new_vertex_vector(new_vertex_vector, &new_type_index)?;
 
         Ok(*new_type_index.index_ref())
-    }
-
-    fn add_new_vertex_type_or_return_existing_index(
-        &mut self,
-        key: &VertexTypeKeyRef,
-    ) -> Result<VertexTypeIndex, GraphComputingError> {
-        // TODO: review if there are checks than can be dropped in the process. This should improve performance.
-        match self.vertex_type_indexer_mut_ref().index_for_key(key) {
-            Some(index) => Ok(*index),
-            None => <VertexStore as AddVertexType<T>>::add_new_vertex_type(self, key),
-        }
     }
 }
 

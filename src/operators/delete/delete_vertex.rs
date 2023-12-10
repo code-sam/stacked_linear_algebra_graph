@@ -3,24 +3,16 @@ use crate::{
     graph::{
         edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnections,
         graph::{GraphTrait, VertexIndex, VertexTypeIndex},
-        indexer::IndexerTrait,
-        vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{
-            VertexStoreTrait,
-            {DeleteVertexElement as DeleteVertexElementFromVertexStore, DeleteVertexForAllTypes},
+            DeleteVertexForAllTypes, DeleteVertexValue as DeleteVertexValueFromVertexStore,
         },
     },
 };
 
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::Graph;
-use crate::graph::value_type::ValueType;
 
-pub trait DeleteVertex {
-    fn drop_vertex_key_and_connected_edges(
-        &mut self,
-        vertex_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError>;
+pub trait DropVertexIndex {
     fn drop_vertex_index_and_connected_edges(
         &mut self,
         vertex_index: &VertexIndex,
@@ -31,32 +23,15 @@ pub trait DeleteVertex {
     // ) -> Result<(), GraphComputingError>;
 }
 
-pub trait DeleteVertexElement<T: ValueType> {
-    fn delete_vertex_element_by_key(
-        &mut self,
-        vertex_type_key: &VertexTypeKeyRef,
-        vertex_element_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError>;
-
-    fn delete_vertex_element_by_index(
+pub trait DeleteVertexValue {
+    fn delete_vertex_value(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
         vertex_element_index: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl DeleteVertex for Graph {
-    fn drop_vertex_key_and_connected_edges(
-        &mut self,
-        vertex_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError> {
-        let vertex_index = *self
-            .vertex_store_ref()
-            .element_indexer_ref()
-            .try_index_for_key(vertex_key)?;
-        self.drop_vertex_index_and_connected_edges(&vertex_index)
-    }
-
+impl DropVertexIndex for Graph {
     fn drop_vertex_index_and_connected_edges(
         &mut self,
         vertex_index: &VertexIndex,
@@ -69,32 +44,17 @@ impl DeleteVertex for Graph {
         )?;
 
         self.vertex_store_mut_ref()
-            .delete_vertex_for_all_vertex_types_and_value_types_by_index(vertex_index)
+            .delete_vertex_for_all_vertex_types_and_value_types(vertex_index)
     }
 }
 
-impl<T> DeleteVertexElement<T> for Graph
-where
-    T: ValueType,
-{
-    fn delete_vertex_element_by_key(
-        &mut self,
-        vertex_type_key: &VertexTypeKeyRef,
-        vertex_element_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError> {
-        DeleteVertexElementFromVertexStore::<T>::delete_vertex_element_by_key(
-            self.vertex_store_mut_ref(),
-            vertex_type_key,
-            vertex_element_key,
-        )
-    }
-
-    fn delete_vertex_element_by_index(
+impl DeleteVertexValue for Graph {
+    fn delete_vertex_value(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
         vertex_element_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
-        DeleteVertexElementFromVertexStore::<T>::delete_vertex_element_by_index(
+        DeleteVertexValueFromVertexStore::delete_vertex_element(
             self.vertex_store_mut_ref(),
             vertex_type_index,
             vertex_element_index,

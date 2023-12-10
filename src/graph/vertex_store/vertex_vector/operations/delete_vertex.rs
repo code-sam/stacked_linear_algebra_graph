@@ -5,19 +5,12 @@ use crate::{
     graph::{
         graph::{VertexIndex, VertexTypeIndex},
         indexer::IndexerTrait,
-        value_type::ValueType,
-        vertex::vertex::{VertexKeyRef, VertexTypeKeyRef},
         vertex_store::{VertexStore, VertexStoreTrait, VertexVector},
     },
 };
 
-pub(crate) trait DeleteVertexElement<T: ValueType> {
-    fn delete_vertex_element_by_key(
-        &mut self,
-        vertex_type_key: &VertexTypeKeyRef,
-        vertex_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError>;
-    fn delete_vertex_element_by_index(
+pub(crate) trait DeleteVertexValue {
+    fn delete_vertex_element(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
         vertex_index: &VertexIndex,
@@ -25,34 +18,14 @@ pub(crate) trait DeleteVertexElement<T: ValueType> {
 }
 
 pub(crate) trait DeleteVertexForAllTypes {
-    fn delete_vertex_for_all_vertex_types_and_value_types_by_key(
-        &mut self,
-        vertex_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError>;
-    fn delete_vertex_for_all_vertex_types_and_value_types_by_index(
+    fn delete_vertex_for_all_vertex_types_and_value_types(
         &mut self,
         vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T: ValueType> DeleteVertexElement<T> for VertexStore {
-    fn delete_vertex_element_by_key(
-        &mut self,
-        vertex_type_key: &VertexTypeKeyRef,
-        vertex_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError> {
-        let vertex_type_index = *self
-            .vertex_type_indexer_ref()
-            .try_index_for_key(vertex_type_key)?;
-        let vertex_index = *self.element_indexer_ref().try_index_for_key(vertex_key)?;
-
-        let vertex_vector =
-            &mut self.vertex_vector_for_all_vertex_types_mut_ref()[vertex_type_index];
-        drop_sparse_vector_element(vertex_vector, vertex_index)?;
-        Ok(())
-    }
-
-    fn delete_vertex_element_by_index(
+impl DeleteVertexValue for VertexStore {
+    fn delete_vertex_element(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
         vertex_index: &VertexIndex,
@@ -77,15 +50,7 @@ impl<T: ValueType> DeleteVertexElement<T> for VertexStore {
 }
 
 impl DeleteVertexForAllTypes for VertexStore {
-    fn delete_vertex_for_all_vertex_types_and_value_types_by_key(
-        &mut self,
-        vertex_key: &VertexKeyRef,
-    ) -> Result<(), GraphComputingError> {
-        let vertex_element_index = *self.element_indexer_ref().try_index_for_key(vertex_key)?;
-        self.delete_vertex_for_all_vertex_types_and_value_types_by_index(&vertex_element_index)
-    }
-
-    fn delete_vertex_for_all_vertex_types_and_value_types_by_index(
+    fn delete_vertex_for_all_vertex_types_and_value_types(
         &mut self,
         vertex_element_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {

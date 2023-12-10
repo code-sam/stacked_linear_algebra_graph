@@ -19,20 +19,16 @@ fn graph_binary_operator_benchmark(c: &mut Criterion) {
     let mut graph = Graph::with_initial_capacity(&256, &4096, &256).unwrap();
 
     for i in 0..1000 {
-        graph
-            .add_new_vertex_type(format!("vertex_type_{}", i).as_str())
-            .unwrap();
+        graph.apply(format!("vertex_type_{}", i).as_str()).unwrap();
     }
 
     for i in 0..1000 {
-        graph
-            .add_new_edge_type(format!("edge_type_{}", i).as_str())
-            .unwrap();
+        graph.apply(format!("edge_type_{}", i).as_str()).unwrap();
     }
 
     for i in 0..10_000 {
         graph
-            .add_new_key_defined_vertex(VertexDefinedByKey::new(
+            .new_vertex(VertexDefinedByKey::new(
                 "vertex_type_250",
                 format!("vertex_{}", i).as_str(),
                 &i,
