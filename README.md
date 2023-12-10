@@ -6,19 +6,21 @@ An embedded and in-memory graph using sparse linear algebra.
 
 ### Architecture
 The Stacked Linear Algebra Graph implements a [directed graph](https://en.wikipedia.org/wiki/Directed_graph) with a weight on each vertex and edge.
-The graph models vertices and adjacency matrices as GraphBLAS sparse vectors and matrices respectively. 
+The graph models vertices and adjacency matrices as GraphBLAS sparse vectors and matrices respectively.
 The graph operates on its vertex vectors and adjacency matrices using GraphBLAS operators.
+
+### Indexing
+The graph assigns an unsigned interger index index to each new vertex, vertex vector and adjacecency matrix. The graph may reuse  indices after the index has been deleted beforehand.
+
+The numerical vertex indices reference the same coordinates in all vertex vectors and adjacency matrices. All vertex vectors and adjacency matrices thus have compatible sizes.
+
+Each combination of vertex vector and adjacency matrix thus defines a separate graph. All graphs share the same coordinates.
+
+The graph automatically expands the size of the vertex vectors and adjacency matrices as new vertices are added. The graph cannot reduce their size.
 
 ### Data types
 The graph stores the following Rust primitive numeric types in its vertices and edges:
 bool; i8; i16; i32; i64; u8; u16; u32; u64; f32; f64; isize; usize
-
-### Indexing
-The graph has a dual indexing system - string keys for human understandability and numerical indices for efficiency. Each coordinate maps to both a user-defined unique string key and an unsigned integer index assigned by the graph. Integer indices may be reused by the graph after its key was deleted.
-
-The numerical vertex indices, and their associated keys, reference the same coordinates in all vertex vectors and adjacency matrices. All vertex vectors and adjacency matrices thus have compatible sizes.
-
-Each combination of vertex vector and adjacency matrix thus defines a separate graph. All graphs share the same coordinates.
 
 ### Type casting
 Each vertex vector and adjacency matrix has a single data datatype. The data type is set upon adding the vertex vector or adjacency matrix to the graph.
@@ -31,7 +33,7 @@ Operations involving different value types will use type casting according to AN
 Graph operators apply to any applicable combination of vertex vector and adjacency matrix.
 
 ### Transactions
-Cairn Knowledge Graph does not guarantee [ACID](https://en.wikipedia.org/wiki/ACID) database transaction properties.
+The graph does not implement [ACID](https://en.wikipedia.org/wiki/ACID) database transactions.
 
 ### Persistence
 The graph resides in-memory and does not exist in persistent storage.
