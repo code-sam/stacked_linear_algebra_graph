@@ -7,19 +7,15 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     DeleteSparseVectorElement, GetSparseVectorLength, GetVectorElementIndices,
     GetVectorElementValue, ResizeSparseVector, SetVectorElement,
 };
-use graphblas_sparse_linear_algebra::collections::sparse_vector::{SparseVector, VectorElement};
+use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::Collection;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 use graphblas_sparse_linear_algebra::index::ElementIndex;
-use hashbrown::HashMap;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::index::ElementCount;
 
 pub type Index = ElementIndex;
-
-pub type Key = String;
-pub type KeyRef = str;
 
 pub(crate) const MINIMUM_INDEXER_CAPACITY: usize = 1;
 

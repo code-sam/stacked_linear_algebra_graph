@@ -1,6 +1,6 @@
 [package]
 name = "stacked_linear_algebra_graph"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["code_sam <mail@samdekker.nl>"]
 description = "Embedded in-memory graph using sparse linear algebra"
 edition = "2021"
@@ -15,7 +15,6 @@ repository = "https://github.com/code-sam/stacked_linear_algebra_graph"
 [dependencies]
 graphblas_sparse_linear_algebra = {version = "0.36.0"}
 # graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "simpler-operators"}
-hashbrown = {version = "0.13", features = ["rayon"]}
 once_cell = {version = "1.17"}
 paste = {version = "1.0"}
 rayon = {version = "1.7"}

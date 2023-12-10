@@ -1,5 +1,3 @@
-// use hashbrown::HashMap;
-
 // use crate::error::GraphComputingError;
 // use crate::graph::edge::adjacency_matrix::AdjacencyMatrix;
 // use crate::graph::edge::{EdgeType, EdgeTypeIndex, EdgeTypeRef};
