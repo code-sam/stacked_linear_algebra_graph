@@ -2,32 +2,18 @@ use crate::error::GraphComputingError;
 
 use crate::graph::graph::{Graph, GraphTrait, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
-use crate::graph::vertex::vertex::VertexTypeKeyRef;
 use crate::graph::vertex_store::VertexStoreTrait;
 
 pub trait DropVertexType {
     /// Deletes the vertex type, and all its edges
-    fn drop_vertex_type_with_key(
-        &mut self,
-        vertex_type: &VertexTypeKeyRef,
-    ) -> Result<(), GraphComputingError>;
-    fn drop_vertex_type_with_index(
+    fn drop_vertex_type(
         &mut self,
         vertex_type: &VertexTypeIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl DropVertexType for Graph {
-    fn drop_vertex_type_with_key(
-        &mut self,
-        edge_type: &VertexTypeKeyRef,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .vertex_type_indexer_mut_ref()
-            .free_key(edge_type)
-    }
-
-    fn drop_vertex_type_with_index(
+    fn drop_vertex_type(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
     ) -> Result<(), GraphComputingError> {

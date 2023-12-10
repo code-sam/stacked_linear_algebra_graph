@@ -1,15 +1,18 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
-    is_sparse_matrix_element, try_is_sparse_matrix_element, GetSparseMatrixElementList,
+    is_sparse_matrix_element, is_sparse_matrix_element_at_coordinate, try_is_sparse_matrix_element,
+    try_is_sparse_matrix_element_at_coordinate, GetSparseMatrixElementList,
     GetSparseMatrixElementListTyped,
 };
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElementList;
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
+    GetCoordinateIndices, MatrixElementList,
+};
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementList;
 use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
 
-use crate::graph::edge::AdjacencyMatrixCoordinate;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::select_edge_vertices::SelectEdgeVertices;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
-    IntoSparseMatrix, IntoSparseMatrixForValueType,
+    AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices, IntoSparseMatrix,
+    IntoSparseMatrixForValueType,
 };
 use crate::graph::value_type::ValueType;
 use crate::{
@@ -17,11 +20,21 @@ use crate::{
     graph::{edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, graph::VertexIndex},
 };
 
-pub(crate) trait Indexing<T: ValueType> {
-    fn is_edge(&self, coordinate: &AdjacencyMatrixCoordinate) -> Result<bool, GraphComputingError>;
+pub(crate) trait Indexing<T> {
+    fn is_edge_at_coordinate(
+        &self,
+        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
+    ) -> Result<bool, GraphComputingError>;
+    fn is_edge(&self, tail: &VertexIndex, head: &VertexIndex) -> Result<bool, GraphComputingError>;
+
+    fn try_is_edge_at_coordinate(
+        &self,
+        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
+    ) -> Result<(), GraphComputingError>;
     fn try_is_edge(
         &self,
-        coordinate: &AdjacencyMatrixCoordinate,
+        tail: &VertexIndex,
+        head: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
 
     fn adjacency_matrix_coordinates(
@@ -42,25 +55,42 @@ impl<
             + IntoSparseMatrixForValueType<T>
             + GetSparseMatrixElementListTyped<T>
             + AnyMonoidTyped<T>
-            + Clone
-            + Copy,
+            + Copy
+            + Clone,
     > Indexing<T> for WeightedAdjacencyMatrix
 {
-    fn is_edge(&self, coordinate: &AdjacencyMatrixCoordinate) -> Result<bool, GraphComputingError> {
-        Ok(is_sparse_matrix_element(self, *coordinate)?)
+    fn is_edge(&self, tail: &VertexIndex, head: &VertexIndex) -> Result<bool, GraphComputingError> {
+        Ok(is_sparse_matrix_element(self, tail, head)?)
+    }
+
+    fn is_edge_at_coordinate(
+        &self,
+        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
+    ) -> Result<bool, GraphComputingError> {
+        Ok(is_sparse_matrix_element_at_coordinate(self, coordinate)?)
     }
 
     fn try_is_edge(
         &self,
-        coordinate: &AdjacencyMatrixCoordinate,
+        tail: &VertexIndex,
+        head: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
-        Ok(try_is_sparse_matrix_element(self, *coordinate)?)
+        Ok(try_is_sparse_matrix_element(self, tail, head)?)
+    }
+
+    fn try_is_edge_at_coordinate(
+        &self,
+        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
+    ) -> Result<(), GraphComputingError> {
+        Ok(try_is_sparse_matrix_element_at_coordinate(
+            self, coordinate,
+        )?)
     }
 
     fn adjacency_matrix_coordinates(
         &self,
     ) -> Result<Vec<AdjacencyMatrixCoordinate>, GraphComputingError> {
-        let matrix_element_list: MatrixElementList<T> = self.sparse_matrix()?.get_element_list()?;
+        let matrix_element_list: MatrixElementList<T> = self.sparse_matrix()?.element_list()?;
         let element_indices_vertices_with_outgoing_edges = matrix_element_list.row_indices_ref();
         let element_indices_vertices_with_incoming_edges = matrix_element_list.column_indices_ref();
 

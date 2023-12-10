@@ -1,19 +1,14 @@
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
 use crate::error::GraphComputingError;
-
 use crate::graph::index::ElementCount;
-
 use crate::graph::indexer::{Indexer, IndexerTrait};
 
 use super::{ResizeWeightedAdjacencyMatrix, VertexVector};
-
-pub(crate) type SparseVertexVector<T> = SparseVector<T>;
 
 pub(crate) type VertexTypeIndexer = Indexer;
 pub(crate) type VertexElementIndexer = Indexer;

@@ -1,25 +1,25 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetSparseMatrixElementTyped;
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::MatrixElement;
 
 use crate::error::GraphComputingError;
-use crate::graph::edge::DirectedEdgeCoordinateDefinedByIndicesTrait;
-use crate::graph::edge::WeightedDirectedEdgeDefinedByIndices;
-use crate::graph::edge::WeightedDirectedEdgeDefinedByIndicesTrait;
+use crate::graph::edge::GetDirectedEdgeCoordinate;
+use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
+use crate::graph::edge::GetEdgeWeight;
+use crate::graph::edge_store::weighted_adjacency_matrix::GetAdjacencyMatrixCoordinateIndices;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::index::ElementIndex;
 use crate::graph::value_type::ValueType;
 
 pub(crate) trait AddEdge<T: ValueType> {
-    fn add_edge_defined_by_indices_unchecked(
+    fn add_weighted_directed_edge_unchecked(
         &mut self,
-        edge: &WeightedDirectedEdgeDefinedByIndices<T>,
+        edge: &(impl GetAdjacencyMatrixCoordinateIndices + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError>;
 
-    fn add_edge_defined_by_indices_without_edge_type_unchecked(
+    fn add_edge_unchecked(
         &mut self,
         tail: &ElementIndex,
         head: &ElementIndex,
-        weight: &T,
+        weight: T,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -27,31 +27,21 @@ impl<T> AddEdge<T> for WeightedAdjacencyMatrix
 where
     T: ValueType + Copy + SetSparseMatrixElementTyped<T>,
 {
-    fn add_edge_defined_by_indices_unchecked(
+    fn add_weighted_directed_edge_unchecked(
         &mut self,
-        edge: &WeightedDirectedEdgeDefinedByIndices<T>,
+        edge: &(impl GetAdjacencyMatrixCoordinateIndices + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError> {
-        let element = MatrixElement::new(
-            (
-                edge.coordinate_ref().tail_ref().clone(),
-                edge.coordinate_ref().head_ref().clone(),
-            )
-                .into(),
-            *edge.weight_ref(),
-        );
-
-        T::set_graphblas_matrix_element(self, element)?;
+        T::set_graphblas_matrix_value(self, edge.tail_ref(), edge.head_ref(), *edge.weight_ref())?;
         Ok(())
     }
 
-    fn add_edge_defined_by_indices_without_edge_type_unchecked(
+    fn add_edge_unchecked(
         &mut self,
         tail: &ElementIndex,
         head: &ElementIndex,
-        weight: &T,
+        weight: T,
     ) -> Result<(), GraphComputingError> {
-        let element = MatrixElement::new((*tail, *head).into(), *weight);
-        T::set_graphblas_matrix_element(self, element)?;
+        T::set_graphblas_matrix_value(self, tail, head, weight)?;
         Ok(())
     }
 }
