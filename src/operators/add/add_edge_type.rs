@@ -17,6 +17,4 @@ impl<T: ValueType + GetValueTypeIdentifier> AddEdgeType<T> for Graph {
 }
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

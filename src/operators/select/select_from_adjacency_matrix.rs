@@ -302,7 +302,7 @@ mod tests {
         for adjacency_matrix in graph.edge_store_ref().adjacency_matrices_ref().into_iter() {
             println!("{}", adjacency_matrix);
         }
-        
+
         assert_eq!(
             GetEdgeWeight::<u16>::edge_weight_for_coordinate(
                 &graph,

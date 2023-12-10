@@ -165,7 +165,6 @@ mod tests {
             .try_vertex_value(&vertex_type_index, &vertex_index_2)
             .unwrap();
         assert_eq!(value, another_vertex_value);
-
     }
 
     #[test]
