@@ -10,7 +10,7 @@ use crate::graph::vertex::vertex::{GetVertexIndex, GetVertexValue};
 use crate::graph::vertex_store::AddVertex as AddVertexToStore;
 
 pub trait AddVertex<T: ValueType> {
-    fn new_vertex(
+    fn add_vertex(
         &mut self,
         vertex_type: &VertexTypeIndex,
         value: T,
@@ -31,10 +31,9 @@ pub trait AddVertex<T: ValueType> {
 
 impl<T> AddVertex<T> for Graph
 where
-    T: ValueType
-        + SetVectorElementTyped<T> + Copy
+    T: ValueType + SetVectorElementTyped<T> + Copy,
 {
-    fn new_vertex(
+    fn add_vertex(
         &mut self,
         vertex_type: &VertexTypeIndex,
         value: T,
@@ -140,7 +139,7 @@ mod tests {
         let vertex_value = 1u8;
         let another_vertex_value = 2u8;
 
-        let vertex_index = graph.new_vertex(&vertex_type_index, vertex_value).unwrap();
+        let vertex_index = graph.add_vertex(&vertex_type_index, vertex_value).unwrap();
 
         let value: u8 = graph
             .try_vertex_value(&vertex_type_index, &vertex_index)
@@ -148,7 +147,7 @@ mod tests {
         assert_eq!(value, vertex_value);
 
         let vertex_index_2 = graph
-            .new_vertex(&vertex_type_index, another_vertex_value)
+            .add_vertex(&vertex_type_index, another_vertex_value)
             .unwrap();
 
         let value: u8 = graph
@@ -165,7 +164,7 @@ mod tests {
             let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
 
             for i in 0..50 {
-                graph.new_vertex(&vertex_type_index, i).unwrap();
+                graph.add_vertex(&vertex_type_index, i).unwrap();
             }
         }
     }

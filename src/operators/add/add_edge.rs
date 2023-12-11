@@ -15,12 +15,12 @@ use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::operators::indexing::Indexing as GraphIndexing;
 
 pub trait AddEdge<T: ValueType> {
-    fn new_edge_from_edge(
+    fn add_edge_from_edge(
         &mut self,
         edge: impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>,
     ) -> Result<(), GraphComputingError>;
 
-    fn new_edge(
+    fn add_edge(
         &mut self,
         edge_type: &EdgeTypeIndex,
         tail: &VertexIndex,
@@ -54,11 +54,11 @@ where
         + Default
         + Copy,
 {
-    fn new_edge_from_edge(
+    fn add_edge_from_edge(
         &mut self,
         edge: impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>,
     ) -> Result<(), GraphComputingError> {
-        AddEdge::<T>::new_edge(
+        AddEdge::<T>::add_edge(
             self,
             edge.edge_type_ref(),
             edge.tail_ref(),
@@ -67,7 +67,7 @@ where
         )
     }
 
-    fn new_edge(
+    fn add_edge(
         &mut self,
         edge_type: &EdgeTypeIndex,
         tail: &VertexIndex,
@@ -101,7 +101,7 @@ where
         &mut self,
         edge: impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>,
     ) -> Result<(), GraphComputingError> {
-        AddEdge::<T>::new_edge(
+        AddEdge::<T>::add_edge(
             self,
             edge.edge_type_ref(),
             edge.tail_ref(),
@@ -187,13 +187,13 @@ mod tests {
             4u8,
         );
 
-        graph.new_edge_from_edge(edge_vertex1_vertex2).unwrap();
-        graph.new_edge_from_edge(edge_vertex2_vertex1).unwrap();
+        graph.add_edge_from_edge(edge_vertex1_vertex2).unwrap();
+        graph.add_edge_from_edge(edge_vertex2_vertex1).unwrap();
         graph
-            .new_edge_from_edge(edge_vertex1_vertex2_type_2)
+            .add_edge_from_edge(edge_vertex1_vertex2_type_2)
             .unwrap();
         graph
-            .new_edge_from_edge(edge_vertex2_vertex1_type_2)
+            .add_edge_from_edge(edge_vertex2_vertex1_type_2)
             .unwrap();
 
         assert_eq!(
