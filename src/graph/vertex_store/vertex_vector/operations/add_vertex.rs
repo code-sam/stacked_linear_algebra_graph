@@ -1,8 +1,3 @@
-use std::fmt::Display;
-
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
-
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
 
 use crate::error::GraphComputingError;
@@ -56,8 +51,7 @@ where
 
 impl<T> AddVertex<T> for VertexStore
 where
-    T: ValueType + GetVectorElementValueTyped<T> + SetVectorElementTyped<T> + Default + Copy,
-    SparseMatrix<T>: Display,
+    T: ValueType + SetVectorElementTyped<T>,
 {
     fn add_new_vertex(
         &mut self,

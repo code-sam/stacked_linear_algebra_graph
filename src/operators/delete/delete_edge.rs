@@ -63,17 +63,17 @@ mod tests {
         let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
         let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
         let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
 
         graph
-            .new_edge(
+            .add_edge(
                 &edge_type_1_index,
                 &vertex_1_index,
                 &vertex_2_index,
@@ -81,7 +81,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .new_edge(
+            .add_edge(
                 &edge_type_1_index,
                 &vertex_2_index,
                 &vertex_1_index,
@@ -89,7 +89,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .new_edge(
+            .add_edge(
                 &edge_type_2_index,
                 &vertex_1_index,
                 &vertex_2_index,

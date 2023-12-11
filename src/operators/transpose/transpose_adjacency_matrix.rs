@@ -235,10 +235,10 @@ mod tests {
         let vertex_value_2 = 2u8;
 
         let vertex_index_1 = graph
-            .new_vertex(&vertex_type_index, vertex_value_1)
+            .add_vertex(&vertex_type_index, vertex_value_1)
             .unwrap();
         let vertex_index_2 = graph
-            .new_vertex(&vertex_type_index, vertex_value_2)
+            .add_vertex(&vertex_type_index, vertex_value_2)
             .unwrap();
 
         let edge_vertex1_vertex2 = WeightedDirectedEdge::new(
@@ -255,13 +255,13 @@ mod tests {
         );
 
         graph
-            .new_edge_from_edge(edge_vertex1_vertex2.clone())
+            .add_edge_from_edge(edge_vertex1_vertex2.clone())
             .unwrap();
         graph
-            .new_edge_from_edge(edge_vertex2_vertex1.clone())
+            .add_edge_from_edge(edge_vertex2_vertex1.clone())
             .unwrap();
         graph
-            .new_edge_from_edge(edge_vertex1_vertex2_type_2.clone())
+            .add_edge_from_edge(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
         TransposeAdjacencyMatrix::<u8, u16, u8>::apply(

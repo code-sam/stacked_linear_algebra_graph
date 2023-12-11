@@ -24,7 +24,7 @@ fn main() {
     for n in 0..12 {
         vertex_indices.push(
             graph
-                .new_vertex(&numbers_vertex_type_index, n as u8)
+                .add_vertex(&numbers_vertex_type_index, n as u8)
                 .unwrap(),
         );
     }
