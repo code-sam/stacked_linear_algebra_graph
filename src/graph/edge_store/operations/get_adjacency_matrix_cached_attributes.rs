@@ -43,5 +43,4 @@ impl GetAdjacencyMatrixCachedAttributes for EdgeStore {
             .into()),
         }
     }
-
 }

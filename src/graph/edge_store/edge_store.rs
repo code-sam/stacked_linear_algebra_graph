@@ -4,10 +4,8 @@ use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 
-
 use super::adjacency_matrix_with_cached_attributes::GetWeightedAdjacencyMatrix;
 use super::adjacency_matrix_with_cached_attributes::WeightedAdjacencyMatrixWithCachedAttributes;
-
 
 use super::weighted_adjacency_matrix::operations::ResizeWeightedAdjacencyMatrix;
 use super::weighted_adjacency_matrix::WeightedAdjacencyMatrix;

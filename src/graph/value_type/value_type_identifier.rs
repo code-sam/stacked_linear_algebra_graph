@@ -1,5 +1,3 @@
-
-
 use super::implement_1_type_macro_with_enum_type_indentifier_for_all_value_types;
 
 #[derive(Clone, Debug)]

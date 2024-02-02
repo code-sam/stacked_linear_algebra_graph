@@ -128,9 +128,9 @@ mod tests {
         );
 
         adjacency_matrix
-        .weighted_adjacency_matrix_mut_ref()
-        .add_edge_unchecked(&1, &0, 2e2)
-        .unwrap();
+            .weighted_adjacency_matrix_mut_ref()
+            .add_edge_unchecked(&1, &0, 2e2)
+            .unwrap();
 
         assert_eq!(
             GetEdgeWeight::<u32>::edge_weight_unchecked(
