@@ -10,7 +10,3 @@ pub mod read;
 pub mod select;
 pub mod transpose;
 pub mod update;
-
-// pub mod select_edge_type;
-// pub mod select_vertex;
-// pub mod selection;
