@@ -248,7 +248,7 @@ mod tests {
 
         let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
         let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
-        let result_edge_type_index = AddEdgeType::<f32>::apply(&mut graph).unwrap();
+        let _result_edge_type_index = AddEdgeType::<f32>::apply(&mut graph).unwrap();
 
         graph
             .add_edge(

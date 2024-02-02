@@ -295,7 +295,7 @@ mod tests {
 
         let mut indices = Vec::new();
         let n_indices = 100;
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indices.push(indexer.new_index().unwrap());
         }
 
@@ -380,7 +380,7 @@ mod tests {
 
         let mut indices = Vec::new();
         let n_indices = 10;
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indices.push(indexer.new_index().unwrap());
         }
 
@@ -401,7 +401,7 @@ mod tests {
             9
         );
 
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indices.push(indexer.new_index().unwrap());
         }
 
@@ -474,7 +474,7 @@ mod tests {
         .unwrap();
 
         let n_indices = 10;
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indexer.new_index().unwrap();
         }
 

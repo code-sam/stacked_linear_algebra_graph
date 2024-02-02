@@ -239,7 +239,7 @@ mod tests {
 
         let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
 
-        let vertex_1_index = graph
+        let _vertex_1_index = graph
             .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph

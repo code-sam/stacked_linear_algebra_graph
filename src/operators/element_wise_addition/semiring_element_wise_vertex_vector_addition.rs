@@ -236,13 +236,13 @@ mod tests {
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
 
-        let edge_vertex1_vertex2_value = 1u8;
-        let edge_vertex2_vertex1_value = 2u8;
-        let edge_vertex1_vertex2_type_2_value = 3u32;
+        let _edge_vertex1_vertex2_value = 1u8;
+        let _edge_vertex2_vertex1_value = 2u8;
+        let _edge_vertex1_vertex2_type_2_value = 3u32;
 
         let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
 
-        let vertex_1_index = graph
+        let _vertex_1_index = graph
             .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
