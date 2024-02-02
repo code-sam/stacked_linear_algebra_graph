@@ -145,7 +145,7 @@ impl MatrixMask for WeightedAdjacencyMatrix {
 }
 
 impl GetValueTypeIdentifierRef for WeightedAdjacencyMatrix {
-    fn value_type_ref(&self) -> &ValueTypeIdentifier {
+    fn value_type_identifier_ref(&self) -> &ValueTypeIdentifier {
         &self.value_type
     }
 }
@@ -187,7 +187,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                       + GetMatrixSize
                       + GetValueTypeIdentifierRef),
             ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
-                match matrix.value_type_ref() {
+                match matrix.value_type_identifier_ref() {
                     &ValueTypeIdentifier::$value_type_identifier => unsafe {
                         Ok(SparseMatrix::<$value_type>::from_graphblas_matrix(
                             matrix.context_ref(),

@@ -17,6 +17,25 @@ macro_rules! implement_macro_for_all_native_value_types {
 }
 pub(crate) use implement_macro_for_all_native_value_types;
 
+macro_rules! implement_macro_for_all_native_value_types_with_capitalized_value_type {
+    ($macro_identifier:ident) => {
+        $macro_identifier!(BOOL, bool);
+        $macro_identifier!(I8, i8);
+        $macro_identifier!(I16, i16);
+        $macro_identifier!(I32, i32);
+        $macro_identifier!(I64, i64);
+        $macro_identifier!(U8, u8);
+        $macro_identifier!(U16, u16);
+        $macro_identifier!(U32, u32);
+        $macro_identifier!(U64, u64);
+        $macro_identifier!(F32, f32);
+        $macro_identifier!(F64, f64);
+        $macro_identifier!(ISIZE, isize);
+        $macro_identifier!(USIZE, usize);
+    };
+}
+pub(crate) use implement_macro_for_all_native_value_types_with_capitalized_value_type;
+
 macro_rules! implement_macro_with_typed_indentifier_for_all_value_types {
     ($macro_identifier:ident, $untyped_ident:ident) => {
         paste::paste! {

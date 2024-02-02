@@ -141,7 +141,7 @@ impl VectorMask for VertexVector {
 }
 
 impl GetValueTypeIdentifierRef for VertexVector {
-    fn value_type_ref(&self) -> &ValueTypeIdentifier {
+    fn value_type_identifier_ref(&self) -> &ValueTypeIdentifier {
         &self.value_type
     }
 }
@@ -181,7 +181,7 @@ macro_rules! implement_into_sparse_vector_for_value_type {
                       + GetVectorLength
                       + GetValueTypeIdentifierRef),
             ) -> Result<SparseVector<$value_type>, GraphComputingError> {
-                match vector.value_type_ref() {
+                match vector.value_type_identifier_ref() {
                     &ValueTypeIdentifier::$value_type_identifier => unsafe {
                         Ok(SparseVector::<$value_type>::from_graphblas_vector(
                             vector.context_ref(),

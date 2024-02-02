@@ -222,6 +222,7 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
+    use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::GetWeightedAdjacencyMatrix;
     use crate::graph::graph::GraphTrait;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::read::GetEdgeWeight;
@@ -300,7 +301,7 @@ mod tests {
         );
 
         for adjacency_matrix in graph.edge_store_ref().adjacency_matrices_ref().into_iter() {
-            println!("{}", adjacency_matrix);
+            println!("{}", adjacency_matrix.weighted_adjacency_matrix_ref());
         }
 
         assert_eq!(
