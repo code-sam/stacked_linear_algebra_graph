@@ -6,6 +6,7 @@ pub mod element_wise_addition;
 pub mod element_wise_multiplication;
 pub(crate) mod indexing;
 pub mod multiplication;
+pub mod options;
 pub mod read;
 pub mod select;
 pub mod transpose;

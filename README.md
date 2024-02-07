@@ -42,7 +42,6 @@ The graph resides in-memory and does not exist in persistent storage.
 ```rust
 use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
-use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
 use stacked_linear_algebra_graph::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
@@ -51,6 +50,7 @@ use stacked_linear_algebra_graph::operators::add::{AddEdge, AddEdgeType, AddVert
 use stacked_linear_algebra_graph::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
 use stacked_linear_algebra_graph::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
 use stacked_linear_algebra_graph::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use stacked_linear_algebra_graph::operators::options::OperatorOptions;
 use stacked_linear_algebra_graph::operators::read::GetVertexValue;
 
 fn main() {

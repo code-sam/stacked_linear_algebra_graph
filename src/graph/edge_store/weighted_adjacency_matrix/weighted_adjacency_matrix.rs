@@ -22,11 +22,11 @@ use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, GetValueTypeIdentifier, GetValueTypeIdentifierRef,
     ValueType, ValueTypeIdentifier,
 };
+use crate::operators::options::OperatorOptions;
 
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::{Size, SparseMatrix},
     context::Context as GraphBLASContext,
-    operators::options::OperatorOptions,
 };
 
 use super::operations::GetMatrixSize;
@@ -209,7 +209,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                             &Assignment::<$value_type>::new(),
                             &mut product_matrix,
                             &SelectEntireMatrix::new(matrix.context_ref()),
-                            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                         )?;
 
                         return Ok(product_matrix);

@@ -3,12 +3,12 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetMatrixDimens
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::transpose::TransposeMatrix;
 use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::GetGraphblasSparseMatrix,
-    context::GetContext,
-    operators::{options::OperatorOptions, transpose::MatrixTranspose},
+    collections::sparse_matrix::GetGraphblasSparseMatrix, context::GetContext,
+    operators::transpose::MatrixTranspose,
 };
 use once_cell::sync::Lazy;
 
+use crate::operators::options::OperatorOptions;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -53,7 +53,7 @@ macro_rules! create_transpose_adjacency_matrix_function {
                     &*[<ASSIGNMENT_OPERATOR_ $VALUE_TYPE>],
                     // Assignment::<$value_type>::new() TODO: it might be that the overhead of dereferncing the Lazy is more expensive than inlining the function call.
                     &mut transposed_adjacency_matrix,
-                    &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                    &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
 
                 Ok(transposed_adjacency_matrix)

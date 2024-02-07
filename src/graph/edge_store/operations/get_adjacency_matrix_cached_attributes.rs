@@ -3,8 +3,11 @@ use crate::{
     graph::{
         edge::EdgeTypeIndex,
         edge_store::{
-            adjacency_matrix_with_cached_attributes::{GetCachedAttributesOfAdjacencyMatrix, GetWeightedAdjacencyMatrix},
-            weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, EdgeStoreTrait,
+            adjacency_matrix_with_cached_attributes::{
+                GetCachedAttributesOfAdjacencyMatrix, GetWeightedAdjacencyMatrix,
+            },
+            weighted_adjacency_matrix::WeightedAdjacencyMatrix,
+            EdgeStore, EdgeStoreTrait,
         },
     },
 };
@@ -26,7 +29,9 @@ impl GetAdjacencyMatrixCachedAttributes for EdgeStore {
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &WeightedAdjacencyMatrix {
-        self.adjacency_matrices_mut_ref()[*edge_type_index].transposed_weighted_adjacency_matrix_ref().unwrap()
+        self.adjacency_matrices_mut_ref()[*edge_type_index]
+            .transposed_weighted_adjacency_matrix_ref()
+            .unwrap()
     }
 
     fn try_transposed_adjacency_matrix_ref(
@@ -34,7 +39,9 @@ impl GetAdjacencyMatrixCachedAttributes for EdgeStore {
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
         match self.adjacency_matrices_mut_ref().get_mut(*edge_type_index) {
-            Some(adjacency_matrix) => Ok(adjacency_matrix.transposed_weighted_adjacency_matrix_ref()?),
+            Some(adjacency_matrix) => {
+                Ok(adjacency_matrix.transposed_weighted_adjacency_matrix_ref()?)
+            }
             None => Err(LogicError::new(
                 LogicErrorType::EdgeTypeMustExist,
                 format!("No edge type for edge type index: {}", edge_type_index),

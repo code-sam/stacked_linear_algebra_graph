@@ -110,9 +110,7 @@ where
         &self,
         type_index: &EdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
-        Ok(self
-            .sparse_adjacency_matrix(type_index)?
-            .element_list()?)
+        Ok(self.sparse_adjacency_matrix(type_index)?.element_list()?)
     }
 
     fn adjacency_matrix_element_list_unchecked(

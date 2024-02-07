@@ -1,7 +1,7 @@
+use graphblas_sparse_linear_algebra::operators::options::GetGraphblasDescriptor;
 use graphblas_sparse_linear_algebra::operators::{
     apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
-    binary_operator::AccumulatorBinaryOperator, options::OperatorOptions,
-    unary_operator::UnaryOperator,
+    binary_operator::AccumulatorBinaryOperator, unary_operator::UnaryOperator,
 };
 
 use crate::graph::vertex_store::VertexStoreTrait;
@@ -9,6 +9,7 @@ use crate::graph::{
     graph::GraphblasOperatorApplierCollectionTrait,
     vertex_store::operations::get_vertex_vector::GetVertexVector,
 };
+use crate::operators::options::GetOperatorOptions;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -27,7 +28,7 @@ where
         argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
@@ -36,7 +37,7 @@ where
         argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -50,7 +51,7 @@ where
         argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -81,7 +82,7 @@ where
         argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
@@ -116,7 +117,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
@@ -126,7 +127,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -140,7 +141,7 @@ impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToMaskedVertexVector<Evaluat
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -174,7 +175,7 @@ impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToMaskedVertexVector<Evaluat
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
@@ -208,6 +209,7 @@ mod tests {
     use super::*;
 
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::options::OperatorOptions;
     use crate::operators::read::GetVertexValue;
 
     #[test]

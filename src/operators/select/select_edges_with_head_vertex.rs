@@ -1,13 +1,13 @@
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::operators::options::GetOperatorOptions;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixColumn;
 use graphblas_sparse_linear_algebra::operators::mask::VectorMask;
+use graphblas_sparse_linear_algebra::operators::options::GetGraphblasDescriptor;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
-    operators::{
-        binary_operator::AccumulatorBinaryOperator, mask::MatrixMask, options::OperatorOptions,
-    },
+    operators::{binary_operator::AccumulatorBinaryOperator, mask::MatrixMask},
 };
 
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
@@ -31,7 +31,7 @@ where
         // tail_vertex_selector: &VertexSelector, // Selecting a subset of the the tail vertices will result in a collection with incompatible size
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
@@ -41,7 +41,7 @@ where
         // tail_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -57,7 +57,7 @@ where
         // tail_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -66,7 +66,7 @@ where
         let edge_store = self.edge_store_mut_ref_unsafe();
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-        let adjacency_matrix_adjacency_matrix =
+        let adjacency_matrix =
             unsafe { &*edge_store }.try_adjacency_matrix_ref(adjacency_matrix)?;
 
         let vertex_vector_extract_to =
@@ -76,7 +76,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_column_extractor()
             .apply(
-                adjacency_matrix_adjacency_matrix,
+                adjacency_matrix,
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -93,12 +93,12 @@ where
         // tail_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-        let adjacency_matrix_adjacency_matrix =
+        let adjacency_matrix =
             unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(adjacency_matrix);
 
         let vertex_vector_extract_to =
@@ -108,7 +108,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_column_extractor()
             .apply(
-                adjacency_matrix_adjacency_matrix,
+                adjacency_matrix,
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -132,7 +132,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
@@ -143,7 +143,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -159,7 +159,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -168,7 +168,7 @@ where
         let edge_store = self.edge_store_mut_ref_unsafe();
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-        let adjacency_matrix_adjacency_matrix =
+        let adjacency_matrix =
             unsafe { &*edge_store }.try_adjacency_matrix_ref(adjacency_matrix)?;
 
         let vertex_vector_extract_to =
@@ -180,7 +180,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_column_extractor()
             .apply(
-                adjacency_matrix_adjacency_matrix,
+                adjacency_matrix,
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -198,12 +198,12 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &VertexTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
-        let adjacency_matrix_adjacency_matrix =
+        let adjacency_matrix =
             unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(adjacency_matrix);
 
         let vertex_vector_extract_to =
@@ -216,7 +216,7 @@ where
             .graphblas_operator_applier_collection_ref()
             .matrix_column_extractor()
             .apply(
-                adjacency_matrix_adjacency_matrix,
+                adjacency_matrix,
                 head_vertex,
                 &VertexSelector::All,
                 accumlator,
@@ -234,6 +234,7 @@ mod tests {
     use super::*;
 
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::options::OperatorOptions;
     use crate::operators::read::GetVertexValue;
 
     #[test]

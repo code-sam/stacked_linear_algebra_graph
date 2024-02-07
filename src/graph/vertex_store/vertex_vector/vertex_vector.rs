@@ -203,7 +203,7 @@ macro_rules! implement_into_sparse_vector_for_value_type {
                             &Assignment::<$value_type>::new(),
                             &mut product_vector,
                             &SelectEntireVector::new(vector.context_ref()),
-                            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                         )?;
 
                         return Ok(product_vector);
