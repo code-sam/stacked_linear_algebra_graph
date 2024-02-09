@@ -88,15 +88,13 @@ mod tests {
 
     use super::*;
 
-    use graphblas_sparse_linear_algebra::context::{
-        Context as GraphblasContext, Mode as GraphblasMode,
-    };
+    use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
     use crate::graph::vertex_store::operations::add_vertex_type::AddVertexType;
 
     #[test]
     fn test_add_new_vertex() {
-        let context = GraphblasContext::init_ready(GraphblasMode::NonBlocking).unwrap();
+        let context = GraphblasContext::init_default().unwrap();
 
         let mut store = VertexStore::with_initial_capacity(&context, &0, &0).unwrap();
 

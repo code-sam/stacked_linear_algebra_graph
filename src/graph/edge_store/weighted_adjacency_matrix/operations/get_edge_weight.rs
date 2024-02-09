@@ -1,9 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
     GetSparseMatrixElementValue, GetSparseMatrixElementValueTyped,
 };
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
-    Coordinate, GetCoordinateIndices,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};

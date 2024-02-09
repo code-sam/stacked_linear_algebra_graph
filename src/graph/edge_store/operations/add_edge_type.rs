@@ -1,7 +1,8 @@
-use crate::graph::edge_store::edge_store::EdgeStoreTrait;
-use crate::graph::edge_store::weighted_adjacency_matrix::{
-    CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
+    CreateWeightedAdjacencyMatrixWithCachedAttributes, WeightedAdjacencyMatrixWithCachedAttributes,
 };
+use crate::graph::edge_store::edge_store::EdgeStoreTrait;
+
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{
     error::GraphComputingError,
@@ -25,7 +26,7 @@ impl<T: ValueType + GetValueTypeIdentifier> AddEdgeType<T> for EdgeStore {
                 .reserve(new_capacity - current_capacity);
         }
         let new_adjacency_matrix =
-            <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<T>>::new(
+            <WeightedAdjacencyMatrixWithCachedAttributes as CreateWeightedAdjacencyMatrixWithCachedAttributes<T>>::new(
                 self.graphblas_context_ref(),
                 self.adjacency_matrix_size_ref(),
             )?;

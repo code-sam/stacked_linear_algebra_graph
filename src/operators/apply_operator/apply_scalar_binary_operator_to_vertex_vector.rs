@@ -1,16 +1,19 @@
 use graphblas_sparse_linear_algebra::operators::{
     apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
     binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-    options::OperatorOptions,
+    options::GetGraphblasDescriptor,
 };
 
-use crate::graph::{
-    graph::{GraphblasOperatorApplierCollectionTrait, VertexTypeIndex},
-    vertex_store::operations::get_vertex_vector::GetVertexVector,
-};
 use crate::{
     error::GraphComputingError,
     graph::{graph::Graph, value_type::ValueType, vertex_store::VertexStoreTrait},
+};
+use crate::{
+    graph::{
+        graph::{GraphblasOperatorApplierCollectionTrait, VertexTypeIndex},
+        vertex_store::operations::get_vertex_vector::GetVertexVector,
+    },
+    operators::options::GetOperatorOptions,
 };
 
 pub trait ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain>
@@ -24,7 +27,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_vertex_vector_as_right_argument(
@@ -34,7 +37,7 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_vertex_vector_as_left_argument_and_by_unchecked_index(
@@ -44,7 +47,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_vertex_vector_as_right_argument_and_by_unchecked_index(
@@ -54,7 +57,7 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -70,7 +73,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -103,7 +106,7 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -136,7 +139,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
@@ -167,7 +170,7 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
@@ -204,7 +207,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_vertex_vector_as_right_argument(
@@ -215,7 +218,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_vertex_vector_as_left_argument_and_by_unchecked_index(
@@ -226,7 +229,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_vertex_vector_as_right_argument_and_by_unchekced_index(
@@ -237,7 +240,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -254,7 +257,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -290,7 +293,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -326,7 +329,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
@@ -360,7 +363,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
         mask: &VertexTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 

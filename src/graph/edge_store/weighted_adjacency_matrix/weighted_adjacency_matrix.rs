@@ -22,11 +22,11 @@ use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, GetValueTypeIdentifier, GetValueTypeIdentifierRef,
     ValueType, ValueTypeIdentifier,
 };
+use crate::operators::options::OperatorOptions;
 
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::{Size, SparseMatrix},
     context::Context as GraphBLASContext,
-    operators::options::OperatorOptions,
 };
 
 use super::operations::GetMatrixSize;
@@ -145,7 +145,7 @@ impl MatrixMask for WeightedAdjacencyMatrix {
 }
 
 impl GetValueTypeIdentifierRef for WeightedAdjacencyMatrix {
-    fn value_type_ref(&self) -> &ValueTypeIdentifier {
+    fn value_type_identifier_ref(&self) -> &ValueTypeIdentifier {
         &self.value_type
     }
 }
@@ -187,7 +187,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                       + GetMatrixSize
                       + GetValueTypeIdentifierRef),
             ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
-                match matrix.value_type_ref() {
+                match matrix.value_type_identifier_ref() {
                     &ValueTypeIdentifier::$value_type_identifier => unsafe {
                         Ok(SparseMatrix::<$value_type>::from_graphblas_matrix(
                             matrix.context_ref(),
@@ -209,7 +209,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                             &Assignment::<$value_type>::new(),
                             &mut product_matrix,
                             &SelectEntireMatrix::new(matrix.context_ref()),
-                            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                         )?;
 
                         return Ok(product_matrix);
@@ -248,7 +248,6 @@ implement_macro_for_all_native_value_types!(implement_create_sparse_matrix_for_v
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::sparse_matrix_size;
-    use graphblas_sparse_linear_algebra::context::Mode;
 
     use super::*;
 
@@ -256,7 +255,7 @@ mod tests {
     fn new_adjacency_matrix() {
         let weighted_adjacency_matrix =
             <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<f32>>::new(
-                &GraphBLASContext::init_ready(Mode::NonBlocking).unwrap(),
+                &GraphBLASContext::init_default().unwrap(),
                 &10,
             )
             .unwrap();

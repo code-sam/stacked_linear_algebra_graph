@@ -50,7 +50,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             &Assignment::new(),
             &mut from_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context_ref()),
-            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
         Ok(from_vertex_vector_mask)
     }
@@ -78,7 +78,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             &Assignment::new(),
             &mut to_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context_ref()),
-            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
         Ok(to_vertex_vector_mask)
     }
@@ -95,7 +95,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             &Assignment::new(),
             &mut vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context_ref()),
-            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
         Ok(vertex_vector_mask)
     }

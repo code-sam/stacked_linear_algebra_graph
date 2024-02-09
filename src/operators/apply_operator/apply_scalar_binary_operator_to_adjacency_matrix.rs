@@ -1,10 +1,9 @@
 use graphblas_sparse_linear_algebra::operators::{
     apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
     binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-    options::OperatorOptions,
+    options::GetGraphblasDescriptor,
 };
 
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::{edge_store::EdgeStoreTrait, graph::GraphblasOperatorApplierCollectionTrait};
 use crate::{
     error::GraphComputingError,
@@ -12,6 +11,10 @@ use crate::{
         graph::{EdgeTypeIndex, Graph},
         value_type::ValueType,
     },
+};
+use crate::{
+    graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
+    operators::options::GetOperatorOptions,
 };
 
 pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
@@ -25,7 +28,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_adjacency_matrix_as_right_argument(
@@ -35,7 +38,7 @@ where
         right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_adjacency_matrix_as_left_argument_and_by_unchecked_index(
@@ -45,7 +48,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_adjacency_matrix_as_right_argument_and_by_unchecked_index(
@@ -55,7 +58,7 @@ where
         right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -71,7 +74,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -106,7 +109,7 @@ where
         right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -141,7 +144,7 @@ where
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
 
@@ -172,7 +175,7 @@ where
         right_argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
 
@@ -209,7 +212,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_adjacency_matrix_as_right_argument(
@@ -220,7 +223,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_adjacency_matrix_as_left_argument_and_by_unchecked_index(
@@ -231,7 +234,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 
     fn with_adjacency_matrix_as_right_argument_and_by_unchecked_index(
@@ -242,7 +245,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -259,7 +262,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -297,7 +300,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -335,7 +338,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
 
@@ -369,7 +372,7 @@ where
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
         mask: &EdgeTypeIndex,
-        options: &OperatorOptions,
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
 
@@ -404,6 +407,7 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinate;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::options::OperatorOptions;
     use crate::operators::read::GetEdgeWeight;
 
     #[test]

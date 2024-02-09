@@ -1,16 +1,14 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
-
-use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
 use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
-
 use crate::graph::graph::Graph;
 use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
 use crate::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
 use crate::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
 use crate::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use crate::operators::options::OperatorOptions;
 use crate::operators::read::GetVertexValue;
 
 fn main() {

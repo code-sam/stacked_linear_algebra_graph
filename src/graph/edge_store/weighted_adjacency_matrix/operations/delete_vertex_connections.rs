@@ -59,7 +59,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             vertex_index,
             &empty_column,
             &OPERATOR_CACHE.boolean_assignment,
-            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
         INSERT_VECTOR_INTO_ROW_OPERATOR.apply(
             self,
@@ -67,7 +67,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             vertex_index,
             &empty_column,
             &OPERATOR_CACHE.boolean_assignment,
-            &DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
         Ok(())
     }

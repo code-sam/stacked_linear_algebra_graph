@@ -217,13 +217,11 @@ impl Indexer {
 mod tests {
     use super::*;
 
-    use graphblas_sparse_linear_algebra::context::Mode as GraphBLASMode;
-
     #[test]
     fn new_indexer() {
         let initial_capacity = 10;
         let mut indexer = Indexer::with_initial_capacity(
-            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
+            &GraphBLASContext::init_default().unwrap(),
             &initial_capacity,
         )
         .unwrap();
@@ -287,15 +285,12 @@ mod tests {
 
     #[test]
     fn new_store_with_zero_capacity() {
-        let mut indexer = Indexer::with_initial_capacity(
-            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
-            &0,
-        )
-        .unwrap();
+        let mut indexer =
+            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
 
         let mut indices = Vec::new();
         let n_indices = 100;
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indices.push(indexer.new_index().unwrap());
         }
 
@@ -372,15 +367,13 @@ mod tests {
 
     #[test]
     fn delete_same_key_multiple_times() {
-        let mut indexer = Indexer::with_initial_capacity(
-            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
-            &10,
-        )
-        .unwrap();
+        let mut indexer =
+            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &10)
+                .unwrap();
 
         let mut indices = Vec::new();
         let n_indices = 10;
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indices.push(indexer.new_index().unwrap());
         }
 
@@ -401,7 +394,7 @@ mod tests {
             9
         );
 
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indices.push(indexer.new_index().unwrap());
         }
 
@@ -410,11 +403,8 @@ mod tests {
 
     #[test]
     fn test_mask_with_valid_indices() {
-        let mut indexer = Indexer::with_initial_capacity(
-            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
-            &0,
-        )
-        .unwrap();
+        let mut indexer =
+            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
 
         let mut indices = Vec::new();
         let n_indices = 100;
@@ -467,14 +457,11 @@ mod tests {
 
     #[test]
     fn test_valid_indices() {
-        let mut indexer = Indexer::with_initial_capacity(
-            &GraphBLASContext::init_ready(GraphBLASMode::NonBlocking).unwrap(),
-            &0,
-        )
-        .unwrap();
+        let mut indexer =
+            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
 
         let n_indices = 10;
-        for i in 0..n_indices {
+        for _i in 0..n_indices {
             indexer.new_index().unwrap();
         }
 
