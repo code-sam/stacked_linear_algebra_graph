@@ -229,6 +229,8 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinate;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::options::GetOperatorOptions;
+    use crate::operators::options::OperatorOptions;
     use crate::operators::read::GetEdgeWeight;
 
     #[test]

@@ -65,21 +65,11 @@ impl OperatorOptions {
     }
 }
 
-pub trait GetOperatorOptions {
-    fn clear_output_before_use(&self) -> bool;
-
-    fn use_mask_structure_of_stored_values_as_mask(&self) -> bool;
-
-    fn use_mask_complement(&self) -> bool;
-
-    fn transpose_input0(&self) -> bool;
-
-    fn transpose_input1(&self) -> bool;
-
+pub trait GetOperatorOptions: GetGraphblasOperatorOptions {
     fn use_cached_adjacency_matrix_transpose(&self) -> bool;
 }
 
-impl GetOperatorOptions for OperatorOptions {
+impl GetGraphblasOperatorOptions for OperatorOptions {
     fn clear_output_before_use(&self) -> bool {
         self.clear_output_before_use
     }
@@ -99,7 +89,9 @@ impl GetOperatorOptions for OperatorOptions {
     fn transpose_input1(&self) -> bool {
         self.transpose_input1
     }
+}
 
+impl GetOperatorOptions for OperatorOptions {
     fn use_cached_adjacency_matrix_transpose(&self) -> bool {
         self.use_cached_adjacency_matrix_transpose
     }
