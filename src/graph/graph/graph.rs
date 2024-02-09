@@ -2,7 +2,8 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::context::{
-    Context as GraphblasContext, Mode as GraphblasMode,
+    Context as GraphblasContext, MatrixStorageFormat as GraphblasMatrixStorageFormat,
+    Mode as GraphblasMode,
 };
 
 use crate::graph::edge_store::EdgeStoreTrait;
@@ -98,7 +99,10 @@ impl Graph {
         initial_vertex_capacity: &ElementCount,
         initial_edge_type_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {
-        let graphblas_context = GraphblasContext::init_ready(GraphblasMode::NonBlocking)?;
+        let graphblas_context = GraphblasContext::init(
+            GraphblasMode::NonBlocking,
+            GraphblasMatrixStorageFormat::ByColumn,
+        )?;
 
         let graph: Graph = Self {
             graphblas_context: graphblas_context.clone(),

@@ -248,7 +248,6 @@ implement_macro_for_all_native_value_types!(implement_create_sparse_matrix_for_v
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::sparse_matrix_size;
-    use graphblas_sparse_linear_algebra::context::Mode;
 
     use super::*;
 
@@ -256,7 +255,7 @@ mod tests {
     fn new_adjacency_matrix() {
         let weighted_adjacency_matrix =
             <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<f32>>::new(
-                &GraphBLASContext::init_ready(Mode::NonBlocking).unwrap(),
+                &GraphBLASContext::init_default().unwrap(),
                 &10,
             )
             .unwrap();

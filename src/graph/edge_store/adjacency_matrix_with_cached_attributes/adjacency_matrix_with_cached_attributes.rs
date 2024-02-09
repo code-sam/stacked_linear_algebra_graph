@@ -100,7 +100,7 @@ mod tests {
 
     #[test]
     fn cached_adjacency_matrix_transpose() {
-        let context = Context::init_ready(Mode::NonBlocking).unwrap();
+        let context = Context::init_default().unwrap();
 
         let mut adjacency_matrix = <WeightedAdjacencyMatrixWithCachedAttributes as CreateWeightedAdjacencyMatrixWithCachedAttributes<u32>>::new(&context, &10)
         .unwrap();

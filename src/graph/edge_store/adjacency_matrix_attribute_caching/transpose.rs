@@ -78,7 +78,7 @@ mod tests {
 
     #[test]
     fn transpose_adjacency_matrix() {
-        let context = Context::init_ready(Mode::NonBlocking).unwrap();
+        let context = Context::init_default().unwrap();
 
         let mut adjacency_matrix =
             <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<u32>>::new(&context, &10)
