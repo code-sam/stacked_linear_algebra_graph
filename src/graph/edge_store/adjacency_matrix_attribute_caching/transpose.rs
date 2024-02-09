@@ -69,7 +69,7 @@ implement_macro_for_all_native_value_types_with_capitalized_value_type!(
 mod tests {
     use super::*;
 
-    use graphblas_sparse_linear_algebra::context::{Context, Mode};
+    use graphblas_sparse_linear_algebra::context::Context;
 
     use crate::graph::edge_store::weighted_adjacency_matrix::{
         operations::{AddEdge, GetEdgeWeight},

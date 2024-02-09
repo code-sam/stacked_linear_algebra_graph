@@ -92,7 +92,7 @@ impl GetCachedAttributesOfAdjacencyMatrix for WeightedAdjacencyMatrixWithCachedA
 #[cfg(test)]
 mod tests {
 
-    use graphblas_sparse_linear_algebra::context::{Context, Mode};
+    use graphblas_sparse_linear_algebra::context::Context;
 
     use crate::graph::edge_store::weighted_adjacency_matrix::operations::{AddEdge, GetEdgeWeight};
 

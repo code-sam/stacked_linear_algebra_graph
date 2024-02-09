@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::operators::{
     apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
     binary_operator::AccumulatorBinaryOperator,
     index_unary_operator::IndexUnaryOperator,
-    options::{GetGraphblasDescriptor, GetOperatorOptions, OperatorOptions},
+    options::{GetGraphblasDescriptor, GetOperatorOptions},
 };
 
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;

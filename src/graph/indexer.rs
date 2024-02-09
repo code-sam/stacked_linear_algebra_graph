@@ -217,8 +217,6 @@ impl Indexer {
 mod tests {
     use super::*;
 
-    use graphblas_sparse_linear_algebra::context::Mode as GraphBLASMode;
-
     #[test]
     fn new_indexer() {
         let initial_capacity = 10;

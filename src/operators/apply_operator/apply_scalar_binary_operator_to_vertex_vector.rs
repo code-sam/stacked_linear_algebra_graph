@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::operators::{
     apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
     binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
-    options::{GetGraphblasDescriptor, OperatorOptions},
+    options::GetGraphblasDescriptor,
 };
 
 use crate::{
