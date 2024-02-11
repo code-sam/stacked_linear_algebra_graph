@@ -1,18 +1,28 @@
-use crate::graph::edge_store::edge_store::EdgeStoreTrait;
+use crate::graph::edge_store::GetEdgeTypeIndicer;
 use crate::{
     error::GraphComputingError,
     graph::{edge::EdgeTypeIndex, edge_store::EdgeStore, indexer::IndexerTrait},
 };
 
-pub(crate) trait DeleteType {
-    fn delete_edge_type_with_index(
+pub(crate) trait DropEdgeType {
+    fn drop_edge_type(&mut self, index: &EdgeTypeIndex) -> Result<(), GraphComputingError>;
+
+    fn drop_edge_type_unchecked(
         &mut self,
         index: &EdgeTypeIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl DeleteType for EdgeStore {
-    fn delete_edge_type_with_index(
+impl DropEdgeType for EdgeStore {
+    fn drop_edge_type(
+        &mut self,
+        edge_type_index: &EdgeTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.edge_type_indexer_mut_ref()
+            .free_index(*edge_type_index)
+    }
+
+    fn drop_edge_type_unchecked(
         &mut self,
         index: &EdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {

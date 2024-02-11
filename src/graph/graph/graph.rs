@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::context::{
     Mode as GraphblasMode,
 };
 
-use crate::graph::edge_store::EdgeStoreTrait;
+use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::index::ElementCount;
 use crate::graph::{indexer::Index, vertex_store::VertexStore};
 use crate::{

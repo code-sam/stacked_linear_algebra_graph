@@ -1,25 +1,36 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::{EdgeStore, EdgeStoreTrait},
+        edge_store::{
+            weighted_adjacency_matrix::{
+                operations::ResizeWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+            },
+            EdgeStore, GetAdjacencyMatrices,
+        },
         index::ElementCount,
     },
 };
+
+use super::map::MapMutableAdjacencyMatrices;
 
 pub(crate) trait ResizeAdjacencyMatrices {
     ///
     fn resize_adjacency_matrices(
         &mut self,
-        new_vertex_capacity: &ElementCount,
+        new_vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl ResizeAdjacencyMatrices for EdgeStore {
     fn resize_adjacency_matrices(
         &mut self,
-        new_vertex_capacity: &ElementCount,
+        new_vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError> {
-        EdgeStoreTrait::resize_adjacency_matrices(self, new_vertex_capacity.to_owned())?;
+        self.map_mut_all_adjacency_matrices(|adjacency_matrix: &mut WeightedAdjacencyMatrix| {
+            // TODO: improve cache invalidation logic, such that, where possible, chached attributes are resized instead of invalidated
+            adjacency_matrix.resize(new_vertex_capacity)
+        })?;
+        *self.adjacency_matrix_size_mut_ref() = new_vertex_capacity;
         Ok(())
     }
 }

@@ -4,7 +4,7 @@ use graphblas_sparse_linear_algebra::operators::{
     options::GetGraphblasDescriptor,
 };
 
-use crate::graph::{edge_store::EdgeStoreTrait, graph::GraphblasOperatorApplierCollectionTrait};
+use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::{
     error::GraphComputingError,
     graph::{

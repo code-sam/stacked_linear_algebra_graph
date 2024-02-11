@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::EdgeStoreTrait;
+use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex};
 
 use crate::graph::indexer::GetAssignedIndexData;

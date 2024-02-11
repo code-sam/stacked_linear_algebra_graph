@@ -5,7 +5,6 @@ use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::operators::options::GetOperatorOptions;
@@ -222,7 +221,10 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::GetWeightedAdjacencyMatrix;
+    use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
+        GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
+    };
+    use crate::graph::edge_store::operations::map::MapAdjacencyMatricesWithCachedAttributes;
     use crate::graph::graph::GraphTrait;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::options::OperatorOptions;
@@ -301,9 +303,15 @@ mod tests {
             None
         );
 
-        for adjacency_matrix in graph.edge_store_ref().adjacency_matrices_ref().into_iter() {
-            println!("{}", adjacency_matrix.weighted_adjacency_matrix_ref());
-        }
+        graph.edge_store_ref().map_all_adjacency_matrices(
+            |adjacency_matrix: &WeightedAdjacencyMatrixWithCachedAttributes| {
+                println!("{}", adjacency_matrix.weighted_adjacency_matrix_ref());
+                Ok(())
+            },
+        );
+        // for adjacency_matrix in graph.edge_store_ref().ma.adjacency_matrices_ref().into_iter() {
+        //     println!("{}", adjacency_matrix.weighted_adjacency_matrix_ref());
+        // }
 
         assert_eq!(
             GetEdgeWeight::<u16>::edge_weight_for_coordinate(

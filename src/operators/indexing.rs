@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 use crate::graph::edge::{EdgeTypeIndex, GetDirectedEdgeCoordinateIndex};
-use crate::graph::edge_store::EdgeStoreTrait;
+use crate::graph::edge_store::operations::indexing::Indexing as EdgeStoreIndexing;
 use crate::graph::graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex};
 use crate::graph::indexer::IndexerTrait;
 use crate::graph::vertex_store::VertexStoreTrait;
@@ -81,8 +81,7 @@ impl Indexing for Graph {
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<bool, GraphComputingError> {
         self.edge_store_ref()
-            .edge_type_indexer_ref()
-            .is_valid_index(edge_type_index)
+            .is_valid_edge_type_index(edge_type_index)
     }
 
     fn try_vertex_index_validity(
@@ -108,8 +107,7 @@ impl Indexing for Graph {
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_ref()
-            .edge_type_indexer_ref()
-            .try_index_validity(edge_type_index)
+            .try_edge_type_index_validity(edge_type_index)
     }
 
     fn is_valid_edge(

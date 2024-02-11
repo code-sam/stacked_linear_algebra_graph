@@ -5,7 +5,6 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::options::GetGraphblasDescriptor;
 
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollectionTrait};
 use crate::operators::options::GetOperatorOptions;
 use crate::{

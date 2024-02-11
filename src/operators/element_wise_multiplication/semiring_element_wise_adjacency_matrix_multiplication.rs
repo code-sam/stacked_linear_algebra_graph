@@ -4,7 +4,6 @@ use graphblas_sparse_linear_algebra::operators::options::GetGraphblasDescriptor;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::EdgeStoreTrait;
 use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::operators::options::GetOperatorOptions;

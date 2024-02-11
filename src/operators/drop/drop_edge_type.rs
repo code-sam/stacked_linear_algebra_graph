@@ -1,10 +1,8 @@
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::EdgeTypeIndex;
-
-use crate::graph::edge_store::EdgeStoreTrait;
+use crate::graph::edge_store::operations::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
 use crate::graph::graph::{Graph, GraphTrait};
-use crate::graph::indexer::IndexerTrait;
 
 pub trait DropEdgeType {
     /// Deletes the edge type, and all its edges
@@ -16,9 +14,7 @@ impl DropEdgeType for Graph {
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .edge_type_indexer_mut_ref()
-            .free_index(*edge_type_index)
+        self.edge_store_mut_ref().drop_edge_type(edge_type_index)
     }
 }
 
