@@ -1,10 +1,12 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 use graphblas_sparse_linear_algebra::operators::options::GetGraphblasDescriptor;
+use graphblas_sparse_linear_algebra::operators::options::MutateOperatorOptions;
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::try_adjacency_matrix_ref;
 use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
 use crate::operators::options::GetOperatorOptions;
@@ -24,7 +26,7 @@ where
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor + MutateOperatorOptions),
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
@@ -49,7 +51,7 @@ where
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        options: &(impl GetOperatorOptions + GetGraphblasDescriptor + MutateOperatorOptions),
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -57,8 +59,15 @@ where
         // For example, an alternative to unsafe access would be to clone the operands.
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.try_adjacency_matrix_ref(argument)?;
+        let mut transpose_argument_by_graphblas = options.transpose_input0();
+        let adjacency_matrix_argument = try_adjacency_matrix_ref(
+            unsafe { &mut *edge_store },
+            argument,
+            options.use_cached_adjacency_matrix_transpose(),
+            &mut transpose_argument_by_graphblas,
+        )?;
+
+        let graphblas_options = options.with_transpose_input0(transpose_argument_by_graphblas);
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref(product)?;
@@ -73,7 +82,7 @@ where
                 accumlator,
                 adjacency_matrix_product,
                 unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                options,
+                &graphblas_options,
             )?)
     }
 

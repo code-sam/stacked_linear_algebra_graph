@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::{
     graphblas_bindings::GrB_Descriptor,
     operators::options::{
         GetGraphblasDescriptor, GetOperatorOptions as GetGraphblasOperatorOptions,
-        OperatorOptions as GraphblasOperatorOptions,
+        MutateOperatorOptions, OperatorOptions as GraphblasOperatorOptions,
     },
 };
 
@@ -100,5 +100,74 @@ impl GetOperatorOptions for OperatorOptions {
 impl GetGraphblasDescriptor for OperatorOptions {
     fn graphblas_descriptor(&self) -> GrB_Descriptor {
         self.graphblas_operator_options
+    }
+}
+
+impl MutateOperatorOptions for OperatorOptions {
+    fn with_negated_transpose_input0(&self) -> Self {
+        Self::new(
+            self.clear_output_before_use,
+            self.use_mask_structure_of_stored_values_as_mask,
+            self.use_mask_complement,
+            !self.transpose_input0,
+            self.transpose_input1,
+            self.use_cached_adjacency_matrix_transpose,
+        )
+    }
+
+    fn with_negated_transpose_input1(&self) -> Self {
+        Self::new(
+            self.clear_output_before_use,
+            self.use_mask_structure_of_stored_values_as_mask,
+            self.use_mask_complement,
+            self.transpose_input0,
+            !self.transpose_input1,
+            self.use_cached_adjacency_matrix_transpose,
+        )
+    }
+
+    fn with_transpose_input0(&self, transpose_input0: bool) -> Self {
+        if transpose_input0 == self.transpose_input0 {
+            self.to_owned()
+        } else {
+            OperatorOptions::new(
+                self.clear_output_before_use,
+                self.use_mask_structure_of_stored_values_as_mask,
+                self.use_mask_complement,
+                transpose_input0,
+                self.transpose_input1,
+                self.use_cached_adjacency_matrix_transpose,
+            )
+        }
+    }
+
+    fn with_transpose_input1(&self, transpose_input1: bool) -> Self {
+        if transpose_input1 == self.transpose_input1 {
+            self.to_owned()
+        } else {
+            OperatorOptions::new(
+                self.clear_output_before_use,
+                self.use_mask_structure_of_stored_values_as_mask,
+                self.use_mask_complement,
+                self.transpose_input0,
+                transpose_input1,
+                self.use_cached_adjacency_matrix_transpose,
+            )
+        }
+    }
+
+    fn with_transpose_input(&self, transpose_input0: bool, transpose_input1: bool) -> Self {
+        if transpose_input0 == self.transpose_input0 && transpose_input1 == self.transpose_input1 {
+            self.to_owned()
+        } else {
+            OperatorOptions::new(
+                self.clear_output_before_use,
+                self.use_mask_structure_of_stored_values_as_mask,
+                self.use_mask_complement,
+                transpose_input0,
+                transpose_input1,
+                self.use_cached_adjacency_matrix_transpose,
+            )
+        }
     }
 }
