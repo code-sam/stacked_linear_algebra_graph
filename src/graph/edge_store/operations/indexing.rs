@@ -1,9 +1,8 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge::{EdgeTypeIndex, GetDirectedEdgeCoordinateIndex},
+        edge::EdgeTypeIndex,
         edge_store::{EdgeStore, GetEdgeTypeIndicer},
-        graph::VertexIndex,
         indexer::IndexerTrait,
     },
 };
