@@ -1,11 +1,14 @@
+use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
+
 use crate::{
     error::{GraphComputingError, LogicError, LogicErrorType},
     graph::{
         edge::EdgeTypeIndex,
         edge_store::{
             adjacency_matrix_with_cached_attributes::GetWeightedAdjacencyMatrix,
-            weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, EdgeStoreTrait,
+            weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
         },
+        index::ElementCount,
     },
 };
 
@@ -27,6 +30,9 @@ pub(crate) trait GetAdjacencyMatrix {
         &mut self,
         edge_type_index: &EdgeTypeIndex,
     ) -> &mut WeightedAdjacencyMatrix;
+
+    fn adjacency_matrix_size_ref(&self) -> &ElementCount;
+    fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix;
 }
 
 impl GetAdjacencyMatrix for EdgeStore {
@@ -72,5 +78,13 @@ impl GetAdjacencyMatrix for EdgeStore {
             )
             .into()),
         }
+    }
+
+    fn adjacency_matrix_size_ref(&self) -> &ElementCount {
+        GetAdjacencyMatrices::adjacency_matrix_size_ref(self)
+    }
+
+    fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix {
+        GetAdjacencyMatrices::mask_to_select_entire_adjacency_matrix_ref(self)
     }
 }

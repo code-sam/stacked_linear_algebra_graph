@@ -22,7 +22,7 @@ use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, GetValueTypeIdentifier, GetValueTypeIdentifierRef,
     ValueType, ValueTypeIdentifier,
 };
-use crate::operators::options::OperatorOptions;
+use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::{Size, SparseMatrix},
@@ -31,8 +31,8 @@ use graphblas_sparse_linear_algebra::{
 
 use super::operations::GetMatrixSize;
 
-static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
-    Lazy::new(|| OperatorOptions::new_default());
+static DEFAULT_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
+    Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
 
 static UNARY_OPERATOR_APPLIER: Lazy<UnaryOperatorApplier> =
     Lazy::new(|| UnaryOperatorApplier::new());
@@ -209,7 +209,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                             &Assignment::<$value_type>::new(),
                             &mut product_matrix,
                             &SelectEntireMatrix::new(matrix.context_ref()),
-                            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                            &*DEFAULT_OPERATOR_OPTIONS,
                         )?;
 
                         return Ok(product_matrix);

@@ -18,7 +18,7 @@ impl CreateVertexIndex for Graph {
         match assigned_index.new_index_capacity() {
             Some(new_vertex_capacity) => {
                 self.edge_store_mut_ref()
-                    .resize_adjacency_matrices(&new_vertex_capacity)?;
+                    .resize_adjacency_matrices(new_vertex_capacity)?;
             }
             None => {}
         }

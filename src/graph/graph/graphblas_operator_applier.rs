@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use graphblas_sparse_linear_algebra::operators::{
     apply::{BinaryOperatorApplier, IndexUnaryOperatorApplier, UnaryOperatorApplier},
     element_wise_addition::{
@@ -14,6 +16,7 @@ use graphblas_sparse_linear_algebra::operators::{
         ElementWiseVectorMultiplicationSemiringOperator,
     },
     extract::{MatrixColumnExtractor, MatrixRowExtractor, SubMatrixExtractor, SubVectorExtractor},
+    mask::{SelectEntireMatrix, SelectEntireVector},
     multiplication::{
         MatrixMultiplicationOperator, MatrixVectorMultiplicationOperator,
         VectorMatrixMultiplicationOperator,
@@ -21,6 +24,8 @@ use graphblas_sparse_linear_algebra::operators::{
     select::{MatrixSelector, VectorSelector},
     transpose::MatrixTranspose,
 };
+
+use crate::graph::graph::GraphblasContext;
 
 #[derive(Clone, Debug)]
 pub(crate) struct GraphblasOperatorApplierCollection {
@@ -61,10 +66,13 @@ pub(crate) struct GraphblasOperatorApplierCollection {
     matrix_multiplication_operator: MatrixMultiplicationOperator,
     matrix_vector_multiplication_operator: MatrixVectorMultiplicationOperator,
     vector_matrix_multiplication_operator: VectorMatrixMultiplicationOperator,
+
+    entire_matrix_selector: SelectEntireMatrix,
+    entire_vector_selector: SelectEntireVector,
 }
 
 impl GraphblasOperatorApplierCollection {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(context: &Arc<GraphblasContext>) -> Self {
         Self {
             binary_operator_applier: BinaryOperatorApplier::new(),
             unary_operator_applier: UnaryOperatorApplier::new(),
@@ -109,11 +117,14 @@ impl GraphblasOperatorApplierCollection {
             matrix_multiplication_operator: MatrixMultiplicationOperator::new(),
             matrix_vector_multiplication_operator: MatrixVectorMultiplicationOperator::new(),
             vector_matrix_multiplication_operator: VectorMatrixMultiplicationOperator::new(),
+
+            entire_matrix_selector: SelectEntireMatrix::new(context),
+            entire_vector_selector: SelectEntireVector::new(context),
         }
     }
 }
 
-pub(crate) trait GraphblasOperatorApplierCollectionTrait {
+pub(crate) trait GetGraphblasOperatorApplierCollection {
     fn binary_operator_applier(&self) -> &BinaryOperatorApplier;
     fn unary_operator_applier(&self) -> &UnaryOperatorApplier;
     fn index_unary_operator_applier(&self) -> &IndexUnaryOperatorApplier;
@@ -169,9 +180,12 @@ pub(crate) trait GraphblasOperatorApplierCollectionTrait {
     fn matrix_multiplication_operator(&self) -> &MatrixMultiplicationOperator;
     fn matrix_vector_multiplication_operator(&self) -> &MatrixVectorMultiplicationOperator;
     fn vector_matrix_multiplication_operator(&self) -> &VectorMatrixMultiplicationOperator;
+
+    fn entire_matrix_selector(&self) -> &SelectEntireMatrix;
+    fn entire_vector_selector(&self) -> &SelectEntireVector;
 }
 
-impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollection {
+impl GetGraphblasOperatorApplierCollection for GraphblasOperatorApplierCollection {
     fn binary_operator_applier(&self) -> &BinaryOperatorApplier {
         &self.binary_operator_applier
     }
@@ -281,5 +295,13 @@ impl GraphblasOperatorApplierCollectionTrait for GraphblasOperatorApplierCollect
 
     fn vector_matrix_multiplication_operator(&self) -> &VectorMatrixMultiplicationOperator {
         &self.vector_matrix_multiplication_operator
+    }
+
+    fn entire_matrix_selector(&self) -> &SelectEntireMatrix {
+        &self.entire_matrix_selector
+    }
+
+    fn entire_vector_selector(&self) -> &SelectEntireVector {
+        &self.entire_vector_selector
     }
 }

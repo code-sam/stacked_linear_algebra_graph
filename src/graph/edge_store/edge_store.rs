@@ -1,21 +1,16 @@
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
-use rayon::iter::IntoParallelIterator;
-use rayon::iter::ParallelIterator;
 
-use super::adjacency_matrix_with_cached_attributes::GetWeightedAdjacencyMatrix;
 use super::adjacency_matrix_with_cached_attributes::WeightedAdjacencyMatrixWithCachedAttributes;
 
-use super::weighted_adjacency_matrix::operations::ResizeWeightedAdjacencyMatrix;
-use super::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use super::weighted_adjacency_matrix::GetGraphblasContext;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
 use crate::error::GraphComputingError;
 
 use crate::graph::index::ElementCount;
 use crate::graph::indexer::Indexer as EdgeTypeIndexer;
-use crate::graph::indexer::IndexerTrait;
 
 #[derive(Clone, Debug)]
 pub(crate) struct EdgeStore {
@@ -47,34 +42,33 @@ impl EdgeStore {
     }
 }
 
-pub(crate) trait EdgeStoreTrait {
-    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
-    fn adjacency_matrix_size_ref(&self) -> &ElementCount;
-
+pub(crate) trait GetAdjacencyMatrices {
     fn adjacency_matrices_ref(&self) -> &[WeightedAdjacencyMatrixWithCachedAttributes];
     fn adjacency_matrices_mut_ref(&mut self) -> &mut [WeightedAdjacencyMatrixWithCachedAttributes];
     fn adjacency_matrices_mut(&mut self) -> &mut Vec<WeightedAdjacencyMatrixWithCachedAttributes>;
 
-    fn edge_type_indexer_ref(&self) -> &EdgeTypeIndexer;
-    fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer;
+    fn adjacency_matrix_size_ref(&self) -> &ElementCount;
+    fn adjacency_matrix_size_mut_ref(&mut self) -> &mut ElementCount;
 
     fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix;
-
-    ///
-    fn resize_adjacency_matrices(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError>;
 }
 
-impl EdgeStoreTrait for EdgeStore {
+pub(super) trait GetEdgeTypeIndicer {
+    fn edge_type_indexer_ref(&self) -> &EdgeTypeIndexer;
+    fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer;
+}
+
+impl GetGraphblasContext for EdgeStore {
+    fn graphblas_context(&self) -> Arc<GraphblasContext> {
+        self.graphblas_context.to_owned()
+    }
+
     fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
         &self.graphblas_context
     }
-    fn adjacency_matrix_size_ref(&self) -> &ElementCount {
-        &self.adjacency_matrix_size
-    }
+}
 
+impl GetAdjacencyMatrices for EdgeStore {
     fn adjacency_matrices_ref(&self) -> &[WeightedAdjacencyMatrixWithCachedAttributes] {
         self.adjacency_matrices.as_slice()
     }
@@ -87,65 +81,25 @@ impl EdgeStoreTrait for EdgeStore {
         &mut self.adjacency_matrices
     }
 
+    fn adjacency_matrix_size_ref(&self) -> &ElementCount {
+        &self.adjacency_matrix_size
+    }
+
+    fn adjacency_matrix_size_mut_ref(&mut self) -> &mut ElementCount {
+        &mut self.adjacency_matrix_size
+    }
+
+    fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix {
+        &self.mask_to_select_entire_adjacency_matrix
+    }
+}
+
+impl GetEdgeTypeIndicer for EdgeStore {
     fn edge_type_indexer_ref(&self) -> &EdgeTypeIndexer {
         &self.edge_type_indexer
     }
 
     fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer {
         &mut self.edge_type_indexer
-    }
-
-    fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix {
-        &self.mask_to_select_entire_adjacency_matrix
-    }
-
-    fn resize_adjacency_matrices(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError> {
-        self.map_mut_all_adjacency_matrices(|adjacency_matrix: &mut WeightedAdjacencyMatrix| {
-            // TODO: improve cache invalidation logic, such that, where possible, chached attributes are resized instead of invalidated
-            adjacency_matrix.resize(new_vertex_capacity)
-        })?;
-        self.adjacency_matrix_size = new_vertex_capacity;
-        Ok(())
-    }
-}
-
-impl EdgeStore {
-    /// Apply function to all adjacency matrices
-    pub(crate) fn map_mut_all_adjacency_matrices<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut WeightedAdjacencyMatrix) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        self.adjacency_matrices
-            .as_mut_slice()
-            .into_par_iter()
-            .try_for_each(|adjacency_matrix| {
-                function_to_apply(adjacency_matrix.weighted_adjacency_matrix_mut_ref())
-            })?;
-        Ok(())
-    }
-
-    pub(crate) fn map_mut_all_valid_adjacency_matrices<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut WeightedAdjacencyMatrix) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.edge_type_indexer
-            .valid_indices()?
-            .into_iter()
-            .try_for_each(|i: usize| {
-                function_to_apply(
-                    &mut self.adjacency_matrices_mut_ref()[i].weighted_adjacency_matrix_mut_ref(),
-                )
-            })?;
-        Ok(())
     }
 }

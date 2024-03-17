@@ -41,7 +41,7 @@ impl<T: ValueType + GetValueTypeIdentifier> CreateWeightedAdjacencyMatrixWithCac
             graphblas_context,
             initial_vertex_capacity,
         )?;
-        let cached_attributes = CachedAdjacencyMatrixAttributes::new();
+        let cached_attributes = CachedAdjacencyMatrixAttributes::new(graphblas_context);
 
         Ok(WeightedAdjacencyMatrixWithCachedAttributes {
             adjacency_matrix,

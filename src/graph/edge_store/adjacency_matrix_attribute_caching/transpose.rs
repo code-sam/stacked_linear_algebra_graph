@@ -1,6 +1,8 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::sparse_matrix_size;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetMatrixDimensions;
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
+use graphblas_sparse_linear_algebra::operators::mask::MatrixMask;
+use graphblas_sparse_linear_algebra::operators::options::OptionsForOperatorWithMatrixArgument;
 use graphblas_sparse_linear_algebra::operators::transpose::TransposeMatrix;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::GetGraphblasSparseMatrix, context::GetContext,
@@ -8,7 +10,6 @@ use graphblas_sparse_linear_algebra::{
 };
 use once_cell::sync::Lazy;
 
-use crate::operators::options::OperatorOptions;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -19,8 +20,8 @@ use crate::{
     },
 };
 
-static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
-    Lazy::new(|| OperatorOptions::new_default());
+static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithMatrixArgument> =
+    Lazy::new(|| OptionsForOperatorWithMatrixArgument::new_default());
 
 static MATRIX_TRANSPOSE_OPERATOR: Lazy<MatrixTranspose> = Lazy::new(|| MatrixTranspose::new());
 
@@ -40,6 +41,7 @@ macro_rules! create_transpose_adjacency_matrix_function {
         paste::paste! {
             pub(crate) fn [<transpose_adjacency_matrix_ $value_type>](
                 adjacency_matrix: &(impl GetGraphblasSparseMatrix + GetContext),
+                mask: &(impl MatrixMask + GetContext)
             ) -> Result<WeightedAdjacencyMatrix, GraphComputingError> {
                 let sparse_matrix_size = sparse_matrix_size(adjacency_matrix)?; // TODO: would it be more efficient to use a cached size here?
                 let mut transposed_adjacency_matrix =
@@ -53,6 +55,8 @@ macro_rules! create_transpose_adjacency_matrix_function {
                     &*[<ASSIGNMENT_OPERATOR_ $VALUE_TYPE>],
                     // Assignment::<$value_type>::new() TODO: it might be that the overhead of dereferncing the Lazy is more expensive than inlining the function call.
                     &mut transposed_adjacency_matrix,
+                    // &SelectEntireMatrix::new(adjacency_matrix.context_ref()), // TODO: consider caching the selector into the edge store
+                    mask,
                     &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
 
@@ -69,7 +73,7 @@ implement_macro_for_all_native_value_types_with_capitalized_value_type!(
 mod tests {
     use super::*;
 
-    use graphblas_sparse_linear_algebra::context::Context;
+    use graphblas_sparse_linear_algebra::{context::Context, operators::mask::SelectEntireMatrix};
 
     use crate::graph::edge_store::weighted_adjacency_matrix::{
         operations::{AddEdge, GetEdgeWeight},
@@ -87,7 +91,9 @@ mod tests {
         adjacency_matrix.add_edge_unchecked(&0, &0, 1e3).unwrap();
         adjacency_matrix.add_edge_unchecked(&1, &0, 2e3).unwrap();
 
-        let transposed = transpose_adjacency_matrix_u32(&adjacency_matrix).unwrap();
+        let transposed =
+            transpose_adjacency_matrix_u32(&adjacency_matrix, &SelectEntireMatrix::new(&context))
+                .unwrap();
 
         assert_eq!(
             GetEdgeWeight::<u32>::edge_weight_unchecked(&transposed, &0, &0)
