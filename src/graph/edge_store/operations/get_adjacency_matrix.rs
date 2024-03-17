@@ -10,7 +10,6 @@ use crate::{
         },
         index::ElementCount,
     },
-    operators::options::{self, GetOperatorOptions, OperatorOptions},
 };
 
 pub(crate) trait GetAdjacencyMatrix {

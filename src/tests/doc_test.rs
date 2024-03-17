@@ -1,5 +1,6 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, Plus};
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IsValueEqualTo;
+use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
 use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
@@ -8,7 +9,7 @@ use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
 use crate::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
 use crate::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
 use crate::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
-use crate::operators::options::OperatorOptions;
+use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 use crate::operators::read::GetVertexValue;
 
 fn main() {
@@ -51,6 +52,7 @@ fn main() {
         &1,
         &Assignment::new(),
         &selected_vertices_index,
+        None,
         &OperatorOptions::new_default(),
     )
     .unwrap();
@@ -63,7 +65,8 @@ fn main() {
             &odd_number_sequence_edge_type_index,
             &Assignment::new(),
             &selected_vertices_index,
-            &OperatorOptions::new_default(),
+            None,
+            &&OptionsForOperatorWithAdjacencyMatrixAsRightArgument::new_default(),
         )
         .unwrap();
     }
@@ -75,6 +78,7 @@ fn main() {
         &numbers_vertex_type_index,
         &Assignment::new(),
         &selected_vertices_index,
+        None,
         &OperatorOptions::new_default(),
     )
     .unwrap();

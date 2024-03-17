@@ -1,115 +1,12 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationSemiringOperator;
-use graphblas_sparse_linear_algebra::operators::options::GetGraphblasDescriptor;
+use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
+use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::{Graph, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
-use crate::graph::vertex_store::VertexStoreTrait;
-use crate::operators::options::GetOperatorOptions;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
-
-pub trait SemiringElementWiseVertexVectorMultiplication<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-{
-    fn by_index(
-        &mut self,
-        left_argument: &VertexTypeIndex,
-        operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError>;
-
-    fn by_unchecked_index(
-        &mut self,
-        left_argument: &VertexTypeIndex,
-        operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError>;
-}
-
-impl<EvaluationDomain> SemiringElementWiseVertexVectorMultiplication<EvaluationDomain> for Graph
-where
-    EvaluationDomain: ValueType,
-{
-    fn by_index(
-        &mut self,
-        left_argument: &VertexTypeIndex,
-        operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
-
-        let vertex_vector_left_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref(left_argument)?;
-
-        let vertex_vector_right_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref(right_argument)?;
-
-        let vertex_vector_product = unsafe { &mut *vertex_store }.vertex_vector_mut_ref(product)?;
-
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .element_wise_vector_multiplication_semiring_operator()
-            .apply(
-                vertex_vector_left_argument,
-                operator,
-                vertex_vector_right_argument,
-                accumlator,
-                vertex_vector_product,
-                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                options,
-            )?)
-    }
-
-    fn by_unchecked_index(
-        &mut self,
-        left_argument: &VertexTypeIndex,
-        operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError> {
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
-
-        let vertex_vector_left_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(left_argument);
-
-        let vertex_vector_right_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(right_argument);
-
-        let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product);
-
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .element_wise_vector_multiplication_semiring_operator()
-            .apply(
-                vertex_vector_left_argument,
-                operator,
-                vertex_vector_right_argument,
-                accumlator,
-                vertex_vector_product,
-                unsafe { &*vertex_store }.mask_to_select_entire_vertex_vector_ref(),
-                options,
-            )?)
-    }
-}
 
 pub trait SemiringElementWiseMaskedVertexVectorMultiplication<EvaluationDomain>
 where
@@ -122,8 +19,8 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        mask: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        mask: Option<&VertexTypeIndex>,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
@@ -133,8 +30,8 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        mask: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        mask: Option<&VertexTypeIndex>,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -150,8 +47,8 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        mask: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        mask: Option<&VertexTypeIndex>,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -167,20 +64,42 @@ where
 
         let vertex_vector_product = unsafe { &mut *vertex_store }.vertex_vector_mut_ref(product)?;
 
-        let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
+        match mask {
+            Some(mask) => {
+                let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
 
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .element_wise_vector_multiplication_semiring_operator()
-            .apply(
-                vertex_vector_left_argument,
-                operator,
-                vertex_vector_right_argument,
-                accumlator,
-                vertex_vector_product,
-                vertex_vector_mask,
-                options,
-            )?)
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .element_wise_vector_multiplication_semiring_operator()
+                    .apply(
+                        vertex_vector_left_argument,
+                        operator,
+                        vertex_vector_right_argument,
+                        accumlator,
+                        vertex_vector_product,
+                        vertex_vector_mask,
+                        options,
+                    )?)
+            }
+            None => {
+                let vertex_vector_mask = self
+                    .graphblas_operator_applier_collection_ref()
+                    .entire_vector_selector();
+
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .element_wise_vector_multiplication_semiring_operator()
+                    .apply(
+                        vertex_vector_left_argument,
+                        operator,
+                        vertex_vector_right_argument,
+                        accumlator,
+                        vertex_vector_product,
+                        vertex_vector_mask,
+                        options,
+                    )?)
+            }
+        }
     }
 
     fn by_unchecked_index(
@@ -190,8 +109,8 @@ where
         right_argument: &VertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &VertexTypeIndex,
-        mask: &VertexTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        mask: Option<&VertexTypeIndex>,
+        options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
         let vertex_store = self.vertex_store_mut_ref_unsafe();
 
@@ -204,20 +123,43 @@ where
         let vertex_vector_product =
             unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product);
 
-        let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
+        match mask {
+            Some(mask) => {
+                let vertex_vector_mask =
+                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
 
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .element_wise_vector_multiplication_semiring_operator()
-            .apply(
-                vertex_vector_left_argument,
-                operator,
-                vertex_vector_right_argument,
-                accumlator,
-                vertex_vector_product,
-                vertex_vector_mask,
-                options,
-            )?)
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .element_wise_vector_multiplication_semiring_operator()
+                    .apply(
+                        vertex_vector_left_argument,
+                        operator,
+                        vertex_vector_right_argument,
+                        accumlator,
+                        vertex_vector_product,
+                        vertex_vector_mask,
+                        options,
+                    )?)
+            }
+            None => {
+                let vertex_vector_mask = self
+                    .graphblas_operator_applier_collection_ref()
+                    .entire_vector_selector();
+
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .element_wise_vector_multiplication_semiring_operator()
+                    .apply(
+                        vertex_vector_left_argument,
+                        operator,
+                        vertex_vector_right_argument,
+                        accumlator,
+                        vertex_vector_product,
+                        vertex_vector_mask,
+                        options,
+                    )?)
+            }
+        }
     }
 }
 
@@ -228,7 +170,6 @@ mod tests {
     use super::*;
 
     use crate::operators::add::{AddVertex, AddVertexType};
-    use crate::operators::options::OperatorOptions;
     use crate::operators::read::GetVertexValue;
 
     #[test]
@@ -254,7 +195,7 @@ mod tests {
             &vertex_type_1_index,
             &Assignment::new(),
             &vertex_type_1_index,
-            &vertex_type_1_index,
+            Some(&vertex_type_1_index),
             &OperatorOptions::new_default(),
         )
         .unwrap();
@@ -272,7 +213,7 @@ mod tests {
             &vertex_type_1_index,
             &Assignment::new(),
             &vertex_type_1_index,
-            &vertex_type_1_index,
+            Some(&vertex_type_1_index),
             &OperatorOptions::new_default(),
         )
         .unwrap();

@@ -7,7 +7,7 @@ use graphblas_sparse_linear_algebra::operators::insert::{
 use graphblas_sparse_linear_algebra::operators::insert::{
     InsertVectorIntoRow, InsertVectorIntoRowTrait,
 };
-use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
+use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
@@ -15,11 +15,12 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     GetGraphblasContext, WeightedAdjacencyMatrix,
 };
 use crate::graph::graph::VertexIndex;
+use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
 use super::GetMatrixSize;
 
-static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
-    Lazy::new(|| OperatorOptions::new_default());
+static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
+    Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
 
 static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumn> =
     Lazy::new(|| InsertVectorIntoColumn::new());
@@ -59,6 +60,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             vertex_index,
             &empty_column,
             &OPERATOR_CACHE.boolean_assignment,
+            &SelectEntireVector::new(self.graphblas_context_ref()), // TODO: could the mask be cached for better performance?
             &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
         INSERT_VECTOR_INTO_ROW_OPERATOR.apply(
@@ -67,6 +69,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             vertex_index,
             &empty_column,
             &OPERATOR_CACHE.boolean_assignment,
+            &SelectEntireVector::new(self.graphblas_context_ref()), // TODO: could the mask be cached for better performance?
             &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
         Ok(())

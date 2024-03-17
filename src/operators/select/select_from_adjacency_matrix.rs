@@ -1,15 +1,15 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
-use graphblas_sparse_linear_algebra::operators::options::GetGraphblasDescriptor;
-use graphblas_sparse_linear_algebra::operators::options::MutateOperatorOptions;
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::try_adjacency_matrix_ref;
+use crate::graph::edge_store::ArgumentsForAdjacencyMatrixOperator;
+use crate::graph::edge_store::CreateArgumentsForAdjacencyMatrixOperator;
+use crate::graph::edge_store::GetArgumentsForAdjacencyMatrixOperator;
+use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::Graph;
-use crate::graph::graph::GraphblasOperatorApplierCollectionTrait;
-use crate::operators::options::GetOperatorOptions;
+use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{
     error::GraphComputingError,
     graph::{edge::EdgeTypeIndex, value_type::ValueType},
@@ -26,7 +26,8 @@ where
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor + MutateOperatorOptions),
+        mask: Option<&EdgeTypeIndex>,
+        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 
     fn by_unchecked_index(
@@ -36,7 +37,8 @@ where
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        mask: Option<&EdgeTypeIndex>,
+        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -51,7 +53,8 @@ where
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor + MutateOperatorOptions),
+        mask: Option<&EdgeTypeIndex>,
+        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
         // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
         // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
@@ -59,31 +62,49 @@ where
         // For example, an alternative to unsafe access would be to clone the operands.
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let mut transpose_argument_by_graphblas = options.transpose_input0();
-        let adjacency_matrix_argument = try_adjacency_matrix_ref(
-            unsafe { &mut *edge_store },
-            argument,
-            options.use_cached_adjacency_matrix_transpose(),
-            &mut transpose_argument_by_graphblas,
-        )?;
-
-        let graphblas_options = options.with_transpose_input0(transpose_argument_by_graphblas);
+        let operator_argument =
+            ArgumentsForAdjacencyMatrixOperator::try_create(edge_store, argument, options)?;
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref(product)?;
 
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
-            .apply(
-                selector,
-                selector_argument,
-                adjacency_matrix_argument,
-                accumlator,
-                adjacency_matrix_product,
-                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                &graphblas_options,
-            )?)
+        match mask {
+            Some(mask) => {
+                let adjacency_matrix_mask =
+                    unsafe { &*edge_store }.try_adjacency_matrix_ref(mask)?;
+
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .matrix_selector()
+                    .apply(
+                        selector,
+                        selector_argument,
+                        operator_argument.adjacency_matrix_ref(),
+                        accumlator,
+                        adjacency_matrix_product,
+                        adjacency_matrix_mask,
+                        operator_argument.options_ref(),
+                    )?)
+            }
+            None => {
+                let adjacency_matrix_mask = self
+                    .graphblas_operator_applier_collection_ref()
+                    .entire_matrix_selector();
+
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .matrix_selector()
+                    .apply(
+                        selector,
+                        selector_argument,
+                        operator_argument.adjacency_matrix_ref(),
+                        accumlator,
+                        adjacency_matrix_product,
+                        adjacency_matrix_mask,
+                        operator_argument.options_ref(),
+                    )?)
+            }
+        }
     }
 
     fn by_unchecked_index(
@@ -93,132 +114,54 @@ where
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
+        mask: Option<&EdgeTypeIndex>,
+        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
 
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(argument);
+        let operator_argument =
+            ArgumentsForAdjacencyMatrixOperator::create_unchecked(edge_store, argument, options);
 
         let adjacency_matrix_product =
             unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_unchecked(product);
 
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
-            .apply(
-                selector,
-                selector_argument,
-                adjacency_matrix_argument,
-                accumlator,
-                adjacency_matrix_product,
-                unsafe { &*edge_store }.mask_to_select_entire_adjacency_matrix_ref(),
-                options,
-            )?)
-    }
-}
+        match mask {
+            Some(mask) => {
+                let adjacency_matrix_mask =
+                    unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(mask);
 
-pub trait SelectFromMaskedAdjacencyMatrix<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-{
-    fn by_index(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
-        argument: &EdgeTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError>;
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .matrix_selector()
+                    .apply(
+                        selector,
+                        selector_argument,
+                        operator_argument.adjacency_matrix_ref(),
+                        accumlator,
+                        adjacency_matrix_product,
+                        adjacency_matrix_mask,
+                        operator_argument.options_ref(),
+                    )?)
+            }
+            None => {
+                let adjacency_matrix_mask = self
+                    .graphblas_operator_applier_collection_ref()
+                    .entire_matrix_selector();
 
-    fn by_unchecked_index(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
-        argument: &EdgeTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError>;
-}
-
-impl<EvaluationDomain: ValueType> SelectFromMaskedAdjacencyMatrix<EvaluationDomain> for Graph
-where
-    MatrixSelector: SelectFromMatrix<EvaluationDomain>,
-{
-    fn by_index(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
-        argument: &EdgeTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
-
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.try_adjacency_matrix_ref(argument)?;
-
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref(product)?;
-
-        let adjacency_matrix_mask = unsafe { &*edge_store }.try_adjacency_matrix_ref(mask)?;
-
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
-            .apply(
-                selector,
-                selector_argument,
-                adjacency_matrix_argument,
-                accumlator,
-                adjacency_matrix_product,
-                adjacency_matrix_mask,
-                options,
-            )?)
-    }
-
-    fn by_unchecked_index(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
-        argument: &EdgeTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
-        mask: &EdgeTypeIndex,
-        options: &(impl GetOperatorOptions + GetGraphblasDescriptor),
-    ) -> Result<(), GraphComputingError> {
-        let edge_store = self.edge_store_mut_ref_unsafe();
-
-        let adjacency_matrix_argument =
-            unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(argument);
-
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_unchecked(product);
-
-        let adjacency_matrix_mask = unsafe { &*edge_store }.try_adjacency_matrix_ref(mask)?;
-
-        Ok(self
-            .graphblas_operator_applier_collection_ref()
-            .matrix_selector()
-            .apply(
-                selector,
-                selector_argument,
-                adjacency_matrix_argument,
-                accumlator,
-                adjacency_matrix_product,
-                adjacency_matrix_mask,
-                options,
-            )?)
+                Ok(self
+                    .graphblas_operator_applier_collection_ref()
+                    .matrix_selector()
+                    .apply(
+                        selector,
+                        selector_argument,
+                        operator_argument.adjacency_matrix_ref(),
+                        accumlator,
+                        adjacency_matrix_product,
+                        adjacency_matrix_mask,
+                        operator_argument.options_ref(),
+                    )?)
+            }
+        }
     }
 }
 
@@ -236,7 +179,6 @@ mod tests {
     use crate::graph::edge_store::operations::map::MapAdjacencyMatricesWithCachedAttributes;
     use crate::graph::graph::GraphTrait;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
-    use crate::operators::options::OperatorOptions;
     use crate::operators::read::GetEdgeWeight;
 
     #[test]
@@ -295,7 +237,8 @@ mod tests {
             &edge_type_1_index,
             &Assignment::new(),
             &result_edge_type_index,
-            &OperatorOptions::new_default(),
+            None,
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )
         .unwrap();
 

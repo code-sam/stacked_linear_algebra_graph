@@ -1,9 +1,9 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 
+pub(crate) use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::context::{
-    Context as GraphblasContext, MatrixStorageFormat as GraphblasMatrixStorageFormat,
-    Mode as GraphblasMode,
+    MatrixStorageFormat as GraphblasMatrixStorageFormat, Mode as GraphblasMode,
 };
 
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
@@ -117,7 +117,9 @@ impl Graph {
                 &initial_vertex_capacity,
                 &initial_edge_type_capacity,
             )?,
-            graphblas_operator_applier_collection: GraphblasOperatorApplierCollection::new(),
+            graphblas_operator_applier_collection: GraphblasOperatorApplierCollection::new(
+                &graphblas_context,
+            ),
         };
 
         Ok(graph)
