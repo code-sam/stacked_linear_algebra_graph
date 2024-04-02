@@ -1,11 +1,10 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector;
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
+use graphblas_sparse_linear_algebra::operators::insert::InsertVectorIntoColumn;
+use graphblas_sparse_linear_algebra::operators::insert::InsertVectorIntoRow;
 use graphblas_sparse_linear_algebra::operators::insert::{
-    InsertVectorIntoColumn, InsertVectorIntoColumnTrait,
-};
-use graphblas_sparse_linear_algebra::operators::insert::{
-    InsertVectorIntoRow, InsertVectorIntoRowTrait,
+    InsertVectorIntoColumnOperator, InsertVectorIntoRowOperator,
 };
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use once_cell::sync::Lazy;
@@ -22,11 +21,11 @@ use super::GetMatrixSize;
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
     Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
 
-static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumn> =
-    Lazy::new(|| InsertVectorIntoColumn::new());
+static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumnOperator> =
+    Lazy::new(|| InsertVectorIntoColumnOperator::new());
 
-static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRow> =
-    Lazy::new(|| InsertVectorIntoRow::new());
+static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRowOperator> =
+    Lazy::new(|| InsertVectorIntoRowOperator::new());
 
 // TODO: this doesn't work because Lazy generates a one-off type that doesn't implement AccumulatorBinaryOperator.
 // static BOOLEAN_ASSIGNMENT_OPERATOR: Lazy<Assignment<bool>> = Lazy::new(|| Assignment::<bool>::new());

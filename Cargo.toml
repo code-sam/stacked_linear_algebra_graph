@@ -1,6 +1,6 @@
 [package]
 name = "stacked_linear_algebra_graph"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["code_sam <mail@samdekker.nl>"]
 description = "Embedded in-memory graph using sparse linear algebra"
 edition = "2021"
@@ -13,7 +13,7 @@ repository = "https://github.com/code-sam/stacked_linear_algebra_graph"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-graphblas_sparse_linear_algebra = {version = "0.43.0"}
+graphblas_sparse_linear_algebra = {version = "0.44.0"}
 # graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "simpler-operators"}
 once_cell = {version = "1.17"}
 paste = {version = "1.0"}
