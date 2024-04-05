@@ -3,7 +3,7 @@ mod adjacency_matrix_selector;
 pub(crate) mod adjacency_matrix_with_cached_attributes;
 mod edge_store;
 pub(crate) mod operations;
-pub(crate) mod weighted_adjacency_matrix;
+pub mod weighted_adjacency_matrix;
 
 pub(crate) use edge_store::*;
 
