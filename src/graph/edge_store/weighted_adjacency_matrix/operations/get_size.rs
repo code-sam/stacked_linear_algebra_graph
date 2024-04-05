@@ -11,7 +11,7 @@ use crate::{
     graph::{edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, index::ElementIndex},
 };
 
-pub(crate) trait GetMatrixSize {
+pub trait GetMatrixSize {
     fn size(&self) -> Result<Size, GraphComputingError>;
 
     fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;

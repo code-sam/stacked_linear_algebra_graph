@@ -169,7 +169,7 @@ impl<T: ValueType + IntoSparseMatrixForValueType<T>> IntoSparseMatrix<T>
     }
 }
 
-pub(crate) trait IntoSparseMatrixForValueType<T: ValueType> {
+pub trait IntoSparseMatrixForValueType<T: ValueType> {
     fn sparse_matrix(
         matrix: &(impl GetContext
               + GetGraphblasSparseMatrix
