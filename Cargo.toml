@@ -1,6 +1,6 @@
 [package]
 name = "stacked_linear_algebra_graph"
-version = "0.11.2"
+version = "0.11.3"
 authors = ["code_sam <mail@samdekker.nl>"]
 description = "Embedded in-memory graph using sparse linear algebra"
 edition = "2021"
