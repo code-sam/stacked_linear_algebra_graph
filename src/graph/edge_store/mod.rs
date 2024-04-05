@@ -9,4 +9,4 @@ pub(crate) use edge_store::*;
 
 pub(crate) use adjacency_matrix_selector::*;
 // pub(crate) use operations::*;
-// pub(crate) use weighted_adjacency_matrix::*;
+pub use weighted_adjacency_matrix::*;
