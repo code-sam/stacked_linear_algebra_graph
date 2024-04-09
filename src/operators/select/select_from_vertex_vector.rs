@@ -3,7 +3,10 @@ use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnary
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
 
-use crate::graph::graph::{GetGraphblasOperatorApplierCollection, Graph, VertexTypeIndex};
+use crate::graph::graph::{
+    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, Graph, GraphTrait,
+    VertexTypeIndex,
+};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 

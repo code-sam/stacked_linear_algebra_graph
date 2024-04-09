@@ -7,7 +7,9 @@ use crate::graph::edge_store::{
     CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument,
     GetArgumentForOperatorWithAdjacencyMatrixAsSecondArgument,
 };
-use crate::graph::graph::{GetGraphblasOperatorApplierCollection, Graph};
+use crate::graph::graph::{
+    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, Graph, GraphTrait,
+};
 
 use crate::graph::graph::VertexTypeIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;

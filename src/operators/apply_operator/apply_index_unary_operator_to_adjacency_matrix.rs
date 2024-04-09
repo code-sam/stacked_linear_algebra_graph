@@ -10,7 +10,7 @@ use crate::{
             ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
             GetArgumentsForAdjacencyMatrixOperator,
         },
-        graph::GetGraphblasOperatorApplierCollection,
+        graph::{GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GraphTrait},
     },
     operators::options::OptionsForOperatorWithAdjacencyMatrixArgument,
 };

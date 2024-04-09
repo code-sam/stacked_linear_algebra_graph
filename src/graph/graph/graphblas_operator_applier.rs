@@ -27,6 +27,10 @@ use graphblas_sparse_linear_algebra::operators::{
 
 use crate::graph::graph::GraphblasContext;
 
+pub(crate) trait GetGraphblasOperatorApplierCollection {
+    fn graphblas_operator_applier_collection_ref(&self) -> &GraphblasOperatorApplierCollection;
+}
+
 #[derive(Clone, Debug)]
 pub(crate) struct GraphblasOperatorApplierCollection {
     binary_operator_applier: BinaryOperatorApplier,
@@ -124,7 +128,7 @@ impl GraphblasOperatorApplierCollection {
     }
 }
 
-pub(crate) trait GetGraphblasOperatorApplierCollection {
+pub(crate) trait GetGraphblasOperatorAppliers {
     fn binary_operator_applier(&self) -> &BinaryOperatorApplier;
     fn unary_operator_applier(&self) -> &UnaryOperatorApplier;
     fn index_unary_operator_applier(&self) -> &IndexUnaryOperatorApplier;
@@ -185,7 +189,7 @@ pub(crate) trait GetGraphblasOperatorApplierCollection {
     fn entire_vector_selector(&self) -> &SelectEntireVector;
 }
 
-impl GetGraphblasOperatorApplierCollection for GraphblasOperatorApplierCollection {
+impl GetGraphblasOperatorAppliers for GraphblasOperatorApplierCollection {
     fn binary_operator_applier(&self) -> &BinaryOperatorApplier {
         &self.binary_operator_applier
     }

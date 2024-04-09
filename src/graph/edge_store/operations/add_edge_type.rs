@@ -2,8 +2,8 @@ use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
     CreateWeightedAdjacencyMatrixWithCachedAttributes, WeightedAdjacencyMatrixWithCachedAttributes,
 };
 
-use crate::graph::edge_store::weighted_adjacency_matrix::GetGraphblasContext;
 use crate::graph::edge_store::{GetAdjacencyMatrices, GetEdgeTypeIndicer};
+use crate::graph::graph::GetGraphblasContext;
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{
     error::GraphComputingError,

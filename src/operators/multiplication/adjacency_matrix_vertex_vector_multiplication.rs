@@ -6,7 +6,9 @@ use crate::graph::edge_store::ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgum
 use crate::graph::edge_store::CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument;
 use crate::graph::edge_store::GetArgumentForOperatorWithAdjacencyMatrixAsLeftArgument;
 use crate::graph::graph::GetGraphblasOperatorApplierCollection;
+use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
+use crate::graph::graph::GraphTrait;
 use crate::graph::graph::VertexTypeIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsLeftArgument;
