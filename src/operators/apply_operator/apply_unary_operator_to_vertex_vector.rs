@@ -4,6 +4,7 @@ use graphblas_sparse_linear_algebra::operators::{
     binary_operator::AccumulatorBinaryOperator, unary_operator::UnaryOperator,
 };
 
+use crate::graph::graph::{GetGraphblasOperatorAppliers, GraphTrait};
 use crate::graph::{
     graph::GetGraphblasOperatorApplierCollection,
     vertex_store::operations::get_vertex_vector::GetVertexVector,

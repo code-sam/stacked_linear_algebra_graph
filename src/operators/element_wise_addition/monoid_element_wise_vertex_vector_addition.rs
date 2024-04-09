@@ -3,7 +3,9 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 
-use crate::graph::graph::GetGraphblasOperatorApplierCollection;
+use crate::graph::graph::{
+    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GraphTrait,
+};
 use crate::graph::graph::{Graph, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};

@@ -19,6 +19,7 @@ use graphblas_sparse_linear_algebra::operators::unary_operator::Identity;
 
 use once_cell::sync::Lazy;
 
+use crate::graph::graph::GetGraphblasContext;
 use crate::graph::value_type::implement_1_type_macro_with_enum_type_indentifier_for_all_value_types;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
 use crate::graph::value_type::GetValueTypeIdentifier;
@@ -38,7 +39,7 @@ static UNARY_OPERATOR_APPLIER: Lazy<UnaryOperatorApplier> =
 unsafe impl Send for VertexVector {}
 unsafe impl Sync for VertexVector {}
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(crate) struct VertexVector {
     graphblas_context: Arc<GraphBLASContext>,
     value_type: ValueTypeIdentifier,
@@ -81,6 +82,18 @@ impl Drop for VertexVector {
     }
 }
 
+impl Clone for VertexVector {
+    fn clone(&self) -> Self {
+        VertexVector {
+            graphblas_context: self.graphblas_context.to_owned(),
+            value_type: self.value_type.to_owned(),
+            sparse_vector: unsafe {
+                clone_graphblas_vector(self.context_ref(), self.graphblas_vector_ref()).unwrap()
+            },
+        }
+    }
+}
+
 impl Display for VertexVector {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "VertexVector:");
@@ -93,11 +106,6 @@ impl Display for VertexVector {
         );
         return writeln!(f, "");
     }
-}
-
-pub(crate) trait GetGraphblasContext {
-    fn graphblas_context(&self) -> Arc<GraphBLASContext>;
-    fn graphblas_context_ref(&self) -> &Arc<GraphBLASContext>;
 }
 
 impl GetGraphblasContext for VertexVector {

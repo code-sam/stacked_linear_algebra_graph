@@ -4,11 +4,11 @@ use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 
 use super::adjacency_matrix_with_cached_attributes::WeightedAdjacencyMatrixWithCachedAttributes;
 
-use super::weighted_adjacency_matrix::GetGraphblasContext;
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
 use crate::error::GraphComputingError;
 
+use crate::graph::graph::GetGraphblasContext;
 use crate::graph::index::ElementCount;
 use crate::graph::indexer::Indexer as EdgeTypeIndexer;
 

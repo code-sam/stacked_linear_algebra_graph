@@ -9,7 +9,9 @@ use crate::graph::edge_store::{
     ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
     GetArgumentsForAdjacencyMatrixOperator,
 };
-use crate::graph::graph::GetGraphblasOperatorApplierCollection;
+use crate::graph::graph::{
+    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GraphTrait,
+};
 use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;

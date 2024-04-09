@@ -11,7 +11,9 @@ use graphblas_sparse_linear_algebra::{
     operators::{binary_operator::AccumulatorBinaryOperator, mask::MatrixMask},
 };
 
-use crate::graph::graph::GetGraphblasOperatorApplierCollection;
+use crate::graph::graph::{
+    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GraphTrait,
+};
 use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
 use crate::{
     error::GraphComputingError,
