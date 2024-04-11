@@ -3,11 +3,12 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     SparseVector, VectorElementList as VertexVectorElementList,
 };
 
+use crate::graph::graph::GetVertexStore;
 use crate::graph::vertex_store::{IntoSparseVector, IntoSparseVectorForValueType};
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::{Graph, GraphTrait, VertexTypeIndex},
+        graph::{Graph, VertexTypeIndex},
         value_type::ValueType,
         vertex_store::operations::get_vertex_vector::GetVertexVector,
     },

@@ -1,7 +1,7 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::{Graph, GraphTrait, VertexTypeIndex},
+        graph::{GetVertexStore, Graph, VertexTypeIndex},
         value_type::{GetValueTypeIdentifier, ValueType},
         vertex_store::operations::add_vertex_type::AddVertexType as AddVertexTypeToVertexStore,
     },

@@ -10,7 +10,7 @@ use crate::{
             weighted_adjacency_matrix::WeightedAdjacencyMatrix,
             EdgeStore, GetAdjacencyMatrices, GetEdgeTypeIndicer,
         },
-        indexer::IndexerTrait,
+        indexer::GetValidIndices,
     },
 };
 

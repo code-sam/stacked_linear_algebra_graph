@@ -7,11 +7,12 @@ use crate::graph::edge_store::operations::get_adjacency_matrix_cached_attributes
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     IntoSparseMatrix, IntoSparseMatrixForValueType,
 };
+use crate::graph::graph::GetEdgeStore;
 use crate::{
     error::GraphComputingError,
     graph::{
         edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix,
-        graph::{EdgeTypeIndex, Graph, GraphTrait},
+        graph::{EdgeTypeIndex, Graph},
         value_type::ValueType,
     },
 };

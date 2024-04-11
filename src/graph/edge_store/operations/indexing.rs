@@ -3,7 +3,7 @@ use crate::{
     graph::{
         edge::EdgeTypeIndex,
         edge_store::{EdgeStore, GetEdgeTypeIndicer},
-        indexer::IndexerTrait,
+        indexer::CheckIndex,
     },
 };
 

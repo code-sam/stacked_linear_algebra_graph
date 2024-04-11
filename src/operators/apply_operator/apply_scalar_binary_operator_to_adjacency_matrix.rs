@@ -3,20 +3,17 @@ use graphblas_sparse_linear_algebra::operators::{
     binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
 };
 
-use crate::graph::graph::{GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers};
-use crate::graph::{
-    edge_store::{
-        operations::get_adjacency_matrix::GetAdjacencyMatrix,
-        ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
-        ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument,
-        CreateArgumentsForAdjacencyMatrixOperator,
-        CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
-        CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument,
-        GetArgumentForOperatorWithAdjacencyMatrixAsLeftArgument,
-        GetArgumentForOperatorWithAdjacencyMatrixAsSecondArgument,
-        GetArgumentsForAdjacencyMatrixOperator,
-    },
-    graph::GraphTrait,
+use crate::graph::edge_store::{
+    operations::get_adjacency_matrix::GetAdjacencyMatrix,
+    ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
+    ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument,
+    CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
+    CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument,
+    GetArgumentForOperatorWithAdjacencyMatrixAsLeftArgument,
+    GetArgumentForOperatorWithAdjacencyMatrixAsSecondArgument,
+};
+use crate::graph::graph::{
+    GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
 };
 use crate::{
     error::GraphComputingError,

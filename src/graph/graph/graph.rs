@@ -41,28 +41,26 @@ pub(crate) trait GetGraphblasContext {
     fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
 }
 
-pub(crate) trait GraphTrait {
-    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
-
+pub(crate) trait GetVertexStore {
     fn vertex_store_ref(&self) -> &VertexStore;
     fn vertex_store_mut_ref(&mut self) -> &mut VertexStore;
     fn vertex_store_mut_ref_unsafe(&mut self) -> *mut VertexStore;
+}
 
+pub(crate) trait GetEdgeStore {
     fn edge_store_ref(&self) -> &EdgeStore;
     fn edge_store_mut_ref(&mut self) -> &mut EdgeStore;
     fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore;
+}
 
+pub(crate) trait UpdateVertexCapacity {
     fn update_vertex_capacity(
         &mut self,
         vertex_capacity: &ElementCount,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl GraphTrait for Graph {
-    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
-        &self.graphblas_context
-    }
-
+impl GetVertexStore for Graph {
     fn vertex_store_ref(&self) -> &VertexStore {
         &self.vertex_store
     }
@@ -74,7 +72,9 @@ impl GraphTrait for Graph {
     fn vertex_store_mut_ref_unsafe(&mut self) -> *mut VertexStore {
         &mut self.vertex_store
     }
+}
 
+impl GetEdgeStore for Graph {
     fn edge_store_ref(&self) -> &EdgeStore {
         &self.edge_store
     }
@@ -86,7 +86,9 @@ impl GraphTrait for Graph {
     fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore {
         &mut self.edge_store
     }
+}
 
+impl UpdateVertexCapacity for Graph {
     fn update_vertex_capacity(
         &mut self,
         vertex_capacity: &ElementCount,

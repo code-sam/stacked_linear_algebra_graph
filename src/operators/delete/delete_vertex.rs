@@ -1,9 +1,11 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::operations::map::MapMutableAdjacencyMatrices,
-        edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnections,
-        graph::{GraphTrait, VertexIndex, VertexTypeIndex},
+        edge_store::{
+            operations::map::MapMutableAdjacencyMatrices,
+            weighted_adjacency_matrix::operations::DeleteVertexConnections,
+        },
+        graph::{GetEdgeStore, GetVertexStore, VertexIndex, VertexTypeIndex},
         vertex_store::{
             DeleteVertexForAllTypes, DeleteVertexValue as DeleteVertexValueFromVertexStore,
         },

@@ -1,9 +1,10 @@
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::graph::{GetEdgeStore, GetVertexStore};
 use crate::{
     error::GraphComputingError,
     graph::indexer::GetAssignedIndexData,
     graph::{
-        graph::{Graph, GraphTrait, VertexIndex},
+        graph::{Graph, VertexIndex},
         vertex_store::CreateVertexIndex as AddVertexKeyToVertexStore,
     },
 };

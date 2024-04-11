@@ -9,7 +9,7 @@ use crate::graph::edge_store::{
     GetArgumentsForAdjacencyMatricesOperator,
 };
 use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, Graph, GraphTrait,
+    GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, Graph,
 };
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{

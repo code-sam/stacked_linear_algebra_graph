@@ -54,19 +54,28 @@ impl GetAssignedIndexData for AssignedIndex {
     }
 }
 
-pub(crate) trait IndexerTrait {
+pub(crate) trait GenerateIndex {
     fn new_index(&mut self) -> Result<AssignedIndex, GraphComputingError>;
+}
 
+pub(crate) trait FreeIndex {
     // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
     fn free_index(&mut self, index: Index) -> Result<(), GraphComputingError>;
     fn free_index_unchecked(&mut self, index: Index) -> Result<(), GraphComputingError>;
+}
 
+pub(crate) trait CheckIndex {
     fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
     fn try_index_validity(&self, index: &Index) -> Result<(), GraphComputingError>;
+}
 
+pub(crate) trait GetValidIndices {
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;
-    fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError>;
     fn valid_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError>;
+}
+
+pub(crate) trait GetIndexerStatus {
+    fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError>;
     fn index_capacity(&self) -> Result<ElementCount, GraphComputingError>;
 }
 
@@ -83,12 +92,15 @@ pub(crate) struct Indexer {
 
 // TODO: probably, Indexer needs a generic type annotation, and then be implemented for IndexedDataStoreIndex
 // TODO: drop type annotation altogether. Moving Index struct higher up towards the client would be better.
-impl IndexerTrait for Indexer {
+
+impl GenerateIndex for Indexer {
     fn new_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
         let index = self.claim_available_index()?;
         Ok(index)
     }
+}
 
+impl FreeIndex for Indexer {
     // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
     fn free_index(&mut self, index: Index) -> Result<(), GraphComputingError> {
         if self.is_valid_index(&index)? {
@@ -98,13 +110,14 @@ impl IndexerTrait for Indexer {
         }
     }
 
-    // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
     fn free_index_unchecked(&mut self, index: Index) -> Result<(), GraphComputingError> {
         self.mask_with_valid_indices.drop_element(index.clone())?;
         self.indices_available_for_reuse.push_back(index);
         Ok(())
     }
+}
 
+impl CheckIndex for Indexer {
     fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError> {
         Ok(self
             .mask_with_valid_indices_ref()
@@ -126,7 +139,9 @@ impl IndexerTrait for Indexer {
             .into());
         }
     }
+}
 
+impl GetValidIndices for Indexer {
     // The mask is updated at each push() and free() operation.
     // benefit: mask is pre-computed, resulting in faster query operations
     // downside: slower push() and free() operations
@@ -138,7 +153,9 @@ impl IndexerTrait for Indexer {
         // self.key_to_index_map.values().into_iter().collect()
         Ok(self.mask_with_valid_indices.element_indices()?)
     }
+}
 
+impl GetIndexerStatus for Indexer {
     fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError> {
         Ok(self.mask_with_valid_indices.number_of_stored_elements()?)
     }
@@ -153,13 +170,15 @@ impl Indexer {
     // as the minimum is guaranteed once and no longer needs checking upon capacity expansion.
     // However, the API is slightly misleading for initial_capacity = 0.
 
-    pub fn new(graphblas_context: &Arc<GraphBLASContext>) -> Result<Self, GraphComputingError> {
+    pub(crate) fn new(
+        graphblas_context: &Arc<GraphBLASContext>,
+    ) -> Result<Self, GraphComputingError> {
         let default_initial_capacity = 256;
         Self::with_initial_capacity(graphblas_context, &default_initial_capacity)
     }
 
     /// Sets a minimum capacity of 1, if initial_capacity = 0
-    pub fn with_initial_capacity(
+    pub(crate) fn with_initial_capacity(
         graphblas_context: &Arc<GraphBLASContext>,
         initial_capacity: &ElementCount,
     ) -> Result<Self, GraphComputingError> {

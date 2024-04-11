@@ -4,9 +4,9 @@ use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
-use crate::error::GraphComputingError;
 use crate::graph::index::ElementCount;
-use crate::graph::indexer::{Indexer, IndexerTrait};
+use crate::graph::indexer::Indexer;
+use crate::{error::GraphComputingError, graph::indexer::GetValidIndices};
 
 use super::{ResizeWeightedAdjacencyMatrix, VertexVector};
 

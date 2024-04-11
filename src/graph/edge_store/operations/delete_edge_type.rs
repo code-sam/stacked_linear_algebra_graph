@@ -1,7 +1,8 @@
 use crate::graph::edge_store::GetEdgeTypeIndicer;
+use crate::graph::indexer::FreeIndex;
 use crate::{
     error::GraphComputingError,
-    graph::{edge::EdgeTypeIndex, edge_store::EdgeStore, indexer::IndexerTrait},
+    graph::{edge::EdgeTypeIndex, edge_store::EdgeStore},
 };
 
 pub(crate) trait DropEdgeType {

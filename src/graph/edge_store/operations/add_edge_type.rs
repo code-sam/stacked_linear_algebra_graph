@@ -4,14 +4,11 @@ use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
 
 use crate::graph::edge_store::{GetAdjacencyMatrices, GetEdgeTypeIndicer};
 use crate::graph::graph::GetGraphblasContext;
+use crate::graph::indexer::{GenerateIndex, GetAssignedIndexData};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge::EdgeTypeIndex,
-        edge_store::EdgeStore,
-        indexer::{GetAssignedIndexData, IndexerTrait},
-    },
+    graph::{edge::EdgeTypeIndex, edge_store::EdgeStore},
 };
 
 pub(crate) trait AddEdgeType<T: ValueType> {

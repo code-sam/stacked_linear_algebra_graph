@@ -4,12 +4,9 @@ use crate::graph::edge::{EdgeTypeIndex, GetDirectedEdgeCoordinateIndex, GetEdgeW
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::UpdateEdgeWeight as UpdateEdgeWeightInEdgeStore;
 
-use crate::graph::graph::VertexIndex;
+use crate::graph::graph::{GetEdgeStore, VertexIndex};
 use crate::graph::value_type::ValueType;
-use crate::{
-    error::GraphComputingError,
-    graph::graph::{Graph, GraphTrait},
-};
+use crate::{error::GraphComputingError, graph::graph::Graph};
 
 // REVIEW update vs set
 pub trait UpdateEdgeWeight<T: ValueType> {

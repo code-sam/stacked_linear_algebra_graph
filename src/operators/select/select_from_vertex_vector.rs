@@ -4,7 +4,7 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
 
 use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, Graph, GraphTrait,
+    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore, Graph,
     VertexTypeIndex,
 };
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;

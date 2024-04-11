@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
 use crate::graph::edge::{EdgeTypeIndex, GetDirectedEdgeCoordinateIndex};
 use crate::graph::edge_store::operations::indexing::Indexing as EdgeStoreIndexing;
-use crate::graph::graph::{Graph, GraphTrait, VertexIndex, VertexTypeIndex};
-use crate::graph::indexer::IndexerTrait;
+use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph, VertexIndex, VertexTypeIndex};
+use crate::graph::indexer::CheckIndex;
 use crate::graph::vertex_store::VertexStoreTrait;
 
 pub trait Indexing {
