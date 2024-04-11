@@ -4,7 +4,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::VertexTypeIndex,
-        indexer::{GetAssignedIndexData, IndexerTrait},
+        indexer::{GenerateIndex, GetAssignedIndexData, GetValidIndices},
         value_type::{GetValueTypeIdentifier, ValueType},
         vertex_store::{
             vertex_store::VertexStoreTrait, CreateVertexVector, VertexStore, VertexVector,

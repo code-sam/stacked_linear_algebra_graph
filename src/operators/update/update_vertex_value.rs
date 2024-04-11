@@ -1,12 +1,9 @@
-use crate::graph::graph::{VertexIndex, VertexTypeIndex};
+use crate::graph::graph::{GetVertexStore, VertexIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::VertexStore;
 use crate::{
     error::GraphComputingError,
-    graph::{
-        graph::{Graph, GraphTrait},
-        vertex_store::UpdateVertex,
-    },
+    graph::{graph::Graph, vertex_store::UpdateVertex},
 };
 
 // REVIEW update vs set

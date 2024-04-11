@@ -12,7 +12,8 @@ use graphblas_sparse_linear_algebra::{
 };
 
 use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GraphTrait,
+    GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
+    GetVertexStore,
 };
 use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
 use crate::{

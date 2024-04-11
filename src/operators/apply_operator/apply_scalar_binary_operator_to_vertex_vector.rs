@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::operators::{
 
 use crate::graph::{
     graph::{
-        GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GraphTrait,
+        GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
         VertexTypeIndex,
     },
     vertex_store::operations::get_vertex_vector::GetVertexVector,

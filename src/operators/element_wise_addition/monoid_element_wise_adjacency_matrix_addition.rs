@@ -6,10 +6,10 @@ use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatr
 use crate::graph::edge_store::ArgumentsForAdjacencyMatricesOperator;
 use crate::graph::edge_store::CreateArgumentsForAdjacencyMatricesOperator;
 use crate::graph::edge_store::GetArgumentsForAdjacencyMatricesOperator;
+use crate::graph::graph::GetEdgeStore;
 use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
-use crate::graph::graph::GraphTrait;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{
     error::GraphComputingError,

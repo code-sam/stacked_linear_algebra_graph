@@ -7,10 +7,10 @@ use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatr
 use crate::graph::edge_store::ArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::CreateArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::GetArgumentsForAdjacencyMatrixOperator;
+use crate::graph::graph::GetEdgeStore;
 use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
-use crate::graph::graph::GraphTrait;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{
     error::GraphComputingError,
@@ -179,7 +179,6 @@ mod tests {
         GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
     };
     use crate::graph::edge_store::operations::map::MapAdjacencyMatricesWithCachedAttributes;
-    use crate::graph::graph::GraphTrait;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::read::GetEdgeWeight;
 

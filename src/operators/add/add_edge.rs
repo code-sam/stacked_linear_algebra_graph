@@ -10,7 +10,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
     AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
 };
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
-use crate::graph::graph::{Graph, GraphTrait, VertexIndex};
+use crate::graph::graph::{GetEdgeStore, Graph, VertexIndex};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::operators::indexing::Indexing as GraphIndexing;
 

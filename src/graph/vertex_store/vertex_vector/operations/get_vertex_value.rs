@@ -6,7 +6,7 @@ use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
 use crate::graph::graph::VertexIndex;
 use crate::graph::graph::VertexTypeIndex;
-use crate::graph::indexer::IndexerTrait;
+use crate::graph::indexer::CheckIndex;
 use crate::graph::value_type::ValueType;
 
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;

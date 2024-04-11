@@ -4,8 +4,9 @@ use crate::graph::edge::EdgeTypeIndex;
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteEdge as DeleteEdgeInAdjacencyMatrix;
+use crate::graph::graph::GetEdgeStore;
+use crate::graph::graph::Graph;
 use crate::graph::graph::VertexIndex;
-use crate::graph::graph::{Graph, GraphTrait};
 
 pub trait DeleteEdge {
     fn delete_edge(
