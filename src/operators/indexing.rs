@@ -1,19 +1,22 @@
 use crate::error::GraphComputingError;
-use crate::graph::edge::{EdgeTypeIndex, GetDirectedEdgeCoordinateIndex};
+use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::edge_store::operations::indexing::Indexing as EdgeStoreIndexing;
-use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph, VertexIndex, VertexTypeIndex};
-use crate::graph::indexer::CheckIndex;
-use crate::graph::vertex_store::VertexStoreTrait;
+use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
+use crate::graph::index::{EdgeTypeIndex, VertexIndex, VertexTypeIndex};
+use crate::graph::vertex_store::operations::indexing::{CheckVertexIndex, CheckVertexTypeIndex};
 
-pub trait Indexing {
-    fn is_valid_vertex_index(&self, vertex_key: &VertexIndex) -> Result<bool, GraphComputingError>;
+pub trait CheckIndex {
+    fn is_valid_vertex_index(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<bool, GraphComputingError>;
     fn is_valid_vertex_type_index(
         &self,
-        vertex_key: &VertexTypeIndex,
+        vertex_index: &VertexTypeIndex,
     ) -> Result<bool, GraphComputingError>;
     fn is_valid_edge_type_index(
         &self,
-        vertex_key: &EdgeTypeIndex,
+        vertex_index: &EdgeTypeIndex,
     ) -> Result<bool, GraphComputingError>;
 
     fn try_vertex_index_validity(
@@ -26,9 +29,19 @@ pub trait Indexing {
         vertex_type_index: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
 
+    fn try_optional_vertex_type_index_validity(
+        &self,
+        vertex_type_index: Option<&VertexTypeIndex>,
+    ) -> Result<(), GraphComputingError>;
+
     fn try_edge_type_index_validity(
         &self,
         edge_type_index: &EdgeTypeIndex,
+    ) -> Result<(), GraphComputingError>;
+
+    fn try_optional_edge_type_index_validity(
+        &self,
+        edge_type_index: Option<&EdgeTypeIndex>,
     ) -> Result<(), GraphComputingError>;
 
     fn is_valid_edge(
@@ -56,15 +69,12 @@ pub trait Indexing {
     ) -> Result<(), GraphComputingError>;
 }
 
-// TODO: where applicable, move implementations down to store level
-impl Indexing for Graph {
+impl CheckIndex for Graph {
     fn is_valid_vertex_index(
         &self,
         vertex_index: &VertexIndex,
     ) -> Result<bool, GraphComputingError> {
-        self.vertex_store_ref()
-            .element_indexer_ref()
-            .is_valid_index(vertex_index)
+        self.vertex_store_ref().is_valid_vertex_index(vertex_index)
     }
 
     fn is_valid_vertex_type_index(
@@ -72,8 +82,7 @@ impl Indexing for Graph {
         vertex_type_index: &VertexTypeIndex,
     ) -> Result<bool, GraphComputingError> {
         self.vertex_store_ref()
-            .vertex_type_indexer_ref()
-            .is_valid_index(vertex_type_index)
+            .is_valid_public_vertex_type_index(vertex_type_index)
     }
 
     fn is_valid_edge_type_index(
@@ -81,7 +90,7 @@ impl Indexing for Graph {
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<bool, GraphComputingError> {
         self.edge_store_ref()
-            .is_valid_edge_type_index(edge_type_index)
+            .is_valid_public_edge_type_index(edge_type_index)
     }
 
     fn try_vertex_index_validity(
@@ -89,8 +98,7 @@ impl Indexing for Graph {
         vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_ref()
-            .element_indexer_ref()
-            .try_index_validity(vertex_index)
+            .try_vertex_index_validity(vertex_index)
     }
 
     fn try_vertex_type_index_validity(
@@ -98,8 +106,7 @@ impl Indexing for Graph {
         vertex_type_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_ref()
-            .vertex_type_indexer_ref()
-            .try_index_validity(vertex_type_index)
+            .try_is_valid_public_vertex_index(vertex_type_index)
     }
 
     fn try_edge_type_index_validity(
@@ -107,7 +114,27 @@ impl Indexing for Graph {
         edge_type_index: &EdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_ref()
-            .try_edge_type_index_validity(edge_type_index)
+            .try_is_valid_public_edge_type_index(edge_type_index)
+    }
+
+    fn try_optional_edge_type_index_validity(
+        &self,
+        edge_type_index: Option<&EdgeTypeIndex>,
+    ) -> Result<(), GraphComputingError> {
+        match edge_type_index {
+            Some(edge_type_index) => self.try_edge_type_index_validity(edge_type_index),
+            None => Ok(()),
+        }
+    }
+
+    fn try_optional_vertex_type_index_validity(
+        &self,
+        vertex_type_index: Option<&VertexTypeIndex>,
+    ) -> Result<(), GraphComputingError> {
+        match vertex_type_index {
+            Some(vertex_type_index) => self.try_vertex_type_index_validity(vertex_type_index),
+            None => Ok(()),
+        }
     }
 
     fn is_valid_edge(
@@ -125,9 +152,7 @@ impl Indexing for Graph {
         &self,
         edge: &impl GetDirectedEdgeCoordinateIndex,
     ) -> Result<bool, GraphComputingError> {
-        Ok(self.is_valid_edge_type_index(edge.edge_type_ref())?
-            && self.is_valid_vertex_index(edge.tail_ref())?
-            && self.is_valid_vertex_index(edge.head_ref())?)
+        self.is_valid_edge(edge.edge_type_ref(), edge.tail_ref(), edge.head_ref())
     }
 
     fn try_edge_validity(
@@ -146,10 +171,180 @@ impl Indexing for Graph {
         &self,
         edge: &impl GetDirectedEdgeCoordinateIndex,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_type_index_validity(edge.edge_type_ref())?;
-        self.try_vertex_index_validity(edge.tail_ref())?;
-        self.try_vertex_index_validity(edge.head_ref())?;
+        self.try_edge_validity(edge.edge_type_ref(), edge.tail_ref(), edge.head_ref())
+    }
+}
+
+pub(crate) trait CheckPrivateIndex {
+    fn is_valid_private_vertex_index(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<bool, GraphComputingError>;
+    fn is_valid_private_vertex_type_index(
+        &self,
+        vertex_index: &VertexTypeIndex,
+    ) -> Result<bool, GraphComputingError>;
+    fn is_valid_private_edge_type_index(
+        &self,
+        vertex_index: &EdgeTypeIndex,
+    ) -> Result<bool, GraphComputingError>;
+
+    fn try_is_valid_private_vertex_index(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
+
+    fn try_is_valid_private_vertex_type_index(
+        &self,
+        vertex_type_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
+
+    fn try_is_valid_private_edge_type_index(
+        &self,
+        edge_type_index: &EdgeTypeIndex,
+    ) -> Result<(), GraphComputingError>;
+
+    fn is_valid_private_edge(
+        &self,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+    ) -> Result<bool, GraphComputingError>;
+
+    fn is_valid_private_edge_coordinate(
+        &self,
+        edge: &impl GetDirectedEdgeCoordinateIndex,
+    ) -> Result<bool, GraphComputingError>;
+
+    fn try_is_valid_private_edge(
+        &self,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
+
+    fn try_is_valid_private_edge_coordinate(
+        &self,
+        edge: &impl GetDirectedEdgeCoordinateIndex,
+    ) -> Result<(), GraphComputingError>;
+
+    fn try_optional_private_edge_type_index_validity(
+        &self,
+        edge_type_index: Option<&EdgeTypeIndex>,
+    ) -> Result<(), GraphComputingError>;
+
+    fn try_optional_private_vertex_type_index_validity(
+        &self,
+        vertex_type_index: Option<&VertexTypeIndex>,
+    ) -> Result<(), GraphComputingError>;
+}
+
+impl CheckPrivateIndex for Graph {
+    fn is_valid_private_vertex_index(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<bool, GraphComputingError> {
+        self.vertex_store_ref()
+            .is_valid_private_vertex_index(vertex_index)
+    }
+
+    fn is_valid_private_vertex_type_index(
+        &self,
+        vertex_type_index: &VertexTypeIndex,
+    ) -> Result<bool, GraphComputingError> {
+        self.vertex_store_ref()
+            .is_valid_private_vertex_type_index(vertex_type_index)
+    }
+
+    fn is_valid_private_edge_type_index(
+        &self,
+        edge_type_index: &EdgeTypeIndex,
+    ) -> Result<bool, GraphComputingError> {
+        self.edge_store_ref()
+            .is_valid_private_edge_type_index(edge_type_index)
+    }
+
+    fn try_is_valid_private_vertex_index(
+        &self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store_ref()
+            .try_is_valid_private_vertex_index(vertex_index)
+    }
+
+    fn try_is_valid_private_vertex_type_index(
+        &self,
+        vertex_type_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store_ref()
+            .try_is_valid_private_vertex_index(vertex_type_index)
+    }
+
+    fn try_is_valid_private_edge_type_index(
+        &self,
+        edge_type_index: &EdgeTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.edge_store_ref()
+            .try_is_valid_private_edge_type_index(edge_type_index)
+    }
+
+    fn is_valid_private_edge(
+        &self,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+    ) -> Result<bool, GraphComputingError> {
+        Ok(self.is_valid_private_edge_type_index(edge_type)?
+            && self.is_valid_private_vertex_index(tail)?
+            && self.is_valid_private_vertex_index(head)?)
+    }
+
+    fn is_valid_private_edge_coordinate(
+        &self,
+        edge: &impl GetDirectedEdgeCoordinateIndex,
+    ) -> Result<bool, GraphComputingError> {
+        self.is_valid_private_edge(edge.edge_type_ref(), edge.tail_ref(), edge.head_ref())
+    }
+
+    fn try_is_valid_private_edge(
+        &self,
+        edge_type: &EdgeTypeIndex,
+        tail: &VertexIndex,
+        head: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.try_is_valid_private_edge_type_index(edge_type)?;
+        self.try_is_valid_private_vertex_index(tail)?;
+        self.try_is_valid_private_vertex_index(head)?;
         Ok(())
+    }
+
+    fn try_is_valid_private_edge_coordinate(
+        &self,
+        edge: &impl GetDirectedEdgeCoordinateIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.try_is_valid_private_edge(edge.edge_type_ref(), edge.tail_ref(), edge.head_ref())
+    }
+
+    fn try_optional_private_edge_type_index_validity(
+        &self,
+        edge_type_index: Option<&EdgeTypeIndex>,
+    ) -> Result<(), GraphComputingError> {
+        match edge_type_index {
+            Some(edge_type_index) => self.try_is_valid_private_edge_type_index(edge_type_index),
+            None => Ok(()),
+        }
+    }
+
+    fn try_optional_private_vertex_type_index_validity(
+        &self,
+        vertex_type_index: Option<&VertexTypeIndex>,
+    ) -> Result<(), GraphComputingError> {
+        match vertex_type_index {
+            Some(vertex_type_index) => {
+                self.try_is_valid_private_vertex_type_index(vertex_type_index)
+            }
+            None => Ok(()),
+        }
     }
 }
 

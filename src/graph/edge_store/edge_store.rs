@@ -10,7 +10,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::index::ElementCount;
-use crate::graph::indexer::Indexer as EdgeTypeIndexer;
+use crate::graph::indexing::Indexer as EdgeTypeIndexer;
 
 #[derive(Clone, Debug)]
 pub(crate) struct EdgeStore {

@@ -8,11 +8,9 @@ use graphblas_sparse_linear_algebra::context::{
 
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::index::ElementCount;
-use crate::graph::{indexer::Index, vertex_store::VertexStore};
-use crate::{
-    error::GraphComputingError,
-    graph::{edge_store::EdgeStore, vertex_store::VertexStoreTrait},
-};
+use crate::graph::vertex_store::operations::resize_vertex_vectors::ResizeVertexVectors;
+use crate::graph::vertex_store::VertexStore;
+use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
 
 use super::{GetGraphblasOperatorApplierCollection, GraphblasOperatorApplierCollection};
 
@@ -30,11 +28,6 @@ use super::{GetGraphblasOperatorApplierCollection, GraphblasOperatorApplierColle
 //     initial_edge_type_capacity: ElementCount,
 // ) -> Result<Self, GraphComputingError>;
 // }
-
-// TODO: is this the best place to define these?
-pub type VertexIndex = Index;
-pub type VertexTypeIndex = Index;
-pub type EdgeTypeIndex = Index;
 
 pub(crate) trait GetGraphblasContext {
     fn graphblas_context(&self) -> Arc<GraphblasContext>;
@@ -120,10 +113,10 @@ impl GetGraphblasOperatorApplierCollection for Graph {
 #[derive(Clone, Debug)]
 pub struct Graph {
     graphblas_context: Arc<GraphblasContext>,
+    graphblas_operator_applier_collection: GraphblasOperatorApplierCollection,
+
     vertex_store: VertexStore,
     edge_store: EdgeStore,
-
-    graphblas_operator_applier_collection: GraphblasOperatorApplierCollection,
 }
 
 impl Graph {
@@ -137,22 +130,25 @@ impl Graph {
             GraphblasMatrixStorageFormat::ByColumn,
         )?;
 
+        let vertex_store = VertexStore::with_initial_capacity(
+            &graphblas_context,
+            initial_vertex_type_capacity,
+            initial_vertex_capacity,
+        )?;
+        let edge_store = EdgeStore::with_initial_capacity(
+            &graphblas_context,
+            &initial_vertex_capacity,
+            &initial_edge_type_capacity,
+        )?;
+
         let graph: Graph = Self {
             graphblas_context: graphblas_context.clone(),
-
-            vertex_store: VertexStore::with_initial_capacity(
-                &graphblas_context,
-                initial_vertex_type_capacity,
-                initial_vertex_capacity,
-            )?,
-            edge_store: EdgeStore::with_initial_capacity(
-                &graphblas_context,
-                &initial_vertex_capacity,
-                &initial_edge_type_capacity,
-            )?,
             graphblas_operator_applier_collection: GraphblasOperatorApplierCollection::new(
                 &graphblas_context,
             ),
+
+            vertex_store,
+            edge_store,
         };
 
         Ok(graph)
@@ -226,7 +222,7 @@ mod tests {
         );
 
         graph_1
-            .update_vertex_value_by_index(&vertex_type_11_index, &vertex_11_index, 4)
+            .update_vertex_value(&vertex_type_11_index, &vertex_11_index, 4)
             .unwrap();
 
         assert_eq!(

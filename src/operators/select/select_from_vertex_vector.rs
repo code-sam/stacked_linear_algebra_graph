@@ -5,9 +5,10 @@ use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, Vecto
 
 use crate::graph::graph::{
     GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore, Graph,
-    VertexTypeIndex,
 };
+use crate::graph::index::VertexTypeIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::operators::indexing::CheckIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait SelectFromVertexVector<EvaluationDomain>
@@ -24,8 +25,13 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait SelectFromVertexVectorUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
         selector_argument: &EvaluationDomain,
@@ -52,55 +58,29 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        self.try_vertex_type_index_validity(argument)?;
+        self.try_vertex_type_index_validity(product)?;
+        self.try_optional_vertex_type_index_validity(mask)?;
 
-        let vertex_vector_argument = unsafe { &*vertex_store }.vertex_vector_ref(argument)?;
-
-        let vertex_vector_product = unsafe { &mut *vertex_store }.vertex_vector_mut_ref(product)?;
-
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        vertex_vector_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        vertex_vector_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-        }
+        SelectFromVertexVectorUnchecked::apply(
+            self,
+            selector,
+            selector_argument,
+            argument,
+            accumlator,
+            product,
+            mask,
+            options,
+        )
     }
+}
 
-    fn by_unchecked_index(
+impl<EvaluationDomain> SelectFromVertexVectorUnchecked<EvaluationDomain> for Graph
+where
+    VectorSelector: SelectFromVector<EvaluationDomain>,
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
         selector_argument: &EvaluationDomain,

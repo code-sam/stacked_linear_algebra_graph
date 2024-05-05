@@ -12,13 +12,11 @@ use crate::graph::graph::{
     GetVertexStore, Graph,
 };
 
-use crate::graph::graph::VertexTypeIndex;
+use crate::graph::index::{EdgeTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
-use crate::{
-    error::GraphComputingError,
-    graph::{edge::EdgeTypeIndex, value_type::ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait VertexVectorAdjacencyMatrixMultiplication<EvaluationDomain>
 where
@@ -34,8 +32,13 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait VertexVectorAdjacencyMatrixMultiplicationUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         left_argument: &VertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -61,64 +64,30 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        self.try_vertex_type_index_validity(left_argument)?;
+        self.try_edge_type_index_validity(right_argument)?;
+        self.try_vertex_type_index_validity(product)?;
+        self.try_optional_vertex_type_index_validity(mask)?;
 
-        let vertex_vector_left_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref(left_argument)?;
-
-        let adjacency_matrix_argument =
-            ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument::try_create(
-                edge_store,
-                right_argument,
-                options,
-            )?;
-
-        let vertex_vector_product = unsafe { &mut *vertex_store }.vertex_vector_mut_ref(product)?;
-
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_matrix_multiplication_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_matrix_multiplication_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-        }
+        VertexVectorAdjacencyMatrixMultiplicationUnchecked::apply(
+            self,
+            left_argument,
+            operator,
+            right_argument,
+            accumlator,
+            product,
+            mask,
+            options,
+        )
     }
+}
 
-    fn by_unchecked_index(
+impl<EvaluationDomain> VertexVectorAdjacencyMatrixMultiplicationUnchecked<EvaluationDomain>
+    for Graph
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         left_argument: &VertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,

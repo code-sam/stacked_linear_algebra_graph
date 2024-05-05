@@ -9,24 +9,23 @@ use crate::graph::edge_store::{
     ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
     GetArgumentsForAdjacencyMatrixOperator,
 };
+use crate::graph::graph::Graph;
 use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
     GetVertexStore,
 };
-use crate::graph::graph::{Graph, VertexIndex, VertexTypeIndex};
+use crate::graph::index::{EdgeTypeIndex, VertexIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
-use crate::{
-    error::GraphComputingError,
-    graph::{edge::EdgeTypeIndex, value_type::ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait SelectEdgesWithTailVertex<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
     SparseMatrix<EvaluationDomain>: MatrixMask,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
@@ -35,8 +34,14 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait SelectEdgesWithTailVertexUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+    SparseMatrix<EvaluationDomain>: MatrixMask,
+{
+    fn apply(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
@@ -52,7 +57,7 @@ where
     SparseMatrix<EvaluationDomain>: MatrixMask,
     EvaluationDomain: ValueType,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
@@ -61,58 +66,29 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        self.try_edge_type_index_validity(adjacency_matrix)?;
+        self.try_vertex_index_validity(tail_vertex)?;
+        self.try_vertex_index_validity(extract_to)?;
+        self.try_optional_edge_type_index_validity(mask)?;
 
-        let adjacency_matrix_argument =
-            ArgumentsForAdjacencyMatrixOperator::try_create_with_transposed_adjacency_matrix_argument(edge_store, adjacency_matrix, options)?;
-
-        let vertex_vector_extract_to =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref(extract_to)?;
-
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        tail_vertex,
-                        &VertexSelector::All,
-                        accumlator,
-                        vertex_vector_extract_to,
-                        vertex_vector_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        tail_vertex,
-                        &VertexSelector::All,
-                        accumlator,
-                        vertex_vector_extract_to,
-                        vertex_vector_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-        }
+        SelectEdgesWithTailVertexUnchecked::apply(
+            self,
+            adjacency_matrix,
+            tail_vertex,
+            accumlator,
+            extract_to,
+            mask,
+            options,
+        )
     }
+}
 
-    fn by_unchecked_index(
+impl<EvaluationDomain> SelectEdgesWithTailVertexUnchecked<EvaluationDomain> for Graph
+where
+    SparseMatrix<EvaluationDomain>: MatrixMask,
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         adjacency_matrix: &EdgeTypeIndex,
         tail_vertex: &VertexIndex,
@@ -230,7 +206,7 @@ mod tests {
             )
             .unwrap();
 
-        SelectEdgesWithTailVertex::<isize>::by_index(
+        SelectEdgesWithTailVertex::<isize>::apply(
             &mut graph,
             &edge_type_1_index,
             &vertex_1_index,
@@ -251,7 +227,7 @@ mod tests {
             Some(1)
         );
 
-        SelectEdgesWithTailVertex::<isize>::by_index(
+        SelectEdgesWithTailVertex::<isize>::apply(
             &mut graph,
             &edge_type_1_index,
             &vertex_2_index,

@@ -5,7 +5,8 @@ use crate::{
             operations::map::MapMutableAdjacencyMatrices,
             weighted_adjacency_matrix::operations::DeleteVertexConnections,
         },
-        graph::{GetEdgeStore, GetVertexStore, VertexIndex, VertexTypeIndex},
+        graph::{GetEdgeStore, GetVertexStore},
+        index::{VertexIndex, VertexTypeIndex},
         vertex_store::{
             DeleteVertexForAllTypes, DeleteVertexValue as DeleteVertexValueFromVertexStore,
         },
@@ -20,14 +21,25 @@ pub trait DropVertexIndex {
         &mut self,
         vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
-    // fn delete_selected_vertices_and_connected_edges(
-    //     &mut self,
-    //     vertex_selection: VertexSelection,
-    // ) -> Result<(), GraphComputingError>;
+}
+
+pub(crate) trait DropPrivateVertexIndex {
+    fn drop_private_vertex_index_and_connected_edges(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
 }
 
 pub trait DeleteVertexValue {
     fn delete_vertex_value(
+        &mut self,
+        vertex_type_index: &VertexTypeIndex,
+        vertex_element_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError>;
+}
+
+pub(crate) trait DeletePrivateVertexValue {
+    fn delete_private_vertex_value(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
         vertex_element_index: &VertexIndex,
@@ -47,7 +59,25 @@ impl DropVertexIndex for Graph {
         )?;
 
         self.vertex_store_mut_ref()
-            .delete_vertex_for_all_vertex_types_and_value_types(vertex_index)
+            .delete_vertex_for_all_valid_public_vertex_types_and_value_types(vertex_index)
+    }
+}
+
+impl DropPrivateVertexIndex for Graph {
+    fn drop_private_vertex_index_and_connected_edges(
+        &mut self,
+        vertex_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        // TODO: Consider restricting to valid indices for improved performance
+        self.edge_store_mut_ref()
+            .map_mut_all_valid_private_adjacency_matrices(
+                |adjacency_matrix: &mut WeightedAdjacencyMatrix| {
+                    adjacency_matrix.delete_vertex_connections_unchecked(vertex_index)
+                },
+            )?;
+
+        self.vertex_store_mut_ref()
+            .delete_vertex_for_all_valid_private_vertex_types_and_value_types(vertex_index)
     }
 }
 
@@ -57,7 +87,21 @@ impl DeleteVertexValue for Graph {
         vertex_type_index: &VertexTypeIndex,
         vertex_element_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
-        DeleteVertexValueFromVertexStore::delete_vertex_element(
+        DeleteVertexValueFromVertexStore::delete_public_vertex_element(
+            self.vertex_store_mut_ref(),
+            vertex_type_index,
+            vertex_element_index,
+        )
+    }
+}
+
+impl DeletePrivateVertexValue for Graph {
+    fn delete_private_vertex_value(
+        &mut self,
+        vertex_type_index: &VertexTypeIndex,
+        vertex_element_index: &VertexIndex,
+    ) -> Result<(), GraphComputingError> {
+        DeleteVertexValueFromVertexStore::delete_private_vertex_element(
             self.vertex_store_mut_ref(),
             vertex_type_index,
             vertex_element_index,

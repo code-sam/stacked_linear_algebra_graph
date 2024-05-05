@@ -10,7 +10,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     WeightedAdjacencyMatrix,
 };
 
-use crate::graph::graph::VertexIndex;
+use crate::graph::index::VertexIndex;
 use crate::graph::value_type::ValueType;
 
 pub(crate) trait GetEdgeWeight<T> {

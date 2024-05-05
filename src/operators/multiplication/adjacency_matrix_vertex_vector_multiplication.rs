@@ -10,19 +10,18 @@ use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::GetVertexStore;
 use crate::graph::graph::Graph;
-use crate::graph::graph::VertexTypeIndex;
+use crate::graph::index::EdgeTypeIndex;
+use crate::graph::index::VertexTypeIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsLeftArgument;
-use crate::{
-    error::GraphComputingError,
-    graph::{edge::EdgeTypeIndex, value_type::ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait AdjacencyMatrixVertexVectorMultiplication<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -32,8 +31,13 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait AdjacencyMatrixVertexVectorMultiplicationUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -49,7 +53,7 @@ impl<EvaluationDomain: ValueType> AdjacencyMatrixVertexVectorMultiplication<Eval
     for Graph
 {
     /// NOTE: relatively slow because graph holds adjacency matrix by row. Where possible, consider using vector * tranpose(matrix) through VertexVectorAdjacencyMatrixMultiplication instead.
-    fn by_index(
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -59,65 +63,29 @@ impl<EvaluationDomain: ValueType> AdjacencyMatrixVertexVectorMultiplication<Eval
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        self.try_edge_type_index_validity(left_argument)?;
+        self.try_vertex_type_index_validity(right_argument)?;
+        self.try_vertex_type_index_validity(product)?;
+        self.try_optional_vertex_type_index_validity(mask)?;
 
-        let adjacency_matrix_argument =
-            ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument::try_create(
-                edge_store,
-                left_argument,
-                options,
-            )?;
-
-        let vertex_vector_right_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref(right_argument)?;
-
-        let vertex_vector_product = unsafe { &mut *vertex_store }.vertex_vector_mut_ref(product)?;
-
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_vector_multiplication_operator()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        operator,
-                        vertex_vector_right_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_vector_multiplication_operator()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        operator,
-                        vertex_vector_right_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-        }
+        AdjacencyMatrixVertexVectorMultiplicationUnchecked::apply(
+            self,
+            left_argument,
+            operator,
+            right_argument,
+            accumlator,
+            product,
+            mask,
+            options,
+        )
     }
+}
 
+impl<EvaluationDomain: ValueType>
+    AdjacencyMatrixVertexVectorMultiplicationUnchecked<EvaluationDomain> for Graph
+{
     /// NOTE: relatively slow because graph holds adjacency matrix by row. Where possible, consider using vector * tranpose(matrix) through VertexVectorAdjacencyMatrixMultiplication instead.
-    fn by_unchecked_index(
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -242,7 +210,7 @@ mod tests {
             )
             .unwrap();
 
-        AdjacencyMatrixVertexVectorMultiplication::<u8>::by_index(
+        AdjacencyMatrixVertexVectorMultiplication::<u8>::apply(
             &mut graph,
             &edge_type_1_index,
             &PlusTimes::<u8>::new(),

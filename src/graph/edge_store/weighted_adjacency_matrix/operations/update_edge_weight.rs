@@ -5,7 +5,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     GetAdjacencyMatrixCoordinateIndices, WeightedAdjacencyMatrix,
 };
-use crate::graph::graph::VertexIndex;
+use crate::graph::index::VertexIndex;
 use crate::graph::value_type::ValueType;
 
 pub(crate) trait UpdateEdgeWeight<T> {
