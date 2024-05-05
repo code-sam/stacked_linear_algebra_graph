@@ -18,7 +18,7 @@ pub trait UpdateVertexValue<T: ValueType> {
 }
 
 // REVIEW update vs set
-pub trait UpdatePrivateVertexValue<T: ValueType> {
+pub(crate) trait UpdatePrivateVertexValue<T: ValueType> {
     fn update_private_vertex_value(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
