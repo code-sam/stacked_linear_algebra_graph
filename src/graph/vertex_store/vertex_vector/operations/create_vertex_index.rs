@@ -1,10 +1,7 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        indexing::{
-            operations::{GeneratePrivateIndex, GeneratePublicIndex},
-            AssignedIndex, GetAssignedIndexData,
-        },
+        indexing::{operations::GeneratePublicIndex, AssignedIndex, GetAssignedIndexData},
         vertex_store::{
             operations::resize_vertex_vectors::ResizeVertexVectors, GetVertexElementIndexer,
             VertexStore,

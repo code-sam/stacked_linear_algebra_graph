@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 
 use crate::{
-    error::{GraphComputingError, LogicError, LogicErrorType},
+    error::GraphComputingError,
     graph::{
         edge_store::{
             adjacency_matrix_with_cached_attributes::GetWeightedAdjacencyMatrix,

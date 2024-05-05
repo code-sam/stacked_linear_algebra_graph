@@ -5,7 +5,6 @@ mod add_vertex_type;
 mod new_vertex_index;
 
 pub use add_edge::*;
-pub use add_edge::*;
 pub use add_edge_type::*;
 pub use add_vertex::*;
 pub use add_vertex_type::*;

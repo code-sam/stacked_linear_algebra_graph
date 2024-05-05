@@ -122,10 +122,7 @@ where
         vertex_index: &VertexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
-        if self
-            .element_indexer_ref()
-            .is_valid_index(vertex_index)?
-        {
+        if self.element_indexer_ref().is_valid_index(vertex_index)? {
             let vertex_vector: &mut VertexVector =
                 self.vertex_vector_mut_ref_unchecked(vertex_type_index);
             T::set_value(vertex_vector, vertex_index, value)?;

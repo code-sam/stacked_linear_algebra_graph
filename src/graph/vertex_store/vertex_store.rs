@@ -2,16 +2,13 @@ use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
-use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::indexing::operations::{GetValidPrivateIndices, GetValidPublicIndices};
+use crate::graph::index::ElementCount;
 use crate::graph::indexing::Indexer;
-use crate::graph::{index::ElementCount, indexing::operations::GetValidIndices};
 
-use super::operations::map::MapAllVertexVectors;
-use super::{ResizeWeightedAdjacencyMatrix, VertexVector};
+use super::VertexVector;
 
 pub(crate) type VertexTypeIndexer = Indexer;
 pub(crate) type VertexElementIndexer = Indexer;

@@ -1,4 +1,3 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::try_is_element;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
 
 use crate::error::GraphComputingError;
@@ -11,7 +10,6 @@ use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::GetVertexElementIndexer;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
-use crate::graph::vertex_store::VertexVector;
 
 pub(crate) trait UpdateVertex<T: ValueType> {
     fn update_public_vertex(

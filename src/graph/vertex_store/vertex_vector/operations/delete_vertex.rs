@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::drop_sparse_vector_element;
 
 use crate::{
-    error::{GraphComputingError, LogicError},
+    error::GraphComputingError,
     graph::{
         index::{VertexIndex, VertexTypeIndex},
         indexing::operations::{CheckIndex, FreeIndex},
