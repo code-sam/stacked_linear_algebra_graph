@@ -45,7 +45,7 @@ fn main() {
     // Find the fourth number in the sequence, starting at 1
     let selected_vertices_index: usize = AddVertexType::<i32>::apply(&mut graph).unwrap();
 
-    ApplyIndexUnaryOperatorToVertexVector::<u8>::by_index(
+    ApplyIndexUnaryOperatorToVertexVector::<u8>::apply(
         &mut graph,
         &numbers_vertex_type_index,
         &IsValueEqualTo::<u8>::new(),
@@ -71,7 +71,7 @@ fn main() {
         .unwrap();
     }
 
-    BinaryOperatorElementWiseVertexVectorMultiplication::<u8>::by_index(
+    BinaryOperatorElementWiseVertexVectorMultiplication::<u8>::apply(
         &mut graph,
         &selected_vertices_index,
         &Plus::<u8>::new(),

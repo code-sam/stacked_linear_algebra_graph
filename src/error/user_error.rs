@@ -21,11 +21,11 @@ pub enum UserErrorSource {
 #[derive(Debug, Clone, PartialEq)]
 pub enum UserErrorType {
     SparseLinearAlgebra(SparseLinearAlgebraErrorType),
+    EdgeTypeAlreadyExists,
     EdgeTypeDoesNotExist,
     IndexOutOfBounds,
     VertexAlreadyExists,
-    KeyAlreadyExists,
-    VertexKeyNotFound,
+    VertexTypeDoesNotExist,
     Other,
 }
 

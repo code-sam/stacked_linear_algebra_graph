@@ -5,23 +5,26 @@ use graphblas_sparse_linear_algebra::operators::{
     options::OperatorOptions,
 };
 
-use crate::graph::{
-    graph::{GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore},
-    vertex_store::operations::get_vertex_vector::GetVertexVector,
-};
 use crate::{
     error::GraphComputingError,
+    graph::{graph::Graph, value_type::ValueType},
+};
+use crate::{
     graph::{
-        graph::{Graph, VertexTypeIndex},
-        value_type::ValueType,
+        graph::{
+            GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
+        },
+        index::VertexTypeIndex,
+        vertex_store::operations::get_vertex_vector::GetVertexVector,
     },
+    operators::indexing::CheckIndex,
 };
 
 pub trait ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         vertex_vector: &VertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
@@ -31,8 +34,13 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait ApplyIndexUnaryOperatorToVertexVectorUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         vertex_vector: &VertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
@@ -48,7 +56,7 @@ impl<EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToVertexVector<Evaluati
 where
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         vertex_vector: &VertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
@@ -58,55 +66,29 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        self.try_vertex_type_index_validity(vertex_vector)?;
+        self.try_vertex_type_index_validity(product)?;
+        self.try_optional_vertex_type_index_validity(mask)?;
 
-        let vertex_vector_argument = unsafe { &*vertex_store }.vertex_vector_ref(vertex_vector)?;
-
-        let vertex_vector_product = unsafe { &mut *vertex_store }.vertex_vector_mut_ref(product)?;
-
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .index_unary_operator_applier()
-                    .apply_to_vector(
-                        vertex_vector_argument,
-                        operator,
-                        argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .index_unary_operator_applier()
-                    .apply_to_vector(
-                        vertex_vector_argument,
-                        operator,
-                        argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-        }
+        ApplyIndexUnaryOperatorToVertexVectorUnchecked::apply(
+            self,
+            vertex_vector,
+            operator,
+            argument,
+            accumlator,
+            product,
+            mask,
+            options,
+        )
     }
+}
 
-    fn by_unchecked_index(
+impl<EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToVertexVectorUnchecked<EvaluationDomain>
+    for Graph
+where
+    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+{
+    fn apply(
         &mut self,
         vertex_vector: &VertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
@@ -224,7 +206,7 @@ mod tests {
             )
             .unwrap();
 
-        ApplyIndexUnaryOperatorToVertexVector::<f32>::by_index(
+        ApplyIndexUnaryOperatorToVertexVector::<f32>::apply(
             &mut graph,
             &vertex_type_1_index,
             &IsValueGreaterThan::<f32>::new(),

@@ -23,6 +23,7 @@ pub enum LogicErrorType {
     SparseLinearAlgebra(SparseLinearAlgebraErrorType),
     DimensionMismatch,
     EdgeAlreadyExists,
+    EdgeTypeDoesNotExist,
     EdgeTypeAlreadyExists,
     EdgeTypeMustExist,
     EdgeMustExist,
@@ -33,6 +34,9 @@ pub enum LogicErrorType {
     KeyAlreadyExists,
     ProductCannotEqualArgument,
     VertexAlreadyExists,
+    VertexTypeDoesNotExist,
+    VertexTypeAlreadyExsists,
+    VertexTypeMustExist,
     VertexMustExist,
     Other,
 }

@@ -9,17 +9,16 @@ use crate::graph::graph::GetEdgeStore;
 use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
+use crate::graph::index::EdgeTypeIndex;
+use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
-use crate::{
-    error::GraphComputingError,
-    graph::{edge::EdgeTypeIndex, value_type::ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait TransposeAdjacencyMatrix<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
@@ -27,8 +26,13 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait TransposeAdjacencyMatrixUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
@@ -42,7 +46,7 @@ impl<EvaluationDomain> TransposeAdjacencyMatrix<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
@@ -50,54 +54,19 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
+        self.try_edge_type_index_validity(argument)?;
+        self.try_edge_type_index_validity(product)?;
+        self.try_optional_edge_type_index_validity(mask)?;
 
-        let adjacency_matrix_argument =
-            ArgumentsForAdjacencyMatrixOperator::try_create(edge_store, argument, options)?;
-
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref(product)?;
-
-        match mask {
-            Some(mask) => {
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_transposer()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-            None => {
-                let adjacency_matrix_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_matrix_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_transposer()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-        }
+        TransposeAdjacencyMatrixUnchecked::apply(self, argument, accumlator, product, mask, options)
     }
+}
 
-    fn by_unchecked_index(
+impl<EvaluationDomain> TransposeAdjacencyMatrixUnchecked<EvaluationDomain> for Graph
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         argument: &EdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
@@ -201,7 +170,7 @@ mod tests {
             .add_edge_from_edge(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
-        TransposeAdjacencyMatrix::<u16>::by_index(
+        TransposeAdjacencyMatrix::<u16>::apply(
             &mut graph,
             &edge_type_1_index,
             &Assignment::new(),

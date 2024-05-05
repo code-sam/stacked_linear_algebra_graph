@@ -11,20 +11,19 @@ use crate::graph::edge_store::{
 use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
 };
+use crate::graph::index::EdgeTypeIndex;
+use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{
     error::GraphComputingError,
-    graph::{
-        graph::{EdgeTypeIndex, Graph},
-        value_type::ValueType,
-    },
+    graph::{graph::Graph, value_type::ValueType},
 };
 
 pub trait ApplyUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
         argument: &EdgeTypeIndex,
@@ -33,8 +32,13 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait ApplyUnaryOperatorToAdjacencyMatrixUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
         argument: &EdgeTypeIndex,
@@ -46,7 +50,7 @@ where
 }
 
 impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph {
-    fn by_index(
+    fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
         argument: &EdgeTypeIndex,
@@ -55,56 +59,20 @@ impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToAdjacencyMatrix<Evaluation
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
+        self.try_edge_type_index_validity(argument)?;
+        self.try_edge_type_index_validity(product)?;
+        self.try_optional_edge_type_index_validity(mask)?;
 
-        let adjacency_matrix_argument =
-            ArgumentsForAdjacencyMatrixOperator::try_create(edge_store, argument, options)?;
-
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref(product)?;
-
-        match mask {
-            Some(mask) => {
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
-                    .apply_to_matrix(
-                        operator,
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-            None => {
-                let adjacency_matrix_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_matrix_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .unary_operator_applier()
-                    .apply_to_matrix(
-                        operator,
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-        }
+        ApplyUnaryOperatorToAdjacencyMatrixUnchecked::apply(
+            self, operator, argument, accumlator, product, mask, options,
+        )
     }
+}
 
-    fn by_unchecked_index(
+impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToAdjacencyMatrixUnchecked<EvaluationDomain>
+    for Graph
+{
+    fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
         argument: &EdgeTypeIndex,
@@ -219,7 +187,7 @@ mod tests {
             )
             .unwrap();
 
-        ApplyUnaryOperatorToAdjacencyMatrix::<i32>::by_index(
+        ApplyUnaryOperatorToAdjacencyMatrix::<i32>::apply(
             &mut graph,
             &ColumnIndex::<i32>::new(),
             &edge_type_1_index,

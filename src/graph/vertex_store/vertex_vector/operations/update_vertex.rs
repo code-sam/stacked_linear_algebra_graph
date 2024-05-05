@@ -3,16 +3,25 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Set
 
 use crate::error::GraphComputingError;
 
-use crate::graph::graph::VertexIndex;
-use crate::graph::graph::VertexTypeIndex;
-use crate::graph::indexer::CheckIndex;
+use crate::graph::index::VertexIndex;
+use crate::graph::index::VertexTypeIndex;
+use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
-use crate::graph::vertex_store::vertex_store::{VertexStore, VertexStoreTrait};
+use crate::graph::vertex_store::vertex_store::VertexStore;
+use crate::graph::vertex_store::GetVertexElementIndexer;
+use crate::graph::vertex_store::GetVertexTypeIndexer;
 use crate::graph::vertex_store::VertexVector;
 
 pub(crate) trait UpdateVertex<T: ValueType> {
-    fn update_vertex(
+    fn update_public_vertex(
+        &mut self,
+        vertex_type_index: &VertexTypeIndex,
+        vertex_index: &VertexIndex,
+        value: T,
+    ) -> Result<(), GraphComputingError>;
+
+    fn update_private_vertex(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
         vertex_index: &VertexIndex,
@@ -31,19 +40,30 @@ impl<T> UpdateVertex<T> for VertexStore
 where
     T: ValueType + Copy + SetVectorElementTyped<T>,
 {
-    fn update_vertex(
+    fn update_public_vertex(
         &mut self,
         vertex_type_index: &VertexTypeIndex,
         vertex_index: &VertexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
+        self.vertex_type_indexer_ref()
+            .try_is_valid_public_index(vertex_type_index)?;
         self.element_indexer_ref()
             .try_index_validity(vertex_index)?;
-        let vertex_vector: &mut VertexVector = self.vertex_vector_mut_ref(vertex_type_index)?;
-        try_is_element(vertex_vector, *vertex_index)?;
+        self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
+    }
 
-        T::set_value(vertex_vector, vertex_index, value)?;
-        Ok(())
+    fn update_private_vertex(
+        &mut self,
+        vertex_type_index: &VertexTypeIndex,
+        vertex_index: &VertexIndex,
+        value: T,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_type_indexer_ref()
+            .try_is_valid_private_index(vertex_type_index)?;
+        self.element_indexer_ref()
+            .try_index_validity(vertex_index)?;
+        self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
     fn update_vertex_unchecked(
@@ -53,7 +73,7 @@ where
         value: T,
     ) -> Result<(), GraphComputingError> {
         let vertex_vector = self.vertex_vector_mut_ref_unchecked(vertex_type_index);
-        try_is_element(vertex_vector, *vertex_index)?;
+        // try_is_element(vertex_vector, *vertex_index)?;
         T::set_value(vertex_vector, vertex_index, value)?;
         Ok(())
     }

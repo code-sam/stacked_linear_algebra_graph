@@ -1,7 +1,6 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge::EdgeTypeIndex,
         edge_store::{
             operations::{
                 get_adjacency_matrix::GetAdjacencyMatrix,
@@ -9,6 +8,7 @@ use crate::{
             },
             weighted_adjacency_matrix::WeightedAdjacencyMatrix,
         },
+        index::EdgeTypeIndex,
     },
 };
 
@@ -22,7 +22,7 @@ pub(crate) fn try_adjacency_matrix_ref<'a>(
         *transpose_argument_by_graphblas = !*transpose_argument_by_graphblas;
         edge_store.try_transposed_adjacency_matrix_ref(edge_type_index)
     } else {
-        edge_store.try_adjacency_matrix_ref(edge_type_index)
+        edge_store.try_public_adjacency_matrix_ref(edge_type_index)
     }
 }
 
@@ -50,7 +50,7 @@ pub(crate) fn try_transposed_adjacency_matrix_ref<'a>(
         edge_store.try_transposed_adjacency_matrix_ref(edge_type_index)
     } else {
         *transpose_argument_by_graphblas = !*transpose_argument_by_graphblas;
-        edge_store.try_adjacency_matrix_ref(edge_type_index)
+        edge_store.try_public_adjacency_matrix_ref(edge_type_index)
     }
 }
 

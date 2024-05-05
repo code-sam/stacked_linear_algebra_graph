@@ -1,12 +1,21 @@
 use crate::error::GraphComputingError;
 
-use crate::graph::graph::{GetVertexStore, Graph, VertexTypeIndex};
-use crate::graph::indexer::FreeIndex;
-use crate::graph::vertex_store::VertexStoreTrait;
+use crate::graph::graph::{GetVertexStore, Graph};
+use crate::graph::index::VertexTypeIndex;
+use crate::graph::indexing::operations::FreeIndex;
+use crate::graph::vertex_store::GetVertexTypeIndexer;
 
 pub trait DropVertexType {
     /// Deletes the vertex type, and all its edges
     fn drop_vertex_type(
+        &mut self,
+        vertex_type: &VertexTypeIndex,
+    ) -> Result<(), GraphComputingError>;
+}
+
+pub trait DropPrivateVertexType {
+    /// Deletes the vertex type, and all its edges
+    fn drop_private_vertex_type(
         &mut self,
         vertex_type: &VertexTypeIndex,
     ) -> Result<(), GraphComputingError>;
@@ -19,7 +28,18 @@ impl DropVertexType for Graph {
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
             .vertex_type_indexer_mut_ref()
-            .free_index(*vertex_type_index)
+            .free_public_index(*vertex_type_index)
+    }
+}
+
+impl DropPrivateVertexType for Graph {
+    fn drop_private_vertex_type(
+        &mut self,
+        vertex_type_index: &VertexTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store_mut_ref()
+            .vertex_type_indexer_mut_ref()
+            .free_private_index(*vertex_type_index)
     }
 }
 

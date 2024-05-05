@@ -5,7 +5,6 @@ use graphblas_sparse_linear_algebra::operators::options::{
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge::EdgeTypeIndex,
         edge_store::{
             operations::{
                 get_adjacency_matrix::GetAdjacencyMatrix,
@@ -13,6 +12,7 @@ use crate::{
             },
             weighted_adjacency_matrix::WeightedAdjacencyMatrix,
         },
+        index::EdgeTypeIndex,
     },
     operators::options::{
         GetUseCachedAdjacencyMatrixTranspose, OptionsForOperatorWithAdjacencyMatrixAsRightArgument,

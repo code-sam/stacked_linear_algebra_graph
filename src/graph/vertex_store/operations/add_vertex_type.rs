@@ -3,23 +3,47 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Get
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::VertexTypeIndex,
-        indexer::{GenerateIndex, GetAssignedIndexData, GetValidIndices},
+        graph::GetGraphblasContext,
+        index::VertexTypeIndex,
+        indexing::{
+            operations::{GeneratePrivateIndex, GeneratePublicIndex, GetValidIndices},
+            AssignedIndex, GetAssignedIndexData,
+        },
         value_type::{GetValueTypeIdentifier, ValueType},
         vertex_store::{
-            vertex_store::VertexStoreTrait, CreateVertexVector, VertexStore, VertexVector,
+            CreateVertexVector, GetVertexElementIndexer, GetVertexTypeIndexer, GetVertexVectors,
+            VertexStore, VertexVector,
         },
     },
 };
 
-pub(crate) trait AddVertexType<T: ValueType> {
-    fn new_vertex_type(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
+pub(crate) trait AddPublicVertexType<T: ValueType> {
+    fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
 }
 
-impl<T: ValueType + GetValueTypeIdentifier> AddVertexType<T> for VertexStore {
-    fn new_vertex_type(&mut self) -> Result<VertexTypeIndex, GraphComputingError> {
-        let new_type_index = self.vertex_type_indexer_mut_ref().new_index()?;
+pub(crate) trait AddPrivateVertexType<T: ValueType> {
+    fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
+}
 
+impl<T: ValueType + GetValueTypeIdentifier> AddPublicVertexType<T> for VertexStore {
+    fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError> {
+        let new_type_index = self.vertex_type_indexer_mut_ref().new_public_index()?;
+        self.add_vertex_type::<T>(new_type_index)
+    }
+}
+
+impl<T: ValueType + GetValueTypeIdentifier> AddPrivateVertexType<T> for VertexStore {
+    fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError> {
+        let new_type_index = self.vertex_type_indexer_mut_ref().new_private_index()?;
+        self.add_vertex_type::<T>(new_type_index)
+    }
+}
+
+impl VertexStore {
+    fn add_vertex_type<T: ValueType + GetValueTypeIdentifier>(
+        &mut self,
+        new_type_index: AssignedIndex,
+    ) -> Result<usize, GraphComputingError> {
         self.synchronize_vector_with_vertex_vectors(&new_type_index);
 
         let new_vertex_vector = <VertexVector as CreateVertexVector<T>>::new(
@@ -34,13 +58,8 @@ impl<T: ValueType + GetValueTypeIdentifier> AddVertexType<T> for VertexStore {
 
         Ok(*new_type_index.index_ref())
     }
-}
 
-impl VertexStore {
-    fn synchronize_vector_with_vertex_vectors(
-        &mut self,
-        new_type_index: &crate::graph::indexer::AssignedIndex,
-    ) {
+    fn synchronize_vector_with_vertex_vectors(&mut self, new_type_index: &AssignedIndex) {
         if let Some(new_capacity) = new_type_index.new_index_capacity() {
             let current_capacity = self.vertex_vector_for_all_vertex_types_ref().len();
             self.vertex_vector_for_all_vertex_types_mut()
@@ -51,7 +70,7 @@ impl VertexStore {
     fn add_new_vertex_vector(
         &mut self,
         new_vertex_vector: VertexVector,
-        new_type_index: &crate::graph::indexer::AssignedIndex,
+        new_type_index: &AssignedIndex,
     ) -> Result<(), GraphComputingError> {
         Ok(
             if *new_type_index.index_ref() >= self.vertex_vector_for_all_vertex_types_ref().len() {

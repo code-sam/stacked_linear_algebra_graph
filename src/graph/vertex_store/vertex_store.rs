@@ -4,10 +4,13 @@ use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use rayon::prelude::{IntoParallelIterator, ParallelIterator};
 
-use crate::graph::index::ElementCount;
-use crate::graph::indexer::Indexer;
-use crate::{error::GraphComputingError, graph::indexer::GetValidIndices};
+use crate::error::GraphComputingError;
+use crate::graph::graph::GetGraphblasContext;
+use crate::graph::indexing::operations::{GetValidPrivateIndices, GetValidPublicIndices};
+use crate::graph::indexing::Indexer;
+use crate::graph::{index::ElementCount, indexing::operations::GetValidIndices};
 
+use super::operations::map::MapAllVertexVectors;
 use super::{ResizeWeightedAdjacencyMatrix, VertexVector};
 
 pub(crate) type VertexTypeIndexer = Indexer;
@@ -46,80 +49,61 @@ impl VertexStore {
     }
 }
 
-pub(crate) trait VertexStoreTrait {
-    fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
-    // fn set_vertex_vector_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
-    // fn set_vertex_type_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError>;
-
+pub(crate) trait GetVertexTypeIndexer {
     fn vertex_type_indexer_ref(&self) -> &VertexTypeIndexer;
     fn vertex_type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer;
+}
 
+pub(crate) trait GetVertexElementIndexer {
     fn element_indexer_ref(&self) -> &VertexElementIndexer;
     fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer;
+}
 
+pub(crate) trait GetVertexVectors {
     fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector];
     fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector];
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector>;
-
-    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector;
-
-    // TODO: consider to move map methods to dedicated trait
-    fn resize_vertex_vectors(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError>;
-
-    fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
-
-    fn map_mut_all_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
-
-    fn map_all_valid_vertex_vectors<F>(
-        &self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
-
-    fn map_mut_all_valid_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync;
 }
 
-impl VertexStoreTrait for VertexStore {
-    // TODO: implementation requires synchronization with adjacency matrices
-    // fn set_vertex_vector_capacity(&mut self, new_capacity: &ElementCount) -> Result<(), GraphComputingError> {
-    //     self.vertices.resize(*new_capacity)?;
-    //     Ok(())
-    // }
+pub(crate) trait GetMaskToSelectVertexVector {
+    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector;
+}
+
+impl GetGraphblasContext for VertexStore {
+    fn graphblas_context(&self) -> Arc<GraphblasContext> {
+        self.graphblas_context.to_owned()
+    }
 
     fn graphblas_context_ref(&self) -> &Arc<GraphblasContext> {
         &self.graphblas_context
     }
+}
 
+impl GetVertexTypeIndexer for VertexStore {
     fn vertex_type_indexer_ref(&self) -> &VertexTypeIndexer {
         &self.vertex_type_indexer
     }
     fn vertex_type_indexer_mut_ref(&mut self) -> &mut VertexTypeIndexer {
         &mut self.vertex_type_indexer
     }
+}
 
+impl GetVertexElementIndexer for VertexStore {
     fn element_indexer_ref(&self) -> &VertexElementIndexer {
         &self.element_indexer
     }
     fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer {
         &mut self.element_indexer
     }
+}
 
+impl GetMaskToSelectVertexVector for VertexStore {
+    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector {
+        &self.mask_to_select_entire_vertex_vector
+    }
+}
+
+impl GetVertexVectors for VertexStore {
     fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector] {
         self.vertex_vectors.as_slice()
     }
@@ -130,76 +114,6 @@ impl VertexStoreTrait for VertexStore {
 
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector> {
         &mut self.vertex_vectors
-    }
-
-    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector {
-        &self.mask_to_select_entire_vertex_vector
-    }
-
-    // TODO: is this method a useful abstraction, should it move to mod vertex_operations?
-    fn resize_vertex_vectors(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError> {
-        self.map_mut_all_vertex_vectors(|vertex_vector: &mut VertexVector| {
-            vertex_vector.resize(new_vertex_capacity)
-        })?;
-        Ok(())
-    }
-
-    fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        self.vertex_vectors
-            .as_slice()
-            .into_par_iter()
-            .try_for_each(function_to_apply)?;
-        Ok(())
-    }
-
-    fn map_mut_all_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        self.vertex_vectors
-            .as_mut_slice()
-            .into_par_iter()
-            .try_for_each(function_to_apply)?;
-        Ok(())
-    }
-
-    fn map_all_valid_vertex_vectors<F>(
-        &self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.vertex_type_indexer
-            .valid_indices()?
-            .into_iter()
-            .try_for_each(|i: usize| function_to_apply(&self.vertex_vectors[i]))?;
-        Ok(())
-    }
-
-    fn map_mut_all_valid_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.vertex_type_indexer
-            .valid_indices()?
-            .into_iter()
-            .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
-        Ok(())
     }
 }
 

@@ -14,10 +14,11 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices, IntoSparseMatrix,
     IntoSparseMatrixForValueType,
 };
+use crate::graph::index::VertexIndex;
 use crate::graph::value_type::ValueType;
 use crate::{
     error::GraphComputingError,
-    graph::{edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, graph::VertexIndex},
+    graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix,
 };
 
 pub(crate) trait Indexing<T> {

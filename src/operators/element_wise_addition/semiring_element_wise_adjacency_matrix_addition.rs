@@ -10,17 +10,16 @@ use crate::graph::graph::GetEdgeStore;
 use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
+use crate::graph::index::EdgeTypeIndex;
+use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
-use crate::{
-    error::GraphComputingError,
-    graph::{edge::EdgeTypeIndex, value_type::ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait SemiringElementWiseAdjacencyMatrixAddition<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
 {
-    fn by_index(
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -30,8 +29,13 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError>;
+}
 
-    fn by_unchecked_index(
+pub(crate) trait SemiringElementWiseAdjacencyMatrixAdditionUnchecked<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -46,7 +50,7 @@ where
 impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixAddition<EvaluationDomain>
     for Graph
 {
-    fn by_index(
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -56,62 +60,28 @@ impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixAddition<Eva
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError> {
-        // DESIGN NOTE: A GraphBLAS implementation provides the implementation of the operator.
-        // The GraphBLAS C API requires passing references to operands, and a mutable reference to the result.
-        // This API is not compatible with safe Rust, unless significant performance penalties would be acceptable.
-        // For example, an alternative to unsafe access would be to clone the operands.
-        let edge_store = self.edge_store_mut_ref_unsafe();
+        self.try_edge_type_index_validity(left_argument)?;
+        self.try_edge_type_index_validity(right_argument)?;
+        self.try_edge_type_index_validity(product)?;
+        self.try_optional_edge_type_index_validity(mask)?;
 
-        let adjacency_matrix_arguments = ArgumentsForAdjacencyMatricesOperator::try_create(
-            edge_store,
+        SemiringElementWiseAdjacencyMatrixAdditionUnchecked::apply(
+            self,
             left_argument,
+            operator,
             right_argument,
+            accumlator,
+            product,
+            mask,
             options,
-        )?;
-
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.try_adjacency_matrix_mut_ref(product)?;
-
-        match mask {
-            Some(mask) => {
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.try_adjacency_matrix_ref(mask)?;
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_matrix_addition_semiring_operator()
-                    .apply(
-                        adjacency_matrix_arguments.left_adjacency_matrix_ref(),
-                        operator,
-                        adjacency_matrix_arguments.right_adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        adjacency_matrix_arguments.options_ref(),
-                    )?)
-            }
-            None => {
-                let adjacency_matrix_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_matrix_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_matrix_addition_semiring_operator()
-                    .apply(
-                        adjacency_matrix_arguments.left_adjacency_matrix_ref(),
-                        operator,
-                        adjacency_matrix_arguments.right_adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        adjacency_matrix_arguments.options_ref(),
-                    )?)
-            }
-        }
+        )
     }
+}
 
-    fn by_unchecked_index(
+impl<EvaluationDomain: ValueType>
+    SemiringElementWiseAdjacencyMatrixAdditionUnchecked<EvaluationDomain> for Graph
+{
+    fn apply(
         &mut self,
         left_argument: &EdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
@@ -234,7 +204,7 @@ mod tests {
             .unwrap();
 
         for _i in 0..2 {
-            SemiringElementWiseAdjacencyMatrixAddition::<u8>::by_index(
+            SemiringElementWiseAdjacencyMatrixAddition::<u8>::apply(
                 &mut graph,
                 &edge_type_1_index,
                 &PlusTimes::<u8>::new(),
@@ -263,7 +233,7 @@ mod tests {
         // println!("{}", graph.edge_store_ref().try_adjacency_matrix_ref_for_index(&_edge_type_1_index).unwrap());
         // println!("{}", graph.edge_store_ref().try_adjacency_matrix_ref_for_index(&_edge_type_2_index).unwrap());
 
-        SemiringElementWiseAdjacencyMatrixAddition::<u8>::by_index(
+        SemiringElementWiseAdjacencyMatrixAddition::<u8>::apply(
             &mut graph,
             &edge_type_1_index,
             &PlusTimes::<u8>::new(),

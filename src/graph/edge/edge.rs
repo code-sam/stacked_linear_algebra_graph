@@ -2,7 +2,7 @@ use crate::graph::{
     edge_store::weighted_adjacency_matrix::{
         AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices,
     },
-    graph::{EdgeTypeIndex, VertexIndex},
+    index::{EdgeTypeIndex, VertexIndex},
     value_type::ValueType,
 };
 
