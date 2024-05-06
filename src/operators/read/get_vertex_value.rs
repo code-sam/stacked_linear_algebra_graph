@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Get
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::{GetVertexStore, Graph};
-use crate::graph::index::{VertexIndex, VertexTypeIndex};
+use crate::graph::indexing::{VertexIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::{
     GetVertexValue as GetVertexValueFromVertexStore, IntoSparseVectorForValueType,

@@ -2,8 +2,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         edge_store::{EdgeStore, GetEdgeTypeIndicer},
-        index::EdgeTypeIndex,
-        indexing::operations::CheckIndex,
+        indexing::{operations::CheckIndex, EdgeTypeIndex},
     },
 };
 

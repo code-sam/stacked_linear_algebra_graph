@@ -1,8 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
 use crate::graph::{
-    edge_store::weighted_adjacency_matrix::AdjacencyMatrixCoordinate,
-    index::{EdgeTypeIndex, VertexIndex},
+    edge_store::weighted_adjacency_matrix::AdjacencyMatrixCoordinate, indexing::{EdgeTypeIndex, VertexIndex},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]

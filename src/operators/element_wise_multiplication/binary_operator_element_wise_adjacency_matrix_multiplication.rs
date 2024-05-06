@@ -11,7 +11,7 @@ use crate::graph::edge_store::{
 use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, Graph,
 };
-use crate::graph::index::EdgeTypeIndex;
+use crate::graph::indexing::EdgeTypeIndex;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};

@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     Coordinate, GetCoordinateIndices,
 };
 
-use crate::graph::index::VertexIndex;
+use crate::graph::indexing::VertexIndex;
 
 pub type AdjacencyMatrixCoordinate = Coordinate;
 

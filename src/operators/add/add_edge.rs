@@ -11,7 +11,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
 };
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 use crate::graph::graph::{GetEdgeStore, Graph};
-use crate::graph::index::{EdgeTypeIndex, VertexIndex};
+use crate::graph::indexing::{EdgeTypeIndex, VertexIndex};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::operators::indexing::CheckIndex as GraphIndexing;
 

@@ -2,9 +2,10 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Del
 
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
 use crate::graph::indexing::indexer::indexer::GetIndicesAvailableForReuse;
+use crate::graph::indexing::Index;
 use crate::{
     error::GraphComputingError,
-    graph::{index::Index, indexing::Indexer},
+    graph::indexing::Indexer,
 };
 
 use super::CheckIndex;

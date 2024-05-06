@@ -6,8 +6,7 @@ use crate::{
                 operations::ResizeWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
             },
             EdgeStore, GetAdjacencyMatrices,
-        },
-        index::ElementCount,
+        }, indexing::ElementCount,
     },
 };
 

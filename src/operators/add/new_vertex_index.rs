@@ -1,6 +1,6 @@
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore};
-use crate::graph::index::VertexIndex;
+use crate::graph::indexing::VertexIndex;
 use crate::{
     error::GraphComputingError,
     graph::indexing::GetAssignedIndexData,

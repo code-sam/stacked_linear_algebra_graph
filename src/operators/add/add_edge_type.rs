@@ -3,7 +3,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::add_edge_type::AddPrivateEdgeType as AddPrivateEdgeTypeToEdgeStore;
 use crate::graph::edge_store::operations::add_edge_type::AddPublicEdgeType;
 use crate::graph::graph::{GetEdgeStore, Graph};
-use crate::graph::index::EdgeTypeIndex;
+use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 
 pub trait AddEdgeType<T: ValueType> {

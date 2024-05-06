@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::spa
 
 use crate::{
     error::GraphComputingError,
-    graph::{index::ElementIndex, vertex_store::VertexVector},
+    graph::{indexing::ElementIndex, vertex_store::VertexVector},
 };
 
 pub(crate) trait GetVectorLength {

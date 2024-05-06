@@ -4,8 +4,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 
-use crate::graph::index::{VertexIndex, VertexTypeIndex};
-use crate::graph::indexing::GetAssignedIndexData;
+use crate::graph::indexing::{GetAssignedIndexData, VertexIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::{GetVertexIndex, GetVertexValue};
 use crate::graph::vertex_store::AddVertex as AddVertexToStore;

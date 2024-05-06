@@ -1,6 +1,5 @@
 use crate::graph::{
-    index::{VertexIndex, VertexTypeIndex},
-    value_type::ValueType,
+    indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType
 };
 
 pub trait GetVertexIndex {

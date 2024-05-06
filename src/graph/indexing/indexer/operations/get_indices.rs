@@ -3,9 +3,10 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 };
 
 use crate::graph::indexing::indexer::GetIndexMask;
+use crate::graph::indexing::ElementIndex;
 use crate::{
     error::GraphComputingError,
-    graph::{index::ElementIndex, indexing::Indexer},
+    graph::indexing::Indexer,
 };
 
 pub(crate) trait GetValidIndices {

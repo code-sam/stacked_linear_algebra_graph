@@ -4,8 +4,7 @@ use crate::{
         edge_store::{
             adjacency_matrix_with_cached_attributes::GetCachedAttributesOfAdjacencyMatrix,
             weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
-        },
-        index::EdgeTypeIndex,
+        }, indexing::EdgeTypeIndex,
     },
 };
 

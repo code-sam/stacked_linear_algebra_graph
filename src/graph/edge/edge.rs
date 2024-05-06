@@ -1,9 +1,7 @@
 use crate::graph::{
     edge_store::weighted_adjacency_matrix::{
         AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices,
-    },
-    index::{EdgeTypeIndex, VertexIndex},
-    value_type::ValueType,
+    }, indexing::{EdgeTypeIndex, VertexIndex}, value_type::ValueType
 };
 
 use super::{DirectedEdgeCoordinate, GetDirectedEdgeCoordinateIndex};

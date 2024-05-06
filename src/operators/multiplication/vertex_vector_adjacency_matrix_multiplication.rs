@@ -12,7 +12,7 @@ use crate::graph::graph::{
     GetVertexStore, Graph,
 };
 
-use crate::graph::index::{EdgeTypeIndex, VertexTypeIndex};
+use crate::graph::indexing::{EdgeTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;

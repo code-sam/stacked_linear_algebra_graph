@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::operators::{
 };
 
 use crate::graph::graph::{GetGraphblasOperatorAppliers, GetVertexStore};
-use crate::graph::index::VertexTypeIndex;
+use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::{
     graph::GetGraphblasOperatorApplierCollection,
     vertex_store::operations::get_vertex_vector::GetVertexVector,

@@ -1,8 +1,8 @@
+use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::vertex_store::vertex_store::GetVertexVectors as GetVertexVectorFromVertexStore;
 use crate::{
     error::GraphComputingError,
     graph::{
-        index::VertexTypeIndex,
         indexing::operations::CheckIndex,
         vertex_store::{GetVertexTypeIndexer, VertexStore, VertexVector},
     },

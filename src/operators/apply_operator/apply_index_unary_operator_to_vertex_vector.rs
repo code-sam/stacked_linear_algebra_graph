@@ -7,14 +7,13 @@ use graphblas_sparse_linear_algebra::operators::{
 
 use crate::{
     error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
+    graph::{graph::Graph, indexing::VertexTypeIndex, value_type::ValueType},
 };
 use crate::{
     graph::{
         graph::{
             GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
         },
-        index::VertexTypeIndex,
         vertex_store::operations::get_vertex_vector::GetVertexVector,
     },
     operators::indexing::CheckIndex,

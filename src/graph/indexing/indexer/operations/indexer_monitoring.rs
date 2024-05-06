@@ -4,21 +4,18 @@ use graphblas_sparse_linear_algebra::collections::{
 
 use crate::{
     error::GraphComputingError,
-    graph::{
-        index::{ElementCount, Index},
-        indexing::Indexer,
-    },
+    graph::indexing::{ElementCount, Indexer},
 };
 
 use super::GetValidIndices;
 
 pub(crate) trait GetIndexerStatus {
-    fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError>;
+    fn number_of_indexed_elements(&self) -> Result<ElementCount, GraphComputingError>;
     fn index_capacity(&self) -> Result<ElementCount, GraphComputingError>;
 }
 
 impl GetIndexerStatus for Indexer {
-    fn number_of_indexed_elements(&self) -> Result<Index, GraphComputingError> {
+    fn number_of_indexed_elements(&self) -> Result<ElementCount, GraphComputingError> {
         Ok(self
             .mask_with_valid_indices_ref()
             .number_of_stored_elements()?)

@@ -11,9 +11,7 @@ use crate::{
                 InvalidateChachedAdjacencyMatrixAttributes,
             },
             weighted_adjacency_matrix::{CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix},
-        },
-        index::ElementCount,
-        value_type::{GetValueTypeIdentifier, ValueType},
+        }, indexing::ElementCount, value_type::{GetValueTypeIdentifier, ValueType}
     },
 };
 

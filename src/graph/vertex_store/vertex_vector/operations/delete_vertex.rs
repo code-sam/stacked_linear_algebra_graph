@@ -3,8 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::dro
 use crate::{
     error::GraphComputingError,
     graph::{
-        index::{VertexIndex, VertexTypeIndex},
-        indexing::operations::{CheckIndex, FreeIndex},
+        indexing::{operations::{CheckIndex, FreeIndex}, VertexIndex, VertexTypeIndex},
         vertex_store::{
             operations::{
                 get_vertex_vector::GetVertexVector,

@@ -4,12 +4,9 @@ use crate::{
         edge_store::{
             operations::map::MapMutableAdjacencyMatrices,
             weighted_adjacency_matrix::operations::DeleteVertexConnections,
-        },
-        graph::{GetEdgeStore, GetVertexStore},
-        index::{VertexIndex, VertexTypeIndex},
-        vertex_store::{
+        }, graph::{GetEdgeStore, GetVertexStore}, indexing::{VertexIndex, VertexTypeIndex}, vertex_store::{
             DeleteVertexForAllTypes, DeleteVertexValue as DeleteVertexValueFromVertexStore,
-        },
+        }
     },
 };
 

@@ -2,9 +2,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Set
 
 use crate::error::GraphComputingError;
 
-use crate::graph::index::VertexIndex;
-use crate::graph::index::VertexTypeIndex;
 use crate::graph::indexing::operations::CheckIndex;
+use crate::graph::indexing::VertexIndex;
+use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;

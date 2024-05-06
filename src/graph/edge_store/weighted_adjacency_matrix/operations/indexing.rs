@@ -14,7 +14,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices, IntoSparseMatrix,
     IntoSparseMatrixForValueType,
 };
-use crate::graph::index::VertexIndex;
+use crate::graph::indexing::VertexIndex;
 use crate::graph::value_type::ValueType;
 use crate::{
     error::GraphComputingError,

@@ -4,10 +4,9 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::GetGraphblasContext,
-        index::VertexTypeIndex,
         indexing::{
             operations::{GeneratePrivateIndex, GeneratePublicIndex, GetValidIndices},
-            AssignedIndex, GetAssignedIndexData,
+            AssignedIndex, GetAssignedIndexData, VertexTypeIndex,
         },
         value_type::{GetValueTypeIdentifier, ValueType},
         vertex_store::{

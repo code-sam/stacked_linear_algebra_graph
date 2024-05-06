@@ -12,8 +12,7 @@ use crate::graph::{
         CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument,
         GetArgumentForOperatorWithAdjacencyMatrixAsLeftArgument,
         GetArgumentForOperatorWithAdjacencyMatrixAsSecondArgument,
-    },
-    index::EdgeTypeIndex,
+    }, indexing::EdgeTypeIndex,
 };
 use crate::{
     error::GraphComputingError,

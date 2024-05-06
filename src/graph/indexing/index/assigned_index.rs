@@ -7,7 +7,7 @@ pub(crate) struct AssignedIndex {
 }
 
 impl AssignedIndex {
-    pub(super) fn new(index: Index, new_index_capacity: Option<ElementCount>) -> Self {
+    pub(crate) fn new(index: Index, new_index_capacity: Option<ElementCount>) -> Self {
         Self {
             index,
             new_index_capacity,

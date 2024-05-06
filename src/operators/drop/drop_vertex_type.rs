@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::{GetVertexStore, Graph};
-use crate::graph::index::VertexTypeIndex;
 use crate::graph::indexing::operations::FreeIndex;
+use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
 
 pub trait DropVertexType {
