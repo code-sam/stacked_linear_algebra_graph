@@ -13,7 +13,7 @@ pub trait DropVertexType {
     ) -> Result<(), GraphComputingError>;
 }
 
-pub trait DropPrivateVertexType {
+pub(crate) trait DropPrivateVertexType {
     /// Deletes the vertex type, and all its edges
     fn drop_private_vertex_type(
         &mut self,
