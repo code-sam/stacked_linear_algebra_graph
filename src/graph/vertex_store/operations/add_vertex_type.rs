@@ -6,7 +6,7 @@ use crate::{
         graph::GetGraphblasContext,
         indexing::{
             operations::{GeneratePrivateIndex, GeneratePublicIndex, GetValidIndices},
-            AssignedIndex, GetAssignedIndexData, VertexIndex, VertexTypeIndex,
+            AssignedIndex, GetAssignedIndexData, VertexTypeIndex,
         },
         value_type::{GetValueTypeIdentifier, ValueType},
         vertex_store::{

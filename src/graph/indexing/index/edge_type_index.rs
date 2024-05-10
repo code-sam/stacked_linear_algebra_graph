@@ -1,7 +1,5 @@
 use std::fmt::Debug;
 
-use std::fmt::Display;
-
 use super::Index;
 
 pub trait GetEdgeTypeIndex: Debug {

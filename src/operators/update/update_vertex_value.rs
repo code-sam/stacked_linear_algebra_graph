@@ -1,7 +1,5 @@
 use crate::graph::graph::GetVertexStore;
-use crate::graph::indexing::{
-    GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex, VertexTypeIndex,
-};
+use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::VertexStore;
 use crate::{

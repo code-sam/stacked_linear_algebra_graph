@@ -12,7 +12,7 @@ use crate::{
             },
             weighted_adjacency_matrix::WeightedAdjacencyMatrix,
         },
-        indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
+        indexing::GetEdgeTypeIndex,
     },
     operators::options::{
         GetUseCachedAdjacencyMatrixTranspose, OptionsForOperatorWithAdjacencyMatrixArguments,

@@ -1,6 +1,6 @@
 use crate::graph::edge_store::GetEdgeTypeIndicer;
 use crate::graph::indexing::operations::{CheckIndex, FreeIndex};
-use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
+use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
 
 pub(crate) trait DropEdgeType {

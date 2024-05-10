@@ -253,9 +253,10 @@ mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 
     use crate::graph::indexing::{
-        operations::{CheckIndex, FreeIndex, GeneratePublicIndex, GetIndexerStatus},
+        operations::{CheckIndex, FreeIndex, GeneratePublicIndex},
         GetAssignedIndexData,
     };
+    use crate::graph::indexing::indexer::operations::GetIndexerStatus;
 
     use super::*;
 

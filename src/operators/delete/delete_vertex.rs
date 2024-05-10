@@ -6,7 +6,7 @@ use crate::{
             weighted_adjacency_matrix::operations::DeleteVertexConnections,
         },
         graph::{GetEdgeStore, GetVertexStore},
-        indexing::{GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex, VertexTypeIndex},
+        indexing::{GetVertexIndexIndex, GetVertexTypeIndex},
         vertex_store::{
             DeleteVertexForAllTypes, DeleteVertexValue as DeleteVertexValueFromVertexStore,
         },

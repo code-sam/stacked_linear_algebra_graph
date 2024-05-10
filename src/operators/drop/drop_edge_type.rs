@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::edge_store::operations::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
 use crate::graph::graph::{GetEdgeStore, Graph};
-use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
+use crate::graph::indexing::GetEdgeTypeIndex;
 
 pub trait DropEdgeType {
     /// Deletes the edge type, and all its edges

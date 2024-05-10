@@ -5,7 +5,7 @@ use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjac
 use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 
 use crate::graph::indexing::{
-    GetAssignedIndexData, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex, VertexTypeIndex,
+    GetAssignedIndexData, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex,
 };
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::{GetVertexIndex, GetVertexValue};

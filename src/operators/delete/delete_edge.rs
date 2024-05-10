@@ -5,10 +5,8 @@ use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatr
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteEdge as DeleteEdgeInAdjacencyMatrix;
 use crate::graph::graph::GetEdgeStore;
 use crate::graph::graph::Graph;
-use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
-use crate::graph::indexing::VertexIndex;
 
 pub trait DeleteEdge {
     fn delete_edge(

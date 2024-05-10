@@ -8,7 +8,7 @@ use crate::{
             weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
             GetEdgeTypeIndicer,
         },
-        indexing::{operations::CheckIndex, EdgeTypeIndex, ElementCount, GetEdgeTypeIndex},
+        indexing::{operations::CheckIndex, ElementCount, GetEdgeTypeIndex},
     },
 };
 

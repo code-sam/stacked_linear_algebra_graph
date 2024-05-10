@@ -10,7 +10,6 @@ use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::GetVertexStore;
 use crate::graph::graph::Graph;
-use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::indexing::VertexTypeIndex;

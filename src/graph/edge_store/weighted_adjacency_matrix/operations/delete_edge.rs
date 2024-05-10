@@ -2,7 +2,6 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
     drop_sparse_matrix_element, drop_sparse_matrix_element_with_coordinate,
 };
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
-use graphblas_sparse_linear_algebra::index::ElementIndex;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;

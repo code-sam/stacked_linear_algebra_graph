@@ -44,7 +44,7 @@ pub(crate) trait GetEdgeWeight<T> {
     ) -> Result<T, GraphComputingError>;
     fn try_edge_weight_at_coordinate_unchecked(
         &self,
-        coordinate: &(impl GetAdjacencyMatrixCoordinateIndices),
+        coordinate: &impl GetAdjacencyMatrixCoordinateIndices,
     ) -> Result<T, GraphComputingError>;
 }
 
@@ -113,7 +113,7 @@ where
     }
     fn try_edge_weight_at_coordinate_unchecked(
         &self,
-        coordinate: &(impl GetAdjacencyMatrixCoordinateIndices),
+        coordinate: &impl GetAdjacencyMatrixCoordinateIndices,
     ) -> Result<T, GraphComputingError> {
         GetEdgeWeight::<T>::try_edge_weight_unchecked(
             self,

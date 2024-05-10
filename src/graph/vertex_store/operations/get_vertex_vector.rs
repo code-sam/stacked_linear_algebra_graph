@@ -1,4 +1,4 @@
-use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
+use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::vertex_store::GetVertexVectors as GetVertexVectorFromVertexStore;
 use crate::{
     error::GraphComputingError,

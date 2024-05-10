@@ -2,10 +2,7 @@ use crate::graph::edge_store::{
     ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
     GetArgumentsForAdjacencyMatrixOperator,
 };
-use crate::graph::indexing::{
-    EdgeTypeIndex, GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex,
-    VertexTypeIndex,
-};
+use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
@@ -156,6 +153,7 @@ mod tests {
 
     use super::*;
 
+    use crate::graph::indexing::VertexTypeIndex;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::read::GetVertexValue;
 

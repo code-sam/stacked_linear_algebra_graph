@@ -7,7 +7,7 @@ use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatr
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::GetEdgeWeight as GetAdjacencyMatrixEdgeWeight;
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 use crate::graph::graph::{GetEdgeStore, Graph};
-use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex, GetVertexIndexIndex, VertexIndex};
+use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
 
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};

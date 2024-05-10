@@ -5,7 +5,7 @@ use crate::{
     graph::{
         indexing::{
             operations::{CheckIndex, FreeIndex},
-            GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex, VertexTypeIndex,
+            GetVertexIndexIndex, GetVertexTypeIndex,
         },
         vertex_store::{
             operations::{

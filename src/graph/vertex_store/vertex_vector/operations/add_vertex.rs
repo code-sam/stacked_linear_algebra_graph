@@ -6,8 +6,6 @@ use crate::graph::indexing::AssignedIndex;
 use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
-use crate::graph::indexing::VertexIndex;
-use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::GetVertexIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;

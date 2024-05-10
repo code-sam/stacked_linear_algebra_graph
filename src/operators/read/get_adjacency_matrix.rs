@@ -8,7 +8,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     IntoSparseMatrix, IntoSparseMatrixForValueType,
 };
 use crate::graph::graph::GetEdgeStore;
-use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
+use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
 use crate::{
     error::GraphComputingError,

@@ -4,11 +4,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
 
 use crate::{
     error::GraphComputingError,
-    graph::{
-        indexing::{GetVertexIndexIndex, VertexIndex},
-        value_type::ValueType,
-        vertex_store::VertexVector,
-    },
+    graph::{indexing::GetVertexIndexIndex, value_type::ValueType, vertex_store::VertexVector},
 };
 
 pub(crate) trait IsElementInVertexVector<T: ValueType> {

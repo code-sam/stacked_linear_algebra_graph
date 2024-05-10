@@ -7,7 +7,7 @@ use crate::{
             adjacency_matrix_with_cached_attributes::GetCachedAttributesOfAdjacencyMatrix,
             weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
         },
-        indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
+        indexing::GetEdgeTypeIndex,
     },
 };
 
