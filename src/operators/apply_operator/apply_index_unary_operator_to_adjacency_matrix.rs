@@ -12,7 +12,8 @@ use crate::{
         },
         graph::{
             GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
-        }, indexing::EdgeTypeIndex,
+        },
+        indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
     },
     operators::{indexing::CheckIndex, options::OptionsForOperatorWithAdjacencyMatrixArgument},
 };
@@ -29,11 +30,11 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
@@ -45,11 +46,11 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
@@ -62,11 +63,11 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
@@ -94,11 +95,11 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {

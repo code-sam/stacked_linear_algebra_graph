@@ -6,14 +6,16 @@ use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteEdge 
 use crate::graph::graph::GetEdgeStore;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::EdgeTypeIndex;
+use crate::graph::indexing::GetEdgeTypeIndex;
+use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::VertexIndex;
 
 pub trait DeleteEdge {
     fn delete_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError>;
     fn delete_edge_for_coordinate(
         &mut self,
@@ -24,9 +26,9 @@ pub trait DeleteEdge {
 pub(crate) trait DeletePrivateEdge {
     fn delete_private_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError>;
     fn delete_private_edge_for_coordinate(
         &mut self,
@@ -37,9 +39,9 @@ pub(crate) trait DeletePrivateEdge {
 impl DeleteEdge for Graph {
     fn delete_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
             .try_public_adjacency_matrix_mut_ref(edge_type)?
@@ -58,9 +60,9 @@ impl DeleteEdge for Graph {
 impl DeletePrivateEdge for Graph {
     fn delete_private_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
             .try_private_adjacency_matrix_mut_ref(edge_type)?

@@ -21,7 +21,7 @@ impl CreateVertexIndex for Graph {
             }
             None => {}
         }
-        return Ok(*assigned_index.index_ref());
+        return Ok(VertexIndex::new(*assigned_index.index_ref()));
     }
 }
 

@@ -4,7 +4,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 
 use crate::{
     error::GraphComputingError,
-    graph::{edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, indexing::ElementCount},
+    graph::{
+        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, indexing::ElementCount,
+    },
 };
 
 pub(crate) trait ResizeWeightedAdjacencyMatrix {

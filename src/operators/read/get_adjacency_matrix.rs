@@ -8,7 +8,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     IntoSparseMatrix, IntoSparseMatrixForValueType,
 };
 use crate::graph::graph::GetEdgeStore;
-use crate::graph::indexing::EdgeTypeIndex;
+use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
 use crate::{
     error::GraphComputingError,
@@ -21,18 +21,18 @@ use crate::{
 pub trait GetSparseAdjacencyMatrix<T: ValueType> {
     fn sparse_adjacency_matrix(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
 pub(crate) trait GetPrivateSparseAdjacencyMatrix<T: ValueType> {
     fn private_sparse_adjacency_matrix(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
     fn sparse_adjacency_matrix_unchecked(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
@@ -43,7 +43,7 @@ where
 {
     fn sparse_adjacency_matrix(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
@@ -59,7 +59,7 @@ where
 {
     fn private_sparse_adjacency_matrix(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
@@ -69,7 +69,7 @@ where
 
     fn sparse_adjacency_matrix_unchecked(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
@@ -81,18 +81,18 @@ where
 pub trait GetTransposedSparseAdjacencyMatrix<T: ValueType> {
     fn transposed_sparse_adjacency_matrix(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
 pub(crate) trait GetTransposedPrivateSparseAdjacencyMatrix<T: ValueType> {
     fn transposed_private_sparse_adjacency_matrix(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
     fn transposed_sparse_adjacency_matrix_unchecked(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
@@ -103,7 +103,7 @@ where
 {
     fn transposed_sparse_adjacency_matrix(
         &mut self,
-        edge_edge_type_index: &EdgeTypeIndex,
+        edge_edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         self.try_edge_type_index_validity(edge_edge_type_index)?;
         Ok(self
@@ -120,7 +120,7 @@ where
 {
     fn transposed_private_sparse_adjacency_matrix(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         self.try_is_valid_private_edge_type_index(edge_type_index)?;
         Ok(self
@@ -131,7 +131,7 @@ where
 
     fn transposed_sparse_adjacency_matrix_unchecked(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_mut_ref()
@@ -143,18 +143,18 @@ where
 pub trait GetAdjacencyMatrixElementList<T: ValueType> {
     fn adjacency_matrix_element_list(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
 
 pub(crate) trait GetPrivateAdjacencyMatrixElementList<T: ValueType> {
     fn private_adjacency_matrix_element_list(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
     fn adjacency_matrix_element_list_unchecked(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
 
@@ -165,7 +165,7 @@ where
 {
     fn adjacency_matrix_element_list(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .sparse_adjacency_matrix(edge_type_index)?
@@ -180,7 +180,7 @@ where
 {
     fn private_adjacency_matrix_element_list(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .private_sparse_adjacency_matrix(edge_type_index)?
@@ -189,7 +189,7 @@ where
 
     fn adjacency_matrix_element_list_unchecked(
         &self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .sparse_adjacency_matrix_unchecked(edge_type_index)?
@@ -200,18 +200,18 @@ where
 pub trait GetTransposedAdjacencyMatrixElementList<T: ValueType> {
     fn transposed_adjacency_matrix_element_list(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
 
 pub(crate) trait GetTransposedPrivateAdjacencyMatrixElementList<T: ValueType> {
     fn transposed_private_adjacency_matrix_element_list(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
     fn transposed_adjacency_matrix_element_list_unchecked(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
 
@@ -222,7 +222,7 @@ where
 {
     fn transposed_adjacency_matrix_element_list(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .transposed_sparse_adjacency_matrix(edge_type_index)?
@@ -237,7 +237,7 @@ where
 {
     fn transposed_private_adjacency_matrix_element_list(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .transposed_private_sparse_adjacency_matrix(edge_type_index)?
@@ -246,7 +246,7 @@ where
 
     fn transposed_adjacency_matrix_element_list_unchecked(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError> {
         Ok(self
             .transposed_sparse_adjacency_matrix_unchecked(edge_type_index)?

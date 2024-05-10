@@ -1,7 +1,9 @@
 use crate::graph::{
     edge_store::weighted_adjacency_matrix::{
         AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices,
-    }, indexing::{EdgeTypeIndex, VertexIndex}, value_type::ValueType
+    },
+    indexing::{EdgeTypeIndex, VertexIndex},
+    value_type::ValueType,
 };
 
 use super::{DirectedEdgeCoordinate, GetDirectedEdgeCoordinateIndex};
@@ -43,8 +45,16 @@ impl<T: ValueType> GetDirectedEdgeCoordinateIndex for WeightedDirectedEdge<T> {
         self.coordinate.edge_type_ref()
     }
 
+    fn tail(&self) -> VertexIndex {
+        self.coordinate.tail()
+    }
+
     fn tail_ref(&self) -> &VertexIndex {
         self.coordinate.tail_ref()
+    }
+
+    fn head(&self) -> VertexIndex {
+        self.coordinate.head()
     }
 
     fn head_ref(&self) -> &VertexIndex {
@@ -60,8 +70,16 @@ impl<T: ValueType> GetDirectedEdgeCoordinateIndex for WeightedDirectedEdge<T> {
 }
 
 impl<T: ValueType> GetAdjacencyMatrixCoordinateIndices for WeightedDirectedEdge<T> {
+    fn tail(&self) -> VertexIndex {
+        self.coordinate.tail()
+    }
+
     fn tail_ref(&self) -> &VertexIndex {
         self.coordinate.tail_ref()
+    }
+
+    fn head(&self) -> VertexIndex {
+        self.coordinate.head()
     }
 
     fn head_ref(&self) -> &VertexIndex {

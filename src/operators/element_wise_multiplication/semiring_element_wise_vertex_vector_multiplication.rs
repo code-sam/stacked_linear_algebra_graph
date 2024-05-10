@@ -7,7 +7,7 @@ use crate::graph::graph::Graph;
 use crate::graph::graph::{
     GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
 };
-use crate::graph::indexing::VertexTypeIndex;
+use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -18,11 +18,11 @@ where
 {
     fn by_index(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -34,11 +34,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -51,11 +51,11 @@ where
 {
     fn by_index(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
@@ -84,11 +84,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {

@@ -19,6 +19,7 @@ use graphblas_sparse_linear_algebra::operators::unary_operator::Identity;
 
 use once_cell::sync::Lazy;
 
+use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::indexing::ElementCount;
 use crate::graph::value_type::implement_1_type_macro_with_enum_type_indentifier_for_all_value_types;
@@ -27,7 +28,6 @@ use crate::graph::value_type::GetValueTypeIdentifier;
 use crate::graph::value_type::GetValueTypeIdentifierRef;
 use crate::graph::value_type::ValueType;
 use crate::graph::value_type::ValueTypeIdentifier;
-use crate::error::GraphComputingError;
 
 use super::GetVectorLength;
 

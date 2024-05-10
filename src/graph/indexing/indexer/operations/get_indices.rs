@@ -4,10 +4,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 
 use crate::graph::indexing::indexer::GetIndexMask;
 use crate::graph::indexing::ElementIndex;
-use crate::{
-    error::GraphComputingError,
-    graph::indexing::Indexer,
-};
+use crate::{error::GraphComputingError, graph::indexing::Indexer};
 
 pub(crate) trait GetValidIndices {
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;

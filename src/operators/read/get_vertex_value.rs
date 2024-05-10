@@ -3,7 +3,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Get
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::{GetVertexStore, Graph};
-use crate::graph::indexing::{VertexIndex, VertexTypeIndex};
+use crate::graph::indexing::{
+    GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex, VertexTypeIndex,
+};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::{
     GetVertexValue as GetVertexValueFromVertexStore, IntoSparseVectorForValueType,
@@ -12,52 +14,52 @@ use crate::graph::vertex_store::{
 pub trait GetVertexValue<T: ValueType> {
     fn vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError>;
 
     fn vertex_value_or_default(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError>;
 
     fn try_vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError>;
 }
 
 pub(crate) trait GetPrivateVertexValue<T: ValueType> {
     fn private_vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError>;
 
     fn private_vertex_value_or_default(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError>;
 
     fn try_private_vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError>;
 
     fn vertex_value_unchecked(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError>;
 
     fn vertex_value_or_default_unchecked(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError>;
 }
 
@@ -67,8 +69,8 @@ where
 {
     fn vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         self.vertex_store_ref()
             .public_vertex_value(vertex_type_index, vertex_index)
@@ -76,8 +78,8 @@ where
 
     fn vertex_value_or_default(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_store_ref()
             .public_vertex_value_or_default(vertex_type_index, vertex_index)
@@ -85,8 +87,8 @@ where
 
     fn try_vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_store_ref()
             .try_public_vertex_value(vertex_type_index, vertex_index)
@@ -99,8 +101,8 @@ where
 {
     fn private_vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         self.vertex_store_ref()
             .private_vertex_value(vertex_type_index, vertex_index)
@@ -108,8 +110,8 @@ where
 
     fn private_vertex_value_or_default(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_store_ref()
             .private_vertex_value_or_default(vertex_type_index, vertex_index)
@@ -117,8 +119,8 @@ where
 
     fn try_private_vertex_value(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_store_ref()
             .try_private_vertex_value(vertex_type_index, vertex_index)
@@ -126,8 +128,8 @@ where
 
     fn vertex_value_unchecked(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         self.vertex_store_ref()
             .vertex_value_unchecked(vertex_type_index, vertex_index)
@@ -135,8 +137,8 @@ where
 
     fn vertex_value_or_default_unchecked(
         &self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_store_ref()
             .vertex_value_or_default_unchecked(vertex_type_index, vertex_index)

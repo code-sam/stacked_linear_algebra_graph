@@ -2,19 +2,19 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::spa
 
 use crate::{
     error::GraphComputingError,
-    graph::{indexing::ElementIndex, vertex_store::VertexVector},
+    graph::{indexing::ElementCount, vertex_store::VertexVector},
 };
 
 pub(crate) trait GetVectorLength {
-    fn length(&self) -> Result<ElementIndex, GraphComputingError>;
-    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;
+    fn length(&self) -> Result<ElementCount, GraphComputingError>;
+    fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError>;
 }
 
 impl GetVectorLength for VertexVector {
-    fn length(&self) -> Result<ElementIndex, GraphComputingError> {
+    fn length(&self) -> Result<ElementCount, GraphComputingError> {
         Ok(sparse_vector_length(self)?)
     }
-    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
+    fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError> {
         Ok(sparse_vector_length(self)?)
     }
 }

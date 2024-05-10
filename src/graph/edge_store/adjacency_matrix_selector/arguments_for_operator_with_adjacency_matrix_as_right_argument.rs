@@ -11,7 +11,8 @@ use crate::{
                 get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes,
             },
             weighted_adjacency_matrix::WeightedAdjacencyMatrix,
-        }, indexing::EdgeTypeIndex,
+        },
+        indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
     },
     operators::options::{
         GetUseCachedAdjacencyMatrixTranspose, OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
@@ -59,25 +60,25 @@ impl<'a> ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument<'a> {
 pub(crate) trait CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument<'a> {
     fn try_create(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument<'a>, GraphComputingError>;
 
     fn try_create_with_transposed_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument<'a>, GraphComputingError>;
 
     fn create_unchecked(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        second_argument_edge_type_index: &EdgeTypeIndex,
+        second_argument_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Self;
 
     fn create_unchecked_with_transposed_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Self;
 }
@@ -91,7 +92,7 @@ impl<'a> CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument<'a>
 {
     fn try_create(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument<'a>, GraphComputingError>
     {
@@ -118,7 +119,7 @@ impl<'a> CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument<'a>
 
     fn try_create_with_transposed_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument<'a>, GraphComputingError>
     {
@@ -145,7 +146,7 @@ impl<'a> CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument<'a>
 
     fn create_unchecked(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Self {
         let mut transpose_second_argument_by_graphblas =
@@ -169,7 +170,7 @@ impl<'a> CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument<'a>
 
     fn create_unchecked_with_transposed_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Self {
         let mut transpose_second_argument_by_graphblas =

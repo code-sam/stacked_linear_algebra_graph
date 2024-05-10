@@ -1,7 +1,13 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::{GetVertexStore, Graph}, indexing::VertexTypeIndex, value_type::{GetValueTypeIdentifier, ValueType}, vertex_store::operations::add_vertex_type::{AddPrivateVertexType as AddPrivateVertexTypeToVertexStore, AddPublicVertexType as AddPublicVertexTypeToVertexStore}
+        graph::{GetVertexStore, Graph},
+        indexing::VertexTypeIndex,
+        value_type::{GetValueTypeIdentifier, ValueType},
+        vertex_store::operations::add_vertex_type::{
+            AddPrivateVertexType as AddPrivateVertexTypeToVertexStore,
+            AddPublicVertexType as AddPublicVertexTypeToVertexStore,
+        },
     },
 };
 

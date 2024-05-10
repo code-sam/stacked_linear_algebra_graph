@@ -6,6 +6,7 @@ use crate::graph::edge::GetEdgeWeight;
 use crate::graph::edge_store::weighted_adjacency_matrix::GetAdjacencyMatrixCoordinateIndices;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::indexing::ElementIndex;
+use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::VertexIndex;
 use crate::graph::value_type::ValueType;
 
@@ -17,8 +18,8 @@ pub(crate) trait AddEdge<T: ValueType> {
 
     fn add_edge_unchecked(
         &mut self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 }
@@ -31,17 +32,22 @@ where
         &mut self,
         edge: &(impl GetAdjacencyMatrixCoordinateIndices + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError> {
-        T::set_graphblas_matrix_value(self, edge.tail_ref(), edge.head_ref(), *edge.weight_ref())?;
+        T::set_graphblas_matrix_value(
+            self,
+            edge.tail_ref().index_ref(),
+            edge.head_ref().index_ref(),
+            *edge.weight_ref(),
+        )?;
         Ok(())
     }
 
     fn add_edge_unchecked(
         &mut self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        T::set_graphblas_matrix_value(self, tail, head, weight)?;
+        T::set_graphblas_matrix_value(self, tail.index_ref(), head.index_ref(), weight)?;
         Ok(())
     }
 }

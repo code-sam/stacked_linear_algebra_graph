@@ -11,6 +11,8 @@ use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::GetVertexStore;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::EdgeTypeIndex;
+use crate::graph::indexing::GetEdgeTypeIndex;
+use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
@@ -23,11 +25,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     ) -> Result<(), GraphComputingError>;
@@ -39,11 +41,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     ) -> Result<(), GraphComputingError>;
@@ -55,11 +57,11 @@ impl<EvaluationDomain: ValueType> AdjacencyMatrixVertexVectorMultiplication<Eval
     /// NOTE: relatively slow because graph holds adjacency matrix by row. Where possible, consider using vector * tranpose(matrix) through VertexVectorAdjacencyMatrixMultiplication instead.
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     ) -> Result<(), GraphComputingError> {
@@ -87,11 +89,11 @@ impl<EvaluationDomain: ValueType>
     /// NOTE: relatively slow because graph holds adjacency matrix by row. Where possible, consider using vector * tranpose(matrix) through VertexVectorAdjacencyMatrixMultiplication instead.
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     ) -> Result<(), GraphComputingError> {

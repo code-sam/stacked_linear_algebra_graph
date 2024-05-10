@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
     GetSparseMatrixElementValue, GetSparseMatrixElementValueTyped,
 };
@@ -5,19 +7,20 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIn
 
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
+use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     GetAdjacencyMatrixCoordinateIndices, IntoSparseMatrix, IntoSparseMatrixForValueType,
     WeightedAdjacencyMatrix,
 };
 
-use crate::graph::indexing::VertexIndex;
+use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::value_type::ValueType;
 
 pub(crate) trait GetEdgeWeight<T> {
     fn edge_weight_unchecked(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError>;
     fn edge_weight_at_coordinate_unchecked(
         &self,
@@ -26,8 +29,8 @@ pub(crate) trait GetEdgeWeight<T> {
 
     fn edge_weight_or_default_unchecked(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError>;
     fn edge_weight_or_default_at_coordinate_unchecked(
         &self,
@@ -36,12 +39,12 @@ pub(crate) trait GetEdgeWeight<T> {
 
     fn try_edge_weight_unchecked(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &(impl GetVertexIndexIndex + Debug),
+        head: &(impl GetVertexIndexIndex + Debug),
     ) -> Result<T, GraphComputingError>;
     fn try_edge_weight_at_coordinate_unchecked(
         &self,
-        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
+        coordinate: &(impl GetAdjacencyMatrixCoordinateIndices),
     ) -> Result<T, GraphComputingError>;
 }
 
@@ -51,10 +54,12 @@ where
 {
     fn edge_weight_unchecked(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
-        Ok(self.sparse_matrix()?.element_value(tail, head)?)
+        Ok(self
+            .sparse_matrix()?
+            .element_value(tail.index_ref(), head.index_ref())?)
     }
 
     fn edge_weight_at_coordinate_unchecked(
@@ -68,10 +73,12 @@ where
 
     fn edge_weight_or_default_unchecked(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
-        Ok(self.sparse_matrix()?.element_value_or_default(tail, head)?)
+        Ok(self
+            .sparse_matrix()?
+            .element_value_or_default(tail.index_ref(), head.index_ref())?)
     }
 
     fn edge_weight_or_default_at_coordinate_unchecked(
@@ -85,15 +92,18 @@ where
 
     fn try_edge_weight_unchecked(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &(impl GetVertexIndexIndex + Debug),
+        head: &(impl GetVertexIndexIndex + Debug),
     ) -> Result<T, GraphComputingError> {
-        match self.sparse_matrix()?.element_value(tail, head)? {
+        match self
+            .sparse_matrix()?
+            .element_value(tail.index_ref(), head.index_ref())?
+        {
             Some(weight) => Ok(weight),
             None => Err(LogicError::new(
                 LogicErrorType::EdgeMustExist,
                 format!(
-                    "No edge exists at coordinate: [tail: {}, head: {}]",
+                    "No edge exists at coordinate: [tail: {:?}, head: {:?}]",
                     tail, head
                 ),
                 None,
@@ -103,12 +113,12 @@ where
     }
     fn try_edge_weight_at_coordinate_unchecked(
         &self,
-        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
+        coordinate: &(impl GetAdjacencyMatrixCoordinateIndices),
     ) -> Result<T, GraphComputingError> {
         GetEdgeWeight::<T>::try_edge_weight_unchecked(
             self,
-            coordinate.row_index_ref(),
-            coordinate.column_index_ref(),
+            coordinate.tail_ref(),
+            coordinate.head_ref(),
         )
     }
 }

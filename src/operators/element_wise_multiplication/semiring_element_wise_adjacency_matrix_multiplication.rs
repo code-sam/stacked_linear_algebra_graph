@@ -11,6 +11,7 @@ use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::EdgeTypeIndex;
+use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -21,11 +22,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError>;
@@ -37,11 +38,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError>;
@@ -52,11 +53,11 @@ impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixMultiplicati
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError> {
@@ -83,11 +84,11 @@ impl<EvaluationDomain: ValueType>
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError> {

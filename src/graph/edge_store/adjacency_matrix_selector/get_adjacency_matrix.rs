@@ -7,13 +7,14 @@ use crate::{
                 get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes,
             },
             weighted_adjacency_matrix::WeightedAdjacencyMatrix,
-        }, indexing::EdgeTypeIndex,
+        },
+        indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
     },
 };
 
 pub(crate) fn try_adjacency_matrix_ref<'a>(
     edge_store: &'a mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes),
-    edge_type_index: &EdgeTypeIndex,
+    edge_type_index: &impl GetEdgeTypeIndex,
     use_cached_adjacency_matrix_transpose: bool,
     transpose_argument_by_graphblas: &mut bool,
 ) -> Result<&'a WeightedAdjacencyMatrix, GraphComputingError> {
@@ -27,7 +28,7 @@ pub(crate) fn try_adjacency_matrix_ref<'a>(
 
 pub(crate) fn adjacency_matrix_ref_unchecked<'a>(
     edge_store: &'a mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes),
-    edge_type_index: &EdgeTypeIndex,
+    edge_type_index: &impl GetEdgeTypeIndex,
     use_cached_adjacency_matrix_transpose: bool,
     transpose_argument_by_graphblas: &mut bool,
 ) -> &'a WeightedAdjacencyMatrix {
@@ -41,7 +42,7 @@ pub(crate) fn adjacency_matrix_ref_unchecked<'a>(
 
 pub(crate) fn try_transposed_adjacency_matrix_ref<'a>(
     edge_store: &'a mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes),
-    edge_type_index: &EdgeTypeIndex,
+    edge_type_index: &impl GetEdgeTypeIndex,
     use_cached_adjacency_matrix_transpose: bool,
     transpose_argument_by_graphblas: &mut bool,
 ) -> Result<&'a WeightedAdjacencyMatrix, GraphComputingError> {
@@ -55,7 +56,7 @@ pub(crate) fn try_transposed_adjacency_matrix_ref<'a>(
 
 pub(crate) fn transposed_adjacency_matrix_ref_unchecked<'a>(
     edge_store: &'a mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes),
-    edge_type_index: &EdgeTypeIndex,
+    edge_type_index: &impl GetEdgeTypeIndex,
     use_cached_adjacency_matrix_transpose: bool,
     transpose_argument_by_graphblas: &mut bool,
 ) -> &'a WeightedAdjacencyMatrix {

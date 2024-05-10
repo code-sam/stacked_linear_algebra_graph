@@ -75,9 +75,12 @@ mod tests {
 
     use graphblas_sparse_linear_algebra::{context::Context, operators::mask::SelectEntireMatrix};
 
-    use crate::graph::edge_store::weighted_adjacency_matrix::{
-        operations::{AddEdge, GetEdgeWeight},
-        CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+    use crate::graph::{
+        edge_store::weighted_adjacency_matrix::{
+            operations::{AddEdge, GetEdgeWeight},
+            CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+        },
+        indexing::VertexIndex,
     };
 
     #[test]
@@ -88,27 +91,44 @@ mod tests {
             <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<u32>>::new(&context, &10)
                 .unwrap();
 
-        adjacency_matrix.add_edge_unchecked(&0, &0, 1e3).unwrap();
-        adjacency_matrix.add_edge_unchecked(&1, &0, 2e3).unwrap();
+        adjacency_matrix
+            .add_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
+            .unwrap();
+        adjacency_matrix
+            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
+            .unwrap();
 
         let transposed =
             transpose_adjacency_matrix_u32(&adjacency_matrix, &SelectEntireMatrix::new(&context))
                 .unwrap();
 
         assert_eq!(
-            GetEdgeWeight::<u32>::edge_weight_unchecked(&transposed, &0, &0)
-                .unwrap()
-                .unwrap(),
+            GetEdgeWeight::<u32>::edge_weight_unchecked(
+                &transposed,
+                &VertexIndex::new(0),
+                &VertexIndex::new(0)
+            )
+            .unwrap()
+            .unwrap(),
             1000u32
         );
         assert_eq!(
-            GetEdgeWeight::<u32>::edge_weight_unchecked(&transposed, &0, &1)
-                .unwrap()
-                .unwrap(),
+            GetEdgeWeight::<u32>::edge_weight_unchecked(
+                &transposed,
+                &VertexIndex::new(0),
+                &VertexIndex::new(1)
+            )
+            .unwrap()
+            .unwrap(),
             2000u32
         );
         assert_eq!(
-            GetEdgeWeight::<u32>::edge_weight_unchecked(&transposed, &1, &0).unwrap(),
+            GetEdgeWeight::<u32>::edge_weight_unchecked(
+                &transposed,
+                &VertexIndex::new(1),
+                &VertexIndex::new(0)
+            )
+            .unwrap(),
             None
         );
     }

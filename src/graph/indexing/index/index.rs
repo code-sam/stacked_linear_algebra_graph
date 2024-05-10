@@ -5,6 +5,6 @@ pub(crate) type ElementIndex = GraphblasElementIndex;
 pub type ElementCount = ElementIndex;
 pub(crate) type Index = ElementIndex;
 
-pub type VertexIndex = Index;
-pub type VertexTypeIndex = Index;
-pub type EdgeTypeIndex = Index;
+// pub type VertexIndex = Index;
+// pub type VertexTypeIndex = Index;
+// pub type EdgeTypeIndex = Index;

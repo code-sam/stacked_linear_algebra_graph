@@ -14,7 +14,10 @@ use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
     GetVertexStore,
 };
-use crate::graph::indexing::{EdgeTypeIndex, VertexIndex, VertexTypeIndex};
+use crate::graph::indexing::{
+    EdgeTypeIndex, GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex,
+    VertexTypeIndex,
+};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
@@ -27,11 +30,11 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
-        tail_vertex: &VertexIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
+        tail_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        extract_to: &VertexTypeIndex,
-        mask: Option<&EdgeTypeIndex>,
+        extract_to: &impl GetVertexTypeIndex,
+        mask: Option<&impl GetVertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }
@@ -43,11 +46,11 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
-        tail_vertex: &VertexIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
+        tail_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        extract_to: &VertexTypeIndex,
-        mask: Option<&EdgeTypeIndex>,
+        extract_to: &impl GetVertexTypeIndex,
+        mask: Option<&impl GetVertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }
@@ -59,17 +62,17 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
-        tail_vertex: &VertexIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
+        tail_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        extract_to: &VertexTypeIndex,
-        mask: Option<&EdgeTypeIndex>,
+        extract_to: &impl GetVertexTypeIndex,
+        mask: Option<&impl GetVertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
         self.try_edge_type_index_validity(adjacency_matrix)?;
         self.try_vertex_index_validity(tail_vertex)?;
-        self.try_vertex_index_validity(extract_to)?;
-        self.try_optional_edge_type_index_validity(mask)?;
+        self.try_vertex_type_index_validity(extract_to)?;
+        self.try_optional_vertex_type_index_validity(mask)?;
 
         SelectEdgesWithTailVertexUnchecked::apply(
             self,
@@ -90,12 +93,12 @@ where
 {
     fn apply(
         &mut self,
-        adjacency_matrix: &EdgeTypeIndex,
-        tail_vertex: &VertexIndex,
+        adjacency_matrix: &impl GetEdgeTypeIndex,
+        tail_vertex: &impl GetVertexIndexIndex,
         // head_vertex_selector: &VertexSelector,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        extract_to: &VertexTypeIndex,
-        mask: Option<&EdgeTypeIndex>,
+        extract_to: &impl GetVertexTypeIndex,
+        mask: Option<&impl GetVertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
         let edge_store = self.edge_store_mut_ref_unsafe();
@@ -117,7 +120,7 @@ where
                     .matrix_column_extractor()
                     .apply(
                         adjacency_matrix_argument.adjacency_matrix_ref(),
-                        tail_vertex,
+                        tail_vertex.index_ref(),
                         &VertexSelector::All,
                         accumlator,
                         vertex_vector_extract_to,
@@ -135,7 +138,7 @@ where
                     .matrix_column_extractor()
                     .apply(
                         adjacency_matrix_argument.adjacency_matrix_ref(),
-                        tail_vertex,
+                        tail_vertex.index_ref(),
                         &VertexSelector::All,
                         accumlator,
                         vertex_vector_extract_to,
@@ -212,8 +215,8 @@ mod tests {
             &vertex_1_index,
             &Plus::<isize>::new(),
             &vertex_result_type_index,
-            None,
-            &&OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
+            None::<&VertexTypeIndex>,
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )
         .unwrap();
 
@@ -233,7 +236,7 @@ mod tests {
             &vertex_2_index,
             &Assignment::new(),
             &vertex_result_type_index,
-            None,
+            None::<&VertexTypeIndex>,
             &&OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )
         .unwrap();

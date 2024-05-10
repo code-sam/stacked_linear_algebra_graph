@@ -11,7 +11,9 @@ use crate::{
                 InvalidateChachedAdjacencyMatrixAttributes,
             },
             weighted_adjacency_matrix::{CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix},
-        }, indexing::ElementCount, value_type::{GetValueTypeIdentifier, ValueType}
+        },
+        indexing::ElementCount,
+        value_type::{GetValueTypeIdentifier, ValueType},
     },
 };
 
@@ -92,7 +94,10 @@ mod tests {
 
     use graphblas_sparse_linear_algebra::context::Context;
 
-    use crate::graph::edge_store::weighted_adjacency_matrix::operations::{AddEdge, GetEdgeWeight};
+    use crate::graph::{
+        edge_store::weighted_adjacency_matrix::operations::{AddEdge, GetEdgeWeight},
+        indexing::VertexIndex,
+    };
 
     use super::*;
 
@@ -105,11 +110,11 @@ mod tests {
 
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&0, &0, 1e3)
+            .add_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
             .unwrap();
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&1, &0, 2e3)
+            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
             .unwrap();
 
         assert_eq!(
@@ -117,8 +122,8 @@ mod tests {
                 adjacency_matrix
                     .transposed_weighted_adjacency_matrix_ref()
                     .unwrap(),
-                &0,
-                &0
+                &VertexIndex::new(0),
+                &VertexIndex::new(0)
             )
             .unwrap()
             .unwrap(),
@@ -127,7 +132,7 @@ mod tests {
 
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&1, &0, 2e2)
+            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e2)
             .unwrap();
 
         assert_eq!(
@@ -135,8 +140,8 @@ mod tests {
                 adjacency_matrix
                     .transposed_weighted_adjacency_matrix_ref()
                     .unwrap(),
-                &0,
-                &1
+                &VertexIndex::new(0),
+                &VertexIndex::new(1)
             )
             .unwrap()
             .unwrap(),
@@ -148,8 +153,8 @@ mod tests {
                 adjacency_matrix
                     .transposed_weighted_adjacency_matrix_ref()
                     .unwrap(),
-                &1,
-                &0
+                &VertexIndex::new(1),
+                &VertexIndex::new(0)
             )
             .unwrap(),
             None
