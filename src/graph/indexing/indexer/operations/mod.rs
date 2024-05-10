@@ -4,8 +4,8 @@ mod free_index;
 mod get_indices;
 mod indexer_monitoring;
 
-pub use check_index::*;
-pub use create_index::*;
-pub use free_index::*;
-pub use get_indices::*;
-pub use indexer_monitoring::*;
+pub(crate) use check_index::*;
+pub(crate) use create_index::*;
+pub(crate) use free_index::*;
+pub(crate) use get_indices::*;
+pub(crate) use indexer_monitoring::*;

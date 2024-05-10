@@ -1,12 +1,13 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
 
 use crate::error::GraphComputingError;
-use crate::graph::index::VertexIndex;
-use crate::graph::index::VertexTypeIndex;
 use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::AssignedIndex;
 use crate::graph::indexing::GetAssignedIndexData;
+use crate::graph::indexing::GetVertexIndexIndex;
+use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
+use crate::graph::vertex::vertex::GetVertexIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::GetVertexElementIndexer;
@@ -21,40 +22,40 @@ where
 {
     fn add_new_public_vertex(
         &mut self,
-        type_index: &VertexTypeIndex,
+        type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError>;
 
     fn add_or_update_public_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError>;
 
     fn add_new_private_vertex(
         &mut self,
-        type_index: &VertexTypeIndex,
+        type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError>;
 
     fn add_or_update_private_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError>;
 
     fn add_new_vertex_unchecked(
         &mut self,
-        type_index: &VertexTypeIndex,
+        type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError>;
 
     fn add_or_update_vertex_unchecked(
         &mut self,
-        vertex_type: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError>;
 }
@@ -65,49 +66,49 @@ where
 {
     fn add_new_public_vertex(
         &mut self,
-        type_index: &VertexTypeIndex,
+        type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(type_index)?;
+            .try_is_valid_public_index(type_index.index_ref())?;
         self.add_new_vertex_unchecked(type_index, value)
     }
 
     fn add_or_update_public_vertex(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index)?;
+            .try_is_valid_public_index(vertex_type_index.index_ref())?;
         self.add_or_update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
     fn add_new_private_vertex(
         &mut self,
-        type_index: &VertexTypeIndex,
+        type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(type_index)?;
+            .try_is_valid_private_index(type_index.index_ref())?;
         self.add_new_vertex_unchecked(type_index, value)
     }
 
     fn add_or_update_private_vertex(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index)?;
+            .try_is_valid_private_index(vertex_type_index.index_ref())?;
         self.add_or_update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
     fn add_new_vertex_unchecked(
         &mut self,
-        type_index: &VertexTypeIndex,
+        type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         let vertex_index = self.new_public_vertex_index()?;
@@ -118,14 +119,17 @@ where
 
     fn add_or_update_vertex_unchecked(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
-        if self.element_indexer_ref().is_valid_index(vertex_index)? {
+        if self
+            .element_indexer_ref()
+            .is_valid_index(vertex_index.index_ref())?
+        {
             let vertex_vector: &mut VertexVector =
                 self.vertex_vector_mut_ref_unchecked(vertex_type_index);
-            T::set_value(vertex_vector, vertex_index, value)?;
+            T::set_value(vertex_vector, vertex_index.index_ref(), value)?;
             return Ok(None);
         } else {
             let index = self.add_new_vertex_unchecked(vertex_type_index, value)?;

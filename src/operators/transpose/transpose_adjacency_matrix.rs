@@ -9,7 +9,8 @@ use crate::graph::graph::GetEdgeStore;
 use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
-use crate::graph::index::EdgeTypeIndex;
+use crate::graph::indexing::EdgeTypeIndex;
+use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -20,9 +21,9 @@ where
 {
     fn apply(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
@@ -34,9 +35,9 @@ where
 {
     fn apply(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
@@ -48,9 +49,9 @@ where
 {
     fn apply(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
@@ -68,9 +69,9 @@ where
 {
     fn apply(
         &mut self,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {

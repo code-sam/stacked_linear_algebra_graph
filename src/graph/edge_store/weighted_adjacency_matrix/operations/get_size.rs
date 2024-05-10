@@ -8,13 +8,15 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 
 use crate::{
     error::GraphComputingError,
-    graph::{edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, index::ElementIndex},
+    graph::{
+        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, indexing::ElementCount,
+    },
 };
 
 pub trait GetMatrixSize {
     fn size(&self) -> Result<Size, GraphComputingError>;
 
-    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError>;
+    fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError>;
 }
 
 impl GetMatrixSize for WeightedAdjacencyMatrix {
@@ -22,7 +24,7 @@ impl GetMatrixSize for WeightedAdjacencyMatrix {
         Ok(sparse_matrix_size(self)?)
     }
 
-    fn vertex_capacity(&self) -> Result<ElementIndex, GraphComputingError> {
+    fn vertex_capacity(&self) -> Result<ElementCount, GraphComputingError> {
         Ok(sparse_matrix_column_width(self)?)
     }
 }

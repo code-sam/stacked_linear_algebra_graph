@@ -12,7 +12,7 @@ use once_cell::sync::Lazy;
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::index::VertexIndex;
+use crate::graph::indexing::GetVertexIndexIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
 use super::GetMatrixSize;
@@ -34,14 +34,14 @@ static OPERATOR_CACHE: Lazy<OperatorCache> = Lazy::new(|| OperatorCache::new());
 pub(crate) trait DeleteVertexConnections {
     fn delete_vertex_connections_unchecked(
         &mut self,
-        vertex_index: &VertexIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl DeleteVertexConnections for WeightedAdjacencyMatrix {
     fn delete_vertex_connections_unchecked(
         &mut self,
-        vertex_index: &VertexIndex,
+        vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         // TODO: does the value type mismatch actually cause a performance penalty? Since the vector is empty, it may not.
         // TODO: is there a benefit to caching an empty vector (and matrix) in the edge/vertex store? The cached vector/matrix
@@ -55,7 +55,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
         INSERT_VECTOR_INTO_COLUMN_OPERATOR.apply(
             self,
             &ElementIndexSelector::All,
-            vertex_index,
+            vertex_index.index_ref(),
             &empty_column,
             &OPERATOR_CACHE.boolean_assignment,
             &SelectEntireVector::new(self.graphblas_context_ref()), // TODO: could the mask be cached for better performance?
@@ -64,7 +64,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
         INSERT_VECTOR_INTO_ROW_OPERATOR.apply(
             self,
             &ElementIndexSelector::All,
-            vertex_index,
+            vertex_index.index_ref(),
             &empty_column,
             &OPERATOR_CACHE.boolean_assignment,
             &SelectEntireVector::new(self.graphblas_context_ref()), // TODO: could the mask be cached for better performance?

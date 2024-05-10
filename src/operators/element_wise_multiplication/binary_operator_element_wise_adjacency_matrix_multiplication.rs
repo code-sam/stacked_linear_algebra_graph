@@ -11,7 +11,7 @@ use crate::graph::edge_store::{
 use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, Graph,
 };
-use crate::graph::index::EdgeTypeIndex;
+use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -22,11 +22,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError>;
@@ -38,11 +38,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError>;
@@ -53,11 +53,11 @@ impl<EvaluationDomain: ValueType>
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError> {
@@ -84,11 +84,11 @@ impl<EvaluationDomain: ValueType>
 {
     fn apply(
         &mut self,
-        left_argument: &EdgeTypeIndex,
+        left_argument: &impl GetEdgeTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<(), GraphComputingError> {

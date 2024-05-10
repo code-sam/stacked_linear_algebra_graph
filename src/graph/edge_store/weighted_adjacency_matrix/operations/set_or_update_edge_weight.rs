@@ -5,42 +5,47 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     GetAdjacencyMatrixCoordinateIndices, WeightedAdjacencyMatrix,
 };
-use crate::graph::index::VertexIndex;
+use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::value_type::ValueType;
 
-pub(crate) trait UpdateEdgeWeight<T> {
-    fn update_edge_weight_unchecked(
+pub(crate) trait SetOrUpdateEdgeWeight<T> {
+    fn set_or_update_edge_weight_unchecked(
         &mut self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weigth: T,
     ) -> Result<(), GraphComputingError>;
 
-    fn update_edge_weight_at_coordinate_unchecked(
+    fn set_or_update_edge_weight_at_coordinate_unchecked(
         &mut self,
         coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
         weight: T,
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T: ValueType + SetSparseMatrixElementTyped<T>> UpdateEdgeWeight<T>
+impl<T: ValueType + SetSparseMatrixElementTyped<T>> SetOrUpdateEdgeWeight<T>
     for WeightedAdjacencyMatrix
 {
-    fn update_edge_weight_unchecked(
+    fn set_or_update_edge_weight_unchecked(
         &mut self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        Ok(T::set_graphblas_matrix_value(self, tail, head, weight)?)
+        Ok(T::set_graphblas_matrix_value(
+            self,
+            tail.index_ref(),
+            head.index_ref(),
+            weight,
+        )?)
     }
 
-    fn update_edge_weight_at_coordinate_unchecked(
+    fn set_or_update_edge_weight_at_coordinate_unchecked(
         &mut self,
         coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
         weigth: T,
     ) -> Result<(), GraphComputingError> {
-        UpdateEdgeWeight::<T>::update_edge_weight_unchecked(
+        SetOrUpdateEdgeWeight::<T>::set_or_update_edge_weight_unchecked(
             self,
             coordinate.tail_ref(),
             coordinate.head_ref(),

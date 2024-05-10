@@ -12,7 +12,7 @@ use crate::graph::graph::{
     GetVertexStore, Graph,
 };
 
-use crate::graph::index::{EdgeTypeIndex, VertexTypeIndex};
+use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
@@ -24,11 +24,11 @@ where
 {
     fn by_index(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError>;
@@ -40,11 +40,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError>;
@@ -56,11 +56,11 @@ where
 {
     fn by_index(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError> {
@@ -89,11 +89,11 @@ where
 {
     fn apply(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl Semiring<EvaluationDomain>,
-        right_argument: &EdgeTypeIndex,
+        right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError> {

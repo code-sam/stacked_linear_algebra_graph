@@ -17,7 +17,7 @@ use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::index::ElementCount;
+use crate::graph::indexing::ElementCount;
 use crate::graph::value_type::{
     implement_1_type_macro_with_enum_type_indentifier_for_all_value_types,
     implement_macro_for_all_native_value_types, GetValueTypeIdentifier, GetValueTypeIdentifierRef,

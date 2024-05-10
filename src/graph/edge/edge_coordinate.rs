@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIn
 
 use crate::graph::{
     edge_store::weighted_adjacency_matrix::AdjacencyMatrixCoordinate,
-    index::{EdgeTypeIndex, VertexIndex},
+    indexing::{EdgeTypeIndex, GetVertexIndexIndex, VertexIndex},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -25,7 +25,9 @@ impl DirectedEdgeCoordinate {
 
 pub trait GetDirectedEdgeCoordinateIndex {
     fn edge_type_ref(&self) -> &EdgeTypeIndex;
+    fn tail(&self) -> VertexIndex;
     fn tail_ref(&self) -> &VertexIndex;
+    fn head(&self) -> VertexIndex;
     fn head_ref(&self) -> &VertexIndex;
     // TODO: consider caching
     fn adjacency_matrix_coordinate(&self) -> AdjacencyMatrixCoordinate;
@@ -35,8 +37,14 @@ impl GetDirectedEdgeCoordinateIndex for DirectedEdgeCoordinate {
     fn edge_type_ref(&self) -> &EdgeTypeIndex {
         &self.edge_type
     }
+    fn tail(&self) -> VertexIndex {
+        self.tail.to_owned()
+    }
     fn tail_ref(&self) -> &VertexIndex {
         &self.tail
+    }
+    fn head(&self) -> VertexIndex {
+        self.head.to_owned()
     }
     fn head_ref(&self) -> &VertexIndex {
         &self.head
@@ -49,18 +57,18 @@ impl GetDirectedEdgeCoordinateIndex for DirectedEdgeCoordinate {
 
 impl GetCoordinateIndices for DirectedEdgeCoordinate {
     fn row_index(&self) -> graphblas_sparse_linear_algebra::index::ElementIndex {
-        self.tail
+        self.tail.index()
     }
 
     fn row_index_ref(&self) -> &graphblas_sparse_linear_algebra::index::ElementIndex {
-        &self.tail
+        self.tail.index_ref()
     }
 
     fn column_index(&self) -> graphblas_sparse_linear_algebra::index::ElementIndex {
-        self.head
+        self.head.index()
     }
 
     fn column_index_ref(&self) -> &graphblas_sparse_linear_algebra::index::ElementIndex {
-        &self.head_ref()
+        self.head.index_ref()
     }
 }

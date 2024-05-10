@@ -5,8 +5,7 @@ use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::index::ElementCount;
-use crate::graph::indexing::Indexer;
+use crate::graph::indexing::{ElementCount, Indexer};
 
 use super::VertexVector;
 

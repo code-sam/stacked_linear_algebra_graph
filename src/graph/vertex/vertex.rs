@@ -1,5 +1,5 @@
 use crate::graph::{
-    index::{VertexIndex, VertexTypeIndex},
+    indexing::{VertexIndex, VertexTypeIndex},
     value_type::ValueType,
 };
 

@@ -6,14 +6,17 @@ use graphblas_sparse_linear_algebra::operators::{
 
 use crate::{
     error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
+    graph::{
+        graph::Graph,
+        indexing::{GetVertexTypeIndex, VertexTypeIndex},
+        value_type::ValueType,
+    },
 };
 use crate::{
     graph::{
         graph::{
             GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
         },
-        index::VertexTypeIndex,
         vertex_store::operations::get_vertex_vector::GetVertexVector,
     },
     operators::indexing::CheckIndex,
@@ -25,11 +28,11 @@ where
 {
     fn with_vertex_vector_as_left_argument(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -38,9 +41,9 @@ where
         &mut self,
         left_argument: &EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -52,11 +55,11 @@ where
 {
     fn with_vertex_vector_as_left_argument_and_by_unchecked_index(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -65,9 +68,9 @@ where
         &mut self,
         left_argument: &EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -80,11 +83,11 @@ where
 {
     fn with_vertex_vector_as_left_argument(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
@@ -107,9 +110,9 @@ where
         &mut self,
         left_argument: &EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
@@ -136,11 +139,11 @@ where
 {
     fn with_vertex_vector_as_left_argument_and_by_unchecked_index(
         &mut self,
-        left_argument: &VertexTypeIndex,
+        left_argument: &impl GetVertexTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
@@ -195,9 +198,9 @@ where
         &mut self,
         left_argument: &EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &VertexTypeIndex,
+        right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {

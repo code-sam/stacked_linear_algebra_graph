@@ -4,9 +4,8 @@ use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
 
 use crate::graph::edge_store::{GetAdjacencyMatrices, GetEdgeTypeIndicer};
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::index::EdgeTypeIndex;
 use crate::graph::indexing::operations::{GeneratePrivateIndex, GeneratePublicIndex};
-use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData};
+use crate::graph::indexing::{AssignedIndex, EdgeTypeIndex, GetAssignedIndexData};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
 
@@ -36,7 +35,7 @@ impl EdgeStore {
     fn add_edge_type_at_assigned_index<T: ValueType + GetValueTypeIdentifier>(
         &mut self,
         edge_type_index: AssignedIndex,
-    ) -> Result<usize, GraphComputingError> {
+    ) -> Result<EdgeTypeIndex, GraphComputingError> {
         if let Some(new_capacity) = edge_type_index.new_index_capacity() {
             let current_capacity = self.adjacency_matrices_ref().len();
             self.adjacency_matrices_mut()
@@ -52,6 +51,6 @@ impl EdgeStore {
         } else {
             self.adjacency_matrices_mut_ref()[*edge_type_index.index_ref()] = new_adjacency_matrix;
         }
-        Ok(*edge_type_index.index_ref())
+        Ok(EdgeTypeIndex::new(edge_type_index.index()))
     }
 }

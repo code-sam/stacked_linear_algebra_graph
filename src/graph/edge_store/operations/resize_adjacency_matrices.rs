@@ -7,7 +7,7 @@ use crate::{
             },
             EdgeStore, GetAdjacencyMatrices,
         },
-        index::ElementCount,
+        indexing::ElementCount,
     },
 };
 

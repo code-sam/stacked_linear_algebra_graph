@@ -11,7 +11,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
 };
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 use crate::graph::graph::{GetEdgeStore, Graph};
-use crate::graph::index::{EdgeTypeIndex, VertexIndex};
+use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::operators::indexing::CheckIndex as GraphIndexing;
 
@@ -23,9 +23,9 @@ pub trait AddEdge<T: ValueType> {
 
     fn add_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 
@@ -36,9 +36,9 @@ pub trait AddEdge<T: ValueType> {
 
     fn add_or_replace_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 }
@@ -70,9 +70,9 @@ where
 
     fn add_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.try_vertex_index_validity(tail)?;
@@ -113,9 +113,9 @@ where
 
     fn add_or_replace_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.try_vertex_index_validity(tail)?;
@@ -138,9 +138,9 @@ pub(crate) trait AddPrivateEdge<T: ValueType> {
 
     fn add_private_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 
@@ -151,9 +151,9 @@ pub(crate) trait AddPrivateEdge<T: ValueType> {
 
     fn add_or_replace_private_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 }
@@ -185,9 +185,9 @@ where
 
     fn add_private_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.try_vertex_index_validity(tail)?;
@@ -228,9 +228,9 @@ where
 
     fn add_or_replace_private_edge(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.try_vertex_index_validity(tail)?;

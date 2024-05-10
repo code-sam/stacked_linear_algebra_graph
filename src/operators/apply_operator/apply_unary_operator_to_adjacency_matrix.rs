@@ -11,7 +11,7 @@ use crate::graph::edge_store::{
 use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
 };
-use crate::graph::index::EdgeTypeIndex;
+use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{
@@ -26,9 +26,9 @@ where
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
@@ -41,9 +41,9 @@ where
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
@@ -53,9 +53,9 @@ impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToAdjacencyMatrix<Evaluation
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
@@ -75,9 +75,9 @@ impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToAdjacencyMatrixUnchecked<E
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &EdgeTypeIndex,
+        argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &EdgeTypeIndex,
+        product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
@@ -135,6 +135,7 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
+    use crate::graph::indexing::GetVertexIndexIndex;
     use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::read::GetEdgeWeight;
 
@@ -208,7 +209,7 @@ mod tests {
                 ),
             )
             .unwrap(),
-            Some(vertex_2_index as u16)
+            Some(vertex_2_index.index() as u16)
         );
     }
 }

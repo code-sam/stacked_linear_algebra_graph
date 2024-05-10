@@ -1,6 +1,6 @@
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore};
-use crate::graph::index::VertexIndex;
+use crate::graph::indexing::VertexIndex;
 use crate::{
     error::GraphComputingError,
     graph::indexing::GetAssignedIndexData,
@@ -21,7 +21,7 @@ impl CreateVertexIndex for Graph {
             }
             None => {}
         }
-        return Ok(*assigned_index.index_ref());
+        return Ok(VertexIndex::new(*assigned_index.index_ref()));
     }
 }
 

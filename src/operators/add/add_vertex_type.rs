@@ -2,10 +2,12 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::{GetVertexStore, Graph},
-        index::VertexTypeIndex,
+        indexing::VertexTypeIndex,
         value_type::{GetValueTypeIdentifier, ValueType},
-        vertex_store::operations::add_vertex_type::AddPrivateVertexType as AddPrivateVertexTypeToVertexStore,
-        vertex_store::operations::add_vertex_type::AddPublicVertexType as AddPublicVertexTypeToVertexStore,
+        vertex_store::operations::add_vertex_type::{
+            AddPrivateVertexType as AddPrivateVertexTypeToVertexStore,
+            AddPublicVertexType as AddPublicVertexTypeToVertexStore,
+        },
     },
 };
 

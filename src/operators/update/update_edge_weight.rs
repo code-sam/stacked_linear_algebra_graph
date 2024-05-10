@@ -2,10 +2,10 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Set
 
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
 use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::operations::UpdateEdgeWeight as UpdateEdgeWeightInEdgeStore;
+use crate::graph::edge_store::weighted_adjacency_matrix::operations::SetOrUpdateEdgeWeight as UpdateEdgeWeightInEdgeStore;
 
 use crate::graph::graph::GetEdgeStore;
-use crate::graph::index::{EdgeTypeIndex, VertexIndex};
+use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
 use crate::{error::GraphComputingError, graph::graph::Graph};
@@ -19,9 +19,9 @@ pub trait UpdateEdgeWeight<T: ValueType> {
 
     fn update_edge_weight(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 }
@@ -34,17 +34,17 @@ pub(crate) trait UpdatePrivateEdgeWeight<T: ValueType> {
 
     fn update_private_edge_weight(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 
     fn update_edge_weight_unchecked(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 }
@@ -64,9 +64,9 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T> + Copy> UpdateEdgeWeight<T> f
 
     fn update_edge_weight(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.try_edge_validity(edge_type, tail, head)?;
@@ -89,9 +89,9 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T> + Copy> UpdatePrivateEdgeWeig
 
     fn update_private_edge_weight(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.try_is_valid_private_edge(edge_type, tail, head)?;
@@ -100,14 +100,14 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T> + Copy> UpdatePrivateEdgeWeig
 
     fn update_edge_weight_unchecked(
         &mut self,
-        edge_type: &EdgeTypeIndex,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        edge_type: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
             .adjacency_matrix_mut_ref_unchecked(edge_type)
-            .update_edge_weight_unchecked(tail, head, weight)
+            .set_or_update_edge_weight_unchecked(tail, head, weight)
     }
 }
 

@@ -20,8 +20,7 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
-use crate::graph::index::{ElementCount, Index};
-use crate::graph::indexing::AssignedIndex;
+use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
 
 pub(crate) const MINIMUM_INDEXER_CAPACITY: usize = 1;
 
@@ -254,9 +253,10 @@ mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 
     use crate::graph::indexing::{
-        operations::{CheckIndex, FreeIndex, GeneratePublicIndex, GetIndexerStatus},
+        operations::{CheckIndex, FreeIndex, GeneratePublicIndex},
         GetAssignedIndexData,
     };
+    use crate::graph::indexing::indexer::operations::GetIndexerStatus;
 
     use super::*;
 

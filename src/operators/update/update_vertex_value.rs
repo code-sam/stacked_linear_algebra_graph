@@ -1,5 +1,5 @@
 use crate::graph::graph::GetVertexStore;
-use crate::graph::index::{VertexIndex, VertexTypeIndex};
+use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::VertexStore;
 use crate::{
@@ -11,8 +11,8 @@ use crate::{
 pub trait UpdateVertexValue<T: ValueType> {
     fn update_vertex_value(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError>;
 }
@@ -21,15 +21,15 @@ pub trait UpdateVertexValue<T: ValueType> {
 pub(crate) trait UpdatePrivateVertexValue<T: ValueType> {
     fn update_private_vertex_value(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError>;
 
     fn update_vertex_value_unchecked(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError>;
 }
@@ -41,8 +41,8 @@ where
 {
     fn update_vertex_value(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
@@ -57,8 +57,8 @@ where
 {
     fn update_private_vertex_value(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
@@ -67,8 +67,8 @@ where
 
     fn update_vertex_value_unchecked(
         &mut self,
-        vertex_type_index: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()

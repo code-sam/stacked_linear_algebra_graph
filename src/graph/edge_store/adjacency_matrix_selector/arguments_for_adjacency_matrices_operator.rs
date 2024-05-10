@@ -12,7 +12,7 @@ use crate::{
             },
             weighted_adjacency_matrix::WeightedAdjacencyMatrix,
         },
-        index::EdgeTypeIndex,
+        indexing::GetEdgeTypeIndex,
     },
     operators::options::{
         GetUseCachedAdjacencyMatrixTranspose, OptionsForOperatorWithAdjacencyMatrixArguments,
@@ -65,43 +65,43 @@ impl<'a> ArgumentsForAdjacencyMatricesOperator<'a> {
 pub(crate) trait CreateArgumentsForAdjacencyMatricesOperator<'a> {
     fn try_create(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<ArgumentsForAdjacencyMatricesOperator<'a>, GraphComputingError>;
 
     fn try_create_with_transposed_left_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<ArgumentsForAdjacencyMatricesOperator<'a>, GraphComputingError>;
 
     fn try_create_with_transposed_right_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<ArgumentsForAdjacencyMatricesOperator<'a>, GraphComputingError>;
 
     fn create_unchecked(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Self;
 
     fn create_unchecked_with_transposed_left_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Self;
 
     fn create_unchecked_with_transposed_right_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Self;
 }
@@ -115,8 +115,8 @@ impl<'a> CreateArgumentsForAdjacencyMatricesOperator<'a>
 {
     fn try_create(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<ArgumentsForAdjacencyMatricesOperator<'a>, GraphComputingError> {
         let mut transpose_first_argument_by_graphblas = operator_options.transpose_first_argument();
@@ -151,8 +151,8 @@ impl<'a> CreateArgumentsForAdjacencyMatricesOperator<'a>
 
     fn try_create_with_transposed_left_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<ArgumentsForAdjacencyMatricesOperator<'a>, GraphComputingError> {
         let mut transpose_first_argument_by_graphblas = operator_options.transpose_first_argument();
@@ -187,8 +187,8 @@ impl<'a> CreateArgumentsForAdjacencyMatricesOperator<'a>
 
     fn try_create_with_transposed_right_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Result<ArgumentsForAdjacencyMatricesOperator<'a>, GraphComputingError> {
         let mut transpose_first_argument_by_graphblas = operator_options.transpose_first_argument();
@@ -223,8 +223,8 @@ impl<'a> CreateArgumentsForAdjacencyMatricesOperator<'a>
 
     fn create_unchecked(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Self {
         let mut transpose_first_argument_by_graphblas = operator_options.transpose_first_argument();
@@ -259,8 +259,8 @@ impl<'a> CreateArgumentsForAdjacencyMatricesOperator<'a>
 
     fn create_unchecked_with_transposed_left_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Self {
         let mut transpose_first_argument_by_graphblas = operator_options.transpose_first_argument();
@@ -295,8 +295,8 @@ impl<'a> CreateArgumentsForAdjacencyMatricesOperator<'a>
 
     fn create_unchecked_with_transposed_right_adjacency_matrix(
         edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + 'a),
-        left_edge_type_index: &EdgeTypeIndex,
-        right_edge_type_index: &EdgeTypeIndex,
+        left_edge_type_index: &impl GetEdgeTypeIndex,
+        right_edge_type_index: &impl GetEdgeTypeIndex,
         operator_options: &'a OptionsForOperatorWithAdjacencyMatrixArguments,
     ) -> Self {
         let mut transpose_first_argument_by_graphblas = operator_options.transpose_first_argument();

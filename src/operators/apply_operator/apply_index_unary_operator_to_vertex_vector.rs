@@ -7,14 +7,17 @@ use graphblas_sparse_linear_algebra::operators::{
 
 use crate::{
     error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
+    graph::{
+        graph::Graph,
+        indexing::{GetVertexTypeIndex, VertexTypeIndex},
+        value_type::ValueType,
+    },
 };
 use crate::{
     graph::{
         graph::{
             GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
         },
-        index::VertexTypeIndex,
         vertex_store::operations::get_vertex_vector::GetVertexVector,
     },
     operators::indexing::CheckIndex,
@@ -26,11 +29,11 @@ where
 {
     fn apply(
         &mut self,
-        vertex_vector: &VertexTypeIndex,
+        vertex_vector: &impl GetVertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -42,11 +45,11 @@ where
 {
     fn apply(
         &mut self,
-        vertex_vector: &VertexTypeIndex,
+        vertex_vector: &impl GetVertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -58,11 +61,11 @@ where
 {
     fn apply(
         &mut self,
-        vertex_vector: &VertexTypeIndex,
+        vertex_vector: &impl GetVertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
@@ -90,11 +93,11 @@ where
 {
     fn apply(
         &mut self,
-        vertex_vector: &VertexTypeIndex,
+        vertex_vector: &impl GetVertexTypeIndex,
         operator: &impl IndexUnaryOperator<EvaluationDomain>,
         argument: &EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {

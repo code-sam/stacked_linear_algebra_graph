@@ -4,10 +4,9 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::GetGraphblasContext,
-        index::VertexTypeIndex,
         indexing::{
             operations::{GeneratePrivateIndex, GeneratePublicIndex, GetValidIndices},
-            AssignedIndex, GetAssignedIndexData,
+            AssignedIndex, GetAssignedIndexData, VertexTypeIndex,
         },
         value_type::{GetValueTypeIdentifier, ValueType},
         vertex_store::{
@@ -43,7 +42,7 @@ impl VertexStore {
     fn add_vertex_type<T: ValueType + GetValueTypeIdentifier>(
         &mut self,
         new_type_index: AssignedIndex,
-    ) -> Result<usize, GraphComputingError> {
+    ) -> Result<VertexTypeIndex, GraphComputingError> {
         self.synchronize_vector_with_vertex_vectors(&new_type_index);
 
         let new_vertex_vector = <VertexVector as CreateVertexVector<T>>::new(
@@ -56,7 +55,7 @@ impl VertexStore {
 
         self.add_new_vertex_vector(new_vertex_vector, &new_type_index)?;
 
-        Ok(*new_type_index.index_ref())
+        Ok(VertexTypeIndex::new(*new_type_index.index_ref()))
     }
 
     fn synchronize_vector_with_vertex_vectors(&mut self, new_type_index: &AssignedIndex) {

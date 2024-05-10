@@ -2,25 +2,28 @@ use crate::error::GraphComputingError;
 
 use crate::graph::edge_store::operations::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
 use crate::graph::graph::{GetEdgeStore, Graph};
-use crate::graph::index::EdgeTypeIndex;
+use crate::graph::indexing::GetEdgeTypeIndex;
 
 pub trait DropEdgeType {
     /// Deletes the edge type, and all its edges
-    fn drop_edge_type(&mut self, edge_type: &EdgeTypeIndex) -> Result<(), GraphComputingError>;
+    fn drop_edge_type(
+        &mut self,
+        edge_type: &impl GetEdgeTypeIndex,
+    ) -> Result<(), GraphComputingError>;
 }
 
 pub(crate) trait DropPrivateEdgeType {
     /// Deletes the edge type, and all its edges
     fn drop_private_edge_type(
         &mut self,
-        edge_type: &EdgeTypeIndex,
+        edge_type: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl DropEdgeType for Graph {
     fn drop_edge_type(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
             .drop_valid_public_edge_type(edge_type_index)
@@ -30,7 +33,7 @@ impl DropEdgeType for Graph {
 impl DropPrivateEdgeType for Graph {
     fn drop_private_edge_type(
         &mut self,
-        edge_type_index: &EdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
             .drop_valid_private_edge_type(edge_type_index)

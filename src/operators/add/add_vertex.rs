@@ -4,8 +4,9 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 
-use crate::graph::index::{VertexIndex, VertexTypeIndex};
-use crate::graph::indexing::GetAssignedIndexData;
+use crate::graph::indexing::{
+    GetAssignedIndexData, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex,
+};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::{GetVertexIndex, GetVertexValue};
 use crate::graph::vertex_store::AddVertex as AddVertexToStore;
@@ -13,14 +14,14 @@ use crate::graph::vertex_store::AddVertex as AddVertexToStore;
 pub trait AddVertex<T: ValueType> {
     fn add_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
+        vertex_type: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<VertexIndex, GraphComputingError>;
 
     fn add_or_update_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<VertexIndex>, GraphComputingError>;
 
@@ -36,7 +37,7 @@ where
 {
     fn add_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
+        vertex_type: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<VertexIndex, GraphComputingError> {
         let new_index = self
@@ -49,13 +50,13 @@ where
             }
             None => (),
         }
-        Ok(*new_index.index_ref())
+        Ok(VertexIndex::new(*new_index.index_ref()))
     }
 
     fn add_or_update_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<VertexIndex>, GraphComputingError> {
         match self.vertex_store_mut_ref().add_or_update_public_vertex(
@@ -71,7 +72,7 @@ where
                     }
                     None => (),
                 }
-                Ok(Some(*new_index.index_ref()))
+                Ok(Some(VertexIndex::new(*new_index.index_ref())))
             }
             None => Ok(None),
         }
@@ -92,14 +93,14 @@ where
 pub(crate) trait AddPrivateVertex<T: ValueType> {
     fn add_private_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
+        vertex_type: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<VertexIndex, GraphComputingError>;
 
     fn add_or_update_private_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<VertexIndex>, GraphComputingError>;
 
@@ -115,7 +116,7 @@ where
 {
     fn add_private_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
+        vertex_type: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<VertexIndex, GraphComputingError> {
         let new_index = self
@@ -128,13 +129,13 @@ where
             }
             None => (),
         }
-        Ok(*new_index.index_ref())
+        Ok(VertexIndex::new(*new_index.index_ref()))
     }
 
     fn add_or_update_private_vertex(
         &mut self,
-        vertex_type: &VertexTypeIndex,
-        vertex_index: &VertexIndex,
+        vertex_type: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<VertexIndex>, GraphComputingError> {
         match self.vertex_store_mut_ref().add_or_update_private_vertex(
@@ -150,7 +151,7 @@ where
                     }
                     None => (),
                 }
-                Ok(Some(*new_index.index_ref()))
+                Ok(Some(VertexIndex::new(*new_index.index_ref())))
             }
             None => Ok(None),
         }

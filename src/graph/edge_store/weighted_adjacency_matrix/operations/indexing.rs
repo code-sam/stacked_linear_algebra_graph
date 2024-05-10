@@ -8,13 +8,14 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 };
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementList;
 use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::select_edge_vertices::SelectEdgeVertices;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices, IntoSparseMatrix,
     IntoSparseMatrixForValueType,
 };
-use crate::graph::index::VertexIndex;
+use crate::graph::indexing::{GetVertexIndexIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
 use crate::{
     error::GraphComputingError,
@@ -26,7 +27,11 @@ pub(crate) trait Indexing<T> {
         &self,
         coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
     ) -> Result<bool, GraphComputingError>;
-    fn is_edge(&self, tail: &VertexIndex, head: &VertexIndex) -> Result<bool, GraphComputingError>;
+    fn is_edge(
+        &self,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<bool, GraphComputingError>;
 
     fn try_is_edge_at_coordinate(
         &self,
@@ -34,8 +39,8 @@ pub(crate) trait Indexing<T> {
     ) -> Result<(), GraphComputingError>;
     fn try_is_edge(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError>;
 
     fn adjacency_matrix_coordinates(
@@ -60,8 +65,16 @@ impl<
             + Clone,
     > Indexing<T> for WeightedAdjacencyMatrix
 {
-    fn is_edge(&self, tail: &VertexIndex, head: &VertexIndex) -> Result<bool, GraphComputingError> {
-        Ok(is_sparse_matrix_element(self, tail, head)?)
+    fn is_edge(
+        &self,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<bool, GraphComputingError> {
+        Ok(is_sparse_matrix_element(
+            self,
+            tail.index_ref(),
+            head.index_ref(),
+        )?)
     }
 
     fn is_edge_at_coordinate(
@@ -73,10 +86,14 @@ impl<
 
     fn try_is_edge(
         &self,
-        tail: &VertexIndex,
-        head: &VertexIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
-        Ok(try_is_sparse_matrix_element(self, tail, head)?)
+        Ok(try_is_sparse_matrix_element(
+            self,
+            tail.index_ref(),
+            head.index_ref(),
+        )?)
     }
 
     fn try_is_edge_at_coordinate(
@@ -99,8 +116,8 @@ impl<
             Vec::with_capacity(matrix_element_list.length());
         for element_index in 0..matrix_element_list.length() {
             let element_coordinate = AdjacencyMatrixCoordinate::new(
-                element_indices_vertices_with_outgoing_edges[element_index],
-                element_indices_vertices_with_incoming_edges[element_index],
+                VertexIndex::new(element_indices_vertices_with_outgoing_edges[element_index]),
+                VertexIndex::new(element_indices_vertices_with_incoming_edges[element_index]),
             );
             coordinates.push(element_coordinate);
         }
@@ -114,7 +131,9 @@ impl<
             SelectEdgeVertices::<T>::select_vertices_with_outgoing_edges(self)?
                 .get_element_list()?
                 .indices_ref()
-                .to_vec(),
+                .into_par_iter()
+                .map(|index| VertexIndex::new(index.to_owned()))
+                .collect(),
         )
     }
 
@@ -125,7 +144,9 @@ impl<
             SelectEdgeVertices::<T>::select_vertices_with_incoming_edges(self)?
                 .get_element_list()?
                 .indices_ref()
-                .to_vec(),
+                .into_par_iter()
+                .map(|index| VertexIndex::new(index.to_owned()))
+                .collect(),
         )
     }
 
@@ -134,6 +155,8 @@ impl<
         Ok(SelectEdgeVertices::<T>::select_connected_vertices(self)?
             .get_element_list()?
             .indices_ref()
-            .to_vec())
+            .into_par_iter()
+            .map(|index| VertexIndex::new(index.to_owned()))
+            .collect())
     }
 }

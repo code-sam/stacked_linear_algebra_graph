@@ -9,8 +9,7 @@ use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::index::ElementCount;
-use crate::graph::indexing::Indexer as EdgeTypeIndexer;
+use crate::graph::indexing::{ElementCount, Indexer as EdgeTypeIndexer};
 
 #[derive(Clone, Debug)]
 pub(crate) struct EdgeStore {

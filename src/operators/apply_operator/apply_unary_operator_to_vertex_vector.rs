@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::operators::{
 };
 
 use crate::graph::graph::{GetGraphblasOperatorAppliers, GetVertexStore};
-use crate::graph::index::VertexTypeIndex;
+use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::{
     graph::GetGraphblasOperatorApplierCollection,
     vertex_store::operations::get_vertex_vector::GetVertexVector,
@@ -23,9 +23,9 @@ where
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -38,9 +38,9 @@ where
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
@@ -50,9 +50,9 @@ impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToVertexVector<EvaluationDom
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
@@ -72,9 +72,9 @@ impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToVertexVectorUnchecked<Eval
     fn apply(
         &mut self,
         operator: &impl UnaryOperator<EvaluationDomain>,
-        argument: &VertexTypeIndex,
+        argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &VertexTypeIndex,
+        product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
@@ -131,6 +131,7 @@ mod tests {
 
     use super::*;
 
+    use crate::graph::indexing::GetVertexIndexIndex;
     use crate::operators::add::{AddVertex, AddVertexType};
     use crate::operators::read::GetVertexValue;
 
@@ -160,7 +161,7 @@ mod tests {
         assert_eq!(
             GetVertexValue::<u16>::vertex_value(&graph, &vertex_type_1_index, &vertex_1_index,)
                 .unwrap(),
-            Some(vertex_1_index as u16)
+            Some(vertex_1_index.index() as u16)
         );
     }
 }

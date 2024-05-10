@@ -2,10 +2,8 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Del
 
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
 use crate::graph::indexing::indexer::indexer::GetIndicesAvailableForReuse;
-use crate::{
-    error::GraphComputingError,
-    graph::{index::Index, indexing::Indexer},
-};
+use crate::graph::indexing::Index;
+use crate::{error::GraphComputingError, graph::indexing::Indexer};
 
 use super::CheckIndex;
 
@@ -43,19 +41,17 @@ impl FreeIndex for Indexer {
     }
 
     fn free_index_unchecked(&mut self, index: Index) -> Result<(), GraphComputingError> {
-        self.mask_with_valid_indices_mut_ref()
-            .drop_element(index.to_owned())?;
+        self.mask_with_valid_indices_mut_ref().drop_element(index)?;
 
         self.mask_with_private_indices_mut_ref()
-            .drop_element(index.to_owned())?;
+            .drop_element(index)?;
 
         self.indices_available_for_reuse_mut_ref().push_back(index);
         Ok(())
     }
 
     fn free_public_index_unchecked(&mut self, index: Index) -> Result<(), GraphComputingError> {
-        self.mask_with_valid_indices_mut_ref()
-            .drop_element(index.to_owned())?;
+        self.mask_with_valid_indices_mut_ref().drop_element(index)?;
         self.indices_available_for_reuse_mut_ref().push_back(index);
         Ok(())
     }

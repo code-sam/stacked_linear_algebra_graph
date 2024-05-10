@@ -7,7 +7,7 @@ use graphblas_sparse_linear_algebra::context::{
 };
 
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
-use crate::graph::index::ElementCount;
+use crate::graph::indexing::ElementCount;
 use crate::graph::vertex_store::operations::resize_vertex_vectors::ResizeVertexVectors;
 use crate::graph::vertex_store::VertexStore;
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};

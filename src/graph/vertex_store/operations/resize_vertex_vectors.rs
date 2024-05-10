@@ -1,7 +1,7 @@
 use crate::{
     error::GraphComputingError,
     graph::{
-        index::ElementCount,
+        indexing::ElementCount,
         vertex_store::{ResizeWeightedAdjacencyMatrix, VertexStore, VertexVector},
     },
 };
