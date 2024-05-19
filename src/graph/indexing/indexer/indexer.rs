@@ -22,6 +22,8 @@ use once_cell::sync::Lazy;
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
 
+use super::operations::SetIndexCapacity;
+
 pub(crate) const MINIMUM_INDEXER_CAPACITY: usize = 1;
 
 static ELEMENT_WISE_VECTOR_ADDITION_BINARY_OPERATOR: Lazy<ElementWiseVectorAdditionBinaryOperator> =
@@ -221,9 +223,7 @@ impl Indexer {
     pub(super) fn expand_capacity(&mut self) -> Result<Index, GraphComputingError> {
         // TODO: test more sophisticated expansion sizing algorithms for better performance
         let new_capacity = self.capacity()? * 2;
-        self.mask_with_valid_indices_mut_ref()
-            .resize(new_capacity)?; // TODO: if this fails, state will be inconsistent
-        self.mask_with_private_indices.resize(new_capacity)?;
+        self.set_index_capacity(&new_capacity)?;
         Ok(new_capacity)
     }
 
@@ -252,11 +252,11 @@ impl Indexer {
 mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 
+    use crate::graph::indexing::indexer::operations::GetIndexerStatus;
     use crate::graph::indexing::{
         operations::{CheckIndex, FreeIndex, GeneratePublicIndex},
         GetAssignedIndexData,
     };
-    use crate::graph::indexing::indexer::operations::GetIndexerStatus;
 
     use super::*;
 

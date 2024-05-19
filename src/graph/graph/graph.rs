@@ -6,9 +6,7 @@ use graphblas_sparse_linear_algebra::context::{
     MatrixStorageFormat as GraphblasMatrixStorageFormat, Mode as GraphblasMode,
 };
 
-use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::indexing::ElementCount;
-use crate::graph::vertex_store::operations::resize_vertex_vectors::ResizeVertexVectors;
 use crate::graph::vertex_store::VertexStore;
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
 
@@ -46,13 +44,6 @@ pub(crate) trait GetEdgeStore {
     fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore;
 }
 
-pub(crate) trait UpdateVertexCapacity {
-    fn update_vertex_capacity(
-        &mut self,
-        vertex_capacity: &ElementCount,
-    ) -> Result<(), GraphComputingError>;
-}
-
 impl GetVertexStore for Graph {
     fn vertex_store_ref(&self) -> &VertexStore {
         &self.vertex_store
@@ -78,19 +69,6 @@ impl GetEdgeStore for Graph {
 
     fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore {
         &mut self.edge_store
-    }
-}
-
-impl UpdateVertexCapacity for Graph {
-    fn update_vertex_capacity(
-        &mut self,
-        vertex_capacity: &ElementCount,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .resize_vertex_vectors(*vertex_capacity)?;
-        self.edge_store_mut_ref()
-            .resize_adjacency_matrices(*vertex_capacity)?;
-        Ok(())
     }
 }
 
@@ -157,7 +135,7 @@ impl Graph {
 
 #[cfg(test)]
 mod tests {
-    use crate::operators::{
+    use crate::operators::operators::{
         add::{AddVertex, AddVertexType},
         read::GetVertexValue,
         update::UpdateVertexValue,

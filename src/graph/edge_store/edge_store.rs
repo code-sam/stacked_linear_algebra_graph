@@ -52,7 +52,7 @@ pub(crate) trait GetAdjacencyMatrices {
     fn mask_to_select_entire_adjacency_matrix_ref(&self) -> &SelectEntireMatrix;
 }
 
-pub(super) trait GetEdgeTypeIndicer {
+pub(crate) trait GetEdgeTypeIndicer {
     fn edge_type_indexer_ref(&self) -> &EdgeTypeIndexer;
     fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer;
 }
