@@ -18,7 +18,6 @@ use crate::operators::operators::element_wise_addition::SemiringElementWiseAdjac
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixAddition<EvaluationDomain>
     for Graph
 {

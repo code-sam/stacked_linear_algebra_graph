@@ -10,8 +10,8 @@ use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVerte
 use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
 use crate::operators::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
 use crate::operators::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
-use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 use crate::operators::operators::read::GetVertexValue;
+use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 
 fn main() {
     let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();

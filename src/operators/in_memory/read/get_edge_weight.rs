@@ -13,7 +13,6 @@ use crate::graph::value_type::ValueType;
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
 use crate::operators::operators::read::{GetEdgeWeight, GetPrivateEdgeWeight};
 
-
 impl<T> GetEdgeWeight<T> for Graph
 where
     T: ValueType + IntoSparseMatrixForValueType<T> + GetSparseMatrixElementValueTyped<T> + Default,

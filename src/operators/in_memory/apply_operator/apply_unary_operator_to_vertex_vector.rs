@@ -11,12 +11,12 @@ use crate::graph::{
     vertex_store::operations::get_vertex_vector::GetVertexVector,
 };
 use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVector;
+use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;
 use crate::{
     error::GraphComputingError,
     graph::{graph::Graph, value_type::ValueType},
 };
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToVertexVector<EvaluationDomain> for Graph {
     fn apply(

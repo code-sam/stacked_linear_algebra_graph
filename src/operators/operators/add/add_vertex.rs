@@ -52,6 +52,4 @@ pub(crate) trait AddPrivateVertex<T: ValueType> {
 }
 
 #[cfg(test)]
-mod tests {
-    
-}
+mod tests {}

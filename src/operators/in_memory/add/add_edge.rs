@@ -195,7 +195,9 @@ mod tests {
     use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
     use crate::graph::graph::Graph;
     use crate::graph::vertex::vertex::{GetVertexIndex, VertexDefinition};
-    use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertexType, CreateVertexIndex};
+    use crate::operators::operators::add::{
+        AddEdge, AddEdgeType, AddVertexType, CreateVertexIndex,
+    };
     use crate::operators::operators::read::GetEdgeWeight;
 
     #[test]

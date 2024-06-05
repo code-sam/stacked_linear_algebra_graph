@@ -22,6 +22,4 @@ pub(crate) trait DropPrivateVertexType {
 }
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

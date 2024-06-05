@@ -18,7 +18,6 @@ use crate::operators::operators::element_wise_multiplication::SemiringElementWis
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 impl<EvaluationDomain: ValueType> SemiringElementWiseAdjacencyMatrixMultiplication<EvaluationDomain>
     for Graph
 {

@@ -15,10 +15,11 @@ use crate::graph::graph::{
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
-use crate::operators::operators::multiplication::{VertexVectorAdjacencyMatrixMultiplication, VertexVectorAdjacencyMatrixMultiplicationUnchecked};
+use crate::operators::operators::multiplication::{
+    VertexVectorAdjacencyMatrixMultiplication, VertexVectorAdjacencyMatrixMultiplicationUnchecked,
+};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
-
 
 impl<EvaluationDomain> VertexVectorAdjacencyMatrixMultiplication<EvaluationDomain> for Graph
 where

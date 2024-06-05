@@ -15,10 +15,10 @@ use crate::{
 
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::Graph;
-use crate::operators::operators::delete::DropVertexIndex;
-use crate::operators::operators::delete::DropPrivateVertexIndex;
-use crate::operators::operators::delete::DeleteVertexValue;
 use crate::operators::operators::delete::DeletePrivateVertexValue;
+use crate::operators::operators::delete::DeleteVertexValue;
+use crate::operators::operators::delete::DropPrivateVertexIndex;
+use crate::operators::operators::delete::DropVertexIndex;
 
 impl DropVertexIndex for Graph {
     fn drop_vertex_index_and_connected_edges(

@@ -47,6 +47,4 @@ pub(crate) trait DeletePrivateVertexValue {
 }
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

@@ -4,6 +4,8 @@ use graphblas_sparse_linear_algebra::operators::{
     options::OperatorOptions,
 };
 
+use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
+use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -21,8 +23,6 @@ use crate::{
     },
     operators::indexing::CheckIndex,
 };
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain>
     for Graph

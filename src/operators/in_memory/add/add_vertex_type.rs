@@ -8,7 +8,8 @@ use crate::{
             AddPrivateVertexType as AddPrivateVertexTypeToVertexStore,
             AddPublicVertexType as AddPublicVertexTypeToVertexStore,
         },
-    }, operators::operators::add::{AddPrivateVertexType, AddVertexType},
+    },
+    operators::operators::add::{AddPrivateVertexType, AddVertexType},
 };
 
 impl<T: ValueType + GetValueTypeIdentifier> AddVertexType<T> for Graph {

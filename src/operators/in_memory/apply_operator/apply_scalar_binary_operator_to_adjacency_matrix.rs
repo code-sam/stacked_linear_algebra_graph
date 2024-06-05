@@ -15,6 +15,8 @@ use crate::graph::{
     },
     indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
 };
+use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix;
+use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrixUnchecked;
 use crate::{
     error::GraphComputingError,
     graph::{graph::Graph, value_type::ValueType},
@@ -29,8 +31,6 @@ use crate::{
     },
     operators::indexing::CheckIndex,
 };
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrixUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
     for Graph

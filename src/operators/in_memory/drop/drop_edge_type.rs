@@ -25,7 +25,6 @@ impl DropPrivateEdgeType for Graph {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
 

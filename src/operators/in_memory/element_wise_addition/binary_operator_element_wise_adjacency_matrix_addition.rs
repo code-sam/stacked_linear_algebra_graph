@@ -13,10 +13,12 @@ use crate::graph::graph::{
 };
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::operators::indexing::CheckIndex;
-use crate::operators::operators::element_wise_addition::{BinaryOperatorElementWiseAdjacencyMatrixAddition, BinaryOperatorElementWiseAdjacencyMatrixAdditionUnchecked};
+use crate::operators::operators::element_wise_addition::{
+    BinaryOperatorElementWiseAdjacencyMatrixAddition,
+    BinaryOperatorElementWiseAdjacencyMatrixAdditionUnchecked,
+};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
-
 
 impl<EvaluationDomain: ValueType> BinaryOperatorElementWiseAdjacencyMatrixAddition<EvaluationDomain>
     for Graph

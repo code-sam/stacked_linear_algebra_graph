@@ -3,27 +3,11 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 };
 
 use crate::graph::indexing::indexer::GetIndexMask;
+use crate::graph::indexing::operations::{
+    GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
+};
 use crate::graph::indexing::ElementIndex;
 use crate::{error::GraphComputingError, graph::indexing::Indexer};
-
-pub(crate) trait GetValidIndices {
-    fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;
-    fn valid_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError>;
-}
-
-pub(crate) trait GetValidPublicIndices {
-    fn mask_with_valid_public_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError>;
-    fn valid_public_indices(&mut self) -> Result<Vec<ElementIndex>, GraphComputingError>;
-}
-
-pub(crate) trait GetValidPrivateIndices {
-    fn mask_with_valid_private_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError>;
-    fn valid_private_indices(&mut self) -> Result<Vec<ElementIndex>, GraphComputingError>;
-}
 
 impl GetValidIndices for Indexer {
     // The mask is updated at each push() and free() operation.
@@ -43,15 +27,13 @@ impl GetValidPublicIndices for Indexer {
     // The mask is updated at each push() and free() operation.
     // benefit: mask is pre-computed, resulting in faster query operations
     // downside: slower push() and free() operations
-    fn mask_with_valid_public_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError> {
+    fn mask_with_valid_public_indices_ref(&self) -> &SparseVector<bool> {
         GetIndexMask::mask_with_valid_public_indices_ref(self)
     }
 
-    fn valid_public_indices(&mut self) -> Result<Vec<ElementIndex>, GraphComputingError> {
+    fn valid_public_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
         // self.key_to_index_map.values().into_iter().collect()
-        Ok(GetIndexMask::mask_with_valid_public_indices_ref(self)?.element_indices()?)
+        Ok(GetIndexMask::mask_with_valid_public_indices_ref(self).element_indices()?)
     }
 }
 
@@ -59,15 +41,13 @@ impl GetValidPrivateIndices for Indexer {
     // The mask is updated at each push() and free() operation.
     // benefit: mask is pre-computed, resulting in faster query operations
     // downside: slower push() and free() operations
-    fn mask_with_valid_private_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError> {
+    fn mask_with_valid_private_indices_ref(&self) -> &SparseVector<bool> {
         GetIndexMask::mask_with_valid_private_indices_ref(self)
     }
 
-    fn valid_private_indices(&mut self) -> Result<Vec<ElementIndex>, GraphComputingError> {
+    fn valid_private_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
         // self.key_to_index_map.values().into_iter().collect()
-        Ok(GetIndexMask::mask_with_valid_private_indices_ref(self)?.element_indices()?)
+        Ok(GetIndexMask::mask_with_valid_private_indices_ref(self).element_indices()?)
     }
 }
 

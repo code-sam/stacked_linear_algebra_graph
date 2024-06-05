@@ -15,7 +15,6 @@ use crate::{
     },
 };
 
-
 impl<T> GetSparseVertexVector<T> for Graph
 where
     T: ValueType + IntoSparseVectorForValueType<T>,

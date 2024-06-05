@@ -11,7 +11,6 @@ use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
 use crate::operators::operators::update::{UpdateEdgeWeight, UpdatePrivateEdgeWeight};
 use crate::{error::GraphComputingError, graph::graph::Graph};
 
-
 impl<T: ValueType + SetSparseMatrixElementTyped<T> + Copy> UpdateEdgeWeight<T> for Graph {
     fn update_edge_weight_from_edge(
         &mut self,

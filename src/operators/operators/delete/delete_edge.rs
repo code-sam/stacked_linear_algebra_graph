@@ -35,6 +35,4 @@ pub(crate) trait DeletePrivateEdge {
 }
 
 #[cfg(test)]
-mod tests {
-    
-}
+mod tests {}

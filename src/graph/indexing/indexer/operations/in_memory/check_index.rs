@@ -1,25 +1,12 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
 
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
+use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::Index;
 use crate::{
     error::{GraphComputingError, LogicError, LogicErrorType},
     graph::indexing::Indexer,
 };
-
-pub(crate) trait CheckIndex {
-    fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_index_validity(&self, index: &Index) -> Result<(), GraphComputingError>;
-
-    fn is_valid_private_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_is_valid_private_index(&self, index: &Index) -> Result<(), GraphComputingError>;
-
-    fn is_public_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_is_public_index(&self, index: &Index) -> Result<(), GraphComputingError>;
-
-    fn is_valid_public_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_is_valid_public_index(&self, index: &Index) -> Result<(), GraphComputingError>;
-}
 
 impl CheckIndex for Indexer {
     fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError> {
@@ -104,14 +91,14 @@ impl CheckIndex for Indexer {
 }
 
 impl Indexer {
-    fn is_index_private(&self, index: &Index) -> Result<bool, GraphComputingError> {
+    pub(super) fn is_index_private(&self, index: &Index) -> Result<bool, GraphComputingError> {
         match self.mask_with_private_indices_ref().element_value(index)? {
             Some(_) => Ok(true),
             None => Ok(false),
         }
     }
 
-    fn is_index_not_private(&self, index: &Index) -> Result<bool, GraphComputingError> {
+    pub(super) fn is_index_not_private(&self, index: &Index) -> Result<bool, GraphComputingError> {
         match self.mask_with_private_indices_ref().element_value(index)? {
             Some(_) => Ok(false),
             None => Ok(true),

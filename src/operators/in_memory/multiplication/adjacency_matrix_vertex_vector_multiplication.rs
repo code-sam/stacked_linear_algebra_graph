@@ -20,7 +20,6 @@ use crate::operators::operators::multiplication::AdjacencyMatrixVertexVectorMult
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsLeftArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 impl<EvaluationDomain: ValueType> AdjacencyMatrixVertexVectorMultiplication<EvaluationDomain>
     for Graph
 {

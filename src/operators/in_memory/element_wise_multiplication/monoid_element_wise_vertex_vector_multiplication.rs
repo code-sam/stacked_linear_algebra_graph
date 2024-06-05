@@ -10,9 +10,11 @@ use crate::graph::graph::{
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
-use crate::operators::operators::element_wise_multiplication::{MonoidElementWiseVertexVectorMultiplication, MonoidElementWiseVertexVectorMultiplicationUnchecked};
+use crate::operators::operators::element_wise_multiplication::{
+    MonoidElementWiseVertexVectorMultiplication,
+    MonoidElementWiseVertexVectorMultiplicationUnchecked,
+};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
-
 
 impl<EvaluationDomain> MonoidElementWiseVertexVectorMultiplication<EvaluationDomain> for Graph
 where

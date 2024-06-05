@@ -20,8 +20,5 @@ pub(crate) trait DropPrivateEdgeType {
     ) -> Result<(), GraphComputingError>;
 }
 
-
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}

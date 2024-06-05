@@ -10,7 +10,9 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
 use crate::graph::graph::GetEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
-use crate::operators::operators::read::{GetPrivateSparseAdjacencyMatrix, GetSparseAdjacencyMatrix};
+use crate::operators::operators::read::{
+    GetPrivateSparseAdjacencyMatrix, GetSparseAdjacencyMatrix,
+};
 use crate::{
     error::GraphComputingError,
     graph::{

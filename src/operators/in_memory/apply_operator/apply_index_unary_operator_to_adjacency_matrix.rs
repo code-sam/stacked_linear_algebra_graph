@@ -4,22 +4,20 @@ use graphblas_sparse_linear_algebra::operators::{
     index_unary_operator::IndexUnaryOperator,
 };
 
-use crate::{
-    operators::{indexing::CheckIndex, options::OptionsForOperatorWithAdjacencyMatrixArgument},
+use crate::graph::edge_store::{
+    ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
+    GetArgumentsForAdjacencyMatrixOperator,
 };
 use crate::graph::graph::{
-            GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
-        };
-use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
-use crate::graph::edge_store::{
-            ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
-            GetArgumentsForAdjacencyMatrixOperator,
-        };
-
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::{
-    error::GraphComputingError,
+    GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
 };
+use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
+use crate::operators::{
+    indexing::CheckIndex, options::OptionsForOperatorWithAdjacencyMatrixArgument,
+};
+
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::{graph::Graph, value_type::ValueType};
 use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrix;
 use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked;

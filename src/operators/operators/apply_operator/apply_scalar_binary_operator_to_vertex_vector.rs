@@ -75,4 +75,3 @@ where
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError>;
 }
-

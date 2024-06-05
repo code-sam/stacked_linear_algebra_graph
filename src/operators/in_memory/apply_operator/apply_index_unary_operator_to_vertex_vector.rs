@@ -5,6 +5,8 @@ use graphblas_sparse_linear_algebra::operators::{
     options::OperatorOptions,
 };
 
+use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
 use crate::{
     error::GraphComputingError,
     graph::{
@@ -22,8 +24,6 @@ use crate::{
     },
     operators::indexing::CheckIndex,
 };
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where

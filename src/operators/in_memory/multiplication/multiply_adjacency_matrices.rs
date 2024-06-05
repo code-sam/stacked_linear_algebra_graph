@@ -19,7 +19,6 @@ use crate::operators::operators::multiplication::AdjacencyMatrixMultiplicationUn
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 impl<EvaluationDomain: ValueType> AdjacencyMatrixMultiplication<EvaluationDomain> for Graph {
     fn apply(
         &mut self,

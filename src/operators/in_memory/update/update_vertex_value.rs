@@ -8,7 +8,6 @@ use crate::{
     graph::{graph::Graph, vertex_store::UpdateVertex},
 };
 
-
 impl<T> UpdateVertexValue<T> for Graph
 where
     T: ValueType,

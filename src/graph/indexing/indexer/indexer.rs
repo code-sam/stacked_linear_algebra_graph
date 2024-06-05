@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    GetSparseVectorLength, ResizeSparseVector, SetVectorElement,
+    GetSparseVectorLength, SetVectorElement,
 };
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::Collection;
@@ -23,46 +23,26 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
 
 use super::operations::SetIndexCapacity;
+use super::{Queue, VecDequeQueue};
 
 pub(crate) const MINIMUM_INDEXER_CAPACITY: usize = 1;
-
-static ELEMENT_WISE_VECTOR_ADDITION_BINARY_OPERATOR: Lazy<ElementWiseVectorAdditionBinaryOperator> =
-    Lazy::new(|| ElementWiseVectorAdditionBinaryOperator::new());
-
-static ELEMENT_WISE_VECTOR_MULTIPLICATION_BINARY_OPERATOR: Lazy<
-    ElementWiseVectorMultiplicationBinaryOperator,
-> = Lazy::new(|| ElementWiseVectorMultiplicationBinaryOperator::new());
-
-static UNARY_OPERATOR_APPLIER: Lazy<UnaryOperatorApplier> =
-    Lazy::new(|| UnaryOperatorApplier::new());
-
-static LOGICAL_AND_BOOL: Lazy<LogicalAnd<bool>> = Lazy::new(|| LogicalAnd::<bool>::new());
-
-static MINUS_BOOL: Lazy<Minus<bool>> = Lazy::new(|| Minus::<bool>::new());
-
-static ASSIGNMENT_OPERATOR_BOOL: Lazy<Assignment<bool>> = Lazy::new(|| Assignment::<bool>::new());
-
-static DEFAULT_OPERATOR_OPTIONS: Lazy<OperatorOptions> =
-    Lazy::new(|| OperatorOptions::new_default());
 
 #[derive(Clone, Debug)]
 pub(crate) struct Indexer {
     _graphblas_context: Arc<GraphBLASContext>,
     select_entire_vector: SelectEntireVector,
 
-    indices_available_for_reuse: VecDeque<Index>,
+    indices_available_for_reuse: VecDequeQueue<Index>,
+
     mask_with_valid_indices: SparseVector<bool>,
     mask_with_private_indices: SparseVector<bool>,
-
-    // TODO: evaluate if caching, or updating on each change yields better performance
-    mask_with_valid_private_indices: Option<SparseVector<bool>>,
-    mask_with_public_indices: Option<SparseVector<bool>>,
-    mask_with_valid_public_indices: Option<SparseVector<bool>>,
+    mask_with_valid_private_indices: SparseVector<bool>,
+    mask_with_valid_public_indices: SparseVector<bool>,
 }
 
 pub(super) trait GetIndicesAvailableForReuse {
-    fn indices_available_for_reuse_ref(&self) -> &VecDeque<Index>;
-    fn indices_available_for_reuse_mut_ref(&mut self) -> &mut VecDeque<Index>;
+    fn indices_available_for_reuse_ref(&self) -> &VecDequeQueue<Index>;
+    fn indices_available_for_reuse_mut_ref(&mut self) -> &mut VecDequeQueue<Index>;
 }
 
 pub(super) trait GetIndexMask {
@@ -72,26 +52,19 @@ pub(super) trait GetIndexMask {
     fn mask_with_private_indices_ref(&self) -> &SparseVector<bool>;
     fn mask_with_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
 
-    fn mask_with_valid_private_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError>;
-    // fn mask_with_valid_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
+    fn mask_with_valid_private_indices_ref(&self) -> &SparseVector<bool>;
+    fn mask_with_valid_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
 
-    // fn mask_with_public_indices_ref(&mut self) -> Result<&SparseVector<bool>, GraphComputingError>;
-    // fn mask_with_public_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
-
-    fn mask_with_valid_public_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError>;
-    // fn mask_with_valid_public_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
+    fn mask_with_valid_public_indices_ref(&self) -> &SparseVector<bool>;
+    fn mask_with_valid_public_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
 }
 
 impl GetIndicesAvailableForReuse for Indexer {
-    fn indices_available_for_reuse_ref(&self) -> &VecDeque<Index> {
+    fn indices_available_for_reuse_ref(&self) -> &VecDequeQueue<Index> {
         &self.indices_available_for_reuse
     }
 
-    fn indices_available_for_reuse_mut_ref(&mut self) -> &mut VecDeque<Index> {
+    fn indices_available_for_reuse_mut_ref(&mut self) -> &mut VecDequeQueue<Index> {
         &mut self.indices_available_for_reuse
     }
 }
@@ -102,8 +75,23 @@ impl GetIndexMask for Indexer {
     }
 
     fn mask_with_valid_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
-        self.invalidate_cached_masks();
         &mut self.mask_with_valid_indices
+    }
+
+    fn mask_with_valid_private_indices_ref(&self) -> &SparseVector<bool> {
+        &self.mask_with_valid_private_indices
+    }
+
+    fn mask_with_valid_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
+        &mut self.mask_with_valid_private_indices
+    }
+
+    fn mask_with_valid_public_indices_ref(&self) -> &SparseVector<bool> {
+        &self.mask_with_valid_private_indices
+    }
+
+    fn mask_with_valid_public_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
+        &mut self.mask_with_valid_public_indices
     }
 
     fn mask_with_private_indices_ref(&self) -> &SparseVector<bool> {
@@ -111,56 +99,7 @@ impl GetIndexMask for Indexer {
     }
 
     fn mask_with_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
-        self.invalidate_cached_masks();
         &mut self.mask_with_private_indices
-    }
-
-    fn mask_with_valid_private_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError> {
-        if self.mask_with_valid_private_indices.is_none() {
-            let mut mask = SparseVector::<bool>::new(&self._graphblas_context, &self.capacity()?)?;
-
-            ELEMENT_WISE_VECTOR_MULTIPLICATION_BINARY_OPERATOR.apply(
-                self.mask_with_valid_indices_ref(),
-                &*LOGICAL_AND_BOOL,
-                self.mask_with_private_indices_ref(),
-                &*ASSIGNMENT_OPERATOR_BOOL,
-                &mut mask,
-                &self.select_entire_vector,
-                &*DEFAULT_OPERATOR_OPTIONS,
-            )?;
-
-            self.mask_with_valid_private_indices = Some(mask);
-        }
-
-        Ok(self.mask_with_valid_private_indices.as_ref().unwrap())
-    }
-
-    // fn mask_with_public_indices_ref(&mut self) -> Result<&SparseVector<bool>, GraphComputingError> {
-    //     todo!()
-    // }
-
-    fn mask_with_valid_public_indices_ref(
-        &mut self,
-    ) -> Result<&SparseVector<bool>, GraphComputingError> {
-        if self.mask_with_valid_private_indices.is_none() {
-            let mut mask = SparseVector::<bool>::new(&self._graphblas_context, &self.capacity()?)?;
-
-            ELEMENT_WISE_VECTOR_ADDITION_BINARY_OPERATOR.apply(
-                self.mask_with_valid_indices_ref(),
-                &*MINUS_BOOL,
-                self.mask_with_private_indices_ref(),
-                &*ASSIGNMENT_OPERATOR_BOOL,
-                &mut mask,
-                &self.select_entire_vector,
-                &*DEFAULT_OPERATOR_OPTIONS,
-            )?;
-
-            self.mask_with_valid_private_indices = Some(mask);
-        }
-
-        Ok(self.mask_with_valid_private_indices.as_ref().unwrap())
     }
 }
 
@@ -186,12 +125,17 @@ impl Indexer {
         Ok(Self {
             _graphblas_context: graphblas_context.clone(),
             select_entire_vector: SelectEntireVector::new(graphblas_context),
-            indices_available_for_reuse: VecDeque::new(),
+            indices_available_for_reuse: VecDequeQueue::new(),
             mask_with_valid_indices: SparseVector::new(&graphblas_context, &initial_capacity)?,
             mask_with_private_indices: SparseVector::new(&graphblas_context, &initial_capacity)?,
-            mask_with_valid_private_indices: None,
-            mask_with_public_indices: None,
-            mask_with_valid_public_indices: None,
+            mask_with_valid_private_indices: SparseVector::new(
+                &graphblas_context,
+                &initial_capacity,
+            )?,
+            mask_with_valid_public_indices: SparseVector::new(
+                &graphblas_context,
+                &initial_capacity,
+            )?,
         })
     }
 
@@ -239,12 +183,6 @@ impl Indexer {
 
     pub(super) fn capacity(&self) -> Result<Index, GraphComputingError> {
         Ok(self.mask_with_valid_indices_ref().length()?)
-    }
-
-    fn invalidate_cached_masks(&mut self) {
-        self.mask_with_valid_private_indices = None;
-        self.mask_with_public_indices = None;
-        self.mask_with_valid_public_indices = None;
     }
 }
 

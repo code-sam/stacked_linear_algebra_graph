@@ -13,13 +13,13 @@ use crate::graph::graph::{
 };
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::apply_operator::ApplyUnaryOperatorToAdjacencyMatrix;
+use crate::operators::operators::apply_operator::ApplyUnaryOperatorToAdjacencyMatrixUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{
     error::GraphComputingError,
     graph::{graph::Graph, value_type::ValueType},
 };
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToAdjacencyMatrix;
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToAdjacencyMatrixUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToAdjacencyMatrix<EvaluationDomain> for Graph {
     fn apply(

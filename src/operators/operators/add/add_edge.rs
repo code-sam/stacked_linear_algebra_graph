@@ -72,6 +72,4 @@ pub(crate) trait AddPrivateEdge<T: ValueType> {
 }
 
 #[cfg(test)]
-mod tests {
-    
-}
+mod tests {}

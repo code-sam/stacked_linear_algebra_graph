@@ -17,7 +17,6 @@ use crate::operators::operators::transpose::TransposeAdjacencyMatrixUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 impl<EvaluationDomain> TransposeAdjacencyMatrix<EvaluationDomain> for Graph
 where
     EvaluationDomain: ValueType,

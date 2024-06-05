@@ -7,6 +7,5 @@ pub mod element_wise_multiplication;
 pub mod multiplication;
 pub mod read;
 pub mod select;
-pub mod transaction;
 pub mod transpose;
 pub mod update;
