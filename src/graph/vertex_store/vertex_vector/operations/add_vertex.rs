@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
 
 use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::CheckIndex;
@@ -62,7 +62,7 @@ where
 
 impl<T> AddVertex<T> for VertexStore
 where
-    T: ValueType + SetVectorElementTyped<T>,
+    T: ValueType + SetSparseVectorElementTyped<T>,
 {
     fn add_new_public_vertex(
         &mut self,
@@ -150,7 +150,7 @@ mod tests {
     fn test_add_new_vertex() {
         let context = GraphblasContext::init_default().unwrap();
 
-        let mut store = VertexStore::with_initial_capacity(&context, &0, &0).unwrap();
+        let mut store = VertexStore::with_initial_capacity(context, 0, 0).unwrap();
 
         let mut vertex_type_indices = Vec::new();
         for _i in 0..2 {

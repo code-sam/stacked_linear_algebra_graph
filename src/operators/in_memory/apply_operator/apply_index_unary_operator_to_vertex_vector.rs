@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn add_scalar_to_vertex_vector() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;

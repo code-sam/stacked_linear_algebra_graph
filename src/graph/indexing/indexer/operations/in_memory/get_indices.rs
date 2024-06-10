@@ -1,5 +1,5 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    operations::GetVectorElementIndices, SparseVector,
+    operations::GetSparseVectorElementIndices, SparseVector,
 };
 
 use crate::graph::indexing::indexer::GetIndexMask;
@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn test_valid_indices() {
         let mut indexer =
-            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 0).unwrap();
 
         let n_indices = 10;
         for _i in 0..n_indices {

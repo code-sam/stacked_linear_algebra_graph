@@ -34,8 +34,8 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T>> SetOrUpdateEdgeWeight<T>
     ) -> Result<(), GraphComputingError> {
         Ok(T::set_graphblas_matrix_value(
             self,
-            tail.index_ref(),
-            head.index_ref(),
+            tail.index(),
+            head.index(),
             weight,
         )?)
     }

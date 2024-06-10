@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
 
 use crate::error::GraphComputingError;
 
@@ -36,7 +36,7 @@ pub(crate) trait UpdateVertex<T: ValueType> {
 
 impl<T> UpdateVertex<T> for VertexStore
 where
-    T: ValueType + Copy + SetVectorElementTyped<T>,
+    T: ValueType + Copy + SetSparseVectorElementTyped<T>,
 {
     fn update_public_vertex(
         &mut self,

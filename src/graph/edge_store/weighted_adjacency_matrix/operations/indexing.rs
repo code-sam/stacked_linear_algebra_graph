@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     GetCoordinateIndices, MatrixElementList,
 };
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementList;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementList;
 use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 

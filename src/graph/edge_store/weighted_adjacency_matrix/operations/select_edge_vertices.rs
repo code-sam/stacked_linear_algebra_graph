@@ -35,7 +35,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
         &self,
     ) -> Result<SparseVector<bool>, GraphComputingError> {
         let mut from_vertex_vector_mask =
-            SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+            SparseVector::new(self.graphblas_context(), self.vertex_capacity()?)?;
 
         // TODO: think about caching for performance optimization
         // let GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION =
@@ -49,7 +49,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             self,
             &Assignment::new(),
             &mut from_vertex_vector_mask,
-            &SelectEntireVector::new(self.graphblas_context_ref()),
+            &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
             &*DEFAULT_OPERATOR_OPTIONS,
         )?;
         Ok(from_vertex_vector_mask)
@@ -59,7 +59,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
         &self,
     ) -> Result<SparseVector<bool>, GraphComputingError> {
         let mut to_vertex_vector_mask =
-            SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+            SparseVector::new(self.graphblas_context(), self.vertex_capacity()?)?;
         // let GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION =
         //     MonoidReducer::<$value_type>::new(
         //         &Any::<$value_type>::new(),
@@ -77,7 +77,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             self,
             &Assignment::new(),
             &mut to_vertex_vector_mask,
-            &SelectEntireVector::new(self.graphblas_context_ref()),
+            &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
             &*DEFAULT_OPERATOR_OPTIONS,
         )?;
         Ok(to_vertex_vector_mask)
@@ -86,7 +86,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
     // TODO: wrap mask into a business struct
     fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError> {
         let mut vertex_vector_mask =
-            SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+            SparseVector::new(self.graphblas_context(), self.vertex_capacity()?)?;
 
         ElementWiseVectorAdditionMonoidOperator::new().apply(
             &SelectEdgeVertices::<T>::select_vertices_with_incoming_edges(self)?,
@@ -94,7 +94,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             &SelectEdgeVertices::<T>::select_vertices_with_outgoing_edges(self)?,
             &Assignment::new(),
             &mut vertex_vector_mask,
-            &SelectEntireVector::new(self.graphblas_context_ref()),
+            &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
             &*DEFAULT_OPERATOR_OPTIONS,
         )?;
         Ok(vertex_vector_mask)

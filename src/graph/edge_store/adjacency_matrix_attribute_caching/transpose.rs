@@ -46,8 +46,8 @@ macro_rules! create_transpose_adjacency_matrix_function {
                 let sparse_matrix_size = sparse_matrix_size(adjacency_matrix)?; // TODO: would it be more efficient to use a cached size here?
                 let mut transposed_adjacency_matrix =
                     <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<$value_type>>::new(
-                        adjacency_matrix.context_ref(),
-                        sparse_matrix_size.column_width_ref(),
+                        adjacency_matrix.context(),
+                        sparse_matrix_size.column_width(),
                     )?;
 
                 MATRIX_TRANSPOSE_OPERATOR.apply(
@@ -88,7 +88,7 @@ mod tests {
         let context = Context::init_default().unwrap();
 
         let mut adjacency_matrix =
-            <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<u32>>::new(&context, &10)
+            <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<u32>>::new(context.clone(), 10)
                 .unwrap();
 
         adjacency_matrix
@@ -99,7 +99,7 @@ mod tests {
             .unwrap();
 
         let transposed =
-            transpose_adjacency_matrix_u32(&adjacency_matrix, &SelectEntireMatrix::new(&context))
+            transpose_adjacency_matrix_u32(&adjacency_matrix, &SelectEntireMatrix::new(context.clone()))
                 .unwrap();
 
         assert_eq!(

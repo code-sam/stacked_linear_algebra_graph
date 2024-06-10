@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementList;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementList;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     SparseVector, VectorElementList as VertexVectorElementList,
 };

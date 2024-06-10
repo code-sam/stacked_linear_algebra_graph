@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn select_edges_with_tail_vertex() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;

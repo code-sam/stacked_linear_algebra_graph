@@ -32,8 +32,8 @@ where
     ) -> Result<(), GraphComputingError> {
         T::set_graphblas_matrix_value(
             self,
-            edge.tail_ref().index_ref(),
-            edge.head_ref().index_ref(),
+            edge.tail_ref().index(),
+            edge.head_ref().index(),
             *edge.weight_ref(),
         )?;
         Ok(())
@@ -45,7 +45,7 @@ where
         head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        T::set_graphblas_matrix_value(self, tail.index_ref(), head.index_ref(), weight)?;
+        T::set_graphblas_matrix_value(self, tail.index(), head.index(), weight)?;
         Ok(())
     }
 }

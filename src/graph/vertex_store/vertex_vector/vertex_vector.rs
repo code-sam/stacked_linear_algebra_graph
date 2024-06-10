@@ -49,21 +49,21 @@ pub(crate) struct VertexVector {
 
 pub(crate) trait CreateVertexVector<T> {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<VertexVector, GraphComputingError>;
 }
 
 impl<T: ValueType + GetValueTypeIdentifier> CreateVertexVector<T> for VertexVector {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<VertexVector, GraphComputingError> {
         Ok(VertexVector {
             graphblas_context: graphblas_context.clone(),
             sparse_vector: unsafe {
                 new_graphblas_vector(
-                    graphblas_context,
+                    &graphblas_context,
                     initial_vertex_capacity,
                     T::to_graphblas_type(),
                 )?
@@ -193,7 +193,7 @@ macro_rules! implement_into_sparse_vector_for_value_type {
                 match vector.value_type_identifier_ref() {
                     &ValueTypeIdentifier::$value_type_identifier => unsafe {
                         Ok(SparseVector::<$value_type>::from_graphblas_vector(
-                            vector.context_ref(),
+                            vector.context(),
                             clone_graphblas_vector(
                                 vector.context_ref(),
                                 vector.graphblas_vector_ref(),
@@ -202,8 +202,8 @@ macro_rules! implement_into_sparse_vector_for_value_type {
                     },
                     _ => {
                         let mut product_vector = SparseVector::<$value_type>::new(
-                            vector.context_ref(),
-                            &vector.length()?,
+                            vector.context(),
+                            vector.length()?,
                         )?;
 
                         UNARY_OPERATOR_APPLIER.apply_to_vector(
@@ -211,7 +211,7 @@ macro_rules! implement_into_sparse_vector_for_value_type {
                             vector,
                             &Assignment::<$value_type>::new(),
                             &mut product_vector,
-                            &SelectEntireVector::new(vector.context_ref()),
+                            &SelectEntireVector::new(vector.context()),
                             &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                         )?;
 
@@ -228,8 +228,8 @@ implement_1_type_macro_with_enum_type_indentifier_for_all_value_types!(
 
 pub(crate) trait CreateSparseVectorForValueType<T: ValueType> {
     fn new_sparse_vector(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<SparseVector<T>, GraphComputingError>;
 }
 
@@ -237,8 +237,8 @@ macro_rules! implement_create_sparse_vector_for_value_type {
     ($value_type:ty) => {
         impl CreateSparseVectorForValueType<$value_type> for $value_type {
             fn new_sparse_vector(
-                graphblas_context: &Arc<GraphBLASContext>,
-                initial_vertex_capacity: &ElementCount,
+                graphblas_context: Arc<GraphBLASContext>,
+                initial_vertex_capacity: ElementCount,
             ) -> Result<SparseVector<$value_type>, GraphComputingError> {
                 Ok(SparseVector::<$value_type>::new(
                     graphblas_context,

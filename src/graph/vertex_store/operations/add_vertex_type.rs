@@ -46,8 +46,8 @@ impl VertexStore {
         self.synchronize_vector_with_vertex_vectors(&new_type_index);
 
         let new_vertex_vector = <VertexVector as CreateVertexVector<T>>::new(
-            self.graphblas_context_ref(),
-            &self
+            self.graphblas_context(),
+            self
                 .element_indexer_ref()
                 .mask_with_valid_indices_ref()
                 .length()?,

@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValueTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValueTyped;
 
 use crate::error::GraphComputingError;
 
@@ -12,7 +12,7 @@ use crate::operators::operators::read::{GetPrivateVertexValue, GetVertexValue};
 
 impl<T> GetVertexValue<T> for Graph
 where
-    T: ValueType + GetVectorElementValueTyped<T> + IntoSparseVectorForValueType<T> + Default,
+    T: ValueType + GetSparseVectorElementValueTyped<T> + IntoSparseVectorForValueType<T> + Default,
 {
     fn vertex_value(
         &self,
@@ -44,7 +44,7 @@ where
 
 impl<T> GetPrivateVertexValue<T> for Graph
 where
-    T: ValueType + GetVectorElementValueTyped<T> + IntoSparseVectorForValueType<T> + Default,
+    T: ValueType + GetSparseVectorElementValueTyped<T> + IntoSparseVectorForValueType<T> + Default,
 {
     fn private_vertex_value(
         &self,

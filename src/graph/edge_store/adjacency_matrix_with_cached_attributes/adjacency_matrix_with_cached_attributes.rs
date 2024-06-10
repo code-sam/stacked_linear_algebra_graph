@@ -25,8 +25,8 @@ pub(crate) struct WeightedAdjacencyMatrixWithCachedAttributes {
 
 pub(crate) trait CreateWeightedAdjacencyMatrixWithCachedAttributes<T> {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError>;
 }
 
@@ -34,11 +34,11 @@ impl<T: ValueType + GetValueTypeIdentifier> CreateWeightedAdjacencyMatrixWithCac
     for WeightedAdjacencyMatrixWithCachedAttributes
 {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
         let adjacency_matrix = <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<T>>::new(
-            graphblas_context,
+            graphblas_context.clone(),
             initial_vertex_capacity,
         )?;
         let cached_attributes = CachedAdjacencyMatrixAttributes::new(graphblas_context);
@@ -105,7 +105,7 @@ mod tests {
     fn cached_adjacency_matrix_transpose() {
         let context = Context::init_default().unwrap();
 
-        let mut adjacency_matrix = <WeightedAdjacencyMatrixWithCachedAttributes as CreateWeightedAdjacencyMatrixWithCachedAttributes<u32>>::new(&context, &10)
+        let mut adjacency_matrix = <WeightedAdjacencyMatrixWithCachedAttributes as CreateWeightedAdjacencyMatrixWithCachedAttributes<u32>>::new(context.clone(), 10)
         .unwrap();
 
         adjacency_matrix

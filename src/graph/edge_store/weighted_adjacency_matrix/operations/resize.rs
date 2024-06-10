@@ -19,7 +19,7 @@ impl ResizeWeightedAdjacencyMatrix for WeightedAdjacencyMatrix {
     fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError> {
         Ok(resize_sparse_matrix(
             self,
-            &Size::new(new_vertex_capacity, new_vertex_capacity),
+            Size::new(new_vertex_capacity, new_vertex_capacity),
         )?)
     }
 }

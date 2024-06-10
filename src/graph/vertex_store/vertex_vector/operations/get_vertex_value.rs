@@ -1,5 +1,5 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    GetVectorElementValue, GetVectorElementValueTyped,
+    GetSparseVectorElementValue, GetSparseVectorElementValueTyped,
 };
 
 use crate::error::GraphComputingError;
@@ -70,7 +70,7 @@ pub(crate) trait GetVertexValue<T: ValueType> {
     ) -> Result<T, GraphComputingError>;
 }
 
-impl<T: ValueType + IntoSparseVectorForValueType<T> + GetVectorElementValueTyped<T> + Default>
+impl<T: ValueType + IntoSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default>
     GetVertexValue<T> for VertexStore
 {
     fn public_vertex_value(

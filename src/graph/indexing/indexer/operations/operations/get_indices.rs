@@ -1,5 +1,5 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    operations::GetVectorElementIndices, SparseVector,
+    operations::GetSparseVectorElementIndices, SparseVector,
 };
 
 use crate::graph::indexing::indexer::GetIndexMask;

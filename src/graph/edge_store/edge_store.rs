@@ -22,20 +22,20 @@ pub(crate) struct EdgeStore {
 
 impl EdgeStore {
     pub(crate) fn with_initial_capacity(
-        graphblas_context: &Arc<GraphblasContext>,
-        initial_vertex_capacity: &ElementCount,
-        initial_edge_type_capacity: &ElementCount,
+        graphblas_context: Arc<GraphblasContext>,
+        initial_vertex_capacity: ElementCount,
+        initial_edge_type_capacity: ElementCount,
     ) -> Result<Self, GraphComputingError> {
         Ok(Self {
             graphblas_context: graphblas_context.clone(),
             edge_type_indexer: EdgeTypeIndexer::with_initial_capacity(
-                graphblas_context,
+                graphblas_context.clone(),
                 initial_edge_type_capacity,
             )?,
             adjacency_matrices: Vec::<WeightedAdjacencyMatrixWithCachedAttributes>::with_capacity(
                 initial_edge_type_capacity.clone(),
             ),
-            adjacency_matrix_size: *initial_vertex_capacity,
+            adjacency_matrix_size: initial_vertex_capacity,
             mask_to_select_entire_adjacency_matrix: SelectEntireMatrix::new(graphblas_context),
         })
     }
@@ -46,6 +46,7 @@ pub(crate) trait GetAdjacencyMatrices {
     fn adjacency_matrices_mut_ref(&mut self) -> &mut [WeightedAdjacencyMatrixWithCachedAttributes];
     fn adjacency_matrices_mut(&mut self) -> &mut Vec<WeightedAdjacencyMatrixWithCachedAttributes>;
 
+    fn adjacency_matrix_size(&self) -> ElementCount;
     fn adjacency_matrix_size_ref(&self) -> &ElementCount;
     fn adjacency_matrix_size_mut_ref(&mut self) -> &mut ElementCount;
 
@@ -78,6 +79,10 @@ impl GetAdjacencyMatrices for EdgeStore {
 
     fn adjacency_matrices_mut(&mut self) -> &mut Vec<WeightedAdjacencyMatrixWithCachedAttributes> {
         &mut self.adjacency_matrices
+    }
+
+    fn adjacency_matrix_size(&self) -> ElementCount {
+        self.adjacency_matrix_size
     }
 
     fn adjacency_matrix_size_ref(&self) -> &ElementCount {

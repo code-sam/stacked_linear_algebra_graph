@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn transpose_adjacency_matrix() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
         let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();

@@ -99,9 +99,9 @@ pub struct Graph {
 
 impl Graph {
     pub fn with_initial_capacity(
-        initial_vertex_type_capacity: &ElementCount,
-        initial_vertex_capacity: &ElementCount,
-        initial_edge_type_capacity: &ElementCount,
+        initial_vertex_type_capacity: ElementCount,
+        initial_vertex_capacity: ElementCount,
+        initial_edge_type_capacity: ElementCount,
     ) -> Result<Self, GraphComputingError> {
         let graphblas_context = GraphblasContext::init(
             GraphblasMode::NonBlocking,
@@ -109,20 +109,20 @@ impl Graph {
         )?;
 
         let vertex_store = VertexStore::with_initial_capacity(
-            &graphblas_context,
+            graphblas_context.clone(),
             initial_vertex_type_capacity,
             initial_vertex_capacity,
         )?;
         let edge_store = EdgeStore::with_initial_capacity(
-            &graphblas_context,
-            &initial_vertex_capacity,
-            &initial_edge_type_capacity,
+            graphblas_context.clone(),
+            initial_vertex_capacity,
+            initial_edge_type_capacity,
         )?;
 
         let graph: Graph = Self {
             graphblas_context: graphblas_context.clone(),
             graphblas_operator_applier_collection: GraphblasOperatorApplierCollection::new(
-                &graphblas_context,
+                graphblas_context,
             ),
 
             vertex_store,
@@ -145,8 +145,8 @@ mod tests {
 
     #[test]
     fn graph_isolation() {
-        let mut graph_1 = Graph::with_initial_capacity(&10, &20, &20).unwrap();
-        let mut graph_2 = Graph::with_initial_capacity(&10, &20, &20).unwrap();
+        let mut graph_1 = Graph::with_initial_capacity(10, 20, 20).unwrap();
+        let mut graph_2 = Graph::with_initial_capacity(10, 20, 20).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
@@ -175,7 +175,7 @@ mod tests {
 
     #[test]
     fn graph_cloning() {
-        let mut graph_1 = Graph::with_initial_capacity(&10, &20, &20).unwrap();
+        let mut graph_1 = Graph::with_initial_capacity(10, 20, 20).unwrap();
 
         let vertex_type_11_index = AddVertexType::<u8>::apply(&mut graph_1).unwrap();
 

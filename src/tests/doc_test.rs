@@ -14,7 +14,7 @@ use crate::operators::operators::read::GetVertexValue;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 
 fn main() {
-    let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+    let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
     let numbers_vertex_type_index: VertexTypeIndex =
         AddVertexType::<i32>::apply(&mut graph).unwrap();

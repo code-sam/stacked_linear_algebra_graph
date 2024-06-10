@@ -43,8 +43,8 @@ impl EdgeStore {
         }
         let new_adjacency_matrix =
             <WeightedAdjacencyMatrixWithCachedAttributes as CreateWeightedAdjacencyMatrixWithCachedAttributes<T>>::new(
-                self.graphblas_context_ref(),
-                self.adjacency_matrix_size_ref(),
+                self.graphblas_context(),
+                self.adjacency_matrix_size(),
             )?;
         if *edge_type_index.index_ref() >= self.adjacency_matrices_ref().len() {
             self.adjacency_matrices_mut().push(new_adjacency_matrix);

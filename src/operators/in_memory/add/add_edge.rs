@@ -202,7 +202,7 @@ mod tests {
 
     #[test]
     fn add_edge() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
         let vertex_type_index_2 = AddVertexType::<u8>::apply(&mut graph).unwrap();

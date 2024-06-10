@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValue;
 
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
 use crate::graph::indexing::Index;
@@ -117,7 +117,7 @@ mod tests {
     #[test]
     fn test_valid_indices() {
         let mut indexer =
-            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 0).unwrap();
 
         let n_indices = 10;
         for _i in 0..n_indices {

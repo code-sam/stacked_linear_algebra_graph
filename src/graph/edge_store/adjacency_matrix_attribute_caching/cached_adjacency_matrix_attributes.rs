@@ -34,7 +34,7 @@ pub(crate) struct CachedAdjacencyMatrixAttributes {
 }
 
 impl CachedAdjacencyMatrixAttributes {
-    pub(crate) fn new(context: &Arc<GraphblasContext>) -> Self {
+    pub(crate) fn new(context: Arc<GraphblasContext>) -> Self {
         CachedAdjacencyMatrixAttributes {
             transpose: None,
             select_entire_adjacency_matrix: SelectEntireMatrix::new(context),

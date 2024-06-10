@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElementTyped;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
@@ -14,7 +14,7 @@ use crate::operators::operators::add::{AddPrivateVertex, AddVertex};
 
 impl<T> AddVertex<T> for Graph
 where
-    T: ValueType + SetVectorElementTyped<T> + Copy,
+    T: ValueType + SetSparseVectorElementTyped<T> + Copy,
 {
     fn add_vertex(
         &mut self,
@@ -73,7 +73,7 @@ where
 
 impl<T> AddPrivateVertex<T> for Graph
 where
-    T: ValueType + SetVectorElementTyped<T> + Copy,
+    T: ValueType + SetSparseVectorElementTyped<T> + Copy,
 {
     fn add_private_vertex(
         &mut self,
@@ -144,7 +144,7 @@ mod tests {
 
     #[test]
     fn add_or_update_vertex() {
-        let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(1, 5, 5).unwrap();
 
         let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
         let vertex_index = graph.new_vertex_index().unwrap();
@@ -175,7 +175,7 @@ mod tests {
 
     #[test]
     fn add_vertex() {
-        let mut graph = Graph::with_initial_capacity(&1, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(1, 5, 5).unwrap();
 
         let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
 
@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn add_new_vertex() {
-        let mut graph = Graph::with_initial_capacity(&1, &1, &1).unwrap();
+        let mut graph = Graph::with_initial_capacity(1, 1, 1).unwrap();
 
         for _i in 0..3 {
             let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();

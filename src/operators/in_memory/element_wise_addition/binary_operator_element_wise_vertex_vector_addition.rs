@@ -126,7 +126,7 @@ mod tests {
 
     #[test]
     fn binary_operator_element_wise_vertex_vector_addition() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_value_2 = 2u8;
 

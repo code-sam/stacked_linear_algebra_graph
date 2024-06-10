@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetVectorElement;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElement;
 
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
 use crate::graph::indexing::operations::{GeneratePrivateIndex, GeneratePublicIndex};

@@ -24,16 +24,16 @@ pub(crate) struct VertexStore {
 
 impl VertexStore {
     pub(crate) fn with_initial_capacity(
-        context: &Arc<GraphblasContext>,
-        initial_vertex_type_capacity: &ElementCount,
-        initial_vertex_capacity: &ElementCount,
+        context: Arc<GraphblasContext>,
+        initial_vertex_type_capacity: ElementCount,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<Self, GraphComputingError> {
         let vertex_type_indexer =
-            VertexTypeIndexer::with_initial_capacity(context, initial_vertex_type_capacity)?;
+            VertexTypeIndexer::with_initial_capacity(context.clone(), initial_vertex_type_capacity)?;
         let element_indexer =
-            VertexElementIndexer::with_initial_capacity(context, initial_vertex_capacity)?;
+            VertexElementIndexer::with_initial_capacity(context.clone(), initial_vertex_capacity)?;
 
-        let vertex_matrix = Vec::with_capacity(*initial_vertex_type_capacity);
+        let vertex_matrix = Vec::with_capacity(initial_vertex_type_capacity);
 
         Ok(Self {
             graphblas_context: context.clone(),

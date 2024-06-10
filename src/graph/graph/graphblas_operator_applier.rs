@@ -76,7 +76,7 @@ pub(crate) struct GraphblasOperatorApplierCollection {
 }
 
 impl GraphblasOperatorApplierCollection {
-    pub(crate) fn new(context: &Arc<GraphblasContext>) -> Self {
+    pub(crate) fn new(context: Arc<GraphblasContext>) -> Self {
         Self {
             binary_operator_applier: BinaryOperatorApplier::new(),
             unary_operator_applier: UnaryOperatorApplier::new(),
@@ -122,7 +122,7 @@ impl GraphblasOperatorApplierCollection {
             matrix_vector_multiplication_operator: MatrixVectorMultiplicationOperator::new(),
             vector_matrix_multiplication_operator: VectorMatrixMultiplicationOperator::new(),
 
-            entire_matrix_selector: SelectEntireMatrix::new(context),
+            entire_matrix_selector: SelectEntireMatrix::new(context.clone()),
             entire_vector_selector: SelectEntireVector::new(context),
         }
     }

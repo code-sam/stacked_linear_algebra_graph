@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    GetSparseVectorLength, SetVectorElement,
+    GetSparseVectorLength, SetSparseVectorElement,
 };
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::Collection;
@@ -109,32 +109,32 @@ impl Indexer {
     // However, the API is slightly misleading for initial_capacity = 0.
 
     pub(crate) fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
+        graphblas_context: Arc<GraphBLASContext>,
     ) -> Result<Self, GraphComputingError> {
         let default_initial_capacity = 256;
-        Self::with_initial_capacity(graphblas_context, &default_initial_capacity)
+        Self::with_initial_capacity(graphblas_context, default_initial_capacity)
     }
 
     /// Sets a minimum capacity of 1, if initial_capacity = 0
     pub(crate) fn with_initial_capacity(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_capacity: ElementCount,
     ) -> Result<Self, GraphComputingError> {
         let initial_capacity = max(initial_capacity.clone(), MINIMUM_INDEXER_CAPACITY);
 
         Ok(Self {
             _graphblas_context: graphblas_context.clone(),
-            select_entire_vector: SelectEntireVector::new(graphblas_context),
+            select_entire_vector: SelectEntireVector::new(graphblas_context.clone()),
             indices_available_for_reuse: VecDequeQueue::new(),
-            mask_with_valid_indices: SparseVector::new(&graphblas_context, &initial_capacity)?,
-            mask_with_private_indices: SparseVector::new(&graphblas_context, &initial_capacity)?,
+            mask_with_valid_indices: SparseVector::new(graphblas_context.clone(), initial_capacity)?,
+            mask_with_private_indices: SparseVector::new(graphblas_context.clone(), initial_capacity)?,
             mask_with_valid_private_indices: SparseVector::new(
-                &graphblas_context,
-                &initial_capacity,
+                graphblas_context.clone(),
+                initial_capacity,
             )?,
             mask_with_valid_public_indices: SparseVector::new(
-                &graphblas_context,
-                &initial_capacity,
+                graphblas_context,
+                initial_capacity,
             )?,
         })
     }
@@ -188,7 +188,7 @@ impl Indexer {
 
 #[cfg(test)]
 mod tests {
-    use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetVectorElementValue;
+    use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValue;
 
     use crate::graph::indexing::indexer::operations::GetIndexerStatus;
     use crate::graph::indexing::{
@@ -202,8 +202,8 @@ mod tests {
     fn new_indexer() {
         let initial_capacity = 10;
         let mut indexer = Indexer::with_initial_capacity(
-            &GraphBLASContext::init_default().unwrap(),
-            &initial_capacity,
+            GraphBLASContext::init_default().unwrap(),
+            initial_capacity,
         )
         .unwrap();
 
@@ -267,7 +267,7 @@ mod tests {
     #[test]
     fn new_store_with_zero_capacity() {
         let mut indexer =
-            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 0).unwrap();
 
         let mut indices = Vec::new();
         let n_indices = 100;
@@ -355,7 +355,7 @@ mod tests {
     #[test]
     fn delete_same_key_multiple_times() {
         let mut indexer =
-            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &10)
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 10)
                 .unwrap();
 
         let mut indices = Vec::new();
@@ -391,7 +391,7 @@ mod tests {
     #[test]
     fn test_mask_with_valid_indices() {
         let mut indexer =
-            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 0).unwrap();
 
         let mut indices = Vec::new();
         let n_indices = 100;
@@ -445,7 +445,7 @@ mod tests {
     #[test]
     fn test_valid_indices() {
         let mut indexer =
-            Indexer::with_initial_capacity(&GraphBLASContext::init_default().unwrap(), &0).unwrap();
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 0).unwrap();
 
         let n_indices = 10;
         for _i in 0..n_indices {

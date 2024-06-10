@@ -50,8 +50,8 @@ pub(crate) struct WeightedAdjacencyMatrix {
 
 pub(crate) trait CreateWeightedAdjacencyMatrix<T> {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<WeightedAdjacencyMatrix, GraphComputingError>;
 }
 
@@ -59,15 +59,15 @@ impl<T: ValueType + GetValueTypeIdentifier> CreateWeightedAdjacencyMatrix<T>
     for WeightedAdjacencyMatrix
 {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<WeightedAdjacencyMatrix, GraphComputingError> {
         Ok(WeightedAdjacencyMatrix {
             graphblas_context: graphblas_context.clone(),
             sparse_matrix: unsafe {
                 new_graphblas_matrix(
-                    graphblas_context,
-                    &Size::new(*initial_vertex_capacity, *initial_vertex_capacity),
+                    &graphblas_context,
+                    Size::new(initial_vertex_capacity, initial_vertex_capacity),
                     T::to_graphblas_type(),
                 )?
             },
@@ -207,8 +207,8 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                     },
                     _ => {
                         let mut product_matrix = SparseMatrix::<$value_type>::new(
-                            matrix.context_ref(),
-                            &matrix.size()?,
+                            matrix.context(),
+                            matrix.size()?,
                         )?;
 
                         UNARY_OPERATOR_APPLIER.apply_to_matrix(
@@ -216,7 +216,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                             matrix,
                             &Assignment::<$value_type>::new(),
                             &mut product_matrix,
-                            &SelectEntireMatrix::new(matrix.context_ref()),
+                            &SelectEntireMatrix::new(matrix.context()),
                             &*DEFAULT_OPERATOR_OPTIONS,
                         )?;
 
@@ -233,8 +233,8 @@ implement_1_type_macro_with_enum_type_indentifier_for_all_value_types!(
 
 pub(crate) trait CreateSparseMatrixForValueType<T: ValueType> {
     fn new_sparse_matrix(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
@@ -242,11 +242,11 @@ macro_rules! implement_create_sparse_matrix_for_value_type {
     ($value_type:ty) => {
         impl CreateSparseMatrixForValueType<$value_type> for $value_type {
             fn new_sparse_matrix(
-                graphblas_context: &Arc<GraphBLASContext>,
-                initial_vertex_capacity: &ElementCount,
+                graphblas_context: Arc<GraphBLASContext>,
+                initial_vertex_capacity: ElementCount,
             ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
-                let size = (*initial_vertex_capacity, *initial_vertex_capacity).into();
-                Ok(SparseMatrix::<$value_type>::new(graphblas_context, &size)?)
+                let size = (initial_vertex_capacity, initial_vertex_capacity).into();
+                Ok(SparseMatrix::<$value_type>::new(graphblas_context, size)?)
             }
         }
     };
@@ -263,8 +263,8 @@ mod tests {
     fn new_adjacency_matrix() {
         let weighted_adjacency_matrix =
             <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<f32>>::new(
-                &GraphBLASContext::init_default().unwrap(),
-                &10,
+                GraphBLASContext::init_default().unwrap(),
+                10,
             )
             .unwrap();
         assert_eq!(
