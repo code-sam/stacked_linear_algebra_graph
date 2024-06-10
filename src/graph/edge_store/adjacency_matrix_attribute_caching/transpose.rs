@@ -87,9 +87,10 @@ mod tests {
     fn transpose_adjacency_matrix() {
         let context = Context::init_default().unwrap();
 
-        let mut adjacency_matrix =
-            <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<u32>>::new(context.clone(), 10)
-                .unwrap();
+        let mut adjacency_matrix = <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<
+            u32,
+        >>::new(context.clone(), 10)
+        .unwrap();
 
         adjacency_matrix
             .add_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
@@ -98,9 +99,11 @@ mod tests {
             .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
             .unwrap();
 
-        let transposed =
-            transpose_adjacency_matrix_u32(&adjacency_matrix, &SelectEntireMatrix::new(context.clone()))
-                .unwrap();
+        let transposed = transpose_adjacency_matrix_u32(
+            &adjacency_matrix,
+            &SelectEntireMatrix::new(context.clone()),
+        )
+        .unwrap();
 
         assert_eq!(
             GetEdgeWeight::<u32>::edge_weight_unchecked(

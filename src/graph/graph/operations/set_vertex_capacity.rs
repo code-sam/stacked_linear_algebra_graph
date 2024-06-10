@@ -10,19 +10,19 @@ use crate::graph::vertex_store::GetVertexElementIndexer;
 pub(crate) trait SetVertexCapacity {
     fn set_vertex_capacity(
         &mut self,
-        vertex_capacity: &ElementCount,
+        vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError>;
 
     fn set_vertex_capacity_of_vertex_vectors_and_adjacency_matrices(
         &mut self,
-        vertex_capacity: &ElementCount,
+        vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError>;
 }
 
 impl SetVertexCapacity for Graph {
     fn set_vertex_capacity(
         &mut self,
-        vertex_capacity: &ElementCount,
+        vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError> {
         self.set_vertex_capacity_of_vertex_vectors_and_adjacency_matrices(vertex_capacity)?;
         self.vertex_store_mut_ref()
@@ -37,12 +37,12 @@ impl SetVertexCapacity for Graph {
     /// Does not set capacity of element_indexer and edge_type_indexer.
     fn set_vertex_capacity_of_vertex_vectors_and_adjacency_matrices(
         &mut self,
-        vertex_capacity: &ElementCount,
+        vertex_capacity: ElementCount,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
-            .resize_vertex_vectors(*vertex_capacity)?;
+            .resize_vertex_vectors(vertex_capacity)?;
         self.edge_store_mut_ref()
-            .resize_adjacency_matrices(*vertex_capacity)?;
+            .resize_adjacency_matrices(vertex_capacity)?;
         Ok(())
     }
 }

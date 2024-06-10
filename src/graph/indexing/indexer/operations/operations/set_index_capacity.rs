@@ -7,5 +7,5 @@ use crate::{
 };
 
 pub(crate) trait SetIndexCapacity {
-    fn set_index_capacity(&mut self, capacity: &ElementCount) -> Result<(), GraphComputingError>;
+    fn set_index_capacity(&mut self, capacity: ElementCount) -> Result<(), GraphComputingError>;
 }

@@ -48,15 +48,15 @@ use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 use stacked_linear_algebra_graph::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
 use stacked_linear_algebra_graph::graph::graph::Graph;
 use stacked_linear_algebra_graph::graph::indexing::{VertexIndex, VertexTypeIndex};
-use stacked_linear_algebra_graph::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
-use stacked_linear_algebra_graph::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
-use stacked_linear_algebra_graph::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
-use stacked_linear_algebra_graph::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use stacked_linear_algebra_graph::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+use stacked_linear_algebra_graph::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+use stacked_linear_algebra_graph::operators::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
+use stacked_linear_algebra_graph::operators::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use stacked_linear_algebra_graph::operators::operators::read::GetVertexValue;
 use stacked_linear_algebra_graph::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
-use stacked_linear_algebra_graph::operators::read::GetVertexValue;
 
 fn main() {
-    let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+    let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
     let numbers_vertex_type_index: VertexTypeIndex =
         AddVertexType::<i32>::apply(&mut graph).unwrap();

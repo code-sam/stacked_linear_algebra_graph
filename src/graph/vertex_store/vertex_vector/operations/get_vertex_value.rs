@@ -70,8 +70,9 @@ pub(crate) trait GetVertexValue<T: ValueType> {
     ) -> Result<T, GraphComputingError>;
 }
 
-impl<T: ValueType + IntoSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default>
-    GetVertexValue<T> for VertexStore
+impl<
+        T: ValueType + IntoSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
+    > GetVertexValue<T> for VertexStore
 {
     fn public_vertex_value(
         &self,

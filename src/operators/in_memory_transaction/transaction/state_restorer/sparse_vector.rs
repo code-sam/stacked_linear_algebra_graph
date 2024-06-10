@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     operations::{
-        DeleteSparseVectorElement, GetSparseVectorLength, GetVectorElementValueTyped,
-        ResizeSparseVector, SetVectorElement, SetVectorElementTyped,
+        DeleteSparseVectorElement, GetSparseVectorElementValueTyped, GetSparseVectorLength,
+        ResizeSparseVector, SetSparseVectorElement, SetSparseVectorElementTyped,
     },
     SparseVector,
 };
@@ -15,7 +15,7 @@ use crate::{
     operators::transaction::RestoreState,
 };
 
-enum SparseVectorStateToRestore<T: ValueType> {
+pub(crate) enum SparseVectorStateToRestore<T: ValueType> {
     EmptyElement(ElementIndex),
     ElementValue(ElementIndex, T),
     SparseVector(SparseVector<T>),
@@ -35,20 +35,17 @@ pub(crate) trait RegisterSparseVectorChangeToRevert<T: ValueType> {
     fn register_sparse_vector_state_to_restore(&mut self, sparse_vector: SparseVector<T>);
 }
 
-impl<T: ValueType + SetVectorElementTyped<T>> RestoreState<SparseVector<T>>
+impl<T: ValueType + SetSparseVectorElementTyped<T>> RestoreState<SparseVector<T>>
     for SparseVectorStateReverter<T>
 {
-    fn restore(
-        mut self,
-        instance_to_restore: &mut SparseVector<T>,
-    ) -> Result<(), GraphComputingError> {
+    fn restore(self, instance_to_restore: &mut SparseVector<T>) -> Result<(), GraphComputingError> {
         for state_to_restore in self.state_to_restore.into_iter().rev() {
             match state_to_restore {
                 SparseVectorStateToRestore::EmptyElement(element_index) => {
                     instance_to_restore.drop_element(element_index)?
                 }
                 SparseVectorStateToRestore::ElementValue(element_index, element_value) => {
-                    instance_to_restore.set_value(&element_index, element_value)?
+                    instance_to_restore.set_value(element_index, element_value)?
                 }
                 SparseVectorStateToRestore::SparseVector(sparse_vector) => {
                     *instance_to_restore = sparse_vector;
@@ -60,8 +57,9 @@ impl<T: ValueType + SetVectorElementTyped<T>> RestoreState<SparseVector<T>>
     }
 }
 
-impl<T: ValueType + GetVectorElementValueTyped<T> + SetVectorElementTyped<T> + Default>
-    RegisterSparseVectorChangeToRevert<T> for SparseVectorStateReverter<T>
+impl<
+        T: ValueType + GetSparseVectorElementValueTyped<T> + SetSparseVectorElementTyped<T> + Default,
+    > RegisterSparseVectorChangeToRevert<T> for SparseVectorStateReverter<T>
 {
     fn register_element_value_to_restore(&mut self, element_index: ElementIndex, element_value: T) {
         if !self.is_state_to_restore_fully_determined {
@@ -133,7 +131,7 @@ impl<T: ValueType> SparseVectorStateReverter<T> {
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::{
-        collections::{sparse_vector::operations::GetVectorElementValue, Collection},
+        collections::{sparse_vector::operations::GetSparseVectorElementValue, Collection},
         context::Context as GraphBLASContext,
     };
 
@@ -142,11 +140,11 @@ mod tests {
     #[test]
     fn restore_sparse_vector() {
         let context = GraphBLASContext::init_default().unwrap();
-        let mut vector = SparseVector::<u16>::new(&context, &10).unwrap();
+        let mut vector = SparseVector::<u16>::new(context, 10).unwrap();
 
-        vector.set_value(&1, 1).unwrap();
-        vector.set_value(&4, 4).unwrap();
-        vector.set_value(&5, 5).unwrap();
+        vector.set_value(1, 1).unwrap();
+        vector.set_value(4, 4).unwrap();
+        vector.set_value(5, 5).unwrap();
 
         let mut state_reverter =
             SparseVectorStateReverter::with_dimensions_from_sparse_vector(&vector).unwrap();
@@ -154,13 +152,13 @@ mod tests {
         vector.drop_element(1).unwrap();
         state_reverter.register_element_value_to_restore(1, 1);
 
-        vector.set_value(&0, 0);
+        vector.set_value(0, 0);
         state_reverter.register_empty_element_to_restore(0);
 
-        vector.set_value(&0, 10);
+        vector.set_value(0, 10);
         state_reverter.register_element_value_to_restore(0, 10);
 
-        vector.set_value(&4, 40).unwrap();
+        vector.set_value(4, 40).unwrap();
         state_reverter.register_element_value_to_restore(4, 4);
 
         state_reverter.register_sparse_vector_state_to_restore(vector.clone());

@@ -206,10 +206,8 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                         )?)
                     },
                     _ => {
-                        let mut product_matrix = SparseMatrix::<$value_type>::new(
-                            matrix.context(),
-                            matrix.size()?,
-                        )?;
+                        let mut product_matrix =
+                            SparseMatrix::<$value_type>::new(matrix.context(), matrix.size()?)?;
 
                         UNARY_OPERATOR_APPLIER.apply_to_matrix(
                             &Identity::<$value_type>::new(),

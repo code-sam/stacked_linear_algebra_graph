@@ -28,8 +28,10 @@ impl VertexStore {
         initial_vertex_type_capacity: ElementCount,
         initial_vertex_capacity: ElementCount,
     ) -> Result<Self, GraphComputingError> {
-        let vertex_type_indexer =
-            VertexTypeIndexer::with_initial_capacity(context.clone(), initial_vertex_type_capacity)?;
+        let vertex_type_indexer = VertexTypeIndexer::with_initial_capacity(
+            context.clone(),
+            initial_vertex_type_capacity,
+        )?;
         let element_indexer =
             VertexElementIndexer::with_initial_capacity(context.clone(), initial_vertex_capacity)?;
 

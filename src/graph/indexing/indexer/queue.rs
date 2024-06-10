@@ -15,15 +15,15 @@ pub(crate) struct VecDequeQueue<T> {
 
 impl<T> Queue<T> for VecDequeQueue<T> {
     fn push_back(&mut self, value: T) {
-        self.push_back(value)
+        self.queue.push_back(value)
     }
 
     fn pop_front(&mut self) -> Option<T> {
-        self.pop_front()
+        self.queue.pop_front()
     }
 
     fn len(&self) -> ElementCount {
-        self.len()
+        self.queue.len()
     }
 }
 

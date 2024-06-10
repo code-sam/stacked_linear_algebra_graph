@@ -7,7 +7,6 @@ use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::vertex::GetVertexIndex;
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::GetVertexElementIndexer;
@@ -113,7 +112,7 @@ where
     ) -> Result<AssignedIndex, GraphComputingError> {
         let vertex_index = self.new_public_vertex_index()?;
         let vertex_vector: &mut VertexVector = self.vertex_vector_mut_ref_unchecked(type_index);
-        T::set_value(vertex_vector, vertex_index.index_ref(), value)?;
+        T::set_graphblas_vector_value(vertex_vector, vertex_index.index(), value)?;
         Ok(vertex_index)
     }
 
@@ -129,7 +128,7 @@ where
         {
             let vertex_vector: &mut VertexVector =
                 self.vertex_vector_mut_ref_unchecked(vertex_type_index);
-            T::set_value(vertex_vector, vertex_index.index_ref(), value)?;
+            T::set_graphblas_vector_value(vertex_vector, vertex_index.index(), value)?;
             return Ok(None);
         } else {
             let index = self.add_new_vertex_unchecked(vertex_type_index, value)?;

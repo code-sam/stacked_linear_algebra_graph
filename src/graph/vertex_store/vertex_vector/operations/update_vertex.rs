@@ -72,7 +72,7 @@ where
     ) -> Result<(), GraphComputingError> {
         let vertex_vector = self.vertex_vector_mut_ref_unchecked(vertex_type_index);
         // try_is_element(vertex_vector, *vertex_index)?;
-        T::set_value(vertex_vector, vertex_index.index_ref(), value)?;
+        T::set_graphblas_vector_value(vertex_vector, vertex_index.index(), value)?;
         Ok(())
     }
 }

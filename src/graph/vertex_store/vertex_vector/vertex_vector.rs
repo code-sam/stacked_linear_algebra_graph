@@ -201,10 +201,8 @@ macro_rules! implement_into_sparse_vector_for_value_type {
                         )?)
                     },
                     _ => {
-                        let mut product_vector = SparseVector::<$value_type>::new(
-                            vector.context(),
-                            vector.length()?,
-                        )?;
+                        let mut product_vector =
+                            SparseVector::<$value_type>::new(vector.context(), vector.length()?)?;
 
                         UNARY_OPERATOR_APPLIER.apply_to_vector(
                             &Identity::<$value_type>::new(),

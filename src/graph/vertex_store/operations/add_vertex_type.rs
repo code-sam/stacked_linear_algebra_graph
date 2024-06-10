@@ -47,8 +47,7 @@ impl VertexStore {
 
         let new_vertex_vector = <VertexVector as CreateVertexVector<T>>::new(
             self.graphblas_context(),
-            self
-                .element_indexer_ref()
+            self.element_indexer_ref()
                 .mask_with_valid_indices_ref()
                 .length()?,
         )?;

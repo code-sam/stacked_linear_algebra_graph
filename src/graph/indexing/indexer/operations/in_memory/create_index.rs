@@ -11,7 +11,7 @@ impl GeneratePublicIndex for Indexer {
     fn new_public_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
         let index = self.claim_available_index()?;
         self.mask_with_valid_public_indices_mut_ref()
-            .set_value(index.index_ref(), true)?;
+            .set_value(index.index(), true)?;
         Ok(index)
     }
 }
@@ -20,9 +20,9 @@ impl GeneratePrivateIndex for Indexer {
     fn new_private_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
         let index = self.claim_available_index()?;
         self.mask_with_private_indices_mut_ref()
-            .set_value(index.index_ref(), true)?;
+            .set_value(index.index(), true)?;
         self.mask_with_valid_private_indices_mut_ref()
-            .set_value(index.index_ref(), true)?;
+            .set_value(index.index(), true)?;
         Ok(index)
     }
 }

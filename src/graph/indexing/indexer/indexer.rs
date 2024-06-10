@@ -87,7 +87,7 @@ impl GetIndexMask for Indexer {
     }
 
     fn mask_with_valid_public_indices_ref(&self) -> &SparseVector<bool> {
-        &self.mask_with_valid_private_indices
+        &self.mask_with_valid_public_indices
     }
 
     fn mask_with_valid_public_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
@@ -122,20 +122,19 @@ impl Indexer {
     ) -> Result<Self, GraphComputingError> {
         let initial_capacity = max(initial_capacity.clone(), MINIMUM_INDEXER_CAPACITY);
 
+        let empty_bool_vector: SparseVector<bool> = SparseVector::new(
+            graphblas_context.clone(),
+            initial_capacity,
+        )?;
+
         Ok(Self {
             _graphblas_context: graphblas_context.clone(),
             select_entire_vector: SelectEntireVector::new(graphblas_context.clone()),
             indices_available_for_reuse: VecDequeQueue::new(),
-            mask_with_valid_indices: SparseVector::new(graphblas_context.clone(), initial_capacity)?,
-            mask_with_private_indices: SparseVector::new(graphblas_context.clone(), initial_capacity)?,
-            mask_with_valid_private_indices: SparseVector::new(
-                graphblas_context.clone(),
-                initial_capacity,
-            )?,
-            mask_with_valid_public_indices: SparseVector::new(
-                graphblas_context,
-                initial_capacity,
-            )?,
+            mask_with_valid_indices: empty_bool_vector.clone(),
+            mask_with_private_indices: empty_bool_vector.clone(),
+            mask_with_valid_private_indices: empty_bool_vector.clone(),
+            mask_with_valid_public_indices: empty_bool_vector,
         })
     }
 
@@ -159,7 +158,7 @@ impl Indexer {
         }
 
         self.mask_with_valid_indices_mut_ref()
-            .set_value(&available_index, true)?;
+            .set_value(available_index, true)?;
 
         Ok(new_index)
     }
@@ -167,7 +166,7 @@ impl Indexer {
     pub(super) fn expand_capacity(&mut self) -> Result<Index, GraphComputingError> {
         // TODO: test more sophisticated expansion sizing algorithms for better performance
         let new_capacity = self.capacity()? * 2;
-        self.set_index_capacity(&new_capacity)?;
+        self.set_index_capacity(new_capacity)?;
         Ok(new_capacity)
     }
 
@@ -272,7 +271,8 @@ mod tests {
         let mut indices = Vec::new();
         let n_indices = 100;
         for _i in 0..n_indices {
-            indices.push(indexer.new_public_index().unwrap());
+            let new_public_index = indexer.new_public_index().unwrap();
+            indices.push(new_public_index);
         }
 
         indexer
@@ -355,8 +355,7 @@ mod tests {
     #[test]
     fn delete_same_key_multiple_times() {
         let mut indexer =
-            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 10)
-                .unwrap();
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 10).unwrap();
 
         let mut indices = Vec::new();
         let n_indices = 10;
