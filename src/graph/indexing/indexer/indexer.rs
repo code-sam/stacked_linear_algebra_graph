@@ -103,6 +103,16 @@ impl GetIndexMask for Indexer {
     }
 }
 
+pub(super) trait GetQueueWithIndicesForReuse {
+    fn queue_with_indices_for_reuse_ref(&self) -> &VecDequeQueue<Index>;
+}
+
+impl GetQueueWithIndicesForReuse for Indexer {
+    fn queue_with_indices_for_reuse_ref(&self) -> &VecDequeQueue<Index> {
+        &self.indices_available_for_reuse
+    }
+}
+
 impl Indexer {
     // NOTE: setting and enforcing this minimum improves performance,
     // as the minimum is guaranteed once and no longer needs checking upon capacity expansion.
@@ -122,10 +132,8 @@ impl Indexer {
     ) -> Result<Self, GraphComputingError> {
         let initial_capacity = max(initial_capacity.clone(), MINIMUM_INDEXER_CAPACITY);
 
-        let empty_bool_vector: SparseVector<bool> = SparseVector::new(
-            graphblas_context.clone(),
-            initial_capacity,
-        )?;
+        let empty_bool_vector: SparseVector<bool> =
+            SparseVector::new(graphblas_context.clone(), initial_capacity)?;
 
         Ok(Self {
             _graphblas_context: graphblas_context.clone(),
@@ -177,7 +185,7 @@ impl Indexer {
         Ok(self
             .mask_with_valid_indices_ref()
             .number_of_stored_elements()?
-            + self.indices_available_for_reuse.len())
+            + self.indices_available_for_reuse.length())
     }
 
     pub(super) fn capacity(&self) -> Result<Index, GraphComputingError> {

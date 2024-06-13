@@ -72,6 +72,10 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T>> RestoreState<SparseMatrix<T>
         instance_to_restore.resize(self.size_to_restore)?;
         Ok(())
     }
+
+    fn with_reset_state_to_restore(&self) -> Self {
+        Self::with_size_to_restore(self.size_to_restore)
+    }
 }
 
 impl<
@@ -130,18 +134,15 @@ impl<T: ValueType> SparseMatrixStateReverter<T> {
         }
     }
 
-    pub(crate) fn with_dimensions_from_sparse_matrix(
+    pub(crate) fn with_size_to_restore(size_to_restore: Size) -> Self {
+        Self::new(size_to_restore, Vec::new(), false)
+    }
+
+    pub(crate) fn with_size_to_restore_from_sparse_matrix(
         to_restore: &SparseMatrix<T>,
     ) -> Result<Self, GraphComputingError> {
         let size_to_restore = to_restore.size()?;
-        let state_to_restore = Vec::new(); // TO REVIEW: initial capacity for optimal size
-        let is_state_to_restore_fully_determined = false;
-
-        Ok(SparseMatrixStateReverter::new(
-            size_to_restore,
-            state_to_restore,
-            is_state_to_restore_fully_determined,
-        ))
+        Ok(Self::with_size_to_restore(size_to_restore))
     }
 
     pub(crate) fn from_sparse_matrix(
@@ -177,7 +178,7 @@ mod tests {
         matrix.set_value(5, 5, 5).unwrap();
 
         let mut state_reverter =
-            SparseMatrixStateReverter::with_dimensions_from_sparse_matrix(&matrix).unwrap();
+            SparseMatrixStateReverter::with_size_to_restore_from_sparse_matrix(&matrix).unwrap();
 
         matrix.drop_element(1, 1).unwrap();
         state_reverter.register_element_value_to_restore(1, 1, 1);

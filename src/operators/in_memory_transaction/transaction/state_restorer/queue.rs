@@ -1,13 +1,14 @@
-use std::collections::VecDeque;
-
 use crate::{
     error::GraphComputingError,
-    graph::{indexing::ElementCount, value_type::ValueType},
+    graph::{
+        indexing::{ElementCount, Queue, VecDequeQueue},
+        value_type::ValueType,
+    },
     operators::transaction::RestoreState,
 };
 
 pub(crate) struct QueueStateReverter<T: ValueType> {
-    front_to_restore: VecDeque<T>,
+    front_to_restore: VecDequeQueue<T>,
     length_to_restore: ElementCount,
     capacity_to_restore: ElementCount,
 }
@@ -16,13 +17,22 @@ pub(crate) trait RegisterQueueChangeToRevert<T: ValueType> {
     fn front_popped_value_to_restore(&mut self, popped_value: T);
 }
 
-impl<T: ValueType> RestoreState<VecDeque<T>> for QueueStateReverter<T> {
-    fn restore(mut self, instance_to_restore: &mut VecDeque<T>) -> Result<(), GraphComputingError> {
+impl<T: ValueType> RestoreState<VecDequeQueue<T>> for QueueStateReverter<T> {
+    fn restore(
+        mut self,
+        instance_to_restore: &mut VecDequeQueue<T>,
+    ) -> Result<(), GraphComputingError> {
         self.front_to_restore.append(instance_to_restore);
-        self.front_to_restore.truncate(self.length_to_restore);
-        self.front_to_restore.shrink_to(self.capacity_to_restore);
+        self.front_to_restore
+            .truncate_length(self.length_to_restore);
+        self.front_to_restore
+            .shrink_capacity_to_at_least(self.capacity_to_restore);
         *instance_to_restore = self.front_to_restore;
         Ok(())
+    }
+
+    fn with_reset_state_to_restore(&self) -> Self {
+        Self::with_length_and_capacity_to_restore(self.length_to_restore, self.capacity_to_restore)
     }
 }
 
@@ -33,16 +43,30 @@ impl<T: ValueType> RegisterQueueChangeToRevert<T> for QueueStateReverter<T> {
 }
 
 impl<T: ValueType> QueueStateReverter<T> {
-    pub(crate) fn new(length_to_restore: ElementCount, capacity_to_restore: ElementCount) -> Self {
+    pub(crate) fn new(
+        front_to_restore: VecDequeQueue<T>,
+        length_to_restore: ElementCount,
+        capacity_to_restore: ElementCount,
+    ) -> Self {
         Self {
-            front_to_restore: VecDeque::new(),
+            front_to_restore,
             length_to_restore,
             capacity_to_restore,
         }
     }
 
-    pub(crate) fn with_length_and_capacity_from(to_restore: &VecDeque<T>) -> Self {
-        QueueStateReverter::new(to_restore.len(), to_restore.capacity())
+    pub(crate) fn with_length_and_capacity_to_restore(
+        length_to_restore: ElementCount,
+        capacity_to_restore: ElementCount,
+    ) -> Self {
+        QueueStateReverter::new(VecDequeQueue::new(), length_to_restore, capacity_to_restore)
+    }
+
+    pub(crate) fn with_length_and_capacity_to_restore_from(to_restore: &VecDequeQueue<T>) -> Self {
+        QueueStateReverter::with_length_and_capacity_to_restore(
+            to_restore.length(),
+            to_restore.capacity(),
+        )
     }
 }
 
@@ -51,27 +75,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn restore_vec_deque() {
-        let mut vec_deque = VecDeque::new();
+    fn restore_queue() {
+        let mut queue = VecDequeQueue::new();
 
         for value in 0..10 {
-            vec_deque.push_back(value)
+            queue.push_back(value)
         }
 
-        let vec_deque_before_changes = vec_deque.clone();
+        let vec_deque_before_changes = queue.clone();
 
-        let mut state_reverter = QueueStateReverter::with_length_and_capacity_from(&vec_deque);
+        let mut state_reverter =
+            QueueStateReverter::with_length_and_capacity_to_restore_from(&queue);
 
         for index in 0..3 {
-            state_reverter.front_popped_value_to_restore(vec_deque.pop_front().unwrap())
+            state_reverter.front_popped_value_to_restore(queue.pop_front().unwrap())
         }
 
         for value in 0..5 {
-            vec_deque.push_back(value)
+            queue.push_back(value)
         }
 
-        state_reverter.restore(&mut vec_deque).unwrap();
+        state_reverter.restore(&mut queue).unwrap();
 
-        assert_eq!(vec_deque, vec_deque_before_changes);
+        assert_eq!(queue, vec_deque_before_changes);
     }
 }

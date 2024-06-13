@@ -1,58 +1,122 @@
-use std::collections::VecDeque;
+use std::mem;
 
-use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
-
+use crate::operators::transaction::RestoreState;
 use crate::{
-    error::GraphComputingError,
-    graph::{
-        indexing::{ElementCount, Index, Indexer},
-        value_type::ValueType,
-    },
-    operators::{
-        in_memory_transaction::transaction::{QueueStateReverter, SparseVectorStateReverter},
-        transaction::UseAtomicTransaction,
-    },
+    error::GraphComputingError, graph::indexing::Indexer,
+    operators::transaction::UseAtomicTransaction,
 };
 
-struct IndexerTransactionReverter {
-    index_capacity_to_restore: ElementCount,
-
-    indices_available_for_reuse_restorer: QueueStateReverter<Index>,
-
-    mask_with_valid_indices_restorer: SparseVectorStateReverter<bool>,
-    mask_with_private_indices_restorer: SparseVectorStateReverter<bool>,
-    mask_with_valid_private_indices_restorer: SparseVectorStateReverter<bool>,
-    mask_with_valid_public_indices_restorer: SparseVectorStateReverter<bool>,
-}
+use super::IndexerStateRestorer;
 
 pub(crate) struct AtomicInMemoryIndexerTransaction<'a> {
     indexer: &'a mut Indexer,
-
-    indices_available_for_reuse: VecDeque<Index>,
-
-    mask_with_valid_indices: SparseVector<bool>,
-    mask_with_private_indices: SparseVector<bool>,
-    mask_with_valid_private_indices: SparseVector<bool>,
-    mask_with_valid_public_indices: SparseVector<bool>,
+    indexer_state_restorer: IndexerStateRestorer,
 }
 
 impl<'a> UseAtomicTransaction for AtomicInMemoryIndexerTransaction<'a> {
-    fn revert(self) -> Result<(), crate::error::GraphComputingError> {
-        todo!()
+    fn revert(&mut self) -> Result<(), GraphComputingError> {
+        let reset_indexer_state_restorer =
+            self.indexer_state_restorer.with_reset_state_to_restore();
+        let indexer_state_restorer = mem::replace(
+            &mut self.indexer_state_restorer,
+            reset_indexer_state_restorer,
+        );
+
+        indexer_state_restorer.restore(&mut self.indexer)
     }
 
-    fn commit(self) -> Result<(), crate::error::GraphComputingError> {
-        todo!()
+    fn commit(&mut self) -> Result<(), GraphComputingError> {
+        self.indexer_state_restorer = IndexerStateRestorer::new_for_indexer(self.indexer)?;
+        Ok(())
+    }
+}
+
+impl<'t> Drop for AtomicInMemoryIndexerTransaction<'t> {
+    fn drop(&mut self) {
+        self.revert();
+    }
+}
+
+pub(super) trait GetIndexerUnderTransaction {
+    fn indexer_ref(&self) -> &Indexer;
+    fn indexer_mut_ref(&mut self) -> &mut Indexer;
+}
+
+pub(super) trait GetIndexerStateRestorer {
+    fn indexer_state_restorer_ref(&self) -> &IndexerStateRestorer;
+    fn indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer;
+}
+
+impl<'t> GetIndexerUnderTransaction for AtomicInMemoryIndexerTransaction<'t> {
+    fn indexer_ref(&self) -> &Indexer {
+        &self.indexer
+    }
+
+    fn indexer_mut_ref(&mut self) -> &mut Indexer {
+        &mut self.indexer
+    }
+}
+
+impl<'t> GetIndexerStateRestorer for AtomicInMemoryIndexerTransaction<'t> {
+    fn indexer_state_restorer_ref(&self) -> &IndexerStateRestorer {
+        &self.indexer_state_restorer
+    }
+
+    fn indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer {
+        &mut self.indexer_state_restorer
     }
 }
 
 impl<'a> AtomicInMemoryIndexerTransaction<'a> {
-    pub(crate) fn new(indexer: &'a mut Indexer) -> Self {
-        todo!()
-        // Self { indexer }
+    pub(crate) fn new(indexer: &'a mut Indexer) -> Result<Self, GraphComputingError> {
+        let indexer_state_restorer = IndexerStateRestorer::new_for_indexer(indexer)?;
+        Ok(Self {
+            indexer,
+            indexer_state_restorer,
+        })
     }
+}
 
-    fn revert_private(&mut self) -> Result<(), GraphComputingError> {
-        todo!()
+#[cfg(test)]
+mod tests {
+    use crate::graph::indexing::operations::GeneratePrivateIndex;
+
+    use super::*;
+
+    use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
+
+    #[test]
+    fn test_use_successful_transaction() {
+        let mut indexer =
+            Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 0).unwrap();
+
+        let transaction = AtomicInMemoryIndexerTransaction::new(&mut indexer).unwrap();
+
+        let n_indices = 10;
+        for _i in 0..n_indices {
+            transaction.new_private_index().unwrap();
+        }
+
+        for _i in 0..n_indices {
+            transaction.new_public_index().unwrap();
+        }
+
+        transaction.free_private_index(0).unwrap();
+        transaction.free_private_index(3).unwrap();
+        transaction.free_private_index(4).unwrap();
+
+        transaction.free_public_index(10).unwrap();
+        transaction.free_public_index(13).unwrap();
+        transaction.free_public_index(14).unwrap();
+
+        transaction.new_public_index().unwrap();
+        transaction.new_private_index().unwrap();
+
+        transaction.commit().unwrap();
+
+        assert_eq!(
+            crate::graph::indexing::operations::GetValidIndices::valid_indices(&indexer).unwrap(),
+            vec![0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 15, 16, 17, 18, 19]
+        )
     }
 }

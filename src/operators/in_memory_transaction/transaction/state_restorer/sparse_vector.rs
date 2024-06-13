@@ -55,6 +55,10 @@ impl<T: ValueType + SetSparseVectorElementTyped<T>> RestoreState<SparseVector<T>
         instance_to_restore.resize(self.length_to_restore)?;
         Ok(())
     }
+
+    fn with_reset_state_to_restore(&self) -> Self {
+        Self::with_length_to_restore(self.length_to_restore)
+    }
 }
 
 impl<
@@ -98,6 +102,17 @@ impl<T: ValueType> SparseVectorStateReverter<T> {
             state_to_restore,
             is_state_to_restore_fully_determined,
         }
+    }
+
+    pub(crate) fn with_length_to_restore(length_to_restore: ElementCount) -> Self {
+        let state_to_restore = Vec::new(); // TO REVIEW: initial capacity for optimal size
+        let is_state_to_restore_fully_determined = false;
+
+        SparseVectorStateReverter::new(
+            length_to_restore,
+            state_to_restore,
+            is_state_to_restore_fully_determined,
+        )
     }
 
     pub(crate) fn with_dimensions_from_sparse_vector(

@@ -1,107 +1,40 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValue;
-
-use crate::graph::indexing::indexer::indexer::GetIndexMask;
+use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::Index;
-use crate::{
-    error::{GraphComputingError, LogicError, LogicErrorType},
-    graph::indexing::Indexer,
-};
+use crate::error::GraphComputingError;
 
-pub(crate) trait CheckIndex {
-    fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_index_validity(&self, index: &Index) -> Result<(), GraphComputingError>;
+use super::{AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction};
 
-    fn is_valid_private_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_is_valid_private_index(&self, index: &Index) -> Result<(), GraphComputingError>;
-
-    fn is_public_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_is_public_index(&self, index: &Index) -> Result<(), GraphComputingError>;
-
-    fn is_valid_public_index(&self, index: &Index) -> Result<bool, GraphComputingError>;
-    fn try_is_valid_public_index(&self, index: &Index) -> Result<(), GraphComputingError>;
-}
-
-impl CheckIndex for Indexer {
+impl<'t> CheckIndex for AtomicInMemoryIndexerTransaction<'t> {
     fn is_valid_index(&self, index: &Index) -> Result<bool, GraphComputingError> {
-        match self.mask_with_valid_indices_ref().element_value(index)? {
-            Some(_) => Ok(true),
-            None => Ok(false),
-        }
+        self.indexer_ref().is_valid_index(index)
     }
 
     fn try_index_validity(&self, index: &Index) -> Result<(), GraphComputingError> {
-        if self.is_valid_index(index)? {
-            return Ok(());
-        } else {
-            return Err(LogicError::new(
-                LogicErrorType::IndexOutOfBounds,
-                format!("No valid index [{}], the index may have been freed.", index),
-                None,
-            )
-            .into());
-        }
+        self.indexer_ref().try_index_validity(index)
     }
 
     fn is_valid_private_index(&self, index: &Index) -> Result<bool, GraphComputingError> {
-        todo!()
-        // Ok(self.is_index_private(index)? && self.is_valid_index(index)?)
+        self.indexer_ref().is_valid_private_index(index)
     }
 
     fn try_is_valid_private_index(&self, index: &Index) -> Result<(), GraphComputingError> {
-        if self.is_valid_private_index(index)? {
-            return Ok(());
-        } else {
-            return Err(LogicError::new(
-                LogicErrorType::IndexOutOfBounds,
-                format!(
-                    "No valid private index [{}], the index may have been freed.",
-                    index
-                ),
-                None,
-            )
-            .into());
-        }
+        self.indexer_ref().try_is_valid_public_index(index)
     }
 
     fn is_public_index(&self, index: &Index) -> Result<bool, GraphComputingError> {
-        todo!()
-        // self.is_index_not_private(index)
+        self.indexer_ref().is_public_index(index)
     }
 
     fn try_is_public_index(&self, index: &Index) -> Result<(), GraphComputingError> {
-        if self.is_public_index(index)? {
-            return Ok(());
-        } else {
-            return Err(LogicError::new(
-                LogicErrorType::IndexOutOfBounds,
-                format!(
-                    "No public index [{}], the index may have been freed.",
-                    index
-                ),
-                None,
-            )
-            .into());
-        }
+        self.indexer_ref().try_is_public_index(index)
     }
 
     fn is_valid_public_index(&self, index: &Index) -> Result<bool, GraphComputingError> {
-        Ok(self.is_public_index(index)? && self.is_valid_index(index)?)
+        self.indexer_ref().is_valid_public_index(index)
     }
 
     fn try_is_valid_public_index(&self, index: &Index) -> Result<(), GraphComputingError> {
-        if self.is_valid_public_index(index)? {
-            return Ok(());
-        } else {
-            return Err(LogicError::new(
-                LogicErrorType::IndexOutOfBounds,
-                format!(
-                    "No valid public index [{}], the index may have been freed.",
-                    index
-                ),
-                None,
-            )
-            .into());
-        }
+        self.indexer_ref().try_is_valid_public_index(index)
     }
 }
 

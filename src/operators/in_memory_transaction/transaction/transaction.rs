@@ -7,11 +7,11 @@ pub struct AtomicInMemoryTransaction<'t> {
 }
 
 impl<'t> UseAtomicTransaction for AtomicInMemoryTransaction<'t> {
-    fn revert(mut self) -> Result<(), GraphComputingError> {
+    fn revert(&mut self) -> Result<(), GraphComputingError> {
         self.revert_private()
     }
 
-    fn commit(self) -> Result<(), GraphComputingError> {
+    fn commit(&mut self) -> Result<(), GraphComputingError> {
         todo!()
     }
 }
