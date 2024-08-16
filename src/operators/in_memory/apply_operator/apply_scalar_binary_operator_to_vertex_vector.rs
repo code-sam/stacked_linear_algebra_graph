@@ -33,7 +33,7 @@ where
         &mut self,
         left_argument: &impl GetVertexTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EvaluationDomain,
+        right_argument: EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
@@ -56,7 +56,7 @@ where
 
     fn with_vertex_vector_as_right_argument(
         &mut self,
-        left_argument: &EvaluationDomain,
+        left_argument: EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
@@ -89,7 +89,7 @@ where
         &mut self,
         left_argument: &impl GetVertexTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EvaluationDomain,
+        right_argument: EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
@@ -144,7 +144,7 @@ where
 
     fn with_vertex_vector_as_right_argument_and_by_unchecked_index(
         &mut self,
-        left_argument: &EvaluationDomain,
+        left_argument: EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,

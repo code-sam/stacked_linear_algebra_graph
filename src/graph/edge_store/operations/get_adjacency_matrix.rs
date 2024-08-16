@@ -50,7 +50,7 @@ impl GetAdjacencyMatrix for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_public_index(edge_type_index.index_ref())?;
+            .is_valid_public_index(edge_type_index.index())?;
         Ok(self.adjacency_matrix_ref_unchecked(edge_type_index))
     }
 
@@ -59,7 +59,7 @@ impl GetAdjacencyMatrix for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_public_index(edge_type_index.index_ref())?;
+            .is_valid_public_index(edge_type_index.index())?;
         Ok(self.adjacency_matrix_mut_ref_unchecked(edge_type_index))
     }
 
@@ -68,7 +68,7 @@ impl GetAdjacencyMatrix for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_private_index(edge_type_index.index_ref())?;
+            .is_valid_private_index(edge_type_index.index())?;
         Ok(self.adjacency_matrix_ref_unchecked(edge_type_index))
     }
 
@@ -77,7 +77,7 @@ impl GetAdjacencyMatrix for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_private_index(edge_type_index.index_ref())?;
+            .is_valid_private_index(edge_type_index.index())?;
         Ok(self.adjacency_matrix_mut_ref_unchecked(edge_type_index))
     }
 

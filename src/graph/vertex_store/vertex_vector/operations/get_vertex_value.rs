@@ -80,9 +80,9 @@ impl<
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.vertex_value_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -92,9 +92,9 @@ impl<
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.try_vertex_value_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -104,9 +104,9 @@ impl<
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.vertex_value_or_default_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -116,9 +116,9 @@ impl<
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.vertex_value_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -128,9 +128,9 @@ impl<
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.try_vertex_value_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -140,9 +140,9 @@ impl<
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.vertex_value_or_default_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -156,7 +156,7 @@ impl<
         Ok(self
             .vertex_vector_ref_unchecked(vertex_type_index)
             .sparse_vector()?
-            .element_value(vertex_index.index_ref())?)
+            .element_value(vertex_index.index())?)
     }
 
     fn try_vertex_value_unchecked(
@@ -167,7 +167,7 @@ impl<
         match self
         .vertex_vector_ref_unchecked(vertex_type_index)
         .sparse_vector()?
-        .element_value(vertex_index.index_ref())? {
+        .element_value(vertex_index.index())? {
             Some(weight) => Ok(weight),
             None => Err(LogicError::new(
                 LogicErrorType::EdgeMustExist,
@@ -187,6 +187,6 @@ impl<
         Ok(self
             .vertex_vector_ref_unchecked(vertex_type_index)
             .sparse_vector()?
-            .element_value_or_default(vertex_index.index_ref())?)
+            .element_value_or_default(vertex_index.index())?)
     }
 }

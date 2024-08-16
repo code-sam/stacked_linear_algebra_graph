@@ -38,7 +38,7 @@ where
         &mut self,
         left_argument: &impl GetEdgeTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EvaluationDomain,
+        right_argument: EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
@@ -47,7 +47,7 @@ where
 
     fn with_adjacency_matrix_as_right_argument(
         &mut self,
-        left_argument: &EvaluationDomain,
+        left_argument: EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
@@ -65,7 +65,7 @@ where
         &mut self,
         left_argument: &impl GetEdgeTypeIndex,
         operator: &impl BinaryOperator<EvaluationDomain>,
-        right_argument: &EvaluationDomain,
+        right_argument: EvaluationDomain,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,
         mask: Option<&EdgeTypeIndex>,
@@ -74,7 +74,7 @@ where
 
     fn with_adjacency_matrix_as_right_argument_and_by_unchecked_index(
         &mut self,
-        left_argument: &EvaluationDomain,
+        left_argument: EvaluationDomain,
         operator: &impl BinaryOperator<EvaluationDomain>,
         right_argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,

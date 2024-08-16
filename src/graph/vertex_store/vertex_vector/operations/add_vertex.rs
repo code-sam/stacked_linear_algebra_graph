@@ -69,7 +69,7 @@ where
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(type_index.index_ref())?;
+            .try_is_valid_public_index(type_index.index())?;
         self.add_new_vertex_unchecked(type_index, value)
     }
 
@@ -80,7 +80,7 @@ where
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         self.add_or_update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
@@ -90,7 +90,7 @@ where
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(type_index.index_ref())?;
+            .try_is_valid_private_index(type_index.index())?;
         self.add_new_vertex_unchecked(type_index, value)
     }
 
@@ -101,7 +101,7 @@ where
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         self.add_or_update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
@@ -124,7 +124,7 @@ where
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
         if self
             .element_indexer_ref()
-            .is_valid_index(vertex_index.index_ref())?
+            .is_valid_index(vertex_index.index())?
         {
             let vertex_vector: &mut VertexVector =
                 self.vertex_vector_mut_ref_unchecked(vertex_type_index);

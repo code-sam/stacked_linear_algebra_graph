@@ -201,9 +201,9 @@ mod tests {
         state_reverter.restore(&mut matrix).unwrap();
 
         assert_eq!(matrix.size().unwrap(), (10, 10).into());
-        assert_eq!(matrix.element_value(&0, &0).unwrap(), None);
-        assert_eq!(matrix.element_value(&1, &1).unwrap(), Some(1));
-        assert_eq!(matrix.element_value(&4, &4).unwrap(), Some(4));
+        assert_eq!(matrix.element_value(0, 0).unwrap(), None);
+        assert_eq!(matrix.element_value(1, 1).unwrap(), Some(1));
+        assert_eq!(matrix.element_value(4, 4).unwrap(), Some(4));
         assert_eq!(matrix.number_of_stored_elements().unwrap(), 3);
     }
 }

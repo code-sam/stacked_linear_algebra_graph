@@ -59,7 +59,7 @@ where
     ) -> Result<Option<T>, GraphComputingError> {
         Ok(self
             .sparse_matrix()?
-            .element_value(tail.index_ref(), head.index_ref())?)
+            .element_value(tail.index(), head.index())?)
     }
 
     fn edge_weight_at_coordinate_unchecked(
@@ -78,7 +78,7 @@ where
     ) -> Result<T, GraphComputingError> {
         Ok(self
             .sparse_matrix()?
-            .element_value_or_default(tail.index_ref(), head.index_ref())?)
+            .element_value_or_default(tail.index(), head.index())?)
     }
 
     fn edge_weight_or_default_at_coordinate_unchecked(
@@ -97,7 +97,7 @@ where
     ) -> Result<T, GraphComputingError> {
         match self
             .sparse_matrix()?
-            .element_value(tail.index_ref(), head.index_ref())?
+            .element_value(tail.index(), head.index())?
         {
             Some(weight) => Ok(weight),
             None => Err(LogicError::new(

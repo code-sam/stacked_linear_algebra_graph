@@ -117,7 +117,7 @@ where
                     .matrix_column_extractor()
                     .apply(
                         adjacency_matrix_argument.adjacency_matrix_ref(),
-                        head_vertex.index_ref(),
+                        head_vertex.index(),
                         &VertexSelector::All,
                         accumlator,
                         vertex_vector_extract_to,
@@ -135,7 +135,7 @@ where
                     .matrix_column_extractor()
                     .apply(
                         adjacency_matrix_argument.adjacency_matrix_ref(),
-                        head_vertex.index_ref(),
+                        head_vertex.index(),
                         &VertexSelector::All,
                         accumlator,
                         vertex_vector_extract_to,

@@ -56,7 +56,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             self,
             &ElementIndexSelector::All,
             vertex_index.index_ref(),
-            &empty_column,
+            empty_column.clone(),
             &OPERATOR_CACHE.boolean_assignment,
             &SelectEntireVector::new(self.graphblas_context()), // TODO: could the mask be cached for better performance?
             &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
@@ -65,7 +65,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             self,
             &ElementIndexSelector::All,
             vertex_index.index_ref(),
-            &empty_column,
+            empty_column,
             &OPERATOR_CACHE.boolean_assignment,
             &SelectEntireVector::new(self.graphblas_context()), // TODO: could the mask be cached for better performance?
             &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,

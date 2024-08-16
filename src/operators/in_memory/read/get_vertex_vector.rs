@@ -88,7 +88,7 @@ where
             .vertex_store_ref()
             .public_vertex_vector_ref(type_index)?
             .sparse_vector()?
-            .get_element_list()?)
+            .element_list()?)
     }
 }
 
@@ -105,7 +105,7 @@ where
             .vertex_store_ref()
             .private_vertex_vector_ref(type_index)?
             .sparse_vector()?
-            .get_element_list()?)
+            .element_list()?)
     }
 
     fn sparse_vector_element_list_unchecked(
@@ -116,6 +116,6 @@ where
             .vertex_store_ref()
             .vertex_vector_ref_unchecked(type_index)
             .sparse_vector()?
-            .get_element_list()?)
+            .element_list()?)
     }
 }

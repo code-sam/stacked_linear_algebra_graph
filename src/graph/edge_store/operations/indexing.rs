@@ -44,7 +44,7 @@ impl Indexing for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<bool, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_index(edge_type_index.index_ref())
+            .is_valid_index(edge_type_index.index())
     }
 
     fn try_edge_type_index_validity(
@@ -52,7 +52,7 @@ impl Indexing for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_type_indexer_ref()
-            .try_index_validity(edge_type_index.index_ref())
+            .try_index_validity(edge_type_index.index())
     }
 
     fn is_valid_public_edge_type_index(
@@ -60,7 +60,7 @@ impl Indexing for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<bool, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_public_index(edge_type_index.index_ref())
+            .is_valid_public_index(edge_type_index.index())
     }
 
     fn try_is_valid_public_edge_type_index(
@@ -68,7 +68,7 @@ impl Indexing for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_type_indexer_ref()
-            .try_is_valid_public_index(edge_type_index.index_ref())
+            .try_is_valid_public_index(edge_type_index.index())
     }
 
     fn is_valid_private_edge_type_index(
@@ -76,7 +76,7 @@ impl Indexing for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<bool, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_private_index(edge_type_index.index_ref())
+            .is_valid_private_index(edge_type_index.index())
     }
 
     fn try_is_valid_private_edge_type_index(
@@ -84,6 +84,6 @@ impl Indexing for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_type_indexer_ref()
-            .try_is_valid_private_index(edge_type_index.index_ref())
+            .try_is_valid_private_index(edge_type_index.index())
     }
 }

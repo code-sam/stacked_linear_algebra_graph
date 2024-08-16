@@ -45,9 +45,9 @@ where
         value: T,
     ) -> Result<(), GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
@@ -58,9 +58,9 @@ where
         value: T,
     ) -> Result<(), GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         self.element_indexer_ref()
-            .try_index_validity(vertex_index.index_ref())?;
+            .try_index_validity(vertex_index.index())?;
         self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 

@@ -51,7 +51,7 @@ impl GetVertexVector for VertexStore {
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&VertexVector, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         Ok(self.vertex_vector_ref_unchecked(vertex_type_index))
     }
     fn public_vertex_vector_mut_ref(
@@ -59,7 +59,7 @@ impl GetVertexVector for VertexStore {
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&mut VertexVector, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         Ok(self.vertex_vector_mut_ref_unchecked(vertex_type_index))
     }
     // fn vertex_vector_by_index_mut_ref_unsafe(
@@ -77,7 +77,7 @@ impl GetVertexVector for VertexStore {
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&VertexVector, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         Ok(self.vertex_vector_ref_unchecked(vertex_type_index))
     }
     fn private_vertex_vector_mut_ref(
@@ -85,7 +85,7 @@ impl GetVertexVector for VertexStore {
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&mut VertexVector, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         Ok(self.vertex_vector_mut_ref_unchecked(vertex_type_index))
     }
     // fn vertex_vector_by_index_mut_ref_unsafe(

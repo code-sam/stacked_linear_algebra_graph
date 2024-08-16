@@ -61,7 +61,7 @@ impl DeleteVertexValue for VertexStore {
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index_ref())?;
+            .try_is_valid_public_index(vertex_type_index.index())?;
         self.delete_vertex_element_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -71,7 +71,7 @@ impl DeleteVertexValue for VertexStore {
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index_ref())?;
+            .try_is_valid_private_index(vertex_type_index.index())?;
         self.delete_vertex_element_unchecked(vertex_type_index, vertex_index)
     }
 
@@ -91,14 +91,8 @@ impl DeleteVertexForAllTypes for VertexStore {
         &mut self,
         vertex_index: &(impl GetVertexIndexIndex + Sync),
     ) -> Result<(), GraphComputingError> {
-        self.map_mut_all_valid_vertex_vectors(|vertex_vector: &mut VertexVector| {
-            Ok(drop_sparse_vector_element(
-                vertex_vector,
-                *vertex_index.index_ref(),
-            )?)
-        })?;
-        self.element_indexer_mut_ref()
-            .free_index_unchecked(*vertex_index.index_ref())
+        self.delete_vertex_for_all_valid_public_vertex_types_and_value_types(vertex_index)?;
+        self.delete_vertex_for_all_valid_private_vertex_types_and_value_types(vertex_index)
     }
 
     fn delete_vertex_for_all_valid_public_vertex_types_and_value_types(
@@ -108,11 +102,11 @@ impl DeleteVertexForAllTypes for VertexStore {
         self.map_mut_all_valid_public_vertex_vectors(|vertex_vector: &mut VertexVector| {
             Ok(drop_sparse_vector_element(
                 vertex_vector,
-                *vertex_index.index_ref(),
+                vertex_index.index(),
             )?)
         })?;
         self.element_indexer_mut_ref()
-            .free_index_unchecked(*vertex_index.index_ref())
+            .free_public_index_unchecked(vertex_index.index())
     }
 
     fn delete_vertex_for_all_valid_private_vertex_types_and_value_types(
@@ -122,10 +116,10 @@ impl DeleteVertexForAllTypes for VertexStore {
         self.map_mut_all_valid_private_vertex_vectors(|vertex_vector: &mut VertexVector| {
             Ok(drop_sparse_vector_element(
                 vertex_vector,
-                *vertex_index.index_ref(),
+                vertex_index.index(),
             )?)
         })?;
         self.element_indexer_mut_ref()
-            .free_index_unchecked(*vertex_index.index_ref())
+            .free_private_index_unchecked(vertex_index.index())
     }
 }

@@ -24,7 +24,7 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,
@@ -40,7 +40,7 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,
@@ -56,7 +56,7 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,
@@ -87,7 +87,7 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,
@@ -209,7 +209,7 @@ mod tests {
         SelectFromAdjacencyMatrix::apply(
             &mut graph,
             &IsValueGreaterThan::<u8>::new(),
-            &1,
+            1,
             &edge_type_1_index,
             &Assignment::new(),
             &result_edge_type_index,
