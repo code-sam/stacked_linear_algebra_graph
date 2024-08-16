@@ -1,19 +1,14 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::ResizeSparseVector;
-
-use crate::graph::indexing::indexer::indexer::GetIndexMask;
+use crate::graph::indexing::operations::SetIndexCapacity;
 use crate::{
     error::GraphComputingError,
-    graph::indexing::{ElementCount, Indexer},
+    graph::indexing::ElementCount,
 };
 
-pub(crate) trait SetIndexCapacity {
-    fn set_index_capacity(&mut self, capacity: &ElementCount) -> Result<(), GraphComputingError>;
-}
+use super::{AtomicInMemoryIndexerTransaction, GetIndexerStateRestorer, GetIndexerUnderTransaction, RegisterIndexCapacityToRestore};
 
-impl SetIndexCapacity for Indexer {
-    fn set_index_capacity(&mut self, capacity: &ElementCount) -> Result<(), GraphComputingError> {
-        self.mask_with_valid_indices_mut_ref().resize(*capacity)?; // TODO: if this fails, state will be inconsistent
-        self.mask_with_private_indices_mut_ref().resize(*capacity)?;
-        Ok(())
+impl<'t> SetIndexCapacity for AtomicInMemoryIndexerTransaction<'t> {
+    fn set_index_capacity(&mut self, capacity: ElementCount) -> Result<(), GraphComputingError> {
+        self.indexer_mut_ref().set_index_capacity(capacity)?;
+        self.indexer_state_restorer_mut_ref().register_index_capacity_to_restore(capacity)
     }
 }

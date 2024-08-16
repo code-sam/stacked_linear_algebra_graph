@@ -7,6 +7,7 @@ use crate::{
     operators::transaction::RestoreState,
 };
 
+#[derive(Debug, Clone)]
 pub(crate) struct QueueStateReverter<T: ValueType> {
     front_to_restore: VecDequeQueue<T>,
     length_to_restore: ElementCount,

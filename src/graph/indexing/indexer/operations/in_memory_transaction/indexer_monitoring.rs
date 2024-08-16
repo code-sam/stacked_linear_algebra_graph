@@ -1,27 +1,16 @@
-use graphblas_sparse_linear_algebra::collections::{
-    sparse_vector::operations::GetSparseVectorLength, Collection,
-};
-
 use crate::{
     error::GraphComputingError,
-    graph::indexing::{ElementCount, Indexer},
+    graph::indexing::{operations::GetIndexerStatus, ElementCount},
 };
 
-use super::GetValidIndices;
+use super::{AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction};
 
-pub(crate) trait GetIndexerStatus {
-    fn number_of_indexed_elements(&self) -> Result<ElementCount, GraphComputingError>;
-    fn index_capacity(&self) -> Result<ElementCount, GraphComputingError>;
-}
-
-impl GetIndexerStatus for Indexer {
+impl<'t> GetIndexerStatus for AtomicInMemoryIndexerTransaction<'t> {
     fn number_of_indexed_elements(&self) -> Result<ElementCount, GraphComputingError> {
-        Ok(self
-            .mask_with_valid_indices_ref()
-            .number_of_stored_elements()?)
+        self.indexer_ref().number_of_indexed_elements()
     }
 
     fn index_capacity(&self) -> Result<ElementCount, GraphComputingError> {
-        Ok(self.mask_with_valid_indices_ref().length()?)
+        self.indexer_ref().index_capacity()
     }
 }

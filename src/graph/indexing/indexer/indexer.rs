@@ -1,5 +1,4 @@
 use std::cmp::max;
-use std::collections::VecDeque;
 use std::fmt::Debug;
 use std::sync::Arc;
 
@@ -9,15 +8,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::Collection;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
-use graphblas_sparse_linear_algebra::operators::apply::UnaryOperatorApplier;
-use graphblas_sparse_linear_algebra::operators::binary_operator::{Assignment, LogicalAnd, Minus};
-use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::element_wise_addition::ElementWiseVectorAdditionBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseVectorMultiplicationBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ElementWiseVectorMultiplicationBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
-use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
-use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
@@ -147,22 +138,25 @@ impl Indexer {
     }
 
     pub(super) fn claim_available_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
+        let is_index_reused: bool;
         let available_index = match self.indices_available_for_reuse.pop_front() {
-            None => self
-                .mask_with_valid_indices_ref()
-                .number_of_stored_elements()?,
-            Some(index) => index,
+            None => {
+                is_index_reused = false;
+                self.mask_with_valid_indices_ref()
+                    .number_of_stored_elements()?
+            }
+            Some(index) => {
+                is_index_reused = true;
+                index
+            }
         };
 
-        // new indices are popped from a stack. Indices of freed indices are pushed to the stack, and re-used.
-        // benefit: no memory is allocated for unused indices
-        // downside: runtime cost; more complexity; no use of speedy pre-allocation; memory is never deallocated
         let new_index;
-        if available_index >= self.capacity()? {
+        if (!is_index_reused) && (available_index >= self.capacity()?) {
             let new_capacity = self.expand_capacity()?;
-            new_index = AssignedIndex::new(available_index, Some(new_capacity));
+            new_index = AssignedIndex::new(available_index, Some(new_capacity), is_index_reused);
         } else {
-            new_index = AssignedIndex::new(available_index, None);
+            new_index = AssignedIndex::new(available_index, None, is_index_reused);
         }
 
         self.mask_with_valid_indices_mut_ref()
@@ -232,7 +226,7 @@ mod tests {
             1
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 1);
-        assert_eq!(indexer.is_valid_index(&index.index_ref()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(index.index()).unwrap(), true);
 
         assert_eq!(
             mask_with_valid_indices.number_of_stored_elements().unwrap(),
@@ -241,12 +235,12 @@ mod tests {
         assert_eq!(mask_with_valid_indices.length().unwrap(), initial_capacity);
         assert_eq!(
             mask_with_valid_indices
-                .element_value(&index.index_ref())
+                .element_value(index.index())
                 .unwrap(),
             Some(true)
         );
 
-        indexer.free_valid_index(index.index_ref().clone()).unwrap();
+        indexer.free_public_index(index.index_ref().clone()).unwrap();
         let mask_with_valid_indices = indexer.mask_with_valid_indices_ref();
 
         assert_eq!(
@@ -256,7 +250,7 @@ mod tests {
             1
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 0);
-        assert_eq!(indexer.is_valid_index(&index.index_ref()).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(index.index()).unwrap(), false);
 
         assert_eq!(
             mask_with_valid_indices.number_of_stored_elements().unwrap(),
@@ -265,7 +259,7 @@ mod tests {
         assert_eq!(mask_with_valid_indices.length().unwrap(), initial_capacity);
         assert_eq!(
             mask_with_valid_indices
-                .element_value(&index.index_ref())
+                .element_value(index.index())
                 .unwrap(),
             None
         );
@@ -284,13 +278,13 @@ mod tests {
         }
 
         indexer
-            .free_valid_index(indices[2].index_ref().clone())
+            .free_public_index(indices[2].index_ref().clone())
             .unwrap();
         indexer
-            .free_valid_index(indices[20].index_ref().clone())
+            .free_public_index(indices[20].index_ref().clone())
             .unwrap();
         indexer
-            .free_valid_index(indices[92].index_ref().clone())
+            .free_public_index(indices[92].index_ref().clone())
             .unwrap();
 
         assert_eq!(
@@ -300,35 +294,35 @@ mod tests {
             n_indices
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[0].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[0].index()).unwrap(),
             true
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[10].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[10].index()).unwrap(),
             true
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[33].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[33].index()).unwrap(),
             true
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[77].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[77].index()).unwrap(),
             true
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[99].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[99].index()).unwrap(),
             true
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[2].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[2].index()).unwrap(),
             false
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[20].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[20].index()).unwrap(),
             false
         );
         assert_eq!(
-            indexer.is_valid_index(&indices[92].index_ref()).unwrap(),
+            indexer.is_valid_index(indices[92].index()).unwrap(),
             false
         );
 
@@ -348,13 +342,13 @@ mod tests {
         );
         assert_eq!(
             mask_with_valid_indices
-                .element_value(&indices[33].index_ref())
+                .element_value(indices[33].index())
                 .unwrap(),
             Some(true)
         );
         assert_eq!(
             mask_with_valid_indices
-                .element_value(&indices[20].index_ref())
+                .element_value(indices[20].index())
                 .unwrap(),
             None
         );
@@ -372,14 +366,14 @@ mod tests {
         }
 
         for _i in 0..20 {
-            match indexer.free_valid_index(1) {
+            match indexer.free_public_index(1) {
                 // deleting the same key multiple times will result in errors, this error is not tested.
                 Ok(_) => (),
                 Err(_) => (),
             }
         }
 
-        assert!(!indexer.is_valid_index(&1).unwrap());
+        assert!(!indexer.is_valid_index(1).unwrap());
         assert_eq!(
             indexer
                 .mask_with_valid_indices_ref()
@@ -407,7 +401,7 @@ mod tests {
             assert_eq!(
                 indexer
                     .mask_with_valid_indices_ref()
-                    .element_value_or_default(&i)
+                    .element_value_or_default(i)
                     .unwrap(),
                 true
             );
@@ -424,19 +418,19 @@ mod tests {
             );
         }
 
-        indexer.free_valid_index(0).unwrap();
+        indexer.free_public_index(0).unwrap();
         assert_eq!(
             indexer
                 .mask_with_valid_indices_ref()
-                .element_value_or_default(&0)
+                .element_value_or_default(0)
                 .unwrap(),
             false
         );
-        indexer.free_valid_index(10).unwrap();
+        indexer.free_public_index(10).unwrap();
         assert_eq!(
             indexer
                 .mask_with_valid_indices_ref()
-                .element_value_or_default(&10)
+                .element_value_or_default(10)
                 .unwrap(),
             false
         );
@@ -459,9 +453,9 @@ mod tests {
             indexer.new_public_index().unwrap();
         }
 
-        indexer.free_valid_index(0).unwrap();
-        indexer.free_valid_index(3).unwrap();
-        indexer.free_valid_index(4).unwrap();
+        indexer.free_public_index(0).unwrap();
+        indexer.free_public_index(3).unwrap();
+        indexer.free_public_index(4).unwrap();
 
         indexer.new_public_index().unwrap();
 

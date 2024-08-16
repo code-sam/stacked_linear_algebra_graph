@@ -198,7 +198,7 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                 match matrix.value_type_identifier_ref() {
                     &ValueTypeIdentifier::$value_type_identifier => unsafe {
                         Ok(SparseMatrix::<$value_type>::from_graphblas_matrix(
-                            matrix.context_ref(),
+                            matrix.context(),
                             clone_graphblas_matrix(
                                 matrix.context_ref(),
                                 matrix.graphblas_matrix_ref(),

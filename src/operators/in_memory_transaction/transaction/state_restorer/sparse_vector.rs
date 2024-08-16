@@ -15,12 +15,14 @@ use crate::{
     operators::transaction::RestoreState,
 };
 
+#[derive(Clone, Debug)]
 pub(crate) enum SparseVectorStateToRestore<T: ValueType> {
     EmptyElement(ElementIndex),
     ElementValue(ElementIndex, T),
     SparseVector(SparseVector<T>),
 }
 
+#[derive(Debug, Clone)]
 pub(crate) struct SparseVectorStateReverter<T: ValueType> {
     length_to_restore: ElementCount,
     state_to_restore: Vec<SparseVectorStateToRestore<T>>,
@@ -185,9 +187,9 @@ mod tests {
         state_reverter.restore(&mut vector).unwrap();
 
         assert_eq!(vector.length().unwrap(), 10);
-        assert_eq!(vector.element_value(&0).unwrap(), None);
-        assert_eq!(vector.element_value(&1).unwrap(), Some(1));
-        assert_eq!(vector.element_value(&4).unwrap(), Some(4));
+        assert_eq!(vector.element_value(0).unwrap(), None);
+        assert_eq!(vector.element_value(1).unwrap(), Some(1));
+        assert_eq!(vector.element_value(4).unwrap(), Some(4));
         assert_eq!(vector.number_of_stored_elements().unwrap(), 3);
     }
 }

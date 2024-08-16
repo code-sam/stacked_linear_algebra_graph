@@ -128,8 +128,9 @@ impl<
         &self,
     ) -> Result<Vec<VertexIndex>, GraphComputingError> {
         Ok(
+            // TODO: use element iterator for better performance
             SelectEdgeVertices::<T>::select_vertices_with_outgoing_edges(self)?
-                .get_element_list()?
+                .element_list()?
                 .indices_ref()
                 .into_par_iter()
                 .map(|index| VertexIndex::new(index.to_owned()))
@@ -141,8 +142,9 @@ impl<
         &self,
     ) -> Result<Vec<VertexIndex>, GraphComputingError> {
         Ok(
+            // TODO: use element iterator for better performance
             SelectEdgeVertices::<T>::select_vertices_with_incoming_edges(self)?
-                .get_element_list()?
+                .element_list()?
                 .indices_ref()
                 .into_par_iter()
                 .map(|index| VertexIndex::new(index.to_owned()))
@@ -152,8 +154,9 @@ impl<
 
     ///
     fn indices_of_connected_vertices(&self) -> Result<Vec<VertexIndex>, GraphComputingError> {
+        // TODO: use element iterator for better performance
         Ok(SelectEdgeVertices::<T>::select_connected_vertices(self)?
-            .get_element_list()?
+            .element_list()?
             .indices_ref()
             .into_par_iter()
             .map(|index| VertexIndex::new(index.to_owned()))
