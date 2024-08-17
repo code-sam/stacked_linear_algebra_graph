@@ -1,15 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionMonoidOperator;
 use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 
-use crate::graph::graph::Graph;
-use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
-};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait MonoidElementWiseVertexVectorAddition<EvaluationDomain>

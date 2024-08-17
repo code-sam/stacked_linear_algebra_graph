@@ -3,7 +3,7 @@ use crate::graph::edge_store::{
     GetArgumentsForAdjacencyMatrixOperator,
 };
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
-use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;

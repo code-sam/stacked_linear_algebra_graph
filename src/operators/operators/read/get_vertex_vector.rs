@@ -10,7 +10,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         graph::Graph, value_type::ValueType,
-        vertex_store::operations::get_vertex_vector::GetVertexVector,
+        vertex_store::operations::GetVertexVector,
     },
 };
 

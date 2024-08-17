@@ -1,5 +1,4 @@
 use graphblas_sparse_linear_algebra::operators::{
-    apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
     binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
     options::OperatorOptions,
 };
@@ -7,19 +6,9 @@ use graphblas_sparse_linear_algebra::operators::{
 use crate::{
     error::GraphComputingError,
     graph::{
-        graph::Graph,
         indexing::{GetVertexTypeIndex, VertexTypeIndex},
         value_type::ValueType,
     },
-};
-use crate::{
-    graph::{
-        graph::{
-            GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
-        },
-        vertex_store::operations::get_vertex_vector::GetVertexVector,
-    },
-    operators::indexing::CheckIndex,
 };
 
 pub trait ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain>

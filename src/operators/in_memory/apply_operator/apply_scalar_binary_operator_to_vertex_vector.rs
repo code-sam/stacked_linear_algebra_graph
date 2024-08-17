@@ -19,7 +19,7 @@ use crate::{
         graph::{
             GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
         },
-        vertex_store::operations::get_vertex_vector::GetVertexVector,
+        vertex_store::operations::GetVertexVector,
     },
     operators::indexing::CheckIndex,
 };

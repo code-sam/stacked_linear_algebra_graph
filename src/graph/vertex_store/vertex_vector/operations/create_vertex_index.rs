@@ -3,8 +3,7 @@ use crate::{
     graph::{
         indexing::{operations::GeneratePublicIndex, AssignedIndex, GetAssignedIndexData},
         vertex_store::{
-            operations::resize_vertex_vectors::ResizeVertexVectors, GetVertexElementIndexer,
-            VertexStore,
+            operations::ResizeVertexVectors, GetVertexElementIndexer, VertexStore
         },
     },
 };

@@ -4,7 +4,7 @@ use crate::{
         graph::{GetVertexStore, Graph},
         indexing::VertexTypeIndex,
         value_type::{GetValueTypeIdentifier, ValueType},
-        vertex_store::operations::add_vertex_type::{
+        vertex_store::operations::{
             AddPrivateVertexType as AddPrivateVertexTypeToVertexStore,
             AddPublicVertexType as AddPublicVertexTypeToVertexStore,
         },

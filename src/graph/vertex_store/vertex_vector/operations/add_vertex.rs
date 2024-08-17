@@ -7,7 +7,7 @@ use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::GetVertexElementIndexer;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
@@ -139,11 +139,11 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::graph::vertex_store::operations::AddPublicVertexType;
+
     use super::*;
 
     use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
-
-    use crate::graph::vertex_store::operations::add_vertex_type::AddPublicVertexType;
 
     #[test]
     fn test_add_new_vertex() {

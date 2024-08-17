@@ -8,7 +8,7 @@ use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 
-use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
+use crate::graph::vertex_store::operations::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, IntoSparseVector, IntoSparseVectorForValueType,

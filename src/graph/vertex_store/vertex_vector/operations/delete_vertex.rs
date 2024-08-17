@@ -8,10 +8,7 @@ use crate::{
             GetVertexIndexIndex, GetVertexTypeIndex,
         },
         vertex_store::{
-            operations::{
-                get_vertex_vector::GetVertexVector,
-                map::{MapPrivateVertexVectors, MapPublicVertexVectors, MapValidVertexVectors},
-            },
+            operations::{GetVertexVector, MapPrivateVertexVectors, MapPublicVertexVectors},
             GetVertexElementIndexer, GetVertexTypeIndexer, VertexStore, VertexVector,
         },
     },
