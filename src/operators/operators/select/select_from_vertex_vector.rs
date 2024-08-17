@@ -1,14 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
-use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
 
-use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore, Graph,
-};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait SelectFromVertexVector<EvaluationDomain>

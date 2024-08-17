@@ -1,14 +1,6 @@
 use crate::{
     error::GraphComputingError,
-    graph::{
-        graph::{GetVertexStore, Graph},
-        indexing::VertexTypeIndex,
-        value_type::{GetValueTypeIdentifier, ValueType},
-        vertex_store::operations::{
-            AddPrivateVertexType as AddPrivateVertexTypeToVertexStore,
-            AddPublicVertexType as AddPublicVertexTypeToVertexStore,
-        },
-    },
+    graph::{indexing::VertexTypeIndex, value_type::ValueType},
 };
 
 pub trait AddVertexType<T: ValueType> {

@@ -1,20 +1,9 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyMatrixByVector;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::edge_store::ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument;
-use crate::graph::edge_store::CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument;
-use crate::graph::edge_store::GetArgumentForOperatorWithAdjacencyMatrixAsLeftArgument;
-use crate::graph::graph::GetEdgeStore;
-use crate::graph::graph::GetGraphblasOperatorApplierCollection;
-use crate::graph::graph::GetGraphblasOperatorAppliers;
-use crate::graph::graph::GetVertexStore;
-use crate::graph::graph::Graph;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::indexing::VertexTypeIndex;
-use crate::graph::vertex_store::operations::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsLeftArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 

@@ -1,13 +1,7 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValueTyped;
-
 use crate::error::GraphComputingError;
 
-use crate::graph::graph::{GetVertexStore, Graph};
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::{
-    GetVertexValue as GetVertexValueFromVertexStore, IntoSparseVectorForValueType,
-};
 
 pub trait GetVertexValue<T: ValueType> {
     fn vertex_value(

@@ -9,10 +9,7 @@ use crate::graph::vertex_store::{IntoSparseVector, IntoSparseVectorForValueType}
 use crate::operators::operators::read::{GetPrivateSparseVertexVector, GetSparseVertexVector};
 use crate::{
     error::GraphComputingError,
-    graph::{
-        graph::Graph, value_type::ValueType,
-        vertex_store::operations::GetVertexVector,
-    },
+    graph::{graph::Graph, value_type::ValueType, vertex_store::operations::GetVertexVector},
 };
 
 impl<T> GetSparseVertexVector<T> for Graph

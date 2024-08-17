@@ -1,11 +1,6 @@
-use crate::graph::graph::GetVertexStore;
+use crate::error::GraphComputingError;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::VertexStore;
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, vertex_store::UpdateVertex},
-};
 
 // REVIEW update vs set
 pub trait UpdateVertexValue<T: ValueType> {

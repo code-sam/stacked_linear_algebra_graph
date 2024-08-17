@@ -1,19 +1,7 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
-    GetSparseMatrixElementListTyped, GetSparseMatrixElementValueTyped, SetSparseMatrixElementTyped,
-};
-use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
-
-use crate::error::{GraphComputingError, LogicError, LogicErrorType};
+use crate::error::GraphComputingError;
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
-    AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
-};
-use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
-use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
-use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
-use crate::operators::indexing::CheckIndex as GraphIndexing;
+use crate::graph::value_type::ValueType;
 
 pub trait AddEdge<T: ValueType> {
     fn add_edge_from_edge(

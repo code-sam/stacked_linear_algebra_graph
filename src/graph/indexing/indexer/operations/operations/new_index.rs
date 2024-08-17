@@ -1,7 +1,6 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElement;
 
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
-use crate::graph::indexing::operations::in_memory_transaction::UseIndexerTransaction;
 use crate::{
     error::GraphComputingError,
     graph::indexing::{AssignedIndex, GetAssignedIndexData, Indexer},

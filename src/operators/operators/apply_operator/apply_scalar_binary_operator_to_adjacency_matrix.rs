@@ -1,33 +1,15 @@
-use graphblas_sparse_linear_algebra::operators::{
-    apply::{ApplyBinaryOperator as ApplyGraphBlasBinaryOperator, BinaryOperatorApplier},
-    binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
+use graphblas_sparse_linear_algebra::operators::binary_operator::{
+    AccumulatorBinaryOperator, BinaryOperator,
 };
 
-use crate::graph::{
-    edge_store::{
-        operations::get_adjacency_matrix::GetAdjacencyMatrix,
-        ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
-        ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument,
-        CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
-        CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument,
-        GetArgumentForOperatorWithAdjacencyMatrixAsLeftArgument,
-        GetArgumentForOperatorWithAdjacencyMatrixAsSecondArgument,
-    },
-    indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
-};
+use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::{
     error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
+    graph::value_type::ValueType,
     operators::options::{
         OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
         OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     },
-};
-use crate::{
-    graph::graph::{
-        GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
-    },
-    operators::indexing::CheckIndex,
 };
 
 pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>

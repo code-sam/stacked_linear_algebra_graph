@@ -1,4 +1,3 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetSparseMatrixElementValue;
 use graphblas_sparse_linear_algebra::collections::{
     sparse_matrix::{
         operations::{
@@ -7,22 +6,13 @@ use graphblas_sparse_linear_algebra::collections::{
         },
         ColumnIndex, RowIndex, Size, SparseMatrix,
     },
-    sparse_vector::{
-        operations::{
-            DeleteSparseVectorElement, GetSparseVectorElementValueTyped, GetSparseVectorLength,
-            ResizeSparseVector, SetSparseVectorElement, SetSparseVectorElementTyped,
-        },
-        SparseVector,
+    sparse_vector::operations::{
+        DeleteSparseVectorElement, ResizeSparseVector, SetSparseVectorElement,
     },
 };
 
 use crate::{
-    error::GraphComputingError,
-    graph::{
-        indexing::{ElementCount, ElementIndex},
-        value_type::ValueType,
-    },
-    operators::transaction::RestoreState,
+    error::GraphComputingError, graph::value_type::ValueType, operators::transaction::RestoreState,
 };
 
 pub(crate) enum SparseMatrixStateToRestore<T: ValueType> {

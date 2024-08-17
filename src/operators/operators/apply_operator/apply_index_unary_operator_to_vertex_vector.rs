@@ -1,6 +1,5 @@
 use graphblas_sparse_linear_algebra::operators::{
-    binary_operator::AccumulatorBinaryOperator,
-    index_unary_operator::IndexUnaryOperator,
+    binary_operator::AccumulatorBinaryOperator, index_unary_operator::IndexUnaryOperator,
     options::OperatorOptions,
 };
 

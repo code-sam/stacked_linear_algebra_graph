@@ -240,7 +240,9 @@ mod tests {
             Some(true)
         );
 
-        indexer.free_public_index(index.index_ref().clone()).unwrap();
+        indexer
+            .free_public_index(index.index_ref().clone())
+            .unwrap();
         let mask_with_valid_indices = indexer.mask_with_valid_indices_ref();
 
         assert_eq!(
@@ -293,38 +295,14 @@ mod tests {
                 .unwrap(),
             n_indices
         );
-        assert_eq!(
-            indexer.is_valid_index(indices[0].index()).unwrap(),
-            true
-        );
-        assert_eq!(
-            indexer.is_valid_index(indices[10].index()).unwrap(),
-            true
-        );
-        assert_eq!(
-            indexer.is_valid_index(indices[33].index()).unwrap(),
-            true
-        );
-        assert_eq!(
-            indexer.is_valid_index(indices[77].index()).unwrap(),
-            true
-        );
-        assert_eq!(
-            indexer.is_valid_index(indices[99].index()).unwrap(),
-            true
-        );
-        assert_eq!(
-            indexer.is_valid_index(indices[2].index()).unwrap(),
-            false
-        );
-        assert_eq!(
-            indexer.is_valid_index(indices[20].index()).unwrap(),
-            false
-        );
-        assert_eq!(
-            indexer.is_valid_index(indices[92].index()).unwrap(),
-            false
-        );
+        assert_eq!(indexer.is_valid_index(indices[0].index()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(indices[10].index()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(indices[33].index()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(indices[77].index()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(indices[99].index()).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(indices[2].index()).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(indices[20].index()).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(indices[92].index()).unwrap(), false);
 
         assert_eq!(
             indexer

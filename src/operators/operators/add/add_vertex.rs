@@ -1,15 +1,8 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
-
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
-use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 
-use crate::graph::indexing::{
-    GetAssignedIndexData, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex,
-};
+use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::vertex::{GetVertexIndex, GetVertexValue};
-use crate::graph::vertex_store::AddVertex as AddVertexToStore;
 
 pub trait AddVertex<T: ValueType> {
     fn add_vertex(

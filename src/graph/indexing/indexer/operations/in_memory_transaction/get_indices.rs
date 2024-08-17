@@ -1,8 +1,10 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
-use crate::graph::indexing::operations::{GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices};
-use crate::graph::indexing::ElementIndex;
 use crate::error::GraphComputingError;
+use crate::graph::indexing::operations::{
+    GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
+};
+use crate::graph::indexing::ElementIndex;
 
 use super::{AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction};
 
@@ -32,6 +34,6 @@ impl<'t> GetValidPrivateIndices for AtomicInMemoryIndexerTransaction<'t> {
     }
 
     fn valid_private_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
-         self.indexer_ref().valid_private_indices()
+        self.indexer_ref().valid_private_indices()
     }
 }

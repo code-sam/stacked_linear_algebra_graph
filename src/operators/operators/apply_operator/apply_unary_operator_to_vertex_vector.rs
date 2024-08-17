@@ -4,10 +4,7 @@ use graphblas_sparse_linear_algebra::operators::{
 };
 
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::{
-    error::GraphComputingError,
-    graph::value_type::ValueType,
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait ApplyUnaryOperatorToVertexVector<EvaluationDomain>
 where

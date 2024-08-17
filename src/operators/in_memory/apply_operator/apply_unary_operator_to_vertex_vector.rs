@@ -7,8 +7,7 @@ use graphblas_sparse_linear_algebra::operators::{
 use crate::graph::graph::{GetGraphblasOperatorAppliers, GetVertexStore};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::{
-    graph::GetGraphblasOperatorApplierCollection,
-    vertex_store::operations::GetVertexVector,
+    graph::GetGraphblasOperatorApplierCollection, vertex_store::operations::GetVertexVector,
 };
 use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVector;

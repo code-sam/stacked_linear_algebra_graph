@@ -1,18 +1,9 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementList;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     SparseVector, VectorElementList as VertexVectorElementList,
 };
 
-use crate::graph::graph::GetVertexStore;
 use crate::graph::indexing::GetVertexTypeIndex;
-use crate::graph::vertex_store::{IntoSparseVector, IntoSparseVectorForValueType};
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        graph::Graph, value_type::ValueType,
-        vertex_store::operations::GetVertexVector,
-    },
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait GetSparseVertexVector<T: ValueType> {
     fn sparse_vector(

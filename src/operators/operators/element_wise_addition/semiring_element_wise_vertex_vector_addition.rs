@@ -1,15 +1,8 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::graph::Graph;
-use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
-};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait SemiringElementWiseVertexVectorAddition<EvaluationDomain>

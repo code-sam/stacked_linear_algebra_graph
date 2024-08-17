@@ -4,10 +4,7 @@ use graphblas_sparse_linear_algebra::operators::{
 
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where

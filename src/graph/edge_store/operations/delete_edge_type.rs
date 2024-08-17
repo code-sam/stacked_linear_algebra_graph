@@ -21,7 +21,8 @@ impl DropEdgeType for EdgeStore {
     ) -> Result<(), GraphComputingError> {
         self.edge_type_indexer_mut_ref()
             .try_is_valid_public_index(edge_type_index.index())?;
-        self.edge_type_indexer_mut_ref().free_public_index_unchecked(edge_type_index.index())
+        self.edge_type_indexer_mut_ref()
+            .free_public_index_unchecked(edge_type_index.index())
     }
 
     fn drop_valid_private_edge_type(
@@ -30,6 +31,7 @@ impl DropEdgeType for EdgeStore {
     ) -> Result<(), GraphComputingError> {
         self.edge_type_indexer_mut_ref()
             .try_is_valid_private_index(edge_type_index.index())?;
-        self.edge_type_indexer_mut_ref().free_private_index_unchecked(edge_type_index.index())
+        self.edge_type_indexer_mut_ref()
+            .free_private_index_unchecked(edge_type_index.index())
     }
 }

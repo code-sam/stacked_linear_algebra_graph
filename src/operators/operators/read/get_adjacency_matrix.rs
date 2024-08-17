@@ -1,22 +1,9 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::GetSparseMatrixElementList;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     MatrixElementList as AdjacencyMatrixElementList, SparseMatrix,
 };
 
-use crate::graph::edge_store::operations::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
-use crate::graph::edge_store::weighted_adjacency_matrix::{
-    IntoSparseMatrix, IntoSparseMatrixForValueType,
-};
-use crate::graph::graph::GetEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix, graph::Graph,
-        value_type::ValueType,
-    },
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait GetSparseAdjacencyMatrix<T: ValueType> {
     fn sparse_adjacency_matrix(

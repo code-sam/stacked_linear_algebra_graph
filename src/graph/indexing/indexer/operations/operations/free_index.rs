@@ -57,7 +57,8 @@ impl FreeIndex for Indexer {
 
     fn free_public_index_unchecked(&mut self, index: Index) -> Result<(), GraphComputingError> {
         self.mask_with_valid_indices_mut_ref().drop_element(index)?;
-        self.mask_with_valid_public_indices_mut_ref().drop_element(index)?;
+        self.mask_with_valid_public_indices_mut_ref()
+            .drop_element(index)?;
 
         self.indices_available_for_reuse_mut_ref().push_back(index);
         Ok(())
@@ -67,7 +68,8 @@ impl FreeIndex for Indexer {
         self.mask_with_valid_indices_mut_ref().drop_element(index)?;
         self.mask_with_private_indices_mut_ref()
             .drop_element(index)?;
-        self.mask_with_valid_private_indices_mut_ref().drop_element(index)?;
+        self.mask_with_valid_private_indices_mut_ref()
+            .drop_element(index)?;
 
         self.indices_available_for_reuse_mut_ref().push_back(index);
         Ok(())
@@ -103,9 +105,13 @@ mod tests {
         assert_eq!(public_index.index(), private_index.index());
 
         assert!(indexer.is_index_private(private_index.index()).unwrap());
-        assert!(indexer.is_valid_private_index(private_index.index()).unwrap());
+        assert!(indexer
+            .is_valid_private_index(private_index.index())
+            .unwrap());
         assert!(!indexer.is_public_index(private_index.index()).unwrap());
-        assert!(!indexer.is_valid_public_index(private_index.index()).unwrap());
+        assert!(!indexer
+            .is_valid_public_index(private_index.index())
+            .unwrap());
     }
 
     #[test]
@@ -121,7 +127,9 @@ mod tests {
         assert_eq!(public_index.index(), private_index.index());
 
         assert!(!indexer.is_index_private(public_index.index()).unwrap());
-        assert!(!indexer.is_valid_private_index(public_index.index()).unwrap());
+        assert!(!indexer
+            .is_valid_private_index(public_index.index())
+            .unwrap());
         assert!(indexer.is_public_index(public_index.index()).unwrap());
         assert!(indexer.is_valid_public_index(public_index.index()).unwrap());
     }

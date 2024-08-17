@@ -1,20 +1,7 @@
 use crate::{
     error::GraphComputingError,
-    graph::{
-        edge_store::{
-            operations::map::MapMutableAdjacencyMatrices,
-            weighted_adjacency_matrix::operations::DeleteVertexConnections,
-        },
-        graph::{GetEdgeStore, GetVertexStore},
-        indexing::{GetVertexIndexIndex, GetVertexTypeIndex},
-        vertex_store::{
-            DeleteVertexForAllTypes, DeleteVertexValue as DeleteVertexValueFromVertexStore,
-        },
-    },
+    graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex},
 };
-
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
-use crate::graph::graph::Graph;
 
 pub trait DropVertexIndex {
     fn drop_vertex_index_and_connected_edges(

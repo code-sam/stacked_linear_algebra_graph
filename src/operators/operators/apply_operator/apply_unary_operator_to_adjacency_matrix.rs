@@ -1,23 +1,10 @@
 use graphblas_sparse_linear_algebra::operators::{
-    apply::ApplyUnaryOperator as ApplyGraphBlasUnaryOperator,
     binary_operator::AccumulatorBinaryOperator, unary_operator::UnaryOperator,
 };
 
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::{
-    ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
-    GetArgumentsForAdjacencyMatrixOperator,
-};
-use crate::graph::graph::{
-    GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
-};
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
-use crate::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
-};
+use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait ApplyUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where

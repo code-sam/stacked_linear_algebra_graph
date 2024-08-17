@@ -8,7 +8,6 @@ use crate::{
 
 use super::IndexerStateRestorer;
 
-
 pub(crate) trait UseIndexerTransaction: UseAtomicTransaction {}
 
 pub(crate) struct AtomicInMemoryIndexerTransaction<'a> {
@@ -84,11 +83,6 @@ impl<'a> AtomicInMemoryIndexerTransaction<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::graph::indexing::operations::GeneratePrivateIndex;
-
-    use super::*;
-
-    use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
     // #[test]
     // fn test_use_successful_transaction() {

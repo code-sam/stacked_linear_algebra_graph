@@ -2,9 +2,7 @@ use crate::{
     error::GraphComputingError,
     graph::{
         indexing::{operations::GeneratePublicIndex, AssignedIndex, GetAssignedIndexData},
-        vertex_store::{
-            operations::ResizeVertexVectors, GetVertexElementIndexer, VertexStore
-        },
+        vertex_store::{operations::ResizeVertexVectors, GetVertexElementIndexer, VertexStore},
     },
 };
 
