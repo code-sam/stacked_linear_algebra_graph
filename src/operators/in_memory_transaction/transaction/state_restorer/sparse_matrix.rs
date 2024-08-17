@@ -152,7 +152,7 @@ impl<T: ValueType> SparseMatrixStateReverter<T> {
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::{
-        collections::{sparse_vector::operations::GetSparseVectorElementValue, Collection},
+        collections::{sparse_matrix::operations::GetSparseMatrixElementValue, sparse_vector::operations::GetSparseVectorElementValue, Collection},
         context::Context as GraphBLASContext,
     };
 
