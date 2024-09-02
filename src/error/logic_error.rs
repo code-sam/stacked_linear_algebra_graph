@@ -1,10 +1,12 @@
-use std::error;
 use std::error::Error;
 use std::fmt;
+use std::{convert::Infallible, error};
 
 use graphblas_sparse_linear_algebra::error::{
     SparseLinearAlgebraError, SparseLinearAlgebraErrorType,
 };
+
+use super::GraphComputingError;
 
 #[derive(Debug)]
 pub struct LogicError {
@@ -33,6 +35,7 @@ pub enum LogicErrorType {
     InvalidKey,
     KeyAlreadyExists,
     ProductCannotEqualArgument,
+    UnsafeTypeConversion,
     VertexAlreadyExists,
     VertexTypeDoesNotExist,
     VertexTypeAlreadyExsists,
@@ -95,5 +98,16 @@ impl From<SparseLinearAlgebraError> for LogicError {
             explanation: String::new(),
             source: Some(LogicErrorSource::SparseLinearAlgebra(error)),
         }
+    }
+}
+
+impl From<Infallible> for GraphComputingError {
+    fn from(_: Infallible) -> Self {
+        // Since Infallible can never actually occur, you can return a default or a specific error
+        GraphComputingError::LogicError(LogicError {
+            error_type: LogicErrorType::UnsafeTypeConversion,
+            explanation: String::from("Infallible error occurred"),
+            source: None,
+        })
     }
 }

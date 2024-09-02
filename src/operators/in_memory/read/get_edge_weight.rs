@@ -8,7 +8,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::operations::GetEdgeWeig
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
-use crate::graph::value_type::ValueType;
+use crate::graph::value_type::{IntoValueType, ValueType};
 
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
 use crate::operators::operators::read::{GetEdgeWeight, GetPrivateEdgeWeight};
@@ -16,6 +16,19 @@ use crate::operators::operators::read::{GetEdgeWeight, GetPrivateEdgeWeight};
 impl<T> GetEdgeWeight<T> for Graph
 where
     T: ValueType + IntoSparseMatrixForValueType<T> + GetSparseMatrixElementValueTyped<T> + Default,
+    bool: IntoValueType<T>,
+    i8: IntoValueType<T>,
+    i16: IntoValueType<T>,
+    i32: IntoValueType<T>,
+    i64: IntoValueType<T>,
+    u8: IntoValueType<T>,
+    u16: IntoValueType<T>,
+    u32: IntoValueType<T>,
+    u64: IntoValueType<T>,
+    f32: IntoValueType<T>,
+    f64: IntoValueType<T>,
+    isize: IntoValueType<T>,
+    usize: IntoValueType<T>,
 {
     fn edge_weight(
         &self,
@@ -91,6 +104,19 @@ where
 impl<T> GetPrivateEdgeWeight<T> for Graph
 where
     T: ValueType + IntoSparseMatrixForValueType<T> + GetSparseMatrixElementValueTyped<T> + Default,
+    bool: IntoValueType<T>,
+    i8: IntoValueType<T>,
+    i16: IntoValueType<T>,
+    i32: IntoValueType<T>,
+    i64: IntoValueType<T>,
+    u8: IntoValueType<T>,
+    u16: IntoValueType<T>,
+    u32: IntoValueType<T>,
+    u64: IntoValueType<T>,
+    f32: IntoValueType<T>,
+    f64: IntoValueType<T>,
+    isize: IntoValueType<T>,
+    usize: IntoValueType<T>,
 {
     fn private_edge_weight(
         &self,

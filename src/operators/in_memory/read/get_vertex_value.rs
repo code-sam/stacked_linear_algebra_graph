@@ -4,7 +4,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::graph::{GetVertexStore, Graph};
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
-use crate::graph::value_type::ValueType;
+use crate::graph::value_type::{IntoValueType, ValueType};
 use crate::graph::vertex_store::{
     GetVertexValue as GetVertexValueFromVertexStore, IntoSparseVectorForValueType,
 };
@@ -12,7 +12,20 @@ use crate::operators::operators::read::{GetPrivateVertexValue, GetVertexValue};
 
 impl<T> GetVertexValue<T> for Graph
 where
-    T: ValueType + GetSparseVectorElementValueTyped<T> + IntoSparseVectorForValueType<T> + Default,
+    T: ValueType + IntoSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
+    bool: IntoValueType<T>,
+    i8: IntoValueType<T>,
+    i16: IntoValueType<T>,
+    i32: IntoValueType<T>,
+    i64: IntoValueType<T>,
+    u8: IntoValueType<T>,
+    u16: IntoValueType<T>,
+    u32: IntoValueType<T>,
+    u64: IntoValueType<T>,
+    f32: IntoValueType<T>,
+    f64: IntoValueType<T>,
+    isize: IntoValueType<T>,
+    usize: IntoValueType<T>,
 {
     fn vertex_value(
         &self,
@@ -44,7 +57,20 @@ where
 
 impl<T> GetPrivateVertexValue<T> for Graph
 where
-    T: ValueType + GetSparseVectorElementValueTyped<T> + IntoSparseVectorForValueType<T> + Default,
+    T: ValueType + IntoSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
+    bool: IntoValueType<T>,
+    i8: IntoValueType<T>,
+    i16: IntoValueType<T>,
+    i32: IntoValueType<T>,
+    i64: IntoValueType<T>,
+    u8: IntoValueType<T>,
+    u16: IntoValueType<T>,
+    u32: IntoValueType<T>,
+    u64: IntoValueType<T>,
+    f32: IntoValueType<T>,
+    f64: IntoValueType<T>,
+    isize: IntoValueType<T>,
+    usize: IntoValueType<T>,
 {
     fn private_vertex_value(
         &self,

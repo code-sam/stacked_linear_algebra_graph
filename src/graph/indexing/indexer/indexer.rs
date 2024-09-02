@@ -36,7 +36,7 @@ pub(super) trait GetIndicesAvailableForReuse {
     fn indices_available_for_reuse_mut_ref(&mut self) -> &mut VecDequeQueue<Index>;
 }
 
-pub(super) trait GetIndexMask {
+pub(crate) trait GetIndexMask {
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;
     fn mask_with_valid_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
 
@@ -94,7 +94,7 @@ impl GetIndexMask for Indexer {
     }
 }
 
-pub(super) trait GetQueueWithIndicesForReuse {
+pub(crate) trait GetQueueWithIndicesForReuse {
     fn queue_with_indices_for_reuse_ref(&self) -> &VecDequeQueue<Index>;
 }
 
@@ -137,7 +137,7 @@ impl Indexer {
         })
     }
 
-    pub(super) fn claim_available_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
+    pub(crate) fn claim_available_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
         let is_index_reused: bool;
         let available_index = match self.indices_available_for_reuse.pop_front() {
             None => {
@@ -165,7 +165,7 @@ impl Indexer {
         Ok(new_index)
     }
 
-    pub(super) fn expand_capacity(&mut self) -> Result<Index, GraphComputingError> {
+    pub(crate) fn expand_capacity(&mut self) -> Result<Index, GraphComputingError> {
         // TODO: test more sophisticated expansion sizing algorithms for better performance
         let new_capacity = self.capacity()? * 2;
         self.set_index_capacity(new_capacity)?;
@@ -173,7 +173,7 @@ impl Indexer {
     }
 
     // Method is implementation-specific, and therefore not part of the IndexerTrait
-    pub(super) fn get_number_of_stored_and_reusable_elements(
+    pub(crate) fn get_number_of_stored_and_reusable_elements(
         &self,
     ) -> Result<Index, GraphComputingError> {
         Ok(self
@@ -182,7 +182,7 @@ impl Indexer {
             + self.indices_available_for_reuse.length())
     }
 
-    pub(super) fn capacity(&self) -> Result<Index, GraphComputingError> {
+    pub(crate) fn capacity(&self) -> Result<Index, GraphComputingError> {
         Ok(self.mask_with_valid_indices_ref().length()?)
     }
 }
