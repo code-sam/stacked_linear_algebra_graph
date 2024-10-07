@@ -103,7 +103,7 @@ impl Display for VertexVector {
         writeln!(
             f,
             "sparse_vector: \n{}",
-            <VertexVector as IntoSparseVector<f64>>::sparse_vector(self).unwrap()
+            <VertexVector as AsSparseVector<f64>>::sparse_vector(self).unwrap()
         );
         return writeln!(f, "");
     }
@@ -162,17 +162,17 @@ impl GetValueTypeIdentifierRef for VertexVector {
 //     Ok(())
 // }
 
-pub trait IntoSparseVector<T: ValueType> {
+pub trait AsSparseVector<T: ValueType> {
     fn sparse_vector(&self) -> Result<SparseVector<T>, GraphComputingError>;
 }
 
-impl<T: ValueType + IntoSparseVectorForValueType<T>> IntoSparseVector<T> for VertexVector {
+impl<T: ValueType + AsSparseVectorForValueType<T>> AsSparseVector<T> for VertexVector {
     fn sparse_vector(&self) -> Result<SparseVector<T>, GraphComputingError> {
         T::sparse_vector(self)
     }
 }
 
-pub(crate) trait IntoSparseVectorForValueType<T: ValueType> {
+pub(crate) trait AsSparseVectorForValueType<T: ValueType> {
     fn sparse_vector(
         vector: &(impl GetContext
               + GetGraphblasSparseVector
@@ -183,7 +183,7 @@ pub(crate) trait IntoSparseVectorForValueType<T: ValueType> {
 
 macro_rules! implement_into_sparse_vector_for_value_type {
     ($value_type_identifier:ident, $value_type:ty) => {
-        impl IntoSparseVectorForValueType<$value_type> for $value_type {
+        impl AsSparseVectorForValueType<$value_type> for $value_type {
             fn sparse_vector(
                 vector: &(impl GetContext
                       + GetGraphblasSparseVector

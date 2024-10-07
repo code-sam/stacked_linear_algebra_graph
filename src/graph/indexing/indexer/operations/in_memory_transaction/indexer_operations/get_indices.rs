@@ -1,12 +1,13 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
 use crate::error::GraphComputingError;
+use crate::graph::indexing::operations::in_memory_transaction::{
+    AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction,
+};
 use crate::graph::indexing::operations::{
     GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
 };
 use crate::graph::indexing::ElementIndex;
-
-use super::{AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction};
 
 impl<'t> GetValidIndices for AtomicInMemoryIndexerTransaction<'t> {
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool> {

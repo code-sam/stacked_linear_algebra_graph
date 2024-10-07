@@ -31,7 +31,7 @@ pub(crate) struct Indexer {
     mask_with_valid_public_indices: SparseVector<bool>,
 }
 
-pub(super) trait GetIndicesAvailableForReuse {
+pub(crate) trait GetIndicesAvailableForReuse {
     fn indices_available_for_reuse_ref(&self) -> &VecDequeQueue<Index>;
     fn indices_available_for_reuse_mut_ref(&mut self) -> &mut VecDequeQueue<Index>;
 }
@@ -104,6 +104,16 @@ impl GetQueueWithIndicesForReuse for Indexer {
     }
 }
 
+pub(crate) trait GetIndexCapacity {
+    fn capacity(&self) -> Result<Index, GraphComputingError>;
+}
+
+impl GetIndexCapacity for Indexer {
+    fn capacity(&self) -> Result<Index, GraphComputingError> {
+        Ok(self.mask_with_valid_indices_ref().length()?)
+    }
+}
+
 impl Indexer {
     // NOTE: setting and enforcing this minimum improves performance,
     // as the minimum is guaranteed once and no longer needs checking upon capacity expansion.
@@ -137,41 +147,6 @@ impl Indexer {
         })
     }
 
-    pub(crate) fn claim_available_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
-        let is_index_reused: bool;
-        let available_index = match self.indices_available_for_reuse.pop_front() {
-            None => {
-                is_index_reused = false;
-                self.mask_with_valid_indices_ref()
-                    .number_of_stored_elements()?
-            }
-            Some(index) => {
-                is_index_reused = true;
-                index
-            }
-        };
-
-        let new_index;
-        if (!is_index_reused) && (available_index >= self.capacity()?) {
-            let new_capacity = self.expand_capacity()?;
-            new_index = AssignedIndex::new(available_index, Some(new_capacity), is_index_reused);
-        } else {
-            new_index = AssignedIndex::new(available_index, None, is_index_reused);
-        }
-
-        self.mask_with_valid_indices_mut_ref()
-            .set_value(available_index, true)?;
-
-        Ok(new_index)
-    }
-
-    pub(crate) fn expand_capacity(&mut self) -> Result<Index, GraphComputingError> {
-        // TODO: test more sophisticated expansion sizing algorithms for better performance
-        let new_capacity = self.capacity()? * 2;
-        self.set_index_capacity(new_capacity)?;
-        Ok(new_capacity)
-    }
-
     // Method is implementation-specific, and therefore not part of the IndexerTrait
     pub(crate) fn get_number_of_stored_and_reusable_elements(
         &self,
@@ -180,10 +155,6 @@ impl Indexer {
             .mask_with_valid_indices_ref()
             .number_of_stored_elements()?
             + self.indices_available_for_reuse.length())
-    }
-
-    pub(crate) fn capacity(&self) -> Result<Index, GraphComputingError> {
-        Ok(self.mask_with_valid_indices_ref().length()?)
     }
 }
 

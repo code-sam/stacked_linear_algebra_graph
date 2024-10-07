@@ -70,11 +70,7 @@ impl<
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError> {
-        Ok(is_sparse_matrix_element(
-            self,
-            tail.index_ref(),
-            head.index_ref(),
-        )?)
+        Ok(is_sparse_matrix_element(self, tail.index(), head.index())?)
     }
 
     fn is_edge_at_coordinate(
@@ -91,8 +87,8 @@ impl<
     ) -> Result<(), GraphComputingError> {
         Ok(try_is_sparse_matrix_element(
             self,
-            tail.index_ref(),
-            head.index_ref(),
+            tail.index(),
+            head.index(),
         )?)
     }
 

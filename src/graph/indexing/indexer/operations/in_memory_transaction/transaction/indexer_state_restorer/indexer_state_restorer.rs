@@ -1,5 +1,6 @@
 use crate::graph::indexing::indexer::indexer::GetQueueWithIndicesForReuse;
 use crate::graph::indexing::indexer::GetIndexMask;
+use crate::graph::indexing::GetIndexCapacity;
 use crate::{
     error::GraphComputingError,
     graph::indexing::{ElementCount, Index, Indexer},

@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 
 use crate::graph::graph::GetVertexStore;
 use crate::graph::indexing::GetVertexTypeIndex;
-use crate::graph::vertex_store::{IntoSparseVector, IntoSparseVectorForValueType};
+use crate::graph::vertex_store::{AsSparseVector, AsSparseVectorForValueType};
 use crate::operators::operators::read::{GetPrivateSparseVertexVector, GetSparseVertexVector};
 use crate::{
     error::GraphComputingError,
@@ -14,7 +14,7 @@ use crate::{
 
 impl<T> GetSparseVertexVector<T> for Graph
 where
-    T: ValueType + IntoSparseVectorForValueType<T>,
+    T: ValueType + AsSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn sparse_vector(
@@ -30,7 +30,7 @@ where
 
 impl<T> GetPrivateSparseVertexVector<T> for Graph
 where
-    T: ValueType + IntoSparseVectorForValueType<T>,
+    T: ValueType + AsSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn private_sparse_vector(
@@ -74,7 +74,7 @@ pub(crate) trait GetPrivateVertexVectorElementList<T: ValueType> {
 
 impl<T> GetVertexVectorElementList<T> for Graph
 where
-    T: ValueType + IntoSparseVectorForValueType<T>,
+    T: ValueType + AsSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn sparse_vector_element_list(
@@ -91,7 +91,7 @@ where
 
 impl<T> GetPrivateVertexVectorElementList<T> for Graph
 where
-    T: ValueType + IntoSparseVectorForValueType<T>,
+    T: ValueType + AsSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn private_sparse_vector_element_list(

@@ -1,19 +1,32 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    operations::{
-        DeleteSparseVectorElement, GetSparseVectorElementValueTyped, GetSparseVectorLength,
-        ResizeSparseVector, SetSparseVectorElement, SetSparseVectorElementTyped,
+use std::mem;
+
+use graphblas_sparse_linear_algebra::{
+    collections::sparse_vector::{
+        operations::{
+            drop_sparse_vector_element, resize_sparse_vector, DeleteSparseVectorElement,
+            GetSparseVectorElementValueTyped, GetSparseVectorLength, ResizeSparseVector,
+            SetSparseVectorElement, SetSparseVectorElementTyped,
+        },
+        GetGraphblasSparseVector, SparseVector,
     },
-    SparseVector,
+    graphblas_bindings::GrB_Vector,
 };
 
 use crate::{
     error::GraphComputingError,
     graph::{
         indexing::{ElementCount, ElementIndex},
-        value_type::ValueType,
+        value_type::{implement_macro_for_all_native_value_types, ValueType},
     },
     operators::transaction::RestoreState,
 };
+
+#[derive(Debug, Clone)]
+pub(crate) struct SparseVectorStateReverter<T: ValueType> {
+    length_to_restore: ElementCount,
+    state_to_restore: Vec<SparseVectorStateToRestore<T>>,
+    is_state_to_restore_fully_determined: bool,
+}
 
 #[derive(Clone, Debug)]
 pub(crate) enum SparseVectorStateToRestore<T: ValueType> {
@@ -22,11 +35,30 @@ pub(crate) enum SparseVectorStateToRestore<T: ValueType> {
     SparseVector(SparseVector<T>),
 }
 
-#[derive(Debug, Clone)]
-pub(crate) struct SparseVectorStateReverter<T: ValueType> {
-    length_to_restore: ElementCount,
-    state_to_restore: Vec<SparseVectorStateToRestore<T>>,
-    is_state_to_restore_fully_determined: bool,
+pub(crate) trait GetSparseVectorStateToRestore<T: ValueType> {
+    fn length_to_restore(&self) -> ElementCount;
+    // fn state_to_restore(&self) -> Vec<SparseVectorStateToRestore<T>>;
+    fn state_to_restore_ref(&self) -> &[SparseVectorStateToRestore<T>];
+    fn state_to_restore_mut_ref(&mut self) -> &mut [SparseVectorStateToRestore<T>];
+    fn is_state_to_restore_fully_determined(&self) -> bool;
+}
+
+impl<T: ValueType> GetSparseVectorStateToRestore<T> for SparseVectorStateReverter<T> {
+    fn length_to_restore(&self) -> ElementCount {
+        self.length_to_restore
+    }
+
+    fn state_to_restore_ref(&self) -> &[SparseVectorStateToRestore<T>] {
+        self.state_to_restore.as_slice()
+    }
+
+    fn state_to_restore_mut_ref(&mut self) -> &mut [SparseVectorStateToRestore<T>] {
+        self.state_to_restore.as_mut_slice()
+    }
+
+    fn is_state_to_restore_fully_determined(&self) -> bool {
+        self.is_state_to_restore_fully_determined
+    }
 }
 
 pub(crate) trait RegisterSparseVectorChangeToRevert<T: ValueType> {
@@ -41,26 +73,48 @@ impl<T: ValueType + SetSparseVectorElementTyped<T>> RestoreState<SparseVector<T>
     for SparseVectorStateReverter<T>
 {
     fn restore(self, instance_to_restore: &mut SparseVector<T>) -> Result<(), GraphComputingError> {
-        for state_to_restore in self.state_to_restore.into_iter().rev() {
-            match state_to_restore {
-                SparseVectorStateToRestore::EmptyElement(element_index) => {
-                    instance_to_restore.drop_element(element_index)?
-                }
-                SparseVectorStateToRestore::ElementValue(element_index, element_value) => {
-                    instance_to_restore.set_value(element_index, element_value)?
-                }
-                SparseVectorStateToRestore::SparseVector(sparse_vector) => {
-                    *instance_to_restore = sparse_vector;
-                }
-            }
-        }
-        instance_to_restore.resize(self.length_to_restore)?;
-        Ok(())
+        restore_sparse_vector_state(self, instance_to_restore)
     }
 
     fn with_reset_state_to_restore(&self) -> Self {
         Self::with_length_to_restore(self.length_to_restore)
     }
+}
+
+pub(crate) fn restore_sparse_vector_state<T>(
+    sparse_vector_state_restorer: SparseVectorStateReverter<T>,
+    instance_to_restore: &mut impl GetGraphblasSparseVector,
+) -> Result<(), GraphComputingError>
+where
+    T: ValueType + SetSparseVectorElementTyped<T>,
+{
+    for state_to_restore in sparse_vector_state_restorer
+        .state_to_restore
+        .into_iter()
+        .rev()
+    {
+        match state_to_restore {
+            SparseVectorStateToRestore::EmptyElement(element_index) => {
+                drop_sparse_vector_element(instance_to_restore, element_index)?
+            }
+            SparseVectorStateToRestore::ElementValue(element_index, element_value) => {
+                T::set_graphblas_vector_value(instance_to_restore, element_index, element_value)?
+            }
+            SparseVectorStateToRestore::SparseVector(mut sparse_vector) => {
+                unsafe {
+                    mem::swap(
+                        instance_to_restore.graphblas_vector_mut_ref(),
+                        sparse_vector.graphblas_vector_mut_ref(),
+                    )
+                };
+            }
+        }
+    }
+    resize_sparse_vector(
+        instance_to_restore,
+        sparse_vector_state_restorer.length_to_restore,
+    )?;
+    Ok(())
 }
 
 impl<
@@ -92,6 +146,25 @@ impl<
         }
     }
 }
+
+pub(crate) trait CreateSparseVectorStateReverter<T: ValueType> {
+    fn sparse_vector_state_reverter_with_length_to_restore(
+        length_to_restore: ElementCount,
+    ) -> SparseVectorStateReverter<T>;
+}
+
+macro_rules! implement_create_sparse_vector_state_reverter {
+    ($value_type:ty) => {
+        impl CreateSparseVectorStateReverter<$value_type> for $value_type {
+            fn sparse_vector_state_reverter_with_length_to_restore(
+                length_to_restore: ElementCount,
+            ) -> SparseVectorStateReverter<$value_type> {
+                SparseVectorStateReverter::<$value_type>::with_length_to_restore(length_to_restore)
+            }
+        }
+    };
+}
+implement_macro_for_all_native_value_types!(implement_create_sparse_vector_state_reverter);
 
 impl<T: ValueType> SparseVectorStateReverter<T> {
     pub(crate) fn new(

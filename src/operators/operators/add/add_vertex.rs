@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::vertex::{GetVertexIndex, GetVertexValue};
+use crate::graph::vertex::{GetVertexIndex, GetVertexValue};
 
 pub trait AddVertex<T: ValueType> {
     fn add_vertex(

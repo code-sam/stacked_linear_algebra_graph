@@ -1,4 +1,5 @@
 use crate::graph::indexing::GetVertexTypeIndex;
+use crate::graph::value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier};
 use crate::graph::vertex_store::vertex_store::GetVertexVectors as GetVertexVectorFromVertexStore;
 use crate::{
     error::GraphComputingError,
@@ -109,5 +110,35 @@ impl GetVertexVector for VertexStore {
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> &mut VertexVector {
         &mut self.vertex_vector_for_all_vertex_types_mut_ref()[*vertex_type_index.index_ref()]
+    }
+}
+
+pub(crate) trait GetVertexVectorNativeValueType {
+    fn vertex_vector_native_value_type(
+        &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> Result<&ValueTypeIdentifier, GraphComputingError>;
+    fn vertex_vector_native_value_type_unchecked(
+        &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> &ValueTypeIdentifier;
+}
+
+impl GetVertexVectorNativeValueType for VertexStore {
+    fn vertex_vector_native_value_type(
+        &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> Result<&ValueTypeIdentifier, GraphComputingError> {
+        self.vertex_type_indexer_ref()
+            .try_index_validity(vertex_type_index.index())?;
+        Ok(self.vertex_vector_native_value_type_unchecked(vertex_type_index))
+    }
+
+    fn vertex_vector_native_value_type_unchecked(
+        &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> &ValueTypeIdentifier {
+        self.vertex_vector_ref_unchecked(vertex_type_index)
+            .value_type_identifier_ref()
     }
 }

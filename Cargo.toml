@@ -13,14 +13,14 @@ repository = "https://github.com/code-sam/stacked_linear_algebra_graph"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-graphblas_sparse_linear_algebra = {version = "0.53.1"}
+graphblas_sparse_linear_algebra = {version = "0.54.0"}
 # graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "simpler-operators"}
 once_cell = {version = "1.17"}
 paste = {version = "1.0"}
 rayon = {version = "1.7"}
 
 [dev-dependencies]
-criterion = "0.4"
+criterion = "0.5"
 rand = "0.8"
 rustc-hash = {version = "1.1"}
 nohash-hasher = "0.2"
@@ -28,6 +28,7 @@ nohash-hasher = "0.2"
 [[bench]]
 # name = "experiments"
 # name = "vector_hashmap_benchmark"
-# name = "sparse_vector_indexing_benchmark"
-name = "apply_binary_operator_unchecked_index"
+name = "sparse_vector_indexing_benchmark"
+# name = "apply_binary_operator_unchecked_index"
+# name = "matrix_read_vs_operator_copy"
 harness = false

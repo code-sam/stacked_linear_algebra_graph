@@ -18,8 +18,6 @@ pub(crate) struct VertexStore {
     vertex_type_indexer: VertexTypeIndexer,
     vertex_vectors: Vec<VertexVector>,
     element_indexer: VertexElementIndexer,
-
-    mask_to_select_entire_vertex_vector: SelectEntireVector,
 }
 
 impl VertexStore {
@@ -35,14 +33,13 @@ impl VertexStore {
         let element_indexer =
             VertexElementIndexer::with_initial_capacity(context.clone(), initial_vertex_capacity)?;
 
-        let vertex_matrix = Vec::with_capacity(initial_vertex_type_capacity);
+        let vertex_vectors = Vec::with_capacity(initial_vertex_type_capacity);
 
         Ok(Self {
             graphblas_context: context.clone(),
             vertex_type_indexer,
-            vertex_vectors: vertex_matrix,
+            vertex_vectors,
             element_indexer,
-            mask_to_select_entire_vertex_vector: SelectEntireVector::new(context),
         })
     }
 }
@@ -61,10 +58,6 @@ pub(crate) trait GetVertexVectors {
     fn vertex_vector_for_all_vertex_types_ref(&self) -> &[VertexVector];
     fn vertex_vector_for_all_vertex_types_mut_ref(&mut self) -> &mut [VertexVector];
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector>;
-}
-
-pub(crate) trait GetMaskToSelectVertexVector {
-    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector;
 }
 
 impl GetGraphblasContext for VertexStore {
@@ -92,12 +85,6 @@ impl GetVertexElementIndexer for VertexStore {
     }
     fn element_indexer_mut_ref(&mut self) -> &mut VertexElementIndexer {
         &mut self.element_indexer
-    }
-}
-
-impl GetMaskToSelectVertexVector for VertexStore {
-    fn mask_to_select_entire_vertex_vector_ref(&self) -> &SelectEntireVector {
-        &self.mask_to_select_entire_vertex_vector
     }
 }
 

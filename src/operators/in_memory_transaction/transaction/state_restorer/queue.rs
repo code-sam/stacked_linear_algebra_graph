@@ -23,12 +23,14 @@ impl<T: ValueType> RestoreState<VecDequeQueue<T>> for QueueStateReverter<T> {
         mut self,
         instance_to_restore: &mut VecDequeQueue<T>,
     ) -> Result<(), GraphComputingError> {
-        self.front_to_restore.append(instance_to_restore);
-        self.front_to_restore
-            .truncate_length(self.length_to_restore);
-        self.front_to_restore
-            .shrink_capacity_to_at_least(self.capacity_to_restore);
-        *instance_to_restore = self.front_to_restore;
+        if self.front_to_restore.length() > 0 {
+            self.front_to_restore.append(instance_to_restore);
+            self.front_to_restore
+                .truncate_length(self.length_to_restore);
+            self.front_to_restore
+                .shrink_capacity_to_at_least(self.capacity_to_restore);
+            *instance_to_restore = self.front_to_restore;
+        }
         Ok(())
     }
 
@@ -95,6 +97,23 @@ mod tests {
         for value in 0..5 {
             queue.push_back(value)
         }
+
+        state_reverter.restore(&mut queue).unwrap();
+
+        assert_eq!(queue, vec_deque_before_changes);
+    }
+
+    #[test]
+    fn restore_unchanged_queue() {
+        let mut queue = VecDequeQueue::new();
+
+        for value in 0..10 {
+            queue.push_back(value)
+        }
+
+        let vec_deque_before_changes = queue.clone();
+
+        let state_reverter = QueueStateReverter::with_length_and_capacity_to_restore_from(&queue);
 
         state_reverter.restore(&mut queue).unwrap();
 

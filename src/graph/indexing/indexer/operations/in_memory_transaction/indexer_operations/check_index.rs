@@ -1,8 +1,9 @@
-use crate::error::GraphComputingError;
+use crate::graph::indexing::operations::in_memory_transaction::{
+    AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction,
+};
 use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::Index;
-
-use super::{AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction};
+use crate::{error::GraphComputingError, graph::indexing::operations::is_valid_index};
 
 impl<'t> CheckIndex for AtomicInMemoryIndexerTransaction<'t> {
     fn is_valid_index(&self, index: Index) -> Result<bool, GraphComputingError> {

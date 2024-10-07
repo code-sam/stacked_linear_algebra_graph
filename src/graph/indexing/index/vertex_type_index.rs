@@ -7,7 +7,7 @@ pub trait GetVertexTypeIndex: Debug {
     fn index(&self) -> Index;
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq, Default)]
 pub struct VertexTypeIndex {
     index: Index,
 }

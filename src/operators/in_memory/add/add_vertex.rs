@@ -8,7 +8,7 @@ use crate::graph::indexing::{
     GetAssignedIndexData, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex,
 };
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex::vertex::{GetVertexIndex, GetVertexValue};
+use crate::graph::vertex::{GetVertexIndex, GetVertexValue};
 use crate::graph::vertex_store::AddVertex as AddVertexToStore;
 use crate::operators::operators::add::{AddPrivateVertex, AddVertex};
 
@@ -135,7 +135,7 @@ mod tests {
     use super::*;
 
     use crate::{
-        graph::vertex::vertex::VertexDefinition,
+        graph::vertex::VertexDefinition,
         operators::operators::{
             add::{AddVertexType, CreateVertexIndex},
             read::GetVertexValue,

@@ -1,9 +1,13 @@
 use crate::{
     error::GraphComputingError,
-    graph::indexing::{operations::GetIndexerStatus, ElementCount},
+    graph::indexing::{
+        operations::{
+            in_memory_transaction::{AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction},
+            GetIndexerStatus,
+        },
+        ElementCount,
+    },
 };
-
-use super::{AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction};
 
 impl<'t> GetIndexerStatus for AtomicInMemoryIndexerTransaction<'t> {
     fn number_of_indexed_elements(&self) -> Result<ElementCount, GraphComputingError> {

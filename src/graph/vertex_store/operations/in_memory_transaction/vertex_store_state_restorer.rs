@@ -1,209 +1,136 @@
+use crate::graph::indexing::operations::in_memory_transaction::IndexerStateRestorer;
+use crate::graph::vertex_store::{
+    GetVertexElementIndexer, GetVertexTypeIndexer, GetVertexVectors, VertexStore,
+};
+use crate::operators::transaction::RestoreState;
 use crate::{
     error::GraphComputingError,
-    graph::indexing::{ElementCount, GetIndexMask, GetQueueWithIndicesForReuse, Index, Indexer},
+    graph::indexing::{
+        ElementCount, GetIndexCapacity, GetIndexMask, GetQueueWithIndicesForReuse, Index, Indexer,
+    },
     operators::in_memory_transaction::transaction::{
         QueueStateReverter, SparseVectorStateReverter,
     },
 };
 
-pub(crate) struct IndexerStateRestorer {
-    index_capacity_to_restore: ElementCount,
+use super::vertex_vectors_state_restorer::VertexVectorsStateRestorer;
 
-    indices_available_for_reuse_restorer: QueueStateReverter<Index>,
+pub(crate) struct VertexStoreStateRestorer {
+    vertex_type_indexer_state_restorer: IndexerStateRestorer,
+    element_indexer_state_restorer: IndexerStateRestorer,
 
-    mask_with_valid_indices_restorer: SparseVectorStateReverter<bool>,
-    mask_with_private_indices_restorer: SparseVectorStateReverter<bool>,
-    mask_with_valid_private_indices_restorer: SparseVectorStateReverter<bool>,
-    mask_with_valid_public_indices_restorer: SparseVectorStateReverter<bool>,
+    vertex_vectors_state_restorer: VertexVectorsStateRestorer,
 }
 
-// // TODO: moving the implementation of RestoreState to operations likely requires cloning the restorers.
-// impl RestoreState<Indexer> for IndexerStateRestorer {
-//     fn restore(self, instance_to_restore: &mut Indexer) -> Result<(), GraphComputingError> {
-//         self.indices_available_for_reuse_restorer
-//             .restore(instance_to_restore.indices_available_for_reuse_mut_ref())?;
+// TODO: moving the implementation of RestoreState to operations likely requires cloning the restorers.
+impl RestoreState<VertexStore> for VertexStoreStateRestorer {
+    fn restore(self, instance_to_restore: &mut VertexStore) -> Result<(), GraphComputingError> {
+        self.vertex_type_indexer_state_restorer
+            .restore(instance_to_restore.vertex_type_indexer_mut_ref())?;
+        self.element_indexer_state_restorer
+            .restore(instance_to_restore.element_indexer_mut_ref())?;
 
-//         self.mask_with_valid_indices_restorer
-//             .restore(instance_to_restore.mask_with_valid_indices_mut_ref())?;
+        self.vertex_vectors_state_restorer
+            .restore(instance_to_restore.vertex_vector_for_all_vertex_types_mut())?;
 
-//         self.mask_with_private_indices_restorer
-//             .restore(instance_to_restore.mask_with_private_indices_mut_ref())?;
-
-//         self.mask_with_valid_private_indices_restorer
-//             .restore(instance_to_restore.mask_with_valid_private_indices_mut_ref())?;
-
-//         self.mask_with_valid_public_indices_restorer
-//             .restore(instance_to_restore.mask_with_valid_public_indices_mut_ref())?;
-
-//         Ok(())
-//     }
-
-//     fn with_reset_state_to_restore(&self) -> Self {
-//         let index_capacity_to_restore = self.index_capacity_to_restore();
-//         let indices_available_for_reuse_restorer = self
-//             .indices_available_for_reuse_restorer_ref()
-//             .with_reset_state_to_restore();
-
-//         let mask_with_valid_indices_restorer = self
-//             .mask_with_valid_indices_restorer_ref()
-//             .with_reset_state_to_restore();
-//         let mask_with_private_indices_restorer = self
-//             .mask_with_private_indices_restorer_ref()
-//             .with_reset_state_to_restore();
-//         let mask_with_valid_private_indices_restorer = self
-//             .mask_with_valid_private_indices_restorer_ref()
-//             .with_reset_state_to_restore();
-//         let mask_with_valid_public_indices_restorer = self
-//             .mask_with_valid_public_indices_restorer_ref()
-//             .with_reset_state_to_restore();
-
-//             IndexerStateRestorer::new(
-//             index_capacity_to_restore,
-//             indices_available_for_reuse_restorer,
-//             mask_with_valid_indices_restorer,
-//             mask_with_private_indices_restorer,
-//             mask_with_valid_private_indices_restorer,
-//             mask_with_valid_public_indices_restorer,
-//             )
-//     }
-// }
-
-pub(super) trait GetIndexerStateReverters {
-    // TODO: should this go into a separate trait?
-    fn index_capacity_to_restore(&self) -> ElementCount;
-    fn index_capacity_to_restore_mut_ref(&mut self) -> &mut ElementCount;
-
-    fn indices_available_for_reuse_restorer_ref(&self) -> &QueueStateReverter<Index>;
-    fn indices_available_for_reuse_restorer_mut_ref(&mut self) -> &mut QueueStateReverter<Index>;
-
-    fn mask_with_valid_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool>;
-    fn mask_with_valid_indices_restorer_mut_ref(&mut self) -> &mut SparseVectorStateReverter<bool>;
-
-    fn mask_with_private_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool>;
-    fn mask_with_private_indices_restorer_mut_ref(
-        &mut self,
-    ) -> &mut SparseVectorStateReverter<bool>;
-
-    fn mask_with_valid_private_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool>;
-    fn mask_with_valid_private_indices_restorer_mut_ref(
-        &mut self,
-    ) -> &mut SparseVectorStateReverter<bool>;
-
-    fn mask_with_valid_public_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool>;
-    fn mask_with_valid_public_indices_restorer_mut_ref(
-        &mut self,
-    ) -> &mut SparseVectorStateReverter<bool>;
-}
-
-impl GetIndexerStateReverters for IndexerStateRestorer {
-    fn index_capacity_to_restore(&self) -> ElementCount {
-        self.index_capacity_to_restore
+        Ok(())
     }
 
-    fn index_capacity_to_restore_mut_ref(&mut self) -> &mut ElementCount {
-        &mut self.index_capacity_to_restore
-    }
+    fn with_reset_state_to_restore(&self) -> Self {
+        let vertex_type_indexer_state_restorer = self
+            .vertex_type_indexer_state_restorer
+            .with_reset_state_to_restore();
+        let element_indexer_state_restorer = self
+            .element_indexer_state_restorer
+            .with_reset_state_to_restore();
 
-    fn indices_available_for_reuse_restorer_ref(&self) -> &QueueStateReverter<Index> {
-        &self.indices_available_for_reuse_restorer
-    }
+        let vertex_vectors_state_restorer = self
+            .vertex_vectors_state_restorer
+            .with_reset_state_to_restore();
 
-    fn mask_with_valid_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool> {
-        &self.mask_with_valid_indices_restorer
-    }
-
-    fn mask_with_private_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool> {
-        &self.mask_with_private_indices_restorer
-    }
-
-    fn mask_with_valid_private_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool> {
-        &self.mask_with_valid_private_indices_restorer
-    }
-
-    fn mask_with_valid_public_indices_restorer_ref(&self) -> &SparseVectorStateReverter<bool> {
-        &self.mask_with_valid_public_indices_restorer
-    }
-
-    fn indices_available_for_reuse_restorer_mut_ref(&mut self) -> &mut QueueStateReverter<Index> {
-        &mut self.indices_available_for_reuse_restorer
-    }
-
-    fn mask_with_valid_indices_restorer_mut_ref(&mut self) -> &mut SparseVectorStateReverter<bool> {
-        &mut self.mask_with_valid_indices_restorer
-    }
-
-    fn mask_with_private_indices_restorer_mut_ref(
-        &mut self,
-    ) -> &mut SparseVectorStateReverter<bool> {
-        &mut self.mask_with_private_indices_restorer
-    }
-
-    fn mask_with_valid_private_indices_restorer_mut_ref(
-        &mut self,
-    ) -> &mut SparseVectorStateReverter<bool> {
-        &mut self.mask_with_valid_private_indices_restorer
-    }
-
-    fn mask_with_valid_public_indices_restorer_mut_ref(
-        &mut self,
-    ) -> &mut SparseVectorStateReverter<bool> {
-        &mut self.mask_with_valid_public_indices_restorer
+        VertexStoreStateRestorer::new(
+            vertex_type_indexer_state_restorer,
+            element_indexer_state_restorer,
+            vertex_vectors_state_restorer,
+        )
     }
 }
 
-impl IndexerStateRestorer {
-    pub(crate) fn new(
-        index_capacity_to_restore: ElementCount,
+pub(super) trait GetVertexStoreStateReverters {
+    fn vertex_type_indexer_state_restorer_ref(&self) -> &IndexerStateRestorer;
+    fn vertex_type_indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer;
 
-        indices_available_for_reuse_restorer: QueueStateReverter<Index>,
+    fn element_indexer_state_restorer_ref(&self) -> &IndexerStateRestorer;
+    fn element_indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer;
 
-        mask_with_valid_indices_restorer: SparseVectorStateReverter<bool>,
-        mask_with_private_indices_restorer: SparseVectorStateReverter<bool>,
-        mask_with_valid_private_indices_restorer: SparseVectorStateReverter<bool>,
-        mask_with_valid_public_indices_restorer: SparseVectorStateReverter<bool>,
+    fn vertex_vectors_state_restorer_ref(&self) -> &VertexVectorsStateRestorer;
+    fn vertex_vectors_state_restorer_mut_ref(&mut self) -> &mut VertexVectorsStateRestorer;
+}
+
+impl GetVertexStoreStateReverters for VertexStoreStateRestorer {
+    fn vertex_type_indexer_state_restorer_ref(&self) -> &IndexerStateRestorer {
+        &self.vertex_type_indexer_state_restorer
+    }
+
+    fn vertex_type_indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer {
+        &mut self.vertex_type_indexer_state_restorer
+    }
+
+    fn element_indexer_state_restorer_ref(&self) -> &IndexerStateRestorer {
+        &self.element_indexer_state_restorer
+    }
+
+    fn element_indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer {
+        &mut self.element_indexer_state_restorer
+    }
+
+    fn vertex_vectors_state_restorer_ref(&self) -> &VertexVectorsStateRestorer {
+        &self.vertex_vectors_state_restorer
+    }
+
+    fn vertex_vectors_state_restorer_mut_ref(&mut self) -> &mut VertexVectorsStateRestorer {
+        &mut self.vertex_vectors_state_restorer
+    }
+}
+
+impl VertexStoreStateRestorer {
+    fn new(
+        vertex_type_indexer_state_restorer: IndexerStateRestorer,
+        element_indexer_state_restorer: IndexerStateRestorer,
+        vertex_vectors_state_restorer: VertexVectorsStateRestorer,
     ) -> Self {
         Self {
-            index_capacity_to_restore,
-            indices_available_for_reuse_restorer,
-            mask_with_valid_indices_restorer,
-            mask_with_private_indices_restorer,
-            mask_with_valid_private_indices_restorer,
-            mask_with_valid_public_indices_restorer,
+            vertex_type_indexer_state_restorer,
+            element_indexer_state_restorer,
+            vertex_vectors_state_restorer,
         }
     }
 
-    pub(crate) fn new_for_indexer(indexer: &Indexer) -> Result<Self, GraphComputingError> {
-        let index_capacity_to_restore = indexer.capacity()?;
+    pub(crate) fn new_for_vertex_store(
+        vertex_store: &VertexStore,
+    ) -> Result<Self, GraphComputingError> {
+        Ok(Self::new_for_indexers(
+            vertex_store.vertex_type_indexer_ref(),
+            vertex_store.element_indexer_ref(),
+        )?)
+    }
 
-        let indices_available_for_reuse_restorer =
-            QueueStateReverter::with_length_and_capacity_to_restore_from(
-                indexer.queue_with_indices_for_reuse_ref(),
-            );
+    pub(crate) fn new_for_indexers(
+        vertex_type_indexer: &Indexer,
+        vertex_element_indexer: &Indexer,
+    ) -> Result<Self, GraphComputingError> {
+        let vertex_type_indexer_state_restorer =
+            IndexerStateRestorer::new_for_indexer(vertex_type_indexer)?;
+        let element_indexer_state_restorer =
+            IndexerStateRestorer::new_for_indexer(vertex_element_indexer)?;
 
-        let mask_with_valid_indices_restorer =
-            SparseVectorStateReverter::with_dimensions_from_sparse_vector(
-                indexer.mask_with_valid_indices_ref(),
-            )?;
-        let mask_with_private_indices_restorer =
-            SparseVectorStateReverter::with_dimensions_from_sparse_vector(
-                indexer.mask_with_private_indices_ref(),
-            )?;
-        let mask_with_valid_private_indices_restorer =
-            SparseVectorStateReverter::with_dimensions_from_sparse_vector(
-                indexer.mask_with_valid_private_indices_ref(),
-            )?;
-        let mask_with_valid_public_indices_restorer =
-            SparseVectorStateReverter::with_dimensions_from_sparse_vector(
-                indexer.mask_with_valid_public_indices_ref(),
-            )?;
+        let vertex_vectors_state_restorer =
+            VertexVectorsStateRestorer::with_length_to_restore(vertex_element_indexer.capacity()?);
 
         Ok(Self {
-            index_capacity_to_restore,
-            indices_available_for_reuse_restorer,
-            mask_with_valid_indices_restorer,
-            mask_with_private_indices_restorer,
-            mask_with_valid_private_indices_restorer,
-            mask_with_valid_public_indices_restorer,
+            vertex_type_indexer_state_restorer,
+            element_indexer_state_restorer,
+            vertex_vectors_state_restorer,
         })
     }
 }

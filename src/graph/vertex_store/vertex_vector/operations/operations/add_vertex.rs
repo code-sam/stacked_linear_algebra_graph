@@ -139,7 +139,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::graph::vertex_store::operations::AddPublicVertexType;
+    use crate::graph::{
+        indexing::VertexIndex,
+        vertex_store::{operations::AddPublicVertexType, GetVertexValue},
+    };
 
     use super::*;
 
@@ -161,5 +164,79 @@ mod tests {
                 .add_new_public_vertex(&vertex_type_indices[1], i)
                 .unwrap();
         }
+    }
+
+    #[test]
+    fn test_vertex_value_type_casting() {
+        let context = GraphblasContext::init_default().unwrap();
+
+        let mut store = VertexStore::with_initial_capacity(context, 10, 10).unwrap();
+
+        let vertex_type_index_bool = AddPublicVertexType::<bool>::apply(&mut store).unwrap();
+        let vertex_type_index_u8 = AddPublicVertexType::<u8>::apply(&mut store).unwrap();
+
+        let vertex_index_10_as_bool = VertexIndex::new(
+            store
+                .add_new_public_vertex(&vertex_type_index_bool, 10)
+                .unwrap()
+                .index(),
+        );
+        let vertex_index_minus_1_as_u8 = VertexIndex::new(
+            store
+                .add_new_public_vertex(&vertex_type_index_u8, -1)
+                .unwrap()
+                .index(),
+        );
+        let vertex_index_f1000_as_u8 = VertexIndex::new(
+            store
+                .add_new_public_vertex(&vertex_type_index_u8, 1000.0f32)
+                .unwrap()
+                .index(),
+        );
+
+        assert_eq!(
+            true,
+            store
+                .public_vertex_value(&vertex_type_index_bool, &vertex_index_10_as_bool)
+                .unwrap()
+                .unwrap()
+        );
+        assert_ne!(
+            10,
+            store
+                .public_vertex_value(&vertex_type_index_bool, &vertex_index_10_as_bool)
+                .unwrap()
+                .unwrap()
+        );
+
+        assert_eq!(
+            u8::MAX,
+            store
+                .public_vertex_value(&vertex_type_index_u8, &vertex_index_minus_1_as_u8)
+                .unwrap()
+                .unwrap()
+        );
+        assert_ne!(
+            -1,
+            store
+                .public_vertex_value(&vertex_type_index_u8, &vertex_index_minus_1_as_u8)
+                .unwrap()
+                .unwrap()
+        );
+
+        assert_eq!(
+            u8::MAX,
+            store
+                .public_vertex_value(&vertex_type_index_u8, &vertex_index_f1000_as_u8)
+                .unwrap()
+                .unwrap()
+        );
+        assert_ne!(
+            1000.0f32,
+            store
+                .public_vertex_value(&vertex_type_index_u8, &vertex_index_f1000_as_u8)
+                .unwrap()
+                .unwrap()
+        );
     }
 }

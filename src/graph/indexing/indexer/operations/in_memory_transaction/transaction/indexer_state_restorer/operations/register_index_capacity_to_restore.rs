@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::indexer::operations::in_memory_transaction::transaction::indexer_state_restorer::indexer_state_restorer::GetIndexerStateReverters;
-use crate::graph::indexing::{ElementCount};
+use crate::graph::indexing::ElementCount;
 use crate::graph::indexing::operations::in_memory_transaction::transaction::indexer_state_restorer::IndexerStateRestorer;
 
 pub(crate) trait RegisterIndexCapacityToRestore {

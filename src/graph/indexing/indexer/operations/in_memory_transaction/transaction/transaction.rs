@@ -1,5 +1,14 @@
 use std::mem;
 
+use crate::graph::indexing::operations::in_memory_transaction::indexer_operations::{
+    free_private_index, free_private_index_unchecked, free_public_index,
+    free_public_index_unchecked, new_private_index, new_public_index, set_index_capacity,
+};
+// use crate::graph::indexing::indexer::operations::in_memory_transaction::indexer_operations::
+use crate::graph::indexing::operations::{
+    FreeIndex, GeneratePrivateIndex, GeneratePublicIndex, SetIndexCapacity,
+};
+use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
 use crate::operators::transaction::RestoreState;
 use crate::{
     error::GraphComputingError, graph::indexing::Indexer,
@@ -35,7 +44,7 @@ impl<'a> UseAtomicTransaction for AtomicInMemoryIndexerTransaction<'a> {
 
 impl<'t> Drop for AtomicInMemoryIndexerTransaction<'t> {
     fn drop(&mut self) {
-        self.revert();
+        self.revert().unwrap();
     }
 }
 
@@ -78,6 +87,43 @@ impl<'a> AtomicInMemoryIndexerTransaction<'a> {
             indexer,
             indexer_state_restorer,
         })
+    }
+}
+
+impl<'t> FreeIndex for AtomicInMemoryIndexerTransaction<'t> {
+    // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
+    fn free_public_index(&mut self, index: Index) -> Result<(), GraphComputingError> {
+        free_public_index(self.indexer, &mut self.indexer_state_restorer, index)
+    }
+
+    fn free_private_index(&mut self, index: Index) -> Result<(), GraphComputingError> {
+        free_private_index(self.indexer, &mut self.indexer_state_restorer, index)
+    }
+
+    fn free_public_index_unchecked(&mut self, index: Index) -> Result<(), GraphComputingError> {
+        free_public_index_unchecked(self.indexer, &mut self.indexer_state_restorer, index)
+    }
+
+    fn free_private_index_unchecked(&mut self, index: Index) -> Result<(), GraphComputingError> {
+        free_private_index_unchecked(self.indexer, &mut self.indexer_state_restorer, index)
+    }
+}
+
+impl<'a> GeneratePublicIndex for AtomicInMemoryIndexerTransaction<'a> {
+    fn new_public_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
+        new_public_index(self.indexer, &mut self.indexer_state_restorer)
+    }
+}
+
+impl<'a> GeneratePrivateIndex for AtomicInMemoryIndexerTransaction<'a> {
+    fn new_private_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
+        new_private_index(self.indexer, &mut self.indexer_state_restorer)
+    }
+}
+
+impl<'t> SetIndexCapacity for AtomicInMemoryIndexerTransaction<'t> {
+    fn set_index_capacity(&mut self, capacity: ElementCount) -> Result<(), GraphComputingError> {
+        set_index_capacity(self.indexer, &mut self.indexer_state_restorer, capacity)
     }
 }
 

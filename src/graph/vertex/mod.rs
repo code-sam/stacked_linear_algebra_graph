@@ -1,1 +1,3 @@
-pub mod vertex;
+mod vertex;
+
+pub use vertex::*;
