@@ -1,16 +1,12 @@
-use crate::graph::indexing::GetVertexIndexIndex;
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_vectors_state_restorer::RegisterVertexValueToRestore;
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        indexing::{VertexIndex, VertexTypeIndex},
-        value_type::implement_macro_for_all_native_value_types,
-        vertex_store::{operations::VertexStoreStateRestorer, VertexVector},
-    },
-};
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValue;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::RegisterVertexValueToRestore;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::VertexStoreStateRestorer;
+use crate::graph::vertex_store::VertexVector;
+use crate::graph::value_type::implement_macro_for_all_native_value_types;
+use crate::graph::indexing::{VertexIndex, VertexTypeIndex};
+use crate::error::GraphComputingError;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValueUntyped;
+use crate::graph::indexing::GetIndex;
 
 pub(crate) trait RegisterVertexValueToRestoreTyped<'t> {
     fn register_vertex_value_to_restore(

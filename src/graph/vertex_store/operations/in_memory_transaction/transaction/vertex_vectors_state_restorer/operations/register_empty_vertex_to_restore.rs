@@ -2,9 +2,8 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     GetSparseVectorElementValueTyped, SetSparseVectorElementTyped,
 };
 
-use crate::error::GraphComputingError;
 use crate::graph::indexing::{ElementIndex, GetVertexIndexIndex};
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
 use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};
 use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, RegisterSparseVectorChangeToRevert, SparseVectorStateReverter};
 

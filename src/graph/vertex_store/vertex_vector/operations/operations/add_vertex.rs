@@ -196,47 +196,65 @@ mod tests {
 
         assert_eq!(
             true,
-            store
-                .public_vertex_value(&vertex_type_index_bool, &vertex_index_10_as_bool)
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<bool>::public_vertex_value(
+                &store,
+                &vertex_type_index_bool,
+                &vertex_index_10_as_bool
+            )
+            .unwrap()
+            .unwrap()
         );
         assert_ne!(
             10,
-            store
-                .public_vertex_value(&vertex_type_index_bool, &vertex_index_10_as_bool)
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<i32>::public_vertex_value(
+                &store,
+                &vertex_type_index_bool,
+                &vertex_index_10_as_bool
+            )
+            .unwrap()
+            .unwrap()
         );
 
         assert_eq!(
             u8::MAX,
-            store
-                .public_vertex_value(&vertex_type_index_u8, &vertex_index_minus_1_as_u8)
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<u8>::public_vertex_value(
+                &store,
+                &vertex_type_index_u8,
+                &vertex_index_minus_1_as_u8
+            )
+            .unwrap()
+            .unwrap()
         );
         assert_ne!(
             -1,
-            store
-                .public_vertex_value(&vertex_type_index_u8, &vertex_index_minus_1_as_u8)
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<i32>::public_vertex_value(
+                &store,
+                &vertex_type_index_u8,
+                &vertex_index_minus_1_as_u8
+            )
+            .unwrap()
+            .unwrap()
         );
 
         assert_eq!(
             u8::MAX,
-            store
-                .public_vertex_value(&vertex_type_index_u8, &vertex_index_f1000_as_u8)
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<u8>::public_vertex_value(
+                &store,
+                &vertex_type_index_u8,
+                &vertex_index_f1000_as_u8
+            )
+            .unwrap()
+            .unwrap()
         );
         assert_ne!(
             1000.0f32,
-            store
-                .public_vertex_value(&vertex_type_index_u8, &vertex_index_f1000_as_u8)
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<f32>::public_vertex_value(
+                &store,
+                &vertex_type_index_u8,
+                &vertex_index_f1000_as_u8
+            )
+            .unwrap()
+            .unwrap()
         );
     }
 }

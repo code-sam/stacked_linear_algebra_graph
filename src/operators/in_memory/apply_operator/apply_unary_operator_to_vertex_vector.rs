@@ -102,7 +102,7 @@ mod tests {
 
     use super::*;
 
-    use crate::graph::indexing::GetVertexIndexIndex;
+    use crate::graph::indexing::{GetIndex, GetVertexIndexIndex};
     use crate::operators::operators::add::{AddVertex, AddVertexType};
     use crate::operators::operators::read::GetVertexValue;
 

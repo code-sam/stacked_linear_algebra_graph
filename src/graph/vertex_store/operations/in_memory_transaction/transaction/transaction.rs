@@ -5,8 +5,8 @@ use crate::graph::indexing::operations::in_memory_transaction::AtomicInMemoryInd
 use crate::graph::indexing::{VertexIndex, VertexTypeIndex};
 use crate::graph::value_type::GetValueTypeIdentifierRef;
 use crate::graph::value_type::ValueTypeIdentifier;
-use crate::graph::vertex_store::operations::in_memory_transaction::operations::RegisterVertexValueToRestoreTyped;
-use crate::graph::vertex_store::operations::in_memory_transaction::operations::RegisterVertexVectorToRestoreTyped;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::operations::RegisterVertexValueToRestoreTyped;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::operations::RegisterVertexVectorToRestoreTyped;
 use crate::graph::vertex_store::operations::{GetVertexVector, GetVertexVectorNativeValueType};
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, GetVertexVectors, VertexStore, VertexVector,

@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{
-    BuildIndexHasher, ElementCount, ElementIndex, ElementIndexMap, GetVertexTypeIndex,
+    BuildIndexHasher, ElementCount, ElementIndex, ElementIndexMap, GetIndex, GetVertexTypeIndex,
     VertexTypeIndex,
 };
 use crate::graph::value_type::{

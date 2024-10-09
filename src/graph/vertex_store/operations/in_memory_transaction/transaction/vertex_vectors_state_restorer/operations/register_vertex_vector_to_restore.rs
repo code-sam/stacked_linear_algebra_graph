@@ -3,9 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
 };
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
-use crate::graph::indexing::GetVertexIndexIndex;
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
-use crate::graph::vertex_store::VertexVector;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
 use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};
 use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, RegisterSparseVectorChangeToRevert};
 

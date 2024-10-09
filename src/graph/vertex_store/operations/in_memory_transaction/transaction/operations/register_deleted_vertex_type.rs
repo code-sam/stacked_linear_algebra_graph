@@ -1,17 +1,13 @@
 use graphblas_sparse_linear_algebra::value_type::ValueType;
 
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::in_memory_transaction::{
-    RegisterFreedIndexToRestore, RegisterNewIndexToRevert,
-};
+use crate::graph::indexing::operations::in_memory_transaction::RegisterFreedIndexToRestore;
+use crate::graph::indexing::GetIndex;
 use crate::graph::indexing::{
     AssignedIndex, GetAssignedIndexData, GetVertexTypeIndex, VertexIndex, VertexTypeIndex,
 };
-use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueTypeIdentifier};
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
-use crate::graph::vertex_store::operations::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
-    GetVertexVector, GetVertexVectorNativeValueType,
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
+    AtomicInMemoryVertexStoreTransaction, GetVertexStoreStateRestorer, GetVertexStoreStateReverters,
 };
 
 pub(crate) trait RegisterDeletedVertexType<'t> {

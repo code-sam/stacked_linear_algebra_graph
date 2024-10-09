@@ -107,7 +107,7 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::graph::indexing::GetVertexIndexIndex;
+    use crate::graph::indexing::{GetIndex, GetVertexIndexIndex};
     use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::operators::read::GetEdgeWeight;
 

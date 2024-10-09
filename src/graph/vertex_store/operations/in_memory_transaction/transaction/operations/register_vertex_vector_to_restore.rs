@@ -1,19 +1,11 @@
-use crate::graph::indexing::GetVertexIndexIndex;
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_vectors_state_restorer::RegisterVertexValueToRestore;
-use crate::graph::vertex_store::operations::in_memory_transaction::vertex_vectors_state_restorer::RegisterVertexVectorToRestore;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::RegisterVertexVectorToRestore;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::VertexStoreStateRestorer;
 use crate::graph::vertex_store::vertex_vector::AsSparseVector;
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        indexing::{VertexIndex, VertexTypeIndex},
-        value_type::implement_macro_for_all_native_value_types,
-        vertex_store::{operations::VertexStoreStateRestorer, VertexVector},
-    },
-};
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValue;
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValueUntyped;
-
+use crate::graph::vertex_store::VertexVector;
+use crate::graph::value_type::implement_macro_for_all_native_value_types;
+use crate::graph::indexing::VertexTypeIndex;
+use crate::error::GraphComputingError;
 pub(crate) trait RegisterVertexVectorToRestoreTyped<'t> {
     fn register_vertex_vector_to_restore(
         vertex_vertex_store_state_restorer: &'t mut VertexStoreStateRestorer,
