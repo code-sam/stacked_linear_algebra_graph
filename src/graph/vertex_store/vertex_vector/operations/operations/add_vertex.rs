@@ -111,7 +111,7 @@ where
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         let vertex_index = self.new_public_vertex_index()?;
-        let vertex_vector: &mut VertexVector = self.vertex_vector_mut_ref_unchecked(type_index);
+        let vertex_vector: &mut VertexVector = self.vertex_vector_mut_ref_unchecked(type_index)?;
         T::set_graphblas_vector_value(vertex_vector, vertex_index.index(), value)?;
         Ok(vertex_index)
     }
@@ -127,7 +127,7 @@ where
             .is_valid_index(vertex_index.index())?
         {
             let vertex_vector: &mut VertexVector =
-                self.vertex_vector_mut_ref_unchecked(vertex_type_index);
+                self.vertex_vector_mut_ref_unchecked(vertex_type_index)?;
             T::set_graphblas_vector_value(vertex_vector, vertex_index.index(), value)?;
             return Ok(None);
         } else {

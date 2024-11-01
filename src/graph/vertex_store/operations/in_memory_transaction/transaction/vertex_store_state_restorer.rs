@@ -13,7 +13,7 @@ use crate::{
     },
 };
 
-use super::vertex_vectors_state_restorer::VertexVectorsStateRestorer;
+use super::vertex_vectors_state_restorer::vertex_vectors_state_restorer::VertexVectorsStateRestorer;
 
 pub(crate) struct VertexStoreStateRestorer {
     vertex_type_indexer_state_restorer: IndexerStateRestorer,

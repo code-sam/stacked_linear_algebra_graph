@@ -1,27 +1,29 @@
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        indexing::operations::{GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices},
-        vertex_store::{
-            operations::{
-                map_all_vertex_vectors, map_mut_all_valid_private_vertex_vectors,
-                map_mut_all_valid_public_vertex_vectors, map_mut_all_valid_vertex_vectors,
-                map_mut_all_vertex_vectors, MapPrivateVertexVectors, MapPublicVertexVectors,
-                MapValidVertexVectors,
-            },
-            GetVertexTypeIndexer, GetVertexVectors, VertexStore, VertexVector,
-        },
-    },
+use crate::error::GraphComputingError;
+use crate::graph::indexing::operations::{
+    GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
+};
+use crate::graph::indexing::{Index, VertexTypeIndex};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
+    AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
+    RegisterExpandedVertexCapacity, RegisterUpdatedVertexVector,
+};
+use crate::graph::vertex_store::operations::{
+    indexed_map_mut_all_valid_vertex_vectors, map_all_vertex_vectors,
+    map_mut_all_valid_vertex_vectors, map_mut_all_vertex_vectors, MapPrivateVertexVectors,
+    MapPublicVertexVectors, MapValidVertexVectors,
+};
+use crate::graph::vertex_store::{
+    GetVertexTypeIndexer, GetVertexVectors, VertexStore, VertexVector,
 };
 
-// impl MapAllVertexVectors for VertexStore {
+// impl<'s> MapAllVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
 //     fn map_all_vertex_vectors<F>(&self, function_to_apply: F) -> Result<(), GraphComputingError>
 //     where
 //         F: Fn(&VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
 //     {
-//         map_all_vertex_vectors(self, function_to_apply)
+//         map_all_vertex_vectors(self.vertex_store_ref(), function_to_apply)
 //     }
 
 //     fn map_mut_all_vertex_vectors<F>(
@@ -31,11 +33,15 @@ use crate::{
 //     where
 //         F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
 //     {
-//         map_mut_all_vertex_vectors(self, function_to_apply)
+//         todo!();
+//         self.vertex_store_ref().vertex_type_indexer_ref().iter_valid_indices()
+
+//         self.register_vertex_vector_to_restore(vertex_type_index)
+//         map_mut_all_vertex_vectors(self.vertex_store_mut_ref(), function_to_apply)
 //     }
 // }
 
-impl MapValidVertexVectors for VertexStore {
+impl<'s> MapValidVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     // fn map_all_valid_vertex_vectors<F>(
     //     &self,
     //     function_to_apply: F,
@@ -60,11 +66,11 @@ impl MapValidVertexVectors for VertexStore {
     where
         F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
     {
-        map_mut_all_valid_vertex_vectors(self, function_to_apply)
+        self.map_mut_all_valid_vertex_vectors(function_to_apply)
     }
 }
 
-impl MapPublicVertexVectors for VertexStore {
+impl<'s> MapPublicVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     // fn map_all_valid_public_vertex_vectors<F>(
     //     &self,
     //     function_to_apply: F,
@@ -89,11 +95,11 @@ impl MapPublicVertexVectors for VertexStore {
     where
         F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
     {
-        map_mut_all_valid_public_vertex_vectors(self, function_to_apply)
+        self.map_mut_all_valid_public_vertex_vectors(function_to_apply)
     }
 }
 
-impl MapPrivateVertexVectors for VertexStore {
+impl<'s> MapPrivateVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     // fn map_all_valid_private_vertex_vectors<F>(
     //     &self,
     //     function_to_apply: F,
@@ -118,6 +124,6 @@ impl MapPrivateVertexVectors for VertexStore {
     where
         F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
     {
-        map_mut_all_valid_private_vertex_vectors(self, function_to_apply)
+        self.map_mut_all_valid_private_vertex_vectors(function_to_apply)
     }
 }

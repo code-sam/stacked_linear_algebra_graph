@@ -77,7 +77,7 @@ impl DeleteVertexValue for VertexStore {
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
-        let vertex_vector = self.vertex_vector_mut_ref_unchecked(vertex_type_index);
+        let vertex_vector = self.vertex_vector_mut_ref_unchecked(vertex_type_index)?;
         drop_sparse_vector_element(vertex_vector, *vertex_index.index_ref())?;
         Ok(())
     }

@@ -54,7 +54,7 @@ pub(crate) trait GetVertexVectorStateReverter<'a, T: ValueType> {
     // ) -> &'a SparseVectorStateReverter<T>;
     fn vertex_vector_state_reverter_mut_ref(
         &'a mut self,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
     ) -> &'a mut SparseVectorStateReverter<T>;
 }
 
@@ -66,7 +66,7 @@ where
 {
     fn vertex_vector_state_reverter_mut_ref(
         &'a mut self,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
     ) -> &'a mut SparseVectorStateReverter<T> {
         let sparse_vector_state_reverters_vertex_type_map =
             T::sparse_vector_state_reverters_by_vertex_type_map_mut_ref(

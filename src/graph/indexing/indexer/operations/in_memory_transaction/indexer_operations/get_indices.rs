@@ -1,3 +1,4 @@
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::VectorElementIndexIterator;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
 use crate::error::GraphComputingError;
@@ -17,6 +18,10 @@ impl<'t> GetValidIndices for AtomicInMemoryIndexerTransaction<'t> {
     fn valid_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
         self.indexer_ref().valid_indices()
     }
+
+    fn iter_valid_indices(&self) -> Result<VectorElementIndexIterator<bool>, GraphComputingError> {
+        self.indexer_ref().iter_valid_indices()
+    }
 }
 
 impl<'t> GetValidPublicIndices for AtomicInMemoryIndexerTransaction<'t> {
@@ -27,6 +32,12 @@ impl<'t> GetValidPublicIndices for AtomicInMemoryIndexerTransaction<'t> {
     fn valid_public_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
         self.indexer_ref().valid_public_indices()
     }
+
+    fn iter_valid_public_indices(
+        &self,
+    ) -> Result<VectorElementIndexIterator<bool>, GraphComputingError> {
+        self.indexer_ref().iter_valid_public_indices()
+    }
 }
 
 impl<'t> GetValidPrivateIndices for AtomicInMemoryIndexerTransaction<'t> {
@@ -36,5 +47,11 @@ impl<'t> GetValidPrivateIndices for AtomicInMemoryIndexerTransaction<'t> {
 
     fn valid_private_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
         self.indexer_ref().valid_private_indices()
+    }
+
+    fn iter_valid_private_indices(
+        &self,
+    ) -> Result<VectorElementIndexIterator<bool>, GraphComputingError> {
+        self.indexer_ref().iter_valid_private_indices()
     }
 }

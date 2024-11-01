@@ -1,9 +1,11 @@
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::VectorElementIndexIterator;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     operations::GetSparseVectorElementIndices, SparseVector,
 };
 
 use crate::graph::indexing::indexer::GetIndexMask;
 use crate::graph::indexing::operations::{
+    iter_valid_indices, iter_valid_private_indices, iter_valid_public_indices,
     mask_with_valid_indices_ref, mask_with_valid_private_indices_ref,
     mask_with_valid_public_indices_ref, valid_indices, valid_private_indices, valid_public_indices,
     GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
@@ -23,6 +25,10 @@ impl GetValidIndices for Indexer {
         // self.key_to_index_map.values().into_iter().collect()
         valid_indices(self)
     }
+
+    fn iter_valid_indices(&self) -> Result<VectorElementIndexIterator<bool>, GraphComputingError> {
+        iter_valid_indices(self)
+    }
 }
 
 impl GetValidPublicIndices for Indexer {
@@ -35,6 +41,12 @@ impl GetValidPublicIndices for Indexer {
 
     fn valid_public_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
         valid_public_indices(self)
+    }
+
+    fn iter_valid_public_indices(
+        &self,
+    ) -> Result<VectorElementIndexIterator<bool>, GraphComputingError> {
+        iter_valid_public_indices(self)
     }
 }
 
@@ -49,6 +61,12 @@ impl GetValidPrivateIndices for Indexer {
     fn valid_private_indices(&self) -> Result<Vec<ElementIndex>, GraphComputingError> {
         // self.key_to_index_map.values().into_iter().collect()
         valid_private_indices(self)
+    }
+
+    fn iter_valid_private_indices(
+        &self,
+    ) -> Result<VectorElementIndexIterator<bool>, GraphComputingError> {
+        iter_valid_private_indices(self)
     }
 }
 

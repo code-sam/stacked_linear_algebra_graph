@@ -82,7 +82,7 @@ where
             );
 
         let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product);
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
 
         match mask {
             Some(mask) => {

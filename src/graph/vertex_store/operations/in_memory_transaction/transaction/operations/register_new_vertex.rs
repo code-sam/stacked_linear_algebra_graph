@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::in_memory_transaction::RegisterNewIndexToRevert;
-use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData, VertexIndex, VertexTypeIndex};
+use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData, GetVertexTypeIndex, VertexIndex, VertexTypeIndex};
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, ValueTypeIdentifier};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::RegisterEmptyVertexToRestore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateReverters};
@@ -10,13 +10,13 @@ use crate::graph::vertex_store::operations::GetVertexVectorNativeValueType;
 pub(crate) trait RegisterNewVertex<'t> {
     fn register_new_public_vertex(
         &'t mut self,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetAssignedIndexData,
     ) -> Result<(), GraphComputingError>;
 
     fn register_new_private_vertex(
         &'t mut self,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetAssignedIndexData,
     ) -> Result<(), GraphComputingError>;
 }
@@ -24,7 +24,7 @@ pub(crate) trait RegisterNewVertex<'t> {
 impl<'t> RegisterNewVertex<'t> for AtomicInMemoryVertexStoreTransaction<'t> {
     fn register_new_public_vertex(
         &'t mut self,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetAssignedIndexData,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_state_restorer_mut_ref()
@@ -37,7 +37,7 @@ impl<'t> RegisterNewVertex<'t> for AtomicInMemoryVertexStoreTransaction<'t> {
 
     fn register_new_private_vertex(
         &'t mut self,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetAssignedIndexData,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_state_restorer_mut_ref()
@@ -52,12 +52,12 @@ impl<'t> RegisterNewVertex<'t> for AtomicInMemoryVertexStoreTransaction<'t> {
 impl<'t> AtomicInMemoryVertexStoreTransaction<'t> {
     fn register_new_vertex(
         &'t mut self,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetAssignedIndexData,
     ) {
         match self
             .vertex_store_ref()
-            .vertex_vector_native_value_type_unchecked(&vertex_type_index)
+            .vertex_vector_native_value_type_unchecked(vertex_type_index)
         {
             ValueTypeIdentifier::Bool => bool::register_empty_vertex_element_to_restore(
                 self,
@@ -111,7 +111,7 @@ impl<'t> AtomicInMemoryVertexStoreTransaction<'t> {
 trait RegisterEmptyVertexToRestoreTyped<'t> {
     fn register_empty_vertex_element_to_restore(
         transaction: &'t mut AtomicInMemoryVertexStoreTransaction<'t>,
-        vertex_type_index: VertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetAssignedIndexData,
     );
 }
@@ -121,7 +121,7 @@ macro_rules! implement_register_empty_vertex_to_restore_typed {
         impl<'t> RegisterEmptyVertexToRestoreTyped<'t> for $value_type {
             fn register_empty_vertex_element_to_restore(
                 transaction: &'t mut AtomicInMemoryVertexStoreTransaction<'t>,
-                vertex_type_index: VertexTypeIndex,
+                vertex_type_index: &impl GetVertexTypeIndex,
                 vertex_index: &impl GetAssignedIndexData,
             ) {
                 RegisterEmptyVertexToRestore::<'t, $value_type>::register_empty_vertex_to_restore(

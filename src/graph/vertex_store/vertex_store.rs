@@ -5,7 +5,10 @@ use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::indexing::{ElementCount, Indexer};
+use crate::graph::indexing::operations::{
+    GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
+};
+use crate::graph::indexing::{ElementCount, Index, Indexer, VertexTypeIndex};
 
 use super::VertexVector;
 
@@ -99,6 +102,105 @@ impl GetVertexVectors for VertexStore {
 
     fn vertex_vector_for_all_vertex_types_mut(&mut self) -> &mut Vec<VertexVector> {
         &mut self.vertex_vectors
+    }
+}
+
+// Implemented in module to work around limitations of the borrow checker
+impl VertexStore {
+    pub(crate) fn map_mut_all_valid_vertex_vectors<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.vertex_type_indexer
+            .iter_valid_indices()?
+            .try_for_each(|i: Index| function_to_apply(&mut self.vertex_vectors[i]))?;
+        Ok(())
+    }
+
+    pub(crate) fn indexed_map_mut_all_valid_vertex_vectors<F>(
+        &mut self,
+        mut function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: FnMut(&VertexTypeIndex, &mut VertexVector) -> Result<(), GraphComputingError>
+            + Send
+            + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.vertex_type_indexer
+            .iter_valid_indices()?
+            .try_for_each(|i: Index| {
+                function_to_apply(&VertexTypeIndex::new(i), &mut self.vertex_vectors[i])
+            })?;
+        Ok(())
+    }
+
+    pub(crate) fn map_mut_all_valid_public_vertex_vectors<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.vertex_type_indexer
+            .iter_valid_public_indices()?
+            .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
+        Ok(())
+    }
+
+    pub(crate) fn indexed_map_mut_all_valid_public_vertex_vectors<F>(
+        &mut self,
+        mut function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: FnMut(&VertexTypeIndex, &mut VertexVector) -> Result<(), GraphComputingError>
+            + Send
+            + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.vertex_type_indexer
+            .iter_valid_public_indices()?
+            .try_for_each(|i: Index| {
+                function_to_apply(&VertexTypeIndex::new(i), &mut self.vertex_vectors[i])
+            })?;
+        Ok(())
+    }
+
+    pub(crate) fn map_mut_all_valid_private_vertex_vectors<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.vertex_type_indexer
+            .iter_valid_private_indices()?
+            .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
+        Ok(())
+    }
+
+    pub(crate) fn indexed_map_mut_all_valid_private_vertex_vectors<F>(
+        &mut self,
+        mut function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: FnMut(&VertexTypeIndex, &mut VertexVector) -> Result<(), GraphComputingError>
+            + Send
+            + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.vertex_type_indexer
+            .iter_valid_private_indices()?
+            .try_for_each(|i: Index| {
+                function_to_apply(&VertexTypeIndex::new(i), &mut self.vertex_vectors[i])
+            })?;
+        Ok(())
     }
 }
 

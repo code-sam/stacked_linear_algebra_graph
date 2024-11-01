@@ -6,8 +6,6 @@ use crate::{
     },
 };
 
-use super::map::MapAllVertexVectors;
-
 pub(crate) trait ResizeVertexVectors {
     fn resize_vertex_vectors(
         &mut self,

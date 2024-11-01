@@ -105,7 +105,7 @@ where
         );
 
         let vertex_vector_extract_to =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(extract_to);
+            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(extract_to)?;
 
         match mask {
             Some(mask) => {

@@ -6,13 +6,13 @@ use crate::graph::graph::{GetVertexStore, Graph};
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
 use crate::graph::vertex_store::{
-    AsSparseVectorForValueType, GetVertexValue as GetVertexValueFromVertexStore,
+    GetVertexValue as GetVertexValueFromVertexStore, ToSparseVectorForValueType,
 };
 use crate::operators::operators::read::{GetPrivateVertexValue, GetVertexValue};
 
 impl<T> GetVertexValue<T> for Graph
 where
-    T: ValueType + AsSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
+    T: ValueType + ToSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
     bool: IntoValueType<T>,
     i8: IntoValueType<T>,
     i16: IntoValueType<T>,
@@ -57,7 +57,7 @@ where
 
 impl<T> GetPrivateVertexValue<T> for Graph
 where
-    T: ValueType + AsSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
+    T: ValueType + ToSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
     bool: IntoValueType<T>,
     i8: IntoValueType<T>,
     i16: IntoValueType<T>,

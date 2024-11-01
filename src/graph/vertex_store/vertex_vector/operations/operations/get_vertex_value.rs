@@ -14,7 +14,7 @@ use crate::graph::value_type::{
 use crate::graph::vertex_store::operations::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::{
-    AsSparseVectorForValueType, GetVertexElementIndexer, GetVertexTypeIndexer,
+    GetVertexElementIndexer, GetVertexTypeIndexer, ToSparseVectorForValueType,
 };
 
 pub(crate) trait GetVertexValue<T: ValueType> {
@@ -75,7 +75,7 @@ pub(crate) trait GetVertexValue<T: ValueType> {
 
 impl<T> GetVertexValue<T> for VertexStore
 where
-    T: ValueType + AsSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
+    T: ValueType + ToSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
     bool: IntoValueType<T>,
     i8: IntoValueType<T>,
     i16: IntoValueType<T>,

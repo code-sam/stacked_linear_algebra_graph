@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 
 use crate::graph::graph::GetVertexStore;
 use crate::graph::indexing::GetVertexTypeIndex;
-use crate::graph::vertex_store::{AsSparseVector, AsSparseVectorForValueType};
+use crate::graph::vertex_store::{ToSparseVector, ToSparseVectorForValueType};
 use crate::operators::operators::read::{GetPrivateSparseVertexVector, GetSparseVertexVector};
 use crate::{
     error::GraphComputingError,
@@ -14,7 +14,7 @@ use crate::{
 
 impl<T> GetSparseVertexVector<T> for Graph
 where
-    T: ValueType + AsSparseVectorForValueType<T>,
+    T: ValueType + ToSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn sparse_vector(
@@ -24,13 +24,13 @@ where
         Ok(self
             .vertex_store_ref()
             .public_vertex_vector_ref(type_index)?
-            .sparse_vector()?)
+            .to_sparse_vector()?)
     }
 }
 
 impl<T> GetPrivateSparseVertexVector<T> for Graph
 where
-    T: ValueType + AsSparseVectorForValueType<T>,
+    T: ValueType + ToSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn private_sparse_vector(
@@ -40,7 +40,7 @@ where
         Ok(self
             .vertex_store_ref()
             .private_vertex_vector_ref(type_index)?
-            .sparse_vector()?)
+            .to_sparse_vector()?)
     }
 
     fn sparse_vector_unchecked(
@@ -50,7 +50,7 @@ where
         Ok(self
             .vertex_store_ref()
             .vertex_vector_ref_unchecked(type_index)
-            .sparse_vector()?)
+            .to_sparse_vector()?)
     }
 }
 
@@ -74,7 +74,7 @@ pub(crate) trait GetPrivateVertexVectorElementList<T: ValueType> {
 
 impl<T> GetVertexVectorElementList<T> for Graph
 where
-    T: ValueType + AsSparseVectorForValueType<T>,
+    T: ValueType + ToSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn sparse_vector_element_list(
@@ -84,14 +84,14 @@ where
         Ok(self
             .vertex_store_ref()
             .public_vertex_vector_ref(type_index)?
-            .sparse_vector()?
+            .to_sparse_vector()?
             .element_list()?)
     }
 }
 
 impl<T> GetPrivateVertexVectorElementList<T> for Graph
 where
-    T: ValueType + AsSparseVectorForValueType<T>,
+    T: ValueType + ToSparseVectorForValueType<T>,
     SparseVector<T>: GetSparseVectorElementList<T>,
 {
     fn private_sparse_vector_element_list(
@@ -101,7 +101,7 @@ where
         Ok(self
             .vertex_store_ref()
             .private_vertex_vector_ref(type_index)?
-            .sparse_vector()?
+            .to_sparse_vector()?
             .element_list()?)
     }
 
@@ -112,7 +112,7 @@ where
         Ok(self
             .vertex_store_ref()
             .vertex_vector_ref_unchecked(type_index)
-            .sparse_vector()?
+            .to_sparse_vector()?
             .element_list()?)
     }
 }
