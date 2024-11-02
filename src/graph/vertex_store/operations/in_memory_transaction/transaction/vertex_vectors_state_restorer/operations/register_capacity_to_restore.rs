@@ -8,15 +8,15 @@ use crate::graph::vertex_store::operations::in_memory_transaction::transaction::
 use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};
 use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, RegisterSparseVectorChangeToRevert, SparseVectorStateReverter};
 
-pub(crate) trait RegisterVertexCapacityToRestore<'a, T: ValueType> {
-    fn register_vertex_capacity_to_restore(
+pub(crate) trait RegisterVertexVectorCapacityToRestore<'a, T: ValueType> {
+    fn register_vertex_vector_capacity_to_restore(
         &'a mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_capacity: &ElementCount,
     );
 }
 
-impl<'a, T> RegisterVertexCapacityToRestore<'a, T> for VertexVectorsStateRestorer
+impl<'a, T> RegisterVertexVectorCapacityToRestore<'a, T> for VertexVectorsStateRestorer
 where
     T: 'a
         + ValueType
@@ -26,7 +26,7 @@ where
         + GetSparseVectorStateRevertersByVertexTypeMap<'a, T>
         + CreateSparseVectorStateReverter<T>,
 {
-    fn register_vertex_capacity_to_restore(
+    fn register_vertex_vector_capacity_to_restore(
         &'a mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         _vertex_capacity: &ElementCount,

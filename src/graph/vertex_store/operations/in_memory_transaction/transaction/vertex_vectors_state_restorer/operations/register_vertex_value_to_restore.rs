@@ -11,7 +11,7 @@ pub(crate) trait RegisterVertexValueToRestore<'a, T: ValueType> {
     fn register_vertex_value_to_restore(
         &'a mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: VertexIndex,
+        vertex_index: &VertexIndex,
         vertex_value: T,
     );
 }
@@ -29,7 +29,7 @@ where
     fn register_vertex_value_to_restore(
         &'a mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: VertexIndex,
+        vertex_index: &VertexIndex,
         vertex_value: T,
     ) {
         self.vertex_vector_state_reverter_mut_ref(vertex_type_index)

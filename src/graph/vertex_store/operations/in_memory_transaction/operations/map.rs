@@ -7,7 +7,7 @@ use crate::graph::indexing::operations::{
 use crate::graph::indexing::{Index, VertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
     AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
-    RegisterExpandedVertexCapacity, RegisterUpdatedVertexVector,
+    RegisterVertexCapacityToRestore,
 };
 use crate::graph::vertex_store::operations::{
     indexed_map_mut_all_valid_vertex_vectors, map_all_vertex_vectors,

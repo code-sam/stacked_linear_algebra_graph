@@ -1,4 +1,3 @@
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::VertexStoreStateRestorer;
 use crate::graph::vertex_store::vertex_vector::ToSparseVector;
 use crate::graph::vertex_store::VertexVector;
@@ -8,9 +7,9 @@ use crate::error::GraphComputingError;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::RegisterTypedVertexVectorToRestore;
 use crate::graph::vertex_store::vertex_vector::IntoSparseVector;
 use crate::graph::vertex_store::vertex_vector::IntoSparseVectorAndClearValuesForValueType;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::RegisterVertexCapacityToRestore;
-
-pub(crate) trait RegisterExpandedVertexCapacity<'t> {
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::RegisterVertexVectorCapacityToRestore;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
+pub(crate) trait RegisterVertexCapacityToRestore<'t> {
     fn register_expanded_vertex_capacity(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
@@ -19,7 +18,7 @@ pub(crate) trait RegisterExpandedVertexCapacity<'t> {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<'t> RegisterExpandedVertexCapacity<'t> for VertexStoreStateRestorer {
+impl<'t> RegisterVertexCapacityToRestore<'t> for VertexStoreStateRestorer {
     fn register_expanded_vertex_capacity(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
@@ -139,7 +138,7 @@ macro_rules! implement_register_untyped_vertex_vector_capacity_to_restore_typed 
                 vertex_type_index: &impl GetVertexTypeIndex,
                 vertex_capacity: &ElementCount,
             ) -> Result<(), GraphComputingError> {
-                RegisterVertexCapacityToRestore::<'t, $value_type>::register_vertex_capacity_to_restore(
+                RegisterVertexVectorCapacityToRestore::<'t, $value_type>::register_vertex_vector_capacity_to_restore(
                     vertex_store_state_restorer.vertex_vectors_state_restorer_mut_ref(),
                     vertex_type_index,
                     vertex_capacity

@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::in_memory_transaction::{RegisterFreedIndexToRestore, RegisterNewIndexToRevert};
 use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData, GetVertexIndexIndex, GetVertexTypeIndex, VertexIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::{RegisterVertexCapacityToRestore, RegisterVertexValueToRestore};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::{RegisterVertexVectorCapacityToRestore, RegisterVertexValueToRestore};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{AtomicInMemoryVertexStoreTransaction, GetVertexStoreStateRestorer};
 use crate::graph::indexing::GetIndex;
 
@@ -10,13 +10,13 @@ pub(crate) trait RegisterDeletedVertex<'t> {
     fn register_deleted_public_vertex(
         &'t mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: VertexIndex,
+        vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
 
     fn register_deleted_private_vertex(
         &'t mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: VertexIndex,
+        vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError>;
 }
 
@@ -24,7 +24,7 @@ impl<'t> RegisterDeletedVertex<'t> for AtomicInMemoryVertexStoreTransaction<'t> 
     fn register_deleted_public_vertex(
         &'t mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: VertexIndex,
+        vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_state_restorer_mut_ref()
             .element_indexer_state_restorer_mut_ref()
@@ -37,7 +37,7 @@ impl<'t> RegisterDeletedVertex<'t> for AtomicInMemoryVertexStoreTransaction<'t> 
     fn register_deleted_private_vertex(
         &'t mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: VertexIndex,
+        vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_state_restorer_mut_ref()
             .element_indexer_state_restorer_mut_ref()

@@ -11,7 +11,6 @@ use crate::graph::vertex_store::operations::in_memory_transaction::transaction::
 use crate::graph::vertex_store::VertexVector;
 use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};
 use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, RegisterSparseVectorChangeToRevert};
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::operations::RegisterExpandedVertexCapacity;
 
 pub(crate) trait RegisterTypedVertexVectorToRestore<'a, T: ValueType> {
     fn register_vertex_vector_to_restore(

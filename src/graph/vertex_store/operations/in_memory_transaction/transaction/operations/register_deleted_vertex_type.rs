@@ -9,12 +9,9 @@ use crate::graph::indexing::{
 use crate::graph::indexing::{GetIndex, GetIndexCapacity};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
     AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
-    GetVertexStoreStateReverters,
 };
 use crate::graph::vertex_store::operations::GetVertexVector;
 use crate::graph::vertex_store::{CreateVertexVector, GetVertexElementIndexer, VertexVector};
-
-use super::RegisterExpandedVertexCapacity;
 
 pub(crate) trait RegisterDeletedVertexType<'t> {
     fn register_deleted_public_vertex_type(

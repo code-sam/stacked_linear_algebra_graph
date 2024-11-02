@@ -10,8 +10,7 @@ use crate::graph::indexing::{
 };
 use crate::graph::value_type::GetValueTypeIdentifierRef;
 use crate::graph::value_type::ValueTypeIdentifier;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::operations::RegisterExpandedVertexCapacity;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::operations::RegisterVertexValueToRestoreTyped;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::RegisterVertexValueToRestoreTyped;
 use crate::graph::vertex_store::operations::{
     indexed_map_mut_all_valid_private_vertex_vectors,
     indexed_map_mut_all_valid_public_vertex_vectors, indexed_map_mut_all_valid_vertex_vectors,
@@ -23,9 +22,9 @@ use crate::graph::vertex_store::{
 };
 use crate::operators::transaction::{RestoreState, UseAtomicTransaction};
 
+use super::vertex_store_state_restorer::RegisterVertexVectorToRestore;
 use super::{
-    GetVertexStoreStateReverters, RegisterUpdatedVertexVector, RegisterVertexVectorToRestore,
-    VertexStoreStateRestorer,
+    GetVertexStoreStateReverters, RegisterVertexCapacityToRestore, VertexStoreStateRestorer
 };
 
 pub(crate) trait UseVertexStoreTransaction: UseAtomicTransaction {}
@@ -115,10 +114,10 @@ impl<'s> Drop for AtomicInMemoryVertexStoreTransaction<'s> {
 
 // implemented in module for performance as the borrow checker imposes less limitations here
 impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
-    pub(super) fn register_vertex_value_to_restore(
+    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_vertex_value_to_restore(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: VertexIndex,
+        vertex_index: &VertexIndex,
     ) -> Result<(), GraphComputingError> {
         let vertex_vector = self
             .vertex_store
@@ -128,112 +127,112 @@ impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
             ValueTypeIdentifier::Bool => {
                 bool::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::Int8 => {
                 i8::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::Int16 => {
                 i16::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::Int32 => {
                 i32::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::Int64 => {
                 i64::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::UInt8 => {
                 u8::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::UInt16 => {
                 u16::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::UInt32 => {
                 u32::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::UInt64 => {
                 u64::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::Float32 => {
                 f32::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::Float64 => {
                 f64::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::ISize => {
                 isize::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
             ValueTypeIdentifier::USize => {
                 usize::register_vertex_value_to_restore(
                     &mut self.vertex_store_state_restorer,
+                    vertex_type_index,
                     vertex_vector,
                     vertex_index,
-                    vertex_type_index,
                 )?;
             }
         }
         Ok(())
     }
 
-    pub(super) fn register_vertex_vector_to_restore(
+    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_vertex_vector_to_restore(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
@@ -246,7 +245,7 @@ impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
         Ok(())
     }
 
-    pub(super) fn register_deleted_public_vertex_type(
+    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_deleted_public_vertex_type(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
@@ -264,7 +263,7 @@ impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
         Ok(())
     }
 
-    pub(super) fn register_deleted_private_vertex_type(
+    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_deleted_private_vertex_type(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {

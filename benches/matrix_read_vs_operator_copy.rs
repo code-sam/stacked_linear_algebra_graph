@@ -17,7 +17,7 @@ fn copy_sparse_matrix_value(c: &mut Criterion) {
 
     let matrix_size = 100_000;
     let number_of_elements = (0.02 * matrix_size as f32 * matrix_size as f32) as usize;
-    let number_of_updates = 1_000_000;
+    let number_of_updates = 1_000;
 
     let context = Context::init(Mode::NonBlocking, MatrixStorageFormat::ByColumn).unwrap();
     let mut matrix = SparseMatrix::<f32>::new(context, (matrix_size, matrix_size).into()).unwrap();
@@ -98,6 +98,22 @@ fn copy_sparse_matrix_value(c: &mut Criterion) {
             })
         },
     );
+
+    // c.bench_with_input(
+    //     BenchmarkId::new("masked_copy_to_matrix_and_update_matrix_value", ""),
+    //     &0.0,
+    //     |b, data| {
+    //         b.iter(|| {
+    //             bench_masked_copy_to_matrix_and_update_matrix_value(
+    //                 matrix.clone(),
+    //                 row_indices.clone(),
+    //                 column_indices.clone(),
+    //                 indices_to_update.clone(),
+    //                 updated_values.clone(),
+    //             )
+    //         })
+    //     },
+    // );
 }
 
 criterion_group!(benches, copy_sparse_matrix_value);
@@ -141,6 +157,8 @@ fn bench_copy_and_update_matrix_value(
             .set_value(row_indices[i], column_indices[i], updated_values[i])
             .unwrap();
     }
+
+    // println!("{:?}", values_copy.last())
 }
 
 fn bench_copy_to_matrix_and_update_matrix_value(
@@ -152,10 +170,40 @@ fn bench_copy_to_matrix_and_update_matrix_value(
 ) {
     let mut matrix_values_to_restore =
         SparseMatrix::<f32>::new(matrix.context(), matrix.size().unwrap()).unwrap();
+
+    for i in indices_to_update {
+        if !matrix_values_to_restore
+            .is_element(row_indices[i], column_indices[i])
+            .unwrap()
+        {
+            let value_to_restore = matrix
+                .element_value_or_default(row_indices[i], column_indices[i])
+                .unwrap();
+
+            matrix_values_to_restore.set_value(row_indices[i], column_indices[i], value_to_restore).unwrap();
+        }
+
+        matrix
+            .set_value(row_indices[i], column_indices[i], updated_values[i])
+            .unwrap();
+    }
+
+    // println!("{:?}", matrix_values_to_restore.element_value_or_default(*row_indices.last().unwrap(), *column_indices.last().unwrap()))
+}
+
+fn bench_masked_copy_to_matrix_and_update_matrix_value(
+    mut matrix: SparseMatrix<f32>,
+    row_indices: Vec<usize>,
+    column_indices: Vec<usize>,
+    indices_to_update: Vec<usize>,
+    updated_values: Vec<f32>,
+) {
+    let mut matrix_values_to_restore =
+        SparseMatrix::<f32>::new(matrix.context(), matrix.size().unwrap()).unwrap();
     let mut mask = SparseMatrix::<bool>::new(matrix.context(), matrix.size().unwrap()).unwrap();
 
     for i in indices_to_update {
-        if matrix_values_to_restore
+        if !matrix_values_to_restore
             .is_element(row_indices[i], column_indices[i])
             .unwrap()
         {
@@ -181,4 +229,6 @@ fn bench_copy_to_matrix_and_update_matrix_value(
             .set_value(row_indices[i], column_indices[i], updated_values[i])
             .unwrap();
     }
+
+    // println!("{:?}", matrix_values_to_restore.element_value_or_default(*row_indices.last().unwrap(), *column_indices.last().unwrap()))
 }
