@@ -1,8 +1,8 @@
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::RegisterVertexValueToRestore;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::RegisterVertexValueToRestore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::VertexStoreStateRestorer;
 use crate::graph::vertex_store::VertexVector;
 use crate::graph::value_type::implement_macro_for_all_native_value_types;
-use crate::graph::indexing::{GetVertexTypeIndex, VertexIndex, VertexTypeIndex};
+use crate::graph::indexing::{GetVertexTypeIndex, VertexIndex};
 use crate::error::GraphComputingError;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValueUntyped;
 use crate::graph::indexing::GetIndex;

@@ -180,7 +180,9 @@ fn bench_copy_to_matrix_and_update_matrix_value(
                 .element_value_or_default(row_indices[i], column_indices[i])
                 .unwrap();
 
-            matrix_values_to_restore.set_value(row_indices[i], column_indices[i], value_to_restore).unwrap();
+            matrix_values_to_restore
+                .set_value(row_indices[i], column_indices[i], value_to_restore)
+                .unwrap();
         }
 
         matrix

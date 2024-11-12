@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use crate::error::GraphComputingError;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier};
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::VertexStoreStateRestorer;
 use crate::graph::vertex_store::VertexVector;
 use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};

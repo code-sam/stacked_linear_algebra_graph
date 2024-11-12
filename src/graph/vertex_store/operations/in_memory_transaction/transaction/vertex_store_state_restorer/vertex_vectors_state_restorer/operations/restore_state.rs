@@ -1,6 +1,6 @@
 use crate::operators::transaction::RestoreState;
 use crate::graph::vertex_store::{ToSparseVector, VertexVector};
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{restore_vertex_vectors_state, GetLengthToRestore, GetVertexVectorStateReverter, GetVertexVectorStateReverters, VertexVectorsStateRestorer};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{restore_vertex_vectors_state, GetLengthToRestore, GetVertexVectorStateReverter, GetVertexVectorStateReverters, VertexVectorsStateRestorer};
 
 impl RestoreState<Vec<VertexVector>> for VertexVectorsStateRestorer {
     fn restore(

@@ -11,7 +11,7 @@ pub(crate) use add_vertex::*;
 pub(crate) use create_vertex_index::*;
 pub(crate) use delete_vertex::*;
 pub(crate) use get_length::*;
+
 pub(crate) use get_vertex_value::*;
-pub(crate) use indexing::*;
 pub(crate) use resize::*;
 pub(crate) use update_vertex::*;

@@ -1,5 +1,4 @@
 use crate::graph::indexing::operations::in_memory_transaction::IndexerStateRestorer;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::vertex_vectors_state_restorer::VertexVectorsStateRestorer;
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, GetVertexVectors, VertexStore,
 };
@@ -13,6 +12,8 @@ use crate::{
         QueueStateReverter, SparseVectorStateReverter,
     },
 };
+
+use super::VertexVectorsStateRestorer;
 
 pub(crate) struct VertexStoreStateRestorer {
     vertex_type_indexer_state_restorer: IndexerStateRestorer,

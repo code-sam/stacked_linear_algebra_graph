@@ -3,17 +3,10 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
 };
 
 use crate::graph::indexing::{ElementIndex, GetVertexIndexIndex, GetVertexTypeIndex};
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterEmptyVertexToRestore;
 use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};
 use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, RegisterSparseVectorChangeToRevert, SparseVectorStateReverter};
-
-pub(crate) trait RegisterEmptyVertexToRestore<'a, T: ValueType> {
-    fn register_empty_vertex_to_restore(
-        &'a mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: ElementIndex,
-    );
-}
 
 impl<'a, T> RegisterEmptyVertexToRestore<'a, T> for VertexVectorsStateRestorer
 where

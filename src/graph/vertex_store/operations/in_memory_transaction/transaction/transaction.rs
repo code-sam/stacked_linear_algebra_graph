@@ -24,7 +24,7 @@ use crate::operators::transaction::{RestoreState, UseAtomicTransaction};
 
 use super::vertex_store_state_restorer::RegisterVertexVectorToRestore;
 use super::{
-    GetVertexStoreStateReverters, RegisterVertexCapacityToRestore, VertexStoreStateRestorer
+    GetVertexStoreStateReverters, RegisterVertexCapacityToRestore, VertexStoreStateRestorer,
 };
 
 pub(crate) trait UseVertexStoreTransaction: UseAtomicTransaction {}
@@ -38,8 +38,10 @@ pub(crate) trait UseVertexStoreTransaction: UseAtomicTransaction {}
 // }
 
 pub(crate) struct AtomicInMemoryVertexStoreTransaction<'s> {
-    vertex_store: &'s mut VertexStore,
-    vertex_store_state_restorer: VertexStoreStateRestorer,
+    pub(in crate::graph::vertex_store::operations::in_memory_transaction) vertex_store:
+        &'s mut VertexStore,
+    pub(in crate::graph::vertex_store::operations::in_memory_transaction) vertex_store_state_restorer:
+        VertexStoreStateRestorer,
 }
 
 impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
@@ -112,7 +114,6 @@ impl<'s> Drop for AtomicInMemoryVertexStoreTransaction<'s> {
     }
 }
 
-// implemented in module for performance as the borrow checker imposes less limitations here
 impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
     pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_vertex_value_to_restore(
         &mut self,
@@ -231,8 +232,36 @@ impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
         }
         Ok(())
     }
+}
 
-    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_vertex_vector_to_restore(
+impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
+    fn register_updated_private_vertex_vector_to_restore(
+        &mut self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_vector = self
+            .vertex_store
+            .private_vertex_vector_ref(vertex_type_index)?;
+
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
+        Ok(())
+    }
+
+    fn register_updated_public_vertex_vector_to_restore(
+        &mut self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_vector = self
+            .vertex_store
+            .public_vertex_vector_ref(vertex_type_index)?;
+
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
+        Ok(())
+    }
+
+    fn register_updated_vertex_vector_to_restore_unchecked(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
@@ -241,144 +270,7 @@ impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
             .vertex_vector_ref_unchecked(vertex_type_index);
 
         self.vertex_store_state_restorer
-            .register_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
+            .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
         Ok(())
-    }
-
-    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_deleted_public_vertex_type(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_state_restorer_mut_ref()
-            .vertex_type_indexer_state_restorer_mut_ref()
-            .register_freed_public_index_to_restore(vertex_type_index.index())?;
-
-        self.vertex_store_state_restorer
-            .register_vertex_vector_to_restore(
-                vertex_type_index,
-                self.vertex_store
-                    .vertex_vector_mut_ref_unchecked(vertex_type_index)?,
-            )?;
-
-        Ok(())
-    }
-
-    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn register_deleted_private_vertex_type(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_state_restorer_mut_ref()
-            .vertex_type_indexer_state_restorer_mut_ref()
-            .register_freed_private_index_to_restore(vertex_type_index.index())?;
-
-        self.vertex_store_state_restorer
-            .register_vertex_vector_to_restore(
-                vertex_type_index,
-                self.vertex_store
-                    .vertex_vector_mut_ref_unchecked(vertex_type_index)?,
-            )?;
-
-        Ok(())
-    }
-
-    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn map_mut_all_valid_vertex_vectors<
-        F,
-    >(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        let register_vertex_vector_to_restore_and_apply_function =
-            |vertex_type_index: &VertexTypeIndex,
-             vertex_vector: &mut VertexVector|
-             -> Result<(), GraphComputingError> {
-                self.vertex_store_state_restorer
-                    .register_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
-
-                function_to_apply(vertex_vector)
-            };
-
-        indexed_map_mut_all_valid_vertex_vectors(
-            self.vertex_store,
-            register_vertex_vector_to_restore_and_apply_function,
-        )?;
-        Ok(())
-    }
-
-    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn map_mut_all_valid_public_vertex_vectors<
-        F,
-    >(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        let register_vertex_vector_to_restore_and_apply_function =
-            |vertex_type_index: &VertexTypeIndex,
-             vertex_vector: &mut VertexVector|
-             -> Result<(), GraphComputingError> {
-                self.vertex_store_state_restorer
-                    .register_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
-
-                function_to_apply(vertex_vector)
-            };
-
-        indexed_map_mut_all_valid_public_vertex_vectors(
-            self.vertex_store,
-            register_vertex_vector_to_restore_and_apply_function,
-        )?;
-        Ok(())
-    }
-
-    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn map_mut_all_valid_private_vertex_vectors<
-        F,
-    >(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        let register_vertex_vector_to_restore_and_apply_function =
-            |vertex_type_index: &VertexTypeIndex,
-             vertex_vector: &mut VertexVector|
-             -> Result<(), GraphComputingError> {
-                self.vertex_store_state_restorer
-                    .register_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
-
-                function_to_apply(vertex_vector)
-            };
-
-        indexed_map_mut_all_valid_private_vertex_vectors(
-            self.vertex_store,
-            register_vertex_vector_to_restore_and_apply_function,
-        )?;
-        Ok(())
-    }
-
-    pub(in crate::graph::vertex_store::operations::in_memory_transaction) fn resize_vertex_vectors(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError> {
-        let current_vertex_capacity = self.vertex_store.element_indexer_ref().capacity()?;
-        for (vertex_type_index, vertex_vector) in self
-            .vertex_store
-            .vertex_vector_for_all_vertex_types_ref()
-            .iter()
-            .enumerate()
-        {
-            self.vertex_store_state_restorer
-                .register_expanded_vertex_capacity(
-                    &VertexTypeIndex::new(vertex_type_index),
-                    vertex_vector,
-                    &current_vertex_capacity,
-                )?;
-        }
-
-        self.vertex_store_mut_ref()
-            .resize_vertex_vectors(new_vertex_capacity)
     }
 }

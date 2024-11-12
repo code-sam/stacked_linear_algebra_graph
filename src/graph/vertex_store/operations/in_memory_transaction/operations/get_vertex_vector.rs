@@ -2,7 +2,8 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore,
+    AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
+    RegisterVertexVectorToRestore,
 };
 use crate::graph::vertex_store::operations::{
     private_vertex_vector_mut_ref, private_vertex_vector_ref, public_vertex_vector_mut_ref,
@@ -24,9 +25,10 @@ impl<'s> GetVertexVector<'s> for AtomicInMemoryVertexStoreTransaction<'s> {
         &'s mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&'s mut VertexVector, GraphComputingError> {
-        self.register_vertex_vector_to_restore(vertex_type_index)?;
-
-        public_vertex_vector_mut_ref(self.vertex_store_mut_ref(), vertex_type_index)
+        let vertex_vector = public_vertex_vector_mut_ref(self.vertex_store, vertex_type_index)?;
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
+        Ok(vertex_vector)
     }
 
     // fn vertex_vector_by_index_mut_ref_unsafe(
@@ -50,9 +52,10 @@ impl<'s> GetVertexVector<'s> for AtomicInMemoryVertexStoreTransaction<'s> {
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&mut VertexVector, GraphComputingError> {
-        self.register_vertex_vector_to_restore(vertex_type_index)?;
-
-        private_vertex_vector_mut_ref(self.vertex_store_mut_ref(), vertex_type_index)
+        let vertex_vector = private_vertex_vector_mut_ref(self.vertex_store, vertex_type_index)?;
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
+        Ok(vertex_vector)
     }
     // fn vertex_vector_by_index_mut_ref_unsafe(
     //     store: *mut VertexStore,
@@ -75,12 +78,10 @@ impl<'s> GetVertexVector<'s> for AtomicInMemoryVertexStoreTransaction<'s> {
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&mut VertexVector, GraphComputingError> {
-        self.register_vertex_vector_to_restore(vertex_type_index)?;
-
-        Ok(vertex_vector_mut_ref_unchecked(
-            self.vertex_store_mut_ref(),
-            vertex_type_index,
-        ))
+        let vertex_vector = vertex_vector_mut_ref_unchecked(self.vertex_store, vertex_type_index);
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
+        Ok(vertex_vector)
     }
 }
 

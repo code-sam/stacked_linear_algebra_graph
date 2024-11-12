@@ -7,12 +7,13 @@ use crate::graph::indexing::operations::{
 use crate::graph::indexing::{Index, VertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
     AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
-    RegisterVertexCapacityToRestore,
+    RegisterVertexVectorToRestore,
 };
 use crate::graph::vertex_store::operations::{
-    indexed_map_mut_all_valid_vertex_vectors, map_all_vertex_vectors,
-    map_mut_all_valid_vertex_vectors, map_mut_all_vertex_vectors, MapPrivateVertexVectors,
-    MapPublicVertexVectors, MapValidVertexVectors,
+    indexed_map_mut_all_valid_private_vertex_vectors,
+    indexed_map_mut_all_valid_public_vertex_vectors, indexed_map_mut_all_valid_vertex_vectors,
+    map_all_vertex_vectors, map_mut_all_valid_vertex_vectors, map_mut_all_vertex_vectors,
+    MapPrivateVertexVectors, MapPublicVertexVectors, MapValidVertexVectors,
 };
 use crate::graph::vertex_store::{
     GetVertexTypeIndexer, GetVertexVectors, VertexStore, VertexVector,
@@ -66,7 +67,21 @@ impl<'s> MapValidVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     where
         F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
     {
-        self.map_mut_all_valid_vertex_vectors(function_to_apply)
+        let register_vertex_vector_to_restore_and_apply_function =
+            |vertex_type_index: &VertexTypeIndex,
+             vertex_vector: &mut VertexVector|
+             -> Result<(), GraphComputingError> {
+                self.vertex_store_state_restorer
+                    .register_updated_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
+
+                function_to_apply(vertex_vector)
+            };
+
+        indexed_map_mut_all_valid_vertex_vectors(
+            self.vertex_store,
+            register_vertex_vector_to_restore_and_apply_function,
+        )?;
+        Ok(())
     }
 }
 
@@ -95,7 +110,21 @@ impl<'s> MapPublicVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     where
         F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
     {
-        self.map_mut_all_valid_public_vertex_vectors(function_to_apply)
+        let register_vertex_vector_to_restore_and_apply_function =
+            |vertex_type_index: &VertexTypeIndex,
+             vertex_vector: &mut VertexVector|
+             -> Result<(), GraphComputingError> {
+                self.vertex_store_state_restorer
+                    .register_updated_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
+
+                function_to_apply(vertex_vector)
+            };
+
+        indexed_map_mut_all_valid_public_vertex_vectors(
+            self.vertex_store,
+            register_vertex_vector_to_restore_and_apply_function,
+        )?;
+        Ok(())
     }
 }
 
@@ -124,6 +153,20 @@ impl<'s> MapPrivateVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     where
         F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
     {
-        self.map_mut_all_valid_private_vertex_vectors(function_to_apply)
+        let register_vertex_vector_to_restore_and_apply_function =
+            |vertex_type_index: &VertexTypeIndex,
+             vertex_vector: &mut VertexVector|
+             -> Result<(), GraphComputingError> {
+                self.vertex_store_state_restorer
+                    .register_updated_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;
+
+                function_to_apply(vertex_vector)
+            };
+
+        indexed_map_mut_all_valid_private_vertex_vectors(
+            self.vertex_store,
+            register_vertex_vector_to_restore_and_apply_function,
+        )?;
+        Ok(())
     }
 }
