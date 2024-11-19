@@ -9,7 +9,7 @@ use crate::graph::graph::{
     GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::GetVertexVector;
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::element_wise_multiplication::{
     BinaryOperatorElementWiseVertexVectorMultiplication,

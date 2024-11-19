@@ -1,12 +1,10 @@
+use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::graph::Graph;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore};
-use crate::graph::indexing::VertexIndex;
+use crate::graph::indexing::{GetAssignedIndexData, VertexIndex};
+use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex as CreateVertexIndexInVertexStore;
 use crate::operators::operators::add::CreateVertexIndex;
-use crate::{
-    error::GraphComputingError,
-    graph::indexing::GetAssignedIndexData,
-    graph::{graph::Graph, vertex_store::CreateVertexIndex as AddVertexKeyToVertexStore},
-};
 
 impl CreateVertexIndex for Graph {
     fn new_vertex_index(&mut self) -> Result<VertexIndex, GraphComputingError> {

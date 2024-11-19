@@ -13,7 +13,7 @@ use crate::graph::graph::Graph;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::indexing::VertexTypeIndex;
-use crate::graph::vertex_store::operations::GetVertexVector;
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::multiplication::AdjacencyMatrixVertexVectorMultiplication;
 use crate::operators::operators::multiplication::AdjacencyMatrixVertexVectorMultiplicationUnchecked;

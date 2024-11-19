@@ -5,11 +5,12 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
 
 use crate::graph::graph::GetVertexStore;
 use crate::graph::indexing::GetVertexTypeIndex;
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::{ToSparseVector, ToSparseVectorForValueType};
 use crate::operators::operators::read::{GetPrivateSparseVertexVector, GetSparseVertexVector};
 use crate::{
     error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType, vertex_store::operations::GetVertexVector},
+    graph::{graph::Graph, value_type::ValueType},
 };
 
 impl<T> GetSparseVertexVector<T> for Graph

@@ -19,8 +19,6 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::unary_operator::Identity;
 use graphblas_sparse_linear_algebra::value_type::ValueType as GraphblasValueType;
 
-use once_cell::sync::Lazy;
-
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::indexing::ElementCount;

@@ -4,11 +4,10 @@ use graphblas_sparse_linear_algebra::operators::{
     binary_operator::AccumulatorBinaryOperator, unary_operator::UnaryOperator,
 };
 
+use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::{GetGraphblasOperatorAppliers, GetVertexStore};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::{
-    graph::GetGraphblasOperatorApplierCollection, vertex_store::operations::GetVertexVector,
-};
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVector;
 use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;

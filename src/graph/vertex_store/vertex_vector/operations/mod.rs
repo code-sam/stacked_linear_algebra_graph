@@ -1,7 +1,7 @@
-mod in_memory;
-mod in_memory_transaction;
-mod operations;
+mod get_length;
+mod indexing;
+mod resize;
 
-pub(crate) use in_memory::*;
-pub(crate) use in_memory_transaction::*;
-pub(crate) use operations::*;
+pub(crate) use get_length::*;
+pub(crate) use indexing::*;
+pub(crate) use resize::*;

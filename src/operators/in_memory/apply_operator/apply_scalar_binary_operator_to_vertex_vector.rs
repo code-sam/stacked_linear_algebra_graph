@@ -4,24 +4,18 @@ use graphblas_sparse_linear_algebra::operators::{
     options::OperatorOptions,
 };
 
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
+use crate::error::GraphComputingError;
+use crate::graph::graph::Graph;
+use crate::graph::graph::{
+    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
+};
+use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
+use crate::graph::value_type::ValueType;
+use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
 use crate::{
-    error::GraphComputingError,
-    graph::{
-        graph::Graph,
-        indexing::{GetVertexTypeIndex, VertexTypeIndex},
-        value_type::ValueType,
-    },
-};
-use crate::{
-    graph::{
-        graph::{
-            GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
-        },
-        vertex_store::operations::GetVertexVector,
-    },
-    operators::indexing::CheckIndex,
+    graph::vertex_store::operations::vertex_type::GetVertexVector,
+    operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVector,
 };
 
 impl<EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain>

@@ -1,24 +1,16 @@
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::{
-            operations::map::MapMutableAdjacencyMatrices,
-            weighted_adjacency_matrix::operations::DeleteVertexConnections,
-        },
-        graph::{GetEdgeStore, GetVertexStore},
-        indexing::{GetVertexIndexIndex, GetVertexTypeIndex},
-        vertex_store::{
-            DeleteVertexForAllTypes, DeleteVertexValue as DeleteVertexValueFromVertexStore,
-        },
-    },
-};
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::operations::map::MapMutableAdjacencyMatrices;
+use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnections;
+use crate::graph::graph::{GetEdgeStore, GetVertexStore};
+use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::Graph;
-use crate::operators::operators::delete::DeletePrivateVertexValue;
-use crate::operators::operators::delete::DeleteVertexValue;
+use crate::graph::vertex_store::operations::vertex_element::DeleteVertexForAllTypes;
+use crate::graph::vertex_store::operations::vertex_element::DeleteVertexValue as DeleteVertexValueFromVertexStore;
 use crate::operators::operators::delete::DropPrivateVertexIndex;
 use crate::operators::operators::delete::DropVertexIndex;
+use crate::operators::operators::delete::{DeletePrivateVertexValue, DeleteVertexValue};
 
 impl DropVertexIndex for Graph {
     fn drop_vertex_index_and_connected_edges(

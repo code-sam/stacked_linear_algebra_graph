@@ -1,12 +1,11 @@
+use crate::error::GraphComputingError;
 use crate::graph::graph::GetVertexStore;
+use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
+use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::VertexStore;
 use crate::operators::operators::update::{UpdatePrivateVertexValue, UpdateVertexValue};
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, vertex_store::UpdateVertex},
-};
 
 impl<T> UpdateVertexValue<T> for Graph
 where

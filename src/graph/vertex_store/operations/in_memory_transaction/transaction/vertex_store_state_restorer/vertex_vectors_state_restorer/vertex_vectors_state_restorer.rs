@@ -17,7 +17,6 @@ use crate::operators::transaction::RestoreState;
 
 pub(crate) struct VertexVectorsStateRestorer {
     length_to_restore: ElementCount,
-
     vertex_vector_state_reverters: TypedSparseVectorStateReverters,
 }
 
@@ -198,10 +197,10 @@ where
     T: ValueType,
     SparseVectorStateReverter<T>: RestoreState<VertexVector>,
 {
-    for (vertex_type_index, sparse_vector_stater_reverter) in
+    for (vertex_type_index, sparse_vector_state_reverter) in
         typed_sparse_vector_state_reverters_for_vertex_type.into_iter()
     {
-        sparse_vector_stater_reverter.restore(&mut vectors_to_restore[vertex_type_index])?;
+        sparse_vector_state_reverter.restore(&mut vectors_to_restore[vertex_type_index])?;
     }
     Ok(())
 }

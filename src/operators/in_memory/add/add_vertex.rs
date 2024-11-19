@@ -9,7 +9,7 @@ use crate::graph::indexing::{
 };
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex::{GetVertexIndex, GetVertexValue};
-use crate::graph::vertex_store::AddVertex as AddVertexToStore;
+use crate::graph::vertex_store::operations::vertex_element::AddVertex as AddVertexToVertexVector;
 use crate::operators::operators::add::{AddPrivateVertex, AddVertex};
 
 impl<T> AddVertex<T> for Graph

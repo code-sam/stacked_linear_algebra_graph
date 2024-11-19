@@ -3,7 +3,7 @@ use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::edge_store::operations::indexing::Indexing as EdgeStoreIndexing;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
-use crate::graph::vertex_store::operations::{CheckVertexIndex, CheckVertexTypeIndex};
+use crate::graph::vertex_store::operations::vertex_type::{CheckVertexIndex, CheckVertexTypeIndex};
 
 pub trait CheckIndex {
     fn is_valid_vertex_index(

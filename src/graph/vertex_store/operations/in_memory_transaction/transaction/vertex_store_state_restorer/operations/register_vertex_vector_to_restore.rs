@@ -1,5 +1,6 @@
 use crate::graph::indexing::operations::in_memory_transaction::RegisterFreedIndexToRestore;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::VertexStoreStateRestorer;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{AtomicInMemoryVertexStoreTransaction, VertexStoreStateRestorer};
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::vertex_vector::ToSparseVector;
 use crate::graph::vertex_store::VertexVector;
 use crate::graph::value_type::{implement_macro_for_all_native_value_types, GetValueTypeIdentifierRef, ValueTypeIdentifier};
@@ -260,3 +261,44 @@ macro_rules! implement_register_untyped_vertex_value_to_restore_typed {
 implement_macro_for_all_native_value_types!(
     implement_register_untyped_vertex_value_to_restore_typed
 );
+
+impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
+    fn register_updated_private_vertex_vector_to_restore(
+        &mut self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_vector = self
+            .vertex_store
+            .private_vertex_vector_ref(vertex_type_index)?;
+
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
+        Ok(())
+    }
+
+    fn register_updated_public_vertex_vector_to_restore(
+        &mut self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_vector = self
+            .vertex_store
+            .public_vertex_vector_ref(vertex_type_index)?;
+
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
+        Ok(())
+    }
+
+    fn register_updated_vertex_vector_to_restore_unchecked(
+        &mut self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+    ) -> Result<(), GraphComputingError> {
+        let vertex_vector = self
+            .vertex_store
+            .vertex_vector_ref_unchecked(vertex_type_index);
+
+        self.vertex_store_state_restorer
+            .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
+        Ok(())
+    }
+}
