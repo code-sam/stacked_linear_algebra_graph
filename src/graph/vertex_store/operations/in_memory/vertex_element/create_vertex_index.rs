@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::{GeneratePrivateIndex, GeneratePublicIndex};
 use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData};
-use crate::graph::vertex_store::operations::vertex_type::ResizeVertexVectors;
 use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex;
+use crate::graph::vertex_store::operations::vertex_type::ResizeVertexVectors;
 use crate::graph::vertex_store::{GetVertexElementIndexer, VertexStore};
 
 impl CreateVertexIndex for VertexStore {

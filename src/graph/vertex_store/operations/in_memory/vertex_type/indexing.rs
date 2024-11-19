@@ -1,9 +1,7 @@
 use crate::error::GraphComputingError;
-use crate::graph::vertex_store::{
-        GetVertexTypeIndexer, VertexStore,
-    };
-use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::graph::indexing::{operations::CheckIndex, GetVertexTypeIndex};
+use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
+use crate::graph::vertex_store::{GetVertexTypeIndexer, VertexStore};
 
 impl CheckVertexTypeIndex for VertexStore {
     fn is_valid_vertex_type_index(

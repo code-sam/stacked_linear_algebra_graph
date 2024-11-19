@@ -1,8 +1,8 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::resize_sparse_vector;
 
-use crate::graph::vertex_store::VertexVector;
-use crate::graph::indexing::ElementCount;
 use crate::error::GraphComputingError;
+use crate::graph::indexing::ElementCount;
+use crate::graph::vertex_store::VertexVector;
 
 pub(crate) trait ResizeVertexVector {
     fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError>;

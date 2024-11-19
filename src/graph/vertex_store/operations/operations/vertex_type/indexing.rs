@@ -1,5 +1,5 @@
-use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::error::GraphComputingError;
+use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 
 pub trait CheckVertexTypeIndex {
     fn is_valid_vertex_type_index(

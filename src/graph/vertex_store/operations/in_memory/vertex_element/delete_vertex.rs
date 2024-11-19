@@ -5,10 +5,10 @@ use crate::graph::indexing::{
     operations::{CheckIndex, FreeIndex},
     GetVertexIndexIndex, GetVertexTypeIndex,
 };
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::operations::vertex_element::{
     DeleteVertexForAllTypes, DeleteVertexValue,
 };
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, VertexStore, VertexVector,
 };

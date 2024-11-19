@@ -7,9 +7,9 @@ use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::operations::vertex_element::AddVertex;
 use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex;
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::GetVertexElementIndexer;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
@@ -96,8 +96,8 @@ where
 #[cfg(test)]
 mod tests {
     use crate::graph::indexing::VertexIndex;
-    use crate::graph::vertex_store::operations::vertex_type::AddPublicVertexType;
     use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
+    use crate::graph::vertex_store::operations::vertex_type::AddPublicVertexType;
 
     use super::*;
 

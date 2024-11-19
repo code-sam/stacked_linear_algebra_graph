@@ -61,4 +61,3 @@ impl<'s> CheckVertexTypeIndex for AtomicInMemoryVertexStoreTransaction<'s> {
             .try_is_valid_private_index(vertex_type_index.index())
     }
 }
-

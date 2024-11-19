@@ -1,14 +1,15 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::{CheckIndex, GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices};
+use crate::graph::indexing::operations::{
+    CheckIndex, GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
+};
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore,
-    RegisterVertexValueToRestore,
+    AtomicInMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexValueToRestore,
 };
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::operations::vertex_element::{
     DeleteVertexForAllTypes, DeleteVertexValue,
 };
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
 
 impl<'s> DeleteVertexValue for AtomicInMemoryVertexStoreTransaction<'s> {

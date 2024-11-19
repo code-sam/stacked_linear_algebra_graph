@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
-use crate::graph::vertex_store::{GetVertexElementIndexer, VertexStore};
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
+use crate::graph::vertex_store::{GetVertexElementIndexer, VertexStore};
 
 impl CheckVertexIndex for VertexStore {
     fn is_valid_vertex_index(

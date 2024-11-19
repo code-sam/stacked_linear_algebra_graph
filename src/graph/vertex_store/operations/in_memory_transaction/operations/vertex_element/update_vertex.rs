@@ -9,9 +9,9 @@ use crate::graph::vertex_store::operations::in_memory_transaction::transaction::
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterVertexValueToRestore;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
+use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 
 impl<'s, T> UpdateVertex<T> for AtomicInMemoryVertexStoreTransaction<'s>
 where
@@ -23,8 +23,10 @@ where
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
-        self.vertex_store_ref().try_is_valid_public_vertex_type_index(vertex_type_index)?;
-        self.vertex_store_ref().try_is_valid_public_vertex_index(vertex_index)?;
+        self.vertex_store_ref()
+            .try_is_valid_public_vertex_type_index(vertex_type_index)?;
+        self.vertex_store_ref()
+            .try_is_valid_public_vertex_index(vertex_index)?;
 
         self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
@@ -35,8 +37,10 @@ where
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
-        self.vertex_store_ref().try_is_valid_public_vertex_type_index(vertex_type_index)?;
-        self.vertex_store_ref().try_is_valid_public_vertex_index(vertex_index)?;
+        self.vertex_store_ref()
+            .try_is_valid_public_vertex_type_index(vertex_type_index)?;
+        self.vertex_store_ref()
+            .try_is_valid_public_vertex_index(vertex_index)?;
 
         self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
@@ -47,8 +51,12 @@ where
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
-        let vertex_vector = self.vertex_store.vertex_vector_ref_unchecked(vertex_type_index);
-        self.vertex_store_state_restorer.register_vertex_value_to_restore(vertex_vector, vertex_type_index, vertex_index)?;
-        self.vertex_store_mut_ref().update_vertex_unchecked(vertex_type_index, vertex_index, value)
+        let vertex_vector = self
+            .vertex_store
+            .vertex_vector_ref_unchecked(vertex_type_index);
+        self.vertex_store_state_restorer
+            .register_vertex_value_to_restore(vertex_vector, vertex_type_index, vertex_index)?;
+        self.vertex_store_mut_ref()
+            .update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 }

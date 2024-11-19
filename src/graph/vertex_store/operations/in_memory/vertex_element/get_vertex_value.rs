@@ -11,8 +11,8 @@ use crate::graph::value_type::{
     GetValueTypeIdentifierRef, IntoValueType, ValueType, ValueTypeIdentifier,
 };
 
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::vertex_store::VertexStore;
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, ToSparseVectorForValueType,
