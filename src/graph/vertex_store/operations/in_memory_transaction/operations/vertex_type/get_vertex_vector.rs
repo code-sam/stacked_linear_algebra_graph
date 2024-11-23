@@ -21,9 +21,9 @@ impl<'s> GetVertexVector<'s> for AtomicInMemoryVertexStoreTransaction<'s> {
     }
 
     fn public_vertex_vector_mut_ref(
-        &'s mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<&'s mut VertexVector, GraphComputingError> {
+    ) -> Result<&mut VertexVector, GraphComputingError> {
         let vertex_vector = public_vertex_vector_mut_ref(self.vertex_store, vertex_type_index)?;
         self.vertex_store_state_restorer
             .register_updated_vertex_vector_to_restore(vertex_type_index, &vertex_vector)?;

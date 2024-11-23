@@ -3,31 +3,30 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
 };
 use graphblas_sparse_linear_algebra::index::ElementCount;
 
-use crate::graph::indexing::{ElementIndex, GetVertexIndexIndex, GetVertexTypeIndex};
+use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
-use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};
-use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, RegisterSparseVectorChangeToRevert, SparseVectorStateReverter};
+use crate::graph::value_type::ValueType;
+use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, SparseVectorStateReverter};
 
-pub(crate) trait RegisterVertexVectorCapacityToRestore<'a, T: ValueType> {
+pub(crate) trait RegisterVertexVectorCapacityToRestore<T: ValueType> {
     fn register_vertex_vector_capacity_to_restore(
-        &'a mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_capacity: &ElementCount,
     );
 }
 
-impl<'a, T> RegisterVertexVectorCapacityToRestore<'a, T> for VertexVectorsStateRestorer
+impl<T> RegisterVertexVectorCapacityToRestore<T> for VertexVectorsStateRestorer
 where
-    T: 'a
-        + ValueType
+    T: ValueType
         + Default
         + GetSparseVectorElementValueTyped<T>
         + SetSparseVectorElementTyped<T>
-        + GetSparseVectorStateRevertersByVertexTypeMap<'a, T>
+        + GetSparseVectorStateRevertersByVertexTypeMap<T>
         + CreateSparseVectorStateReverter<T>,
 {
     fn register_vertex_vector_capacity_to_restore(
-        &'a mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         _vertex_capacity: &ElementCount,
     ) {

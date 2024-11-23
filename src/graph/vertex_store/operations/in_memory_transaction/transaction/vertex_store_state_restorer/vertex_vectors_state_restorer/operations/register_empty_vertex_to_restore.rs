@@ -2,24 +2,23 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     GetSparseVectorElementValueTyped, SetSparseVectorElementTyped,
 };
 
-use crate::graph::indexing::{ElementIndex, GetVertexIndexIndex, GetVertexTypeIndex};
+use crate::graph::indexing::{ElementIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{GetSparseVectorStateRevertersByVertexTypeMap, GetVertexVectorStateReverter, VertexVectorsStateRestorer};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterEmptyVertexToRestore;
-use crate::graph::{indexing::{VertexIndex, VertexTypeIndex}, value_type::ValueType};
+use crate::graph::value_type::ValueType;
 use crate::operators::in_memory_transaction::transaction::{CreateSparseVectorStateReverter, RegisterSparseVectorChangeToRevert, SparseVectorStateReverter};
 
-impl<'a, T> RegisterEmptyVertexToRestore<'a, T> for VertexVectorsStateRestorer
+impl<T> RegisterEmptyVertexToRestore<T> for VertexVectorsStateRestorer
 where
-    T: 'a
-        + ValueType
+    T: ValueType
         + Default
         + GetSparseVectorElementValueTyped<T>
         + SetSparseVectorElementTyped<T>
-        + GetSparseVectorStateRevertersByVertexTypeMap<'a, T>
+        + GetSparseVectorStateRevertersByVertexTypeMap<T>
         + CreateSparseVectorStateReverter<T>,
 {
     fn register_empty_vertex_to_restore(
-        &'a mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: ElementIndex,
     ) {

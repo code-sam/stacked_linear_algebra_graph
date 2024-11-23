@@ -136,3 +136,112 @@ impl<'s> DeleteVertexForAllTypes for AtomicInMemoryVertexStoreTransaction<'s> {
             .delete_vertex_for_all_valid_private_vertex_types_and_value_types(vertex_index)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
+
+    use crate::graph::{
+        indexing::{GetAssignedIndexData, VertexIndex},
+        vertex_store::{
+            operations::{
+                vertex_element::{AddVertex, CheckVertexIndex, GetVertexValue},
+                vertex_type::{AddPrivateVertexType, AddPublicVertexType},
+            },
+            VertexStore,
+        },
+    };
+
+    use super::*;
+
+    #[test]
+    fn roll_back_deleted_vertices() {
+        let mut vertex_store = initialize_vertex_store();
+
+        let public_vertex_type_index = VertexTypeIndex::new(0);
+        let private_vertex_type_index = VertexTypeIndex::new(3);
+
+        let public_vertex_index_0 = VertexIndex::new(
+            vertex_store
+                .add_new_public_vertex(&public_vertex_type_index, 100)
+                .unwrap()
+                .index(),
+        );
+        let private_vertex_index_0 = VertexIndex::new(
+            vertex_store
+                .add_new_private_vertex(&private_vertex_type_index, 200)
+                .unwrap()
+                .index(),
+        );
+
+        {
+            let mut transaction =
+                AtomicInMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
+
+            transaction
+                .delete_public_vertex_element(&public_vertex_type_index, &public_vertex_index_0)
+                .unwrap();
+            transaction
+                .delete_private_vertex_element(&private_vertex_type_index, &private_vertex_index_0)
+                .unwrap();
+
+            assert_eq!(
+                None::<i32>,
+                transaction
+                    .public_vertex_value(&public_vertex_type_index, &public_vertex_index_0)
+                    .unwrap()
+            );
+            assert_eq!(
+                None::<i32>,
+                transaction
+                    .private_vertex_value(&private_vertex_type_index, &private_vertex_index_0)
+                    .unwrap()
+            );
+        }
+
+        assert_eq!(
+            Some(100),
+            vertex_store
+                .public_vertex_value(&public_vertex_type_index, &public_vertex_index_0)
+                .unwrap()
+        );
+        assert_eq!(
+            Some(200),
+            vertex_store
+                .private_vertex_value(&private_vertex_type_index, &private_vertex_index_0)
+                .unwrap()
+        );
+    }
+
+    fn initialize_vertex_store() -> VertexStore {
+        let context = GraphblasContext::init_default().unwrap();
+
+        let mut vertex_store = VertexStore::with_initial_capacity(context, 0, 0).unwrap();
+
+        let mut public_vertex_type_indices = Vec::new();
+        for _i in 0..3 {
+            public_vertex_type_indices
+                .push(AddPublicVertexType::<i32>::apply(&mut vertex_store).unwrap());
+        }
+
+        for i in 0..5 {
+            vertex_store
+                .add_new_public_vertex(&public_vertex_type_indices[1], i)
+                .unwrap();
+        }
+
+        let mut private_vertex_type_indices = Vec::new();
+        for _i in 0..3 {
+            private_vertex_type_indices
+                .push(AddPrivateVertexType::<i32>::apply(&mut vertex_store).unwrap());
+        }
+
+        for i in 0..5 {
+            vertex_store
+                .add_new_private_vertex(&private_vertex_type_indices[1], i)
+                .unwrap();
+        }
+
+        vertex_store
+    }
+}

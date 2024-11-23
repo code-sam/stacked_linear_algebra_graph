@@ -46,27 +46,27 @@ impl GetLengthToRestore for VertexVectorsStateRestorer {
     }
 }
 
-pub(crate) trait GetVertexVectorStateReverter<'a, T: ValueType> {
+pub(crate) trait GetVertexVectorStateReverter<T: ValueType> {
     // fn sparse_vector_state_reverter_ref(
     //     &'a self,
     //     vertex_type_index: VertexTypeIndex,
     // ) -> &'a SparseVectorStateReverter<T>;
     fn vertex_vector_state_reverter_mut_ref(
-        &'a mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> &'a mut SparseVectorStateReverter<T>;
+    ) -> &mut SparseVectorStateReverter<T>;
 }
 
-impl<'a, T> GetVertexVectorStateReverter<'a, T> for VertexVectorsStateRestorer
+impl<T> GetVertexVectorStateReverter<T> for VertexVectorsStateRestorer
 where
     T: ValueType
-        + GetSparseVectorStateRevertersByVertexTypeMap<'a, T>
+        + GetSparseVectorStateRevertersByVertexTypeMap<T>
         + CreateSparseVectorStateReverter<T>,
 {
     fn vertex_vector_state_reverter_mut_ref(
-        &'a mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> &'a mut SparseVectorStateReverter<T> {
+    ) -> &mut SparseVectorStateReverter<T> {
         let sparse_vector_state_reverters_vertex_type_map =
             T::sparse_vector_state_reverters_by_vertex_type_map_mut_ref(
                 &mut self.vertex_vector_state_reverters,
@@ -80,27 +80,28 @@ where
     }
 }
 
-pub(crate) trait GetSparseVectorStateRevertersByVertexTypeMap<'a, T: ValueType> {
+pub(crate) trait GetSparseVectorStateRevertersByVertexTypeMap<T: ValueType> {
     fn sparse_vector_state_reverters_by_vertex_type_map_ref(
-        vertex_vectors_state_restorer: &'a TypedSparseVectorStateReverters,
-    ) -> &'a ElementIndexMap<SparseVectorStateReverter<T>>;
+        vertex_vectors_state_restorer: &TypedSparseVectorStateReverters,
+    ) -> &ElementIndexMap<SparseVectorStateReverter<T>>;
+
     fn sparse_vector_state_reverters_by_vertex_type_map_mut_ref(
-        vertex_vectors_state_restorer: &'a mut TypedSparseVectorStateReverters,
-    ) -> &'a mut ElementIndexMap<SparseVectorStateReverter<T>>;
+        vertex_vectors_state_restorer: &mut TypedSparseVectorStateReverters,
+    ) -> &mut ElementIndexMap<SparseVectorStateReverter<T>>;
 }
 
 macro_rules! implement_get_sparse_vector_state_reverter_by_vertex_type_map {
     ($typed_map_identifier: ident, $value_type: ty) => {
-        impl<'a> GetSparseVectorStateRevertersByVertexTypeMap<'a, $value_type> for $value_type {
+        impl<'a> GetSparseVectorStateRevertersByVertexTypeMap<$value_type> for $value_type {
             fn sparse_vector_state_reverters_by_vertex_type_map_ref(
-                vertex_vectors_state_restorer: &'a TypedSparseVectorStateReverters,
-            ) -> &'a ElementIndexMap<SparseVectorStateReverter<$value_type>> {
+                vertex_vectors_state_restorer: &TypedSparseVectorStateReverters,
+            ) -> &ElementIndexMap<SparseVectorStateReverter<$value_type>> {
                 &vertex_vectors_state_restorer.$typed_map_identifier
             }
 
             fn sparse_vector_state_reverters_by_vertex_type_map_mut_ref(
-                vertex_vectors_state_restorer: &'a mut TypedSparseVectorStateReverters,
-            ) -> &'a mut ElementIndexMap<SparseVectorStateReverter<$value_type>> {
+                vertex_vectors_state_restorer: &mut TypedSparseVectorStateReverters,
+            ) -> &mut ElementIndexMap<SparseVectorStateReverter<$value_type>> {
                 &mut vertex_vectors_state_restorer.$typed_map_identifier
             }
         }

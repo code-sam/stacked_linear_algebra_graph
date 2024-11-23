@@ -25,7 +25,8 @@ impl<'s> CheckVertexIndex for AtomicInMemoryVertexStoreTransaction<'s> {
         &self,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError> {
-        self.vertex_store_ref().is_valid_vertex_index(vertex_index)
+        self.vertex_store_ref()
+            .is_valid_public_vertex_index(vertex_index)
     }
 
     fn try_is_valid_public_vertex_index(

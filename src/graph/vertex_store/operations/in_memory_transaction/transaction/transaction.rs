@@ -89,6 +89,11 @@ impl<'s> UseAtomicTransaction for AtomicInMemoryVertexStoreTransaction<'s> {
 
 impl<'s> Drop for AtomicInMemoryVertexStoreTransaction<'s> {
     fn drop(&mut self) {
-        self.revert();
+        if let Err(e) = self.revert() {
+            println!("Failed to revert transaction: {:?}", e);
+
+            #[cfg(debug_assertions)]
+            panic!("Failed to revert transaction: {:?}", e);
+        }
     }
 }

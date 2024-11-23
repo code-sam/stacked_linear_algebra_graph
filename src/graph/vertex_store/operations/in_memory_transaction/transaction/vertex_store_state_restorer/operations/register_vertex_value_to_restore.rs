@@ -133,9 +133,9 @@ impl RegisterVertexValueToRestore for VertexStoreStateRestorer {
     }
 }
 
-pub(crate) trait RegisterVertexValueToRestoreTyped<'t> {
+pub(crate) trait RegisterVertexValueToRestoreTyped {
     fn register_vertex_value_to_restore(
-        vertex_vertex_store_state_restorer: &'t mut VertexStoreStateRestorer,
+        vertex_vertex_store_state_restorer: &mut VertexStoreStateRestorer,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_vector: &VertexVector,
         vertex_index: &impl GetVertexIndexIndex,
@@ -144,9 +144,9 @@ pub(crate) trait RegisterVertexValueToRestoreTyped<'t> {
 
 macro_rules! implement_register_vertex_value_to_restore_typed {
     ($value_type:ty) => {
-        impl<'t> RegisterVertexValueToRestoreTyped<'t> for $value_type {
+        impl RegisterVertexValueToRestoreTyped for $value_type {
             fn register_vertex_value_to_restore(
-                vertex_store_state_restorer: &'t mut VertexStoreStateRestorer,
+                vertex_store_state_restorer: &mut VertexStoreStateRestorer,
                 vertex_type_index: &impl GetVertexTypeIndex,
                 vertex_vector: &VertexVector,
                 vertex_index: &impl GetVertexIndexIndex,
@@ -155,7 +155,7 @@ macro_rules! implement_register_vertex_value_to_restore_typed {
                     <$value_type>::element_value(vertex_vector, vertex_index.index())?.unwrap()
                 }; // TODO: would it be safer to match None? How could this error occur?
 
-                RegisterTypedVertexValueToRestore::<'t, $value_type>::register_vertex_value_to_restore(
+                RegisterTypedVertexValueToRestore::<$value_type>::register_vertex_value_to_restore(
                     vertex_store_state_restorer.vertex_vectors_state_restorer_mut_ref(),
                     vertex_type_index,
                     vertex_index,

@@ -20,7 +20,7 @@ where
     T: ValueType + SetSparseVectorElementTyped<T>,
 {
     fn add_new_public_vertex(
-        &'s mut self,
+        &mut self,
         type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
