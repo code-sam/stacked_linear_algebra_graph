@@ -5,7 +5,7 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::AtomicInMemoryVertexStoreTransaction;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::InMemoryVertexStoreTransaction;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterVertexValueToRestore;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
@@ -13,7 +13,7 @@ use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 
-impl<'s, T> UpdateVertex<T> for AtomicInMemoryVertexStoreTransaction<'s>
+impl<'s, T> UpdateVertex<T> for InMemoryVertexStoreTransaction<'s>
 where
     T: ValueType + Copy + SetSparseVectorElementTyped<T>,
 {

@@ -3,14 +3,14 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
 use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::in_memory_transaction::{
-    AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction,
+    InMemoryIndexerTransaction, GetIndexerUnderTransaction,
 };
 use crate::graph::indexing::operations::{
     GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
 };
 use crate::graph::indexing::ElementIndex;
 
-impl<'t> GetValidIndices for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> GetValidIndices for InMemoryIndexerTransaction<'t> {
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool> {
         self.indexer_ref().mask_with_valid_indices_ref()
     }
@@ -24,7 +24,7 @@ impl<'t> GetValidIndices for AtomicInMemoryIndexerTransaction<'t> {
     }
 }
 
-impl<'t> GetValidPublicIndices for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> GetValidPublicIndices for InMemoryIndexerTransaction<'t> {
     fn mask_with_valid_public_indices_ref(&self) -> &SparseVector<bool> {
         self.indexer_ref().mask_with_valid_public_indices_ref()
     }
@@ -40,7 +40,7 @@ impl<'t> GetValidPublicIndices for AtomicInMemoryIndexerTransaction<'t> {
     }
 }
 
-impl<'t> GetValidPrivateIndices for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> GetValidPrivateIndices for InMemoryIndexerTransaction<'t> {
     fn mask_with_valid_private_indices_ref(&self) -> &SparseVector<bool> {
         self.indexer_ref().mask_with_valid_private_indices_ref()
     }

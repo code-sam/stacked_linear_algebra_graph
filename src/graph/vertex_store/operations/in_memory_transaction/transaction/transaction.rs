@@ -2,11 +2,11 @@ use std::mem;
 
 use crate::error::GraphComputingError;
 use crate::graph::vertex_store::{GetVertexElementIndexer, GetVertexTypeIndexer, VertexStore};
-use crate::operators::transaction::{RestoreState, UseAtomicTransaction};
+use crate::operators::transaction::{RestoreState, UseTransaction};
 
 use super::VertexStoreStateRestorer;
 
-pub(crate) trait UseVertexStoreTransaction: UseAtomicTransaction {}
+pub(crate) trait UseVertexStoreTransaction: UseTransaction {}
 
 // #[derive(Clone, Debug)]
 // pub(crate) struct VertexStore {
@@ -16,14 +16,14 @@ pub(crate) trait UseVertexStoreTransaction: UseAtomicTransaction {}
 //     element_indexer: VertexElementIndexer,
 // }
 
-pub(crate) struct AtomicInMemoryVertexStoreTransaction<'s> {
+pub(crate) struct InMemoryVertexStoreTransaction<'s> {
     pub(in crate::graph::vertex_store::operations::in_memory_transaction) vertex_store:
         &'s mut VertexStore,
     pub(in crate::graph::vertex_store::operations::in_memory_transaction) vertex_store_state_restorer:
         VertexStoreStateRestorer,
 }
 
-impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> InMemoryVertexStoreTransaction<'s> {
     pub(crate) fn new(vertex_store: &'s mut VertexStore) -> Result<Self, GraphComputingError> {
         let vertex_store_state_restorer = VertexStoreStateRestorer::new_for_indexers(
             vertex_store.vertex_type_indexer_ref(),
@@ -42,7 +42,7 @@ pub(crate) trait GetVertexStore {
     fn vertex_store_mut_ref(&mut self) -> &mut VertexStore;
 }
 
-impl<'t> GetVertexStore for AtomicInMemoryVertexStoreTransaction<'t> {
+impl<'t> GetVertexStore for InMemoryVertexStoreTransaction<'t> {
     fn vertex_store_ref(&self) -> &VertexStore {
         &self.vertex_store
     }
@@ -57,7 +57,7 @@ pub(crate) trait GetVertexStoreStateRestorer {
     fn vertex_store_state_restorer_mut_ref(&mut self) -> &mut VertexStoreStateRestorer;
 }
 
-impl<'t> GetVertexStoreStateRestorer for AtomicInMemoryVertexStoreTransaction<'t> {
+impl<'t> GetVertexStoreStateRestorer for InMemoryVertexStoreTransaction<'t> {
     fn vertex_store_state_restorer_ref(&self) -> &VertexStoreStateRestorer {
         &self.vertex_store_state_restorer
     }
@@ -67,7 +67,7 @@ impl<'t> GetVertexStoreStateRestorer for AtomicInMemoryVertexStoreTransaction<'t
     }
 }
 
-impl<'s> UseAtomicTransaction for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> UseTransaction for InMemoryVertexStoreTransaction<'s> {
     fn revert(&mut self) -> Result<(), GraphComputingError> {
         let reset_vertex_store_state_restorer = self
             .vertex_store_state_restorer
@@ -87,7 +87,7 @@ impl<'s> UseAtomicTransaction for AtomicInMemoryVertexStoreTransaction<'s> {
     }
 }
 
-impl<'s> Drop for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> Drop for InMemoryVertexStoreTransaction<'s> {
     fn drop(&mut self) {
         if let Err(e) = self.revert() {
             println!("Failed to revert transaction: {:?}", e);

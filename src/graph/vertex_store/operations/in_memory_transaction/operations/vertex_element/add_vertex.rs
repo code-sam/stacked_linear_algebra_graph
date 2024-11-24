@@ -7,7 +7,7 @@ use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::AtomicInMemoryVertexStoreTransaction;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::InMemoryVertexStoreTransaction;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStoreStateRestorer;
@@ -18,7 +18,7 @@ use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::operators::in_memory_transaction::transaction::CreateSparseVectorStateReverter;
 
-impl<'s, T> AddVertex<'s, T> for AtomicInMemoryVertexStoreTransaction<'s>
+impl<'s, T> AddVertex<'s, T> for InMemoryVertexStoreTransaction<'s>
 where
     T: ValueType
         + Copy
@@ -129,7 +129,7 @@ mod tests {
         AddPrivateVertexType, AddPublicVertexType,
     };
     use crate::graph::vertex_store::VertexStore;
-    use crate::operators::transaction::UseAtomicTransaction;
+    use crate::operators::transaction::UseTransaction;
 
     use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
@@ -137,7 +137,7 @@ mod tests {
     fn test_add_new_vertex() {
         let mut vertex_store = initialize_vertex_store();
 
-        let mut transaction = AtomicInMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
+        let mut transaction = InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
 
         let vertex_type_index_1 = VertexTypeIndex::new(2);
         let vertex_index_1 = transaction
@@ -198,7 +198,7 @@ mod tests {
 
         {
             let mut transaction =
-                AtomicInMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
+                InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
 
             let vertex_type_index_1 = VertexTypeIndex::new(3);
             let _vertex_index_0 = transaction

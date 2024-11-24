@@ -1,7 +1,7 @@
 use crate::error::GraphComputingError;
 use crate::graph::graph::Graph;
 
-pub trait UseAtomicTransaction: Drop {
+pub trait UseTransaction: Drop {
     fn revert(&mut self) -> Result<(), GraphComputingError>;
     fn commit(&mut self) -> Result<(), GraphComputingError>;
 }

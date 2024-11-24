@@ -1,5 +1,5 @@
 use crate::graph::indexing::operations::in_memory_transaction::RegisterFreedIndexToRestore;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{AtomicInMemoryVertexStoreTransaction, VertexStoreStateRestorer};
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{InMemoryVertexStoreTransaction, VertexStoreStateRestorer};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::vertex_vector::ToSparseVector;
 use crate::graph::vertex_store::VertexVector;
@@ -262,7 +262,7 @@ implement_macro_for_all_native_value_types!(
     implement_register_untyped_vertex_value_to_restore_typed
 );
 
-impl<'s> AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> InMemoryVertexStoreTransaction<'s> {
     fn register_updated_private_vertex_vector_to_restore(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,

@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
+    InMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
     RegisterNewVertexTypeToRevert,
 };
 use crate::graph::vertex_store::operations::vertex_type::{
@@ -10,7 +10,7 @@ use crate::graph::vertex_store::operations::vertex_type::{
 };
 
 impl<'t, T: ValueType + GetValueTypeIdentifier> AddPublicVertexType<'t, T>
-    for AtomicInMemoryVertexStoreTransaction<'t>
+    for InMemoryVertexStoreTransaction<'t>
 {
     fn apply(&'t mut self) -> Result<VertexTypeIndex, GraphComputingError> {
         let new_vertex_type_index = add_public_vertex_type::<T>(self.vertex_store_mut_ref())?;
@@ -21,7 +21,7 @@ impl<'t, T: ValueType + GetValueTypeIdentifier> AddPublicVertexType<'t, T>
 }
 
 impl<'t, T: ValueType + GetValueTypeIdentifier> AddPrivateVertexType<'t, T>
-    for AtomicInMemoryVertexStoreTransaction<'t>
+    for InMemoryVertexStoreTransaction<'t>
 {
     fn apply(&'t mut self) -> Result<VertexTypeIndex, GraphComputingError> {
         let new_vertex_type_index = add_public_vertex_type::<T>(self.vertex_store_mut_ref())?;

@@ -1,12 +1,12 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{operations::CheckIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore,
+    InMemoryVertexStoreTransaction, GetVertexStore,
 };
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::graph::vertex_store::{GetVertexElementIndexer, GetVertexTypeIndexer};
 
-impl<'s> CheckVertexTypeIndex for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> CheckVertexTypeIndex for InMemoryVertexStoreTransaction<'s> {
     fn is_valid_vertex_type_index(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,

@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueTypeIdentifier;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexVectorToRestore,
+    InMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexVectorToRestore,
 };
 use crate::graph::vertex_store::operations::vertex_type::{
     private_vertex_vector_mut_ref, private_vertex_vector_ref, public_vertex_vector_mut_ref,
@@ -12,7 +12,7 @@ use crate::graph::vertex_store::operations::vertex_type::{
 };
 use crate::graph::vertex_store::VertexVector;
 
-impl<'s> GetVertexVector<'s> for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> GetVertexVector<'s> for InMemoryVertexStoreTransaction<'s> {
     fn public_vertex_vector_ref(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
@@ -84,7 +84,7 @@ impl<'s> GetVertexVector<'s> for AtomicInMemoryVertexStoreTransaction<'s> {
     }
 }
 
-impl<'t> GetVertexVectorNativeValueType for AtomicInMemoryVertexStoreTransaction<'t> {
+impl<'t> GetVertexVectorNativeValueType for InMemoryVertexStoreTransaction<'t> {
     fn vertex_vector_native_value_type(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,

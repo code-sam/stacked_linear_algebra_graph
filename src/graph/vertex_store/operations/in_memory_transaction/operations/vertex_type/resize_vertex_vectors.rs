@@ -1,12 +1,12 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{ElementCount, GetIndexCapacity, VertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexCapacityToRestore,
+    InMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexCapacityToRestore,
 };
 use crate::graph::vertex_store::operations::vertex_type::ResizeVertexVectors;
 use crate::graph::vertex_store::{GetVertexElementIndexer, GetVertexVectors};
 
-impl<'s> ResizeVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> ResizeVertexVectors for InMemoryVertexStoreTransaction<'s> {
     fn resize_vertex_vectors(
         &mut self,
         new_vertex_capacity: ElementCount,

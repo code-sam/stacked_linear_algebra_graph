@@ -4,7 +4,7 @@ use crate::graph::indexing::operations::{
 };
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexValueToRestore,
+    InMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexValueToRestore,
 };
 use crate::graph::vertex_store::operations::vertex_element::{
     DeleteVertexForAllTypes, DeleteVertexValue,
@@ -12,7 +12,7 @@ use crate::graph::vertex_store::operations::vertex_element::{
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
 
-impl<'s> DeleteVertexValue for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> DeleteVertexValue for InMemoryVertexStoreTransaction<'s> {
     fn delete_public_vertex_element(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
@@ -51,7 +51,7 @@ impl<'s> DeleteVertexValue for AtomicInMemoryVertexStoreTransaction<'s> {
     }
 }
 
-impl<'s> DeleteVertexForAllTypes for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> DeleteVertexForAllTypes for InMemoryVertexStoreTransaction<'s> {
     fn delete_vertex_for_all_valid_vertex_types_and_value_types(
         &mut self,
         vertex_index: &(impl GetVertexIndexIndex + Sync),
@@ -141,16 +141,10 @@ impl<'s> DeleteVertexForAllTypes for AtomicInMemoryVertexStoreTransaction<'s> {
 mod tests {
     use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
-    use crate::graph::{
-        indexing::{GetAssignedIndexData, VertexIndex},
-        vertex_store::{
-            operations::{
-                vertex_element::{AddVertex, CheckVertexIndex, GetVertexValue},
-                vertex_type::{AddPrivateVertexType, AddPublicVertexType},
-            },
-            VertexStore,
-        },
-    };
+    use crate::graph::vertex_store::VertexStore;
+    use crate::graph::vertex_store::operations::vertex_type::{AddPrivateVertexType, AddPublicVertexType};
+    use crate::graph::vertex_store::operations::vertex_element::{AddVertex, GetVertexValue};
+    use crate::graph::indexing::{GetAssignedIndexData, VertexIndex};
 
     use super::*;
 
@@ -176,7 +170,7 @@ mod tests {
 
         {
             let mut transaction =
-                AtomicInMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
+                InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
 
             transaction
                 .delete_public_vertex_element(&public_vertex_type_index, &public_vertex_index_0)

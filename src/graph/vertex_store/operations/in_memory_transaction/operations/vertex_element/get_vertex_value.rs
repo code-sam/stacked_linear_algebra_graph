@@ -5,12 +5,12 @@ use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
 
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore,
+    InMemoryVertexStoreTransaction, GetVertexStore,
 };
 use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
 use crate::graph::vertex_store::ToSparseVectorForValueType;
 
-impl<'s, T> GetVertexValue<T> for AtomicInMemoryVertexStoreTransaction<'s>
+impl<'s, T> GetVertexValue<T> for InMemoryVertexStoreTransaction<'s>
 where
     T: ValueType + ToSparseVectorForValueType<T> + GetSparseVectorElementValueTyped<T> + Default,
     bool: IntoValueType<T>,

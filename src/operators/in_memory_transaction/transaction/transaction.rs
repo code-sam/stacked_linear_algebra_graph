@@ -1,12 +1,12 @@
 use crate::error::GraphComputingError;
 use crate::graph::graph::Graph;
-use crate::operators::transaction::{GetGraph, UseAtomicTransaction};
+use crate::operators::transaction::{GetGraph, UseTransaction};
 
 pub struct AtomicInMemoryTransaction<'t> {
     graph: &'t mut Graph,
 }
 
-impl<'t> UseAtomicTransaction for AtomicInMemoryTransaction<'t> {
+impl<'t> UseTransaction for AtomicInMemoryTransaction<'t> {
     fn revert(&mut self) -> Result<(), GraphComputingError> {
         self.revert_private()
     }

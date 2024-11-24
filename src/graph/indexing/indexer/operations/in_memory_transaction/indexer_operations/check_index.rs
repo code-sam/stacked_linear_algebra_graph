@@ -1,11 +1,11 @@
 use crate::graph::indexing::operations::in_memory_transaction::{
-    AtomicInMemoryIndexerTransaction, GetIndexerUnderTransaction,
+    InMemoryIndexerTransaction, GetIndexerUnderTransaction,
 };
 use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::Index;
 use crate::{error::GraphComputingError, graph::indexing::operations::is_valid_index};
 
-impl<'t> CheckIndex for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> CheckIndex for InMemoryIndexerTransaction<'t> {
     fn is_valid_index(&self, index: Index) -> Result<bool, GraphComputingError> {
         self.indexer_ref().is_valid_index(index)
     }

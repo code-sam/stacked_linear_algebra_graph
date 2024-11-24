@@ -19,13 +19,9 @@ use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adja
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_u8;
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_usize;
 use crate::graph::graph::GraphblasContext;
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix,
-        value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier},
-    },
-};
+use crate::graph::value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier};
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use crate::error::GraphComputingError;
 
 #[derive(Clone, Debug)]
 pub(crate) struct CachedAdjacencyMatrixAttributes {

@@ -1,7 +1,7 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, RegisterVertexVectorToRestore,
+    InMemoryVertexStoreTransaction, RegisterVertexVectorToRestore,
 };
 use crate::graph::vertex_store::operations::vertex_type::{
     indexed_map_mut_all_valid_private_vertex_vectors,
@@ -33,7 +33,7 @@ use crate::graph::vertex_store::VertexVector;
 //     }
 // }
 
-impl<'s> MapValidVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> MapValidVertexVectors for InMemoryVertexStoreTransaction<'s> {
     // fn map_all_valid_vertex_vectors<F>(
     //     &self,
     //     function_to_apply: F,
@@ -76,7 +76,7 @@ impl<'s> MapValidVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     }
 }
 
-impl<'s> MapPublicVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> MapPublicVertexVectors for InMemoryVertexStoreTransaction<'s> {
     // fn map_all_valid_public_vertex_vectors<F>(
     //     &self,
     //     function_to_apply: F,
@@ -119,7 +119,7 @@ impl<'s> MapPublicVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
     }
 }
 
-impl<'s> MapPrivateVertexVectors for AtomicInMemoryVertexStoreTransaction<'s> {
+impl<'s> MapPrivateVertexVectors for InMemoryVertexStoreTransaction<'s> {
     // fn map_all_valid_private_vertex_vectors<F>(
     //     &self,
     //     function_to_apply: F,

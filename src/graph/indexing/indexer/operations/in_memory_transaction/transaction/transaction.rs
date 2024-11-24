@@ -12,19 +12,19 @@ use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
 use crate::operators::transaction::RestoreState;
 use crate::{
     error::GraphComputingError, graph::indexing::Indexer,
-    operators::transaction::UseAtomicTransaction,
+    operators::transaction::UseTransaction,
 };
 
 use super::IndexerStateRestorer;
 
-pub(crate) trait UseIndexerTransaction: UseAtomicTransaction {}
+pub(crate) trait UseIndexerTransaction: UseTransaction {}
 
-pub(crate) struct AtomicInMemoryIndexerTransaction<'a> {
+pub(crate) struct InMemoryIndexerTransaction<'a> {
     indexer: &'a mut Indexer,
     indexer_state_restorer: IndexerStateRestorer,
 }
 
-impl<'a> UseAtomicTransaction for AtomicInMemoryIndexerTransaction<'a> {
+impl<'a> UseTransaction for InMemoryIndexerTransaction<'a> {
     fn revert(&mut self) -> Result<(), GraphComputingError> {
         let reset_indexer_state_restorer =
             self.indexer_state_restorer.with_reset_state_to_restore();
@@ -42,7 +42,7 @@ impl<'a> UseAtomicTransaction for AtomicInMemoryIndexerTransaction<'a> {
     }
 }
 
-impl<'t> Drop for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> Drop for InMemoryIndexerTransaction<'t> {
     fn drop(&mut self) {
         self.revert().unwrap();
     }
@@ -60,7 +60,7 @@ pub(in crate::graph::indexing::indexer::operations::in_memory_transaction) trait
     fn indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer;
 }
 
-impl<'t> GetIndexerUnderTransaction for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> GetIndexerUnderTransaction for InMemoryIndexerTransaction<'t> {
     fn indexer_ref(&self) -> &Indexer {
         &self.indexer
     }
@@ -70,7 +70,7 @@ impl<'t> GetIndexerUnderTransaction for AtomicInMemoryIndexerTransaction<'t> {
     }
 }
 
-impl<'t> GetIndexerStateRestorer for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> GetIndexerStateRestorer for InMemoryIndexerTransaction<'t> {
     fn indexer_state_restorer_ref(&self) -> &IndexerStateRestorer {
         &self.indexer_state_restorer
     }
@@ -80,7 +80,7 @@ impl<'t> GetIndexerStateRestorer for AtomicInMemoryIndexerTransaction<'t> {
     }
 }
 
-impl<'a> AtomicInMemoryIndexerTransaction<'a> {
+impl<'a> InMemoryIndexerTransaction<'a> {
     pub(crate) fn new(indexer: &'a mut Indexer) -> Result<Self, GraphComputingError> {
         let indexer_state_restorer = IndexerStateRestorer::new_for_indexer(indexer)?;
         Ok(Self {
@@ -90,7 +90,7 @@ impl<'a> AtomicInMemoryIndexerTransaction<'a> {
     }
 }
 
-impl<'t> FreeIndex for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> FreeIndex for InMemoryIndexerTransaction<'t> {
     // data is not actually deleted. The index is only lined-up for reuse upon the next push of new data
     fn free_public_index(&mut self, index: Index) -> Result<(), GraphComputingError> {
         free_public_index(self.indexer, &mut self.indexer_state_restorer, index)
@@ -109,19 +109,19 @@ impl<'t> FreeIndex for AtomicInMemoryIndexerTransaction<'t> {
     }
 }
 
-impl<'a> GeneratePublicIndex for AtomicInMemoryIndexerTransaction<'a> {
+impl<'a> GeneratePublicIndex for InMemoryIndexerTransaction<'a> {
     fn new_public_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
         new_public_index(self.indexer, &mut self.indexer_state_restorer)
     }
 }
 
-impl<'a> GeneratePrivateIndex for AtomicInMemoryIndexerTransaction<'a> {
+impl<'a> GeneratePrivateIndex for InMemoryIndexerTransaction<'a> {
     fn new_private_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
         new_private_index(self.indexer, &mut self.indexer_state_restorer)
     }
 }
 
-impl<'t> SetIndexCapacity for AtomicInMemoryIndexerTransaction<'t> {
+impl<'t> SetIndexCapacity for InMemoryIndexerTransaction<'t> {
     fn set_index_capacity(&mut self, capacity: ElementCount) -> Result<(), GraphComputingError> {
         set_index_capacity(self.indexer, &mut self.indexer_state_restorer, capacity)
     }

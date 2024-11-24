@@ -1,14 +1,14 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    AtomicInMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexVectorToRestore,
+    InMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexVectorToRestore,
 };
 use crate::graph::vertex_store::operations::vertex_type::{
     delete_private_vertex_type_unchecked, delete_public_vertex_type_unchecked, DeleteVertexType,
     GetVertexVector,
 };
 
-impl<'t> DeleteVertexType<'t> for AtomicInMemoryVertexStoreTransaction<'t> {
+impl<'t> DeleteVertexType<'t> for InMemoryVertexStoreTransaction<'t> {
     fn delete_public_vertex_type(
         &'t mut self,
         index: &impl GetVertexTypeIndex,
@@ -43,7 +43,7 @@ impl<'t> DeleteVertexType<'t> for AtomicInMemoryVertexStoreTransaction<'t> {
 }
 
 fn register_deleted_private_vertex_vector_to_restore<'s>(
-    transaction: &mut AtomicInMemoryVertexStoreTransaction<'s>,
+    transaction: &mut InMemoryVertexStoreTransaction<'s>,
     vertex_type_index: &impl GetVertexTypeIndex,
 ) -> Result<(), GraphComputingError> {
     let vertex_vector = transaction
@@ -57,7 +57,7 @@ fn register_deleted_private_vertex_vector_to_restore<'s>(
 }
 
 fn register_deleted_public_vertex_vector_to_restore<'s>(
-    transaction: &mut AtomicInMemoryVertexStoreTransaction<'s>,
+    transaction: &mut InMemoryVertexStoreTransaction<'s>,
     vertex_type_index: &impl GetVertexTypeIndex,
 ) -> Result<(), GraphComputingError> {
     let vertex_vector = transaction
@@ -71,7 +71,7 @@ fn register_deleted_public_vertex_vector_to_restore<'s>(
 }
 
 fn register_deleted_public_vertex_vector_to_restore_unchecked<'s>(
-    transaction: &mut AtomicInMemoryVertexStoreTransaction<'s>,
+    transaction: &mut InMemoryVertexStoreTransaction<'s>,
     vertex_type_index: &impl GetVertexTypeIndex,
 ) -> Result<(), GraphComputingError> {
     let vertex_vector = transaction
@@ -85,7 +85,7 @@ fn register_deleted_public_vertex_vector_to_restore_unchecked<'s>(
 }
 
 fn register_deleted_private_vertex_vector_to_restore_unchecked<'s>(
-    transaction: &mut AtomicInMemoryVertexStoreTransaction<'s>,
+    transaction: &mut InMemoryVertexStoreTransaction<'s>,
     vertex_type_index: &impl GetVertexTypeIndex,
 ) -> Result<(), GraphComputingError> {
     let vertex_vector = transaction
