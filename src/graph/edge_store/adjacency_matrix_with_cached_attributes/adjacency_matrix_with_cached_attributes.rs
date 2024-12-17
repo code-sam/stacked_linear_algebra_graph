@@ -2,20 +2,16 @@ use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::{
-            adjacency_matrix_attribute_caching::{
-                CachedAdjacencyMatrixAttributes, GetAdjacencyMatrixTranspose,
-                InvalidateChachedAdjacencyMatrixAttributes,
-            },
-            weighted_adjacency_matrix::{CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix},
-        },
-        indexing::ElementCount,
-        value_type::{GetValueTypeIdentifier, ValueType},
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::adjacency_matrix_attribute_caching::{
+    CachedAdjacencyMatrixAttributes, GetAdjacencyMatrixTranspose,
+    InvalidateChachedAdjacencyMatrixAttributes,
 };
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+};
+use crate::graph::indexing::ElementCount;
+use crate::graph::value_type::{GetValueTypeIdentifier, GetValueTypeIdentifierRef, ValueType, ValueTypeIdentifier};
 
 #[derive(Clone, Debug)]
 pub(crate) struct WeightedAdjacencyMatrixWithCachedAttributes {
@@ -87,6 +83,12 @@ impl GetCachedAttributesOfAdjacencyMatrix for WeightedAdjacencyMatrixWithCachedA
     // fn weighted_adjacency_matrix_cached_attributes_mut_ref(&mut self) -> &mut CachedAdjacencyMatrixAttributes {
     //     todo!()
     // }
+}
+
+impl GetValueTypeIdentifierRef for WeightedAdjacencyMatrixWithCachedAttributes {
+    fn value_type_identifier_ref(&self) -> &ValueTypeIdentifier {
+        &self.adjacency_matrix.value_type_identifier_ref()
+    }
 }
 
 #[cfg(test)]

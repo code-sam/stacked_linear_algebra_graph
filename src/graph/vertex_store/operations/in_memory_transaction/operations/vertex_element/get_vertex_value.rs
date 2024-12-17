@@ -5,7 +5,7 @@ use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
 
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    InMemoryVertexStoreTransaction, GetVertexStore,
+    GetVertexStore, InMemoryVertexStoreTransaction,
 };
 use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
 use crate::graph::vertex_store::ToSparseVectorForValueType;

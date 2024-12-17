@@ -17,7 +17,7 @@ use crate::operators::{
 };
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::{graph::Graph, value_type::ValueType};
 use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrix;
 use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked;

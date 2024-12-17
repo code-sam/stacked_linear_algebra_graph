@@ -3,12 +3,13 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     MatrixElementList as AdjacencyMatrixElementList, SparseMatrix,
 };
 
-use crate::graph::edge_store::operations::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     IntoSparseMatrix, IntoSparseMatrixForValueType,
 };
 use crate::graph::graph::GetEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
+use crate::graph::weighted_adjacency_matrix::{ToSparseMatrix, ToSparseMatrixForValueType};
 use crate::operators::indexing::{CheckIndex, CheckPrivateIndex};
 use crate::operators::operators::read::{
     GetPrivateSparseAdjacencyMatrix, GetSparseAdjacencyMatrix,
@@ -16,7 +17,7 @@ use crate::operators::operators::read::{
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix, graph::Graph,
+        edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix, graph::Graph,
         value_type::ValueType,
     },
 };
@@ -24,7 +25,7 @@ use crate::{
 impl<T> GetSparseAdjacencyMatrix<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn sparse_adjacency_matrix(
         &self,
@@ -32,15 +33,15 @@ where
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
-            .try_public_adjacency_matrix_ref(edge_type_index)?
-            .sparse_matrix()?)
+            .public_adjacency_matrix_ref(edge_type_index)?
+            .to_sparse_matrix()?)
     }
 }
 
 impl<T> GetPrivateSparseAdjacencyMatrix<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn private_sparse_adjacency_matrix(
         &self,
@@ -48,8 +49,8 @@ where
     ) -> Result<SparseMatrix<T>, GraphComputingError> {
         Ok(self
             .edge_store_ref()
-            .try_private_adjacency_matrix_ref(edge_type_index)?
-            .sparse_matrix()?)
+            .private_adjacency_matrix_ref(edge_type_index)?
+            .to_sparse_matrix()?)
     }
 
     fn sparse_adjacency_matrix_unchecked(
@@ -59,7 +60,7 @@ where
         Ok(self
             .edge_store_ref()
             .adjacency_matrix_ref_unchecked(edge_type_index)
-            .sparse_matrix()?)
+            .to_sparse_matrix()?)
     }
 }
 
@@ -84,7 +85,7 @@ pub(crate) trait GetTransposedPrivateSparseAdjacencyMatrix<T: ValueType> {
 impl<T> GetTransposedSparseAdjacencyMatrix<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn transposed_sparse_adjacency_matrix(
         &mut self,
@@ -94,14 +95,14 @@ where
         Ok(self
             .edge_store_mut_ref()
             .transposed_adjacency_matrix_ref_unchecked(edge_edge_type_index)
-            .sparse_matrix()?)
+            .to_sparse_matrix()?)
     }
 }
 
 impl<T> GetTransposedPrivateSparseAdjacencyMatrix<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn transposed_private_sparse_adjacency_matrix(
         &mut self,
@@ -111,7 +112,7 @@ where
         Ok(self
             .edge_store_mut_ref()
             .transposed_adjacency_matrix_ref_unchecked(edge_type_index)
-            .sparse_matrix()?)
+            .to_sparse_matrix()?)
     }
 
     fn transposed_sparse_adjacency_matrix_unchecked(
@@ -121,7 +122,7 @@ where
         Ok(self
             .edge_store_mut_ref()
             .transposed_adjacency_matrix_ref_unchecked(edge_type_index)
-            .sparse_matrix()?)
+            .to_sparse_matrix()?)
     }
 }
 
@@ -146,7 +147,7 @@ pub(crate) trait GetPrivateAdjacencyMatrixElementList<T: ValueType> {
 impl<T> GetAdjacencyMatrixElementList<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn adjacency_matrix_element_list(
         &self,
@@ -161,7 +162,7 @@ where
 impl<T> GetPrivateAdjacencyMatrixElementList<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn private_adjacency_matrix_element_list(
         &self,
@@ -203,7 +204,7 @@ pub(crate) trait GetTransposedPrivateAdjacencyMatrixElementList<T: ValueType> {
 impl<T> GetTransposedAdjacencyMatrixElementList<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn transposed_adjacency_matrix_element_list(
         &mut self,
@@ -218,7 +219,7 @@ where
 impl<T> GetTransposedPrivateAdjacencyMatrixElementList<T> for Graph
 where
     SparseMatrix<T>: GetSparseMatrixElementList<T>,
-    T: ValueType + IntoSparseMatrixForValueType<T>,
+    T: ValueType + ToSparseMatrixForValueType<T>,
 {
     fn transposed_private_adjacency_matrix_element_list(
         &mut self,

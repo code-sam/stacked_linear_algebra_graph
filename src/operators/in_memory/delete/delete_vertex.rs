@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::map::MapMutableAdjacencyMatrices;
+use crate::graph::edge_store::operations::operations::edge_type::map::MapMutableAdjacencyMatrices;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteVertexConnections;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore};
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};

@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
-use crate::graph::edge_store::operations::indexing::Indexing as EdgeStoreIndexing;
+use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeStoreIndexing;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;

@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use std::sync::Arc;
+use std::mem;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     new_graphblas_matrix, GetGraphblasSparseMatrix,
@@ -12,6 +13,8 @@ use graphblas_sparse_linear_algebra::operators::apply::{ApplyUnaryOperator, Unar
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::mask::{MatrixMask, SelectEntireMatrix};
 use graphblas_sparse_linear_algebra::operators::unary_operator::Identity;
+use graphblas_sparse_linear_algebra::operators::options::OptionsForOperatorWithMatrixArgument;
+use graphblas_sparse_linear_algebra::value_type::ValueType as GraphblasValueType;
 
 use once_cell::sync::Lazy;
 
@@ -106,7 +109,7 @@ impl Display for WeightedAdjacencyMatrix {
         writeln!(
             f,
             "sparse_matrix: \n{}",
-            <WeightedAdjacencyMatrix as IntoSparseMatrix<f64>>::sparse_matrix(self).unwrap()
+            <WeightedAdjacencyMatrix as ToSparseMatrix<f64>>::to_sparse_matrix(self).unwrap()
         );
         return writeln!(f, "");
     }
@@ -165,20 +168,92 @@ impl GetValueTypeIdentifierRef for WeightedAdjacencyMatrix {
 //     Ok(())
 // }
 
-pub trait IntoSparseMatrix<T: ValueType> {
-    fn sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError>;
+// pub trait IntoSparseMatrix<T: ValueType> {
+//     fn sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError>;
+// }
+
+// impl<T: ValueType + IntoSparseMatrixForValueType<T>> IntoSparseMatrix<T>
+//     for WeightedAdjacencyMatrix
+// {
+//     fn sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError> {
+//         T::sparse_matrix(self)
+//     }
+// }
+
+// pub trait IntoSparseMatrixForValueType<T: ValueType> {
+//     fn sparse_matrix(
+//         matrix: &(impl GetContext
+//               + GetGraphblasSparseMatrix
+//               + GetMatrixSize
+//               + GetValueTypeIdentifierRef),
+//     ) -> Result<SparseMatrix<T>, GraphComputingError>;
+// }
+
+// macro_rules! implement_into_sparse_matrix_for_value_type {
+//     ($value_type_identifier:ident, $value_type:ty) => {
+//         impl IntoSparseMatrixForValueType<$value_type> for $value_type {
+//             fn sparse_matrix(
+//                 matrix: &(impl GetContext
+//                       + GetGraphblasSparseMatrix
+//                       + GetMatrixSize
+//                       + GetValueTypeIdentifierRef),
+//             ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
+//                 match matrix.value_type_identifier_ref() {
+//                     &ValueTypeIdentifier::$value_type_identifier => unsafe {
+//                         Ok(SparseMatrix::<$value_type>::from_graphblas_matrix(
+//                             matrix.context(),
+//                             clone_graphblas_matrix(
+//                                 matrix.context_ref(),
+//                                 matrix.graphblas_matrix_ref(),
+//                             )?,
+//                         )?)
+//                     },
+//                     _ => {
+//                         let mut product_matrix =
+//                             SparseMatrix::<$value_type>::new(matrix.context(), matrix.size()?)?;
+
+//                         UNARY_OPERATOR_APPLIER.apply_to_matrix(
+//                             &Identity::<$value_type>::new(),
+//                             matrix,
+//                             &Assignment::<$value_type>::new(),
+//                             &mut product_matrix,
+//                             &SelectEntireMatrix::new(matrix.context()),
+//                             &*DEFAULT_OPERATOR_OPTIONS,
+//                         )?;
+
+//                         return Ok(product_matrix);
+//                     }
+//                 }
+//             }
+//         }
+//     };
+// }
+// implement_1_type_macro_with_enum_type_indentifier_for_all_value_types!(
+//     implement_into_sparse_matrix_for_value_type
+// );
+
+pub trait ToSparseMatrix<T: ValueType> {
+    fn to_sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
-impl<T: ValueType + IntoSparseMatrixForValueType<T>> IntoSparseMatrix<T>
-    for WeightedAdjacencyMatrix
-{
-    fn sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError> {
-        T::sparse_matrix(self)
+pub trait IntoSparseMatrix<T: ValueType> {
+    fn into_sparse_matrix(self) -> Result<SparseMatrix<T>, GraphComputingError>;
+}
+
+impl<T: ValueType + ToSparseMatrixForValueType<T>> ToSparseMatrix<T> for WeightedAdjacencyMatrix {
+    fn to_sparse_matrix(&self) -> Result<SparseMatrix<T>, GraphComputingError> {
+        T::to_sparse_matrix(self)
     }
 }
 
-pub trait IntoSparseMatrixForValueType<T: ValueType> {
-    fn sparse_matrix(
+impl<T: ValueType + IntoSparseMatrixForValueType<T>> IntoSparseMatrix<T> for WeightedAdjacencyMatrix {
+    fn into_sparse_matrix(self) -> Result<SparseMatrix<T>, GraphComputingError> {
+        T::into_sparse_matrix(self)
+    }
+}
+
+pub(crate) trait ToSparseMatrixForValueType<T: ValueType> {
+    fn to_sparse_matrix(
         matrix: &(impl GetContext
               + GetGraphblasSparseMatrix
               + GetMatrixSize
@@ -186,10 +261,20 @@ pub trait IntoSparseMatrixForValueType<T: ValueType> {
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
-macro_rules! implement_into_sparse_matrix_for_value_type {
+pub(crate) trait IntoSparseMatrixForValueType<T: ValueType> {
+    fn into_sparse_matrix(matrix: WeightedAdjacencyMatrix) -> Result<SparseMatrix<T>, GraphComputingError>;
+}
+
+pub(crate) trait IntoSparseMatrixAndClearValuesForValueType<T: ValueType> {
+    fn into_sparse_matrix_and_clear_values(
+        matrix: &mut WeightedAdjacencyMatrix,
+    ) -> Result<SparseMatrix<T>, GraphComputingError>;
+}
+
+macro_rules! implement_to_sparse_matrix_for_value_type {
     ($value_type_identifier:ident, $value_type:ty) => {
-        impl IntoSparseMatrixForValueType<$value_type> for $value_type {
-            fn sparse_matrix(
+        impl ToSparseMatrixForValueType<$value_type> for $value_type {
+            fn to_sparse_matrix(
                 matrix: &(impl GetContext
                       + GetGraphblasSparseMatrix
                       + GetMatrixSize
@@ -209,13 +294,75 @@ macro_rules! implement_into_sparse_matrix_for_value_type {
                         let mut product_matrix =
                             SparseMatrix::<$value_type>::new(matrix.context(), matrix.size()?)?;
 
-                        UNARY_OPERATOR_APPLIER.apply_to_matrix(
+                        UnaryOperatorApplier::new().apply_to_matrix(
                             &Identity::<$value_type>::new(),
                             matrix,
                             &Assignment::<$value_type>::new(),
                             &mut product_matrix,
                             &SelectEntireMatrix::new(matrix.context()),
-                            &*DEFAULT_OPERATOR_OPTIONS,
+                            &OptionsForOperatorWithMatrixArgument::new_default(),
+                        )?;
+
+                        return Ok(product_matrix);
+                    }
+                }
+            }
+        }
+    };
+}
+implement_1_type_macro_with_enum_type_indentifier_for_all_value_types!(
+    implement_to_sparse_matrix_for_value_type
+);
+
+macro_rules! implement_into_sparse_matrix_for_value_type {
+    ($value_type_identifier:ident, $value_type:ty) => {
+        impl IntoSparseMatrixForValueType<$value_type> for $value_type {
+            fn into_sparse_matrix(
+                mut adjacency_matrix: WeightedAdjacencyMatrix,
+            ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
+                <$value_type>::into_sparse_matrix_and_clear_values(&mut adjacency_matrix)
+            }
+        }
+    };
+}
+implement_1_type_macro_with_enum_type_indentifier_for_all_value_types!(
+    implement_into_sparse_matrix_for_value_type
+);
+
+macro_rules! implement_into_sparse_matrix_for_value_type {
+    ($value_type_identifier:ident, $value_type:ty) => {
+        impl IntoSparseMatrixAndClearValuesForValueType<$value_type> for $value_type {
+            fn into_sparse_matrix_and_clear_values(
+                adjacency_matrix: &mut WeightedAdjacencyMatrix,
+            ) -> Result<SparseMatrix<$value_type>, GraphComputingError> {
+                match adjacency_matrix.value_type_identifier_ref() {
+                    &ValueTypeIdentifier::$value_type_identifier => unsafe {
+                        let mut graphblas_matrix = new_graphblas_matrix(
+                            &adjacency_matrix.graphblas_context,
+                            adjacency_matrix.size()?,
+                            <$value_type>::to_graphblas_type(),
+                        )?;
+
+                        mem::swap(&mut graphblas_matrix, &mut adjacency_matrix.sparse_matrix);
+
+                        Ok(SparseMatrix::<$value_type>::from_graphblas_matrix(
+                            adjacency_matrix.context(),
+                            graphblas_matrix,
+                        )?)
+                    },
+                    _ => {
+                        let mut product_matrix = SparseMatrix::<$value_type>::new(
+                            adjacency_matrix.context(),
+                            adjacency_matrix.size()?,
+                        )?;
+
+                        UnaryOperatorApplier::new().apply_to_matrix(
+                            &Identity::<$value_type>::new(),
+                            adjacency_matrix,
+                            &Assignment::<$value_type>::new(),
+                            &mut product_matrix,
+                            &SelectEntireMatrix::new(adjacency_matrix.context()),
+                            &OptionsForOperatorWithMatrixArgument::new_default(),
                         )?;
 
                         return Ok(product_matrix);

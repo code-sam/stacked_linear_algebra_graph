@@ -1,7 +1,7 @@
 use crate::graph::indexing::indexer::operations::operations::new_private_index as new_private_index_in_memory;
 use crate::graph::indexing::indexer::operations::operations::new_public_index as new_public_index_in_memory;
 use crate::graph::indexing::operations::in_memory_transaction::{
-    InMemoryIndexerTransaction, GetIndexerStateRestorer, GetIndexerUnderTransaction,
+    GetIndexerStateRestorer, GetIndexerUnderTransaction, InMemoryIndexerTransaction,
     RegisterNewIndexToRevert,
 };
 use crate::graph::indexing::operations::{

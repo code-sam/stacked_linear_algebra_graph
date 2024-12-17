@@ -1,6 +1,6 @@
 use crate::graph::indexing::indexer::operations::set_index_capacity as set_index_capacity_in_memory;
 use crate::graph::indexing::operations::in_memory_transaction::{
-    InMemoryIndexerTransaction, GetIndexerStateRestorer, GetIndexerUnderTransaction,
+    GetIndexerStateRestorer, GetIndexerUnderTransaction, InMemoryIndexerTransaction,
     RegisterIndexCapacityToRestore,
 };
 use crate::graph::indexing::operations::SetIndexCapacity;

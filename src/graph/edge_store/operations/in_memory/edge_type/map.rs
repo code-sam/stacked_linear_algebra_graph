@@ -1,62 +1,17 @@
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::{
-            adjacency_matrix_with_cached_attributes::{
-                GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
-            },
-            weighted_adjacency_matrix::WeightedAdjacencyMatrix,
-            EdgeStore, GetAdjacencyMatrices, GetEdgeTypeIndicer,
-        },
-        indexing::operations::{GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices},
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
+    GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
 };
-
-pub(crate) trait MapAdjacencyMatricesWithCachedAttributes<MappingFunction> {
-    fn map_all_adjacency_matrices(
-        &self,
-        function_to_apply: MappingFunction,
-    ) -> Result<(), GraphComputingError>;
-
-    fn map_all_valid_adjacency_matrices(
-        &self,
-        function_to_apply: MappingFunction,
-    ) -> Result<(), GraphComputingError>;
-
-    // fn map_all_valid_public_adjacency_matrices(
-    //     &self,
-    //     function_to_apply: MappingFunction,
-    // ) -> Result<(), GraphComputingError>;
-
-    // fn map_all_valid_private_adjacency_matrices(
-    //     &self,
-    //     function_to_apply: MappingFunction,
-    // ) -> Result<(), GraphComputingError>;
-}
-
-pub(crate) trait MapMutableAdjacencyMatrices<F> {
-    fn map_mut_all_adjacency_matrices(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>;
-
-    fn map_mut_all_valid_adjacency_matrices(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>;
-
-    fn map_mut_all_valid_public_adjacency_matrices(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>;
-
-    fn map_mut_all_valid_private_adjacency_matrices(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>;
-}
+use crate::graph::edge_store::operations::operations::edge_type::map::{
+    MapAdjacencyMatricesWithCachedAttributes, MapMutableAdjacencyMatrices,
+};
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use crate::graph::edge_store::{EdgeStore, GetAdjacencyMatrices, GetEdgeTypeIndicer};
+use crate::graph::indexing::operations::{
+    GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
+};
 
 impl<MappingFunction> MapAdjacencyMatricesWithCachedAttributes<MappingFunction> for EdgeStore
 where

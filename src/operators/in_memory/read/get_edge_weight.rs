@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Get
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::GetEdgeWeight as GetAdjacencyMatrixEdgeWeight;
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 use crate::graph::graph::{GetEdgeStore, Graph};

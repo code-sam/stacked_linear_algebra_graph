@@ -10,15 +10,11 @@ use graphblas_sparse_linear_algebra::{
 };
 use once_cell::sync::Lazy;
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::weighted_adjacency_matrix::{
-            CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
-        },
-        value_type::implement_macro_for_all_native_value_types_with_capitalized_value_type,
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
 };
+use crate::graph::value_type::implement_macro_for_all_native_value_types_with_capitalized_value_type;
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithMatrixArgument> =
     Lazy::new(|| OptionsForOperatorWithMatrixArgument::new_default());
@@ -50,15 +46,25 @@ macro_rules! create_transpose_adjacency_matrix_function {
                         sparse_matrix_size.column_width(),
                     )?;
 
-                MATRIX_TRANSPOSE_OPERATOR.apply(
+                MatrixTranspose::new().apply(
                     adjacency_matrix,
-                    &*[<ASSIGNMENT_OPERATOR_ $VALUE_TYPE>],
-                    // Assignment::<$value_type>::new() TODO: it might be that the overhead of dereferncing the Lazy is more expensive than inlining the function call.
+                    &Assignment::<$value_type>::new(),
                     &mut transposed_adjacency_matrix,
                     // &SelectEntireMatrix::new(adjacency_matrix.context_ref()), // TODO: consider caching the selector into the edge store
                     mask,
                     &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
+
+                // TODO: performance benchmarking to select fastest variant
+                // MATRIX_TRANSPOSE_OPERATOR.apply(
+                //     adjacency_matrix,
+                //     &*[<ASSIGNMENT_OPERATOR_ $VALUE_TYPE>],
+                //     // Assignment::<$value_type>::new() TODO: it might be that the overhead of dereferncing the Lazy is more expensive than inlining the function call.
+                //     &mut transposed_adjacency_matrix,
+                //     // &SelectEntireMatrix::new(adjacency_matrix.context_ref()), // TODO: consider caching the selector into the edge store
+                //     mask,
+                //     &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                // )?;
 
                 Ok(transposed_adjacency_matrix)
             }

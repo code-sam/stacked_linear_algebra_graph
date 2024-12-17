@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::edge_store::operations::operations::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::Graph;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore};
 use crate::graph::indexing::{GetAssignedIndexData, VertexIndex};

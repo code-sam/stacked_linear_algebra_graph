@@ -1,21 +1,16 @@
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::{
-        self, clone_graphblas_matrix,
-        operations::{
-            drop_sparse_matrix_element, resize_sparse_matrix, DropSparseMatrixElement,
-            GetSparseMatrixElementValueTyped, GetSparseMatrixSize, ResizeSparseMatrix,
-            SetSparseMatrixElement, SetSparseMatrixElementTyped,
-        },
-        ColumnIndex, GetGraphblasSparseMatrix, RowIndex, Size, SparseMatrix,
-    },
-    graphblas_bindings::GrB_Matrix,
+use std::mem;
+
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
+    drop_sparse_matrix_element, resize_sparse_matrix, GetSparseMatrixElementValueTyped,
+    SetSparseMatrixElementTyped,
+};
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
+    ColumnIndex, GetGraphblasSparseMatrix, RowIndex, Size, SparseMatrix,
 };
 
-use crate::{
-    error::GraphComputingError,
-    graph::{value_type::ValueType, weighted_adjacency_matrix::WeightedAdjacencyMatrix},
-    operators::transaction::RestoreState,
-};
+use crate::error::GraphComputingError;
+use crate::graph::value_type::ValueType;
+use crate::operators::transaction::RestoreState;
 
 pub(crate) enum SparseMatrixStateToRestore<T: ValueType> {
     EmptyElement(RowIndex, ColumnIndex),
@@ -24,17 +19,22 @@ pub(crate) enum SparseMatrixStateToRestore<T: ValueType> {
 }
 
 pub(crate) struct SparseMatrixStateReverter<T: ValueType> {
-    size_to_restore: Size,
+    size_to_restore: Option<Size>,
     state_to_restore: Vec<SparseMatrixStateToRestore<T>>,
     is_state_to_restore_fully_determined: bool,
 }
 
 pub(crate) trait GetSparseMatrixSizeToRestore {
-    fn matrix_size_to_restore_ref(&self) -> &Size;
+    fn matrix_size_to_restore(&self) -> Option<Size>;
+    fn matrix_size_to_restore_ref(&self) -> &Option<Size>;
 }
 
 impl<T: ValueType> GetSparseMatrixSizeToRestore for SparseMatrixStateReverter<T> {
-    fn matrix_size_to_restore_ref(&self) -> &Size {
+    fn matrix_size_to_restore(&self) -> Option<Size> {
+        self.size_to_restore
+    }
+
+    fn matrix_size_to_restore_ref(&self) -> &Option<Size> {
         &self.size_to_restore
     }
 }
@@ -50,6 +50,8 @@ pub(crate) trait RegisterSparseMatrixChangeToRevert<T: ValueType> {
     fn register_empty_element_to_restore(&mut self, row_index: RowIndex, column_index: ColumnIndex);
 
     fn register_sparse_matrix_state_to_restore(&mut self, sparse_matrix: SparseMatrix<T>);
+
+    fn register_size_to_restore(&mut self, size: Size);
 }
 
 impl<T> RegisterSparseMatrixChangeToRevert<T> for SparseMatrixStateReverter<T>
@@ -93,11 +95,36 @@ where
             self.is_state_to_restore_fully_determined = true;
         }
     }
+
+    fn register_size_to_restore(&mut self, size: Size) {
+        if self.size_to_restore.is_none() {
+            self.size_to_restore = Some(size);
+        }
+    }
 }
+
+// pub(crate) trait CreateSparseMatrixStateReverter<T: ValueType> {
+//     fn sparse_matrix_state_reverter_with_size_to_restore(
+//         size_to_restore: Option<Size>,
+//     ) -> SparseMatrixStateReverter<T>;
+// }
+
+// macro_rules! implement_create_sparse_matrix_state_reverter {
+//     ($value_type:ty) => {
+//         impl CreateSparseMatrixStateReverter<$value_type> for $value_type {
+//             fn sparse_matrix_state_reverter_with_size_to_restore(
+//                 size_to_restore: Option<Size>,
+//             ) -> SparseMatrixStateReverter<$value_type> {
+//                 SparseMatrixStateReverter::<$value_type>::with_size_to_restore(size_to_restore)
+//             }
+//         }
+//     };
+// }
+// implement_macro_for_all_native_value_types!(implement_create_sparse_matrix_state_reverter);
 
 impl<T: ValueType> SparseMatrixStateReverter<T> {
     pub(crate) fn new(
-        size_to_restore: Size,
+        size_to_restore: Option<Size>,
         state_to_restore: Vec<SparseMatrixStateToRestore<T>>,
         is_state_to_restore_fully_determined: bool,
     ) -> Self {
@@ -108,29 +135,37 @@ impl<T: ValueType> SparseMatrixStateReverter<T> {
         }
     }
 
-    pub(crate) fn with_size_to_restore(size_to_restore: Size) -> Self {
+    pub(crate) fn new_default() -> Self {
+        Self {
+            size_to_restore: None,
+            state_to_restore: Vec::new(),
+            is_state_to_restore_fully_determined: false,
+        }
+    }
+
+    pub(crate) fn with_size_to_restore(size_to_restore: Option<Size>) -> Self {
         Self::new(size_to_restore, Vec::new(), false)
     }
 
-    pub(crate) fn with_size_to_restore_from_sparse_matrix(
-        to_restore: &SparseMatrix<T>,
-    ) -> Result<Self, GraphComputingError> {
-        let size_to_restore = to_restore.size()?;
-        Ok(Self::with_size_to_restore(size_to_restore))
-    }
+    // pub(crate) fn with_size_to_restore_from_sparse_matrix(
+    //     to_restore: &SparseMatrix<T>,
+    // ) -> Result<Self, GraphComputingError> {
+    //     let size_to_restore = to_restore.size()?;
+    //     Ok(Self::with_size_to_restore(size_to_restore))
+    // }
 
-    pub(crate) fn from_sparse_matrix(
-        to_restore: &SparseMatrix<T>,
-    ) -> Result<Self, GraphComputingError> {
-        let state_to_restore = vec![SparseMatrixStateToRestore::SparseMatrix(
-            to_restore.to_owned(),
-        )];
-        Ok(Self {
-            size_to_restore: to_restore.size()?,
-            state_to_restore: state_to_restore,
-            is_state_to_restore_fully_determined: true,
-        })
-    }
+    // pub(crate) fn from_sparse_matrix(
+    //     to_restore: &SparseMatrix<T>,
+    // ) -> Result<Self, GraphComputingError> {
+    //     let state_to_restore = vec![SparseMatrixStateToRestore::SparseMatrix(
+    //         to_restore.to_owned(),
+    //     )];
+    //     Ok(Self {
+    //         size_to_restore: to_restore.size()?,
+    //         state_to_restore: state_to_restore,
+    //         is_state_to_restore_fully_determined: true,
+    //     })
+    // }
 }
 
 impl<T: ValueType + SetSparseMatrixElementTyped<T>> RestoreState<SparseMatrix<T>>
@@ -141,13 +176,13 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T>> RestoreState<SparseMatrix<T>
     }
 
     fn with_reset_state_to_restore(&self) -> Self {
-        Self::with_size_to_restore(self.matrix_size_to_restore_ref().to_owned())
+        Self::with_size_to_restore(self.size_to_restore)
     }
 }
 
 pub(crate) fn restore_sparse_matrix_state<T: ValueType + SetSparseMatrixElementTyped<T>>(
     state_reverter: SparseMatrixStateReverter<T>,
-    instance_to_restore: &mut SparseMatrix<T>,
+    instance_to_restore: &mut impl GetGraphblasSparseMatrix,
 ) -> Result<(), GraphComputingError> {
     for state_to_restore in state_reverter.state_to_restore.into_iter().rev() {
         match state_to_restore {
@@ -162,27 +197,34 @@ pub(crate) fn restore_sparse_matrix_state<T: ValueType + SetSparseMatrixElementT
                     element_value,
                 )?
             }
-            SparseMatrixStateToRestore::SparseMatrix(sparse_matrix) => {
-                *instance_to_restore = sparse_matrix
-            } // SparseMatrixStateToRestore::SparseMatrix(mut sparse_matrix) => std::mem::swap(
-              //     unsafe { instance_to_restore.graphblas_matrix_mut_ref() },
-              //     unsafe { sparse_matrix.graphblas_matrix_mut_ref() },
-              // ),
+            SparseMatrixStateToRestore::SparseMatrix(mut sparse_matrix) => {
+                unsafe {
+                    mem::swap(
+                        instance_to_restore.graphblas_matrix_mut_ref(),
+                        sparse_matrix.graphblas_matrix_mut_ref(),
+                    )
+                };
+            }
         }
     }
-    resize_sparse_matrix(instance_to_restore, state_reverter.size_to_restore)?;
+
+    match state_reverter.size_to_restore {
+        Some(size_to_restore) => {
+            resize_sparse_matrix(instance_to_restore, size_to_restore)?;
+        }
+        None => (),
+    }
+
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use graphblas_sparse_linear_algebra::{
-        collections::{
-            sparse_matrix::operations::GetSparseMatrixElementValue,
-            sparse_vector::operations::GetSparseVectorElementValue, Collection,
-        },
-        context::Context as GraphBLASContext,
+    use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
+        DropSparseMatrixElement, GetSparseMatrixElementValue, GetSparseMatrixSize, ResizeSparseMatrix, SetSparseMatrixElement
     };
+    use graphblas_sparse_linear_algebra::collections::Collection;
+    use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
     use super::*;
 
@@ -196,7 +238,7 @@ mod tests {
         matrix.set_value(5, 5, 5).unwrap();
 
         let mut state_reverter =
-            SparseMatrixStateReverter::with_size_to_restore_from_sparse_matrix(&matrix).unwrap();
+            SparseMatrixStateReverter::new(Some(matrix.size().unwrap()), Vec::new(), false);
 
         matrix.drop_element(1, 1).unwrap();
         state_reverter.register_element_value_to_restore(1, 1, 1);

@@ -7,16 +7,15 @@ use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::InMemoryVertexStoreTransaction;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStoreStateRestorer;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::InMemoryVertexStoreTransaction;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterEmptyVertexToRestore;
 use crate::graph::vertex_store::operations::vertex_element::AddVertex;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
-use crate::operators::in_memory_transaction::transaction::CreateSparseVectorStateReverter;
 
 impl<'s, T> AddVertex<'s, T> for InMemoryVertexStoreTransaction<'s>
 where
@@ -26,7 +25,6 @@ where
         + GetSparseVectorElementValueTyped<T>
         + SetSparseVectorElementTyped<T>
         + GetSparseVectorStateRevertersByVertexTypeMap<T>
-        + CreateSparseVectorStateReverter<T>
         + SetSparseVectorElementTyped<T>,
 {
     fn add_new_public_vertex(
@@ -197,8 +195,7 @@ mod tests {
         let mut vertex_store = initialize_vertex_store();
 
         {
-            let mut transaction =
-                InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
+            let mut transaction = InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
 
             let vertex_type_index_1 = VertexTypeIndex::new(3);
             let _vertex_index_0 = transaction

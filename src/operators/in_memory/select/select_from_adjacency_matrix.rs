@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnary
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::ArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::CreateArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::GetArgumentsForAdjacencyMatrixOperator;
@@ -153,7 +153,7 @@ mod tests {
     use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
         GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
     };
-    use crate::graph::edge_store::operations::map::MapAdjacencyMatricesWithCachedAttributes;
+    use crate::graph::edge_store::operations::operations::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
     use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
     use crate::operators::operators::read::GetEdgeWeight;
 

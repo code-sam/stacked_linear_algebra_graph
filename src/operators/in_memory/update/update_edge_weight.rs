@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::SetSparseMatrixElementTyped;
 
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::SetOrUpdateEdgeWeight as UpdateEdgeWeightInEdgeStore;
 
 use crate::graph::graph::GetEdgeStore;

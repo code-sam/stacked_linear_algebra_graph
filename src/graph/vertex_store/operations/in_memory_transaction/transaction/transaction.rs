@@ -69,6 +69,7 @@ impl<'t> GetVertexStoreStateRestorer for InMemoryVertexStoreTransaction<'t> {
 
 impl<'s> UseTransaction for InMemoryVertexStoreTransaction<'s> {
     fn revert(&mut self) -> Result<(), GraphComputingError> {
+        let reset_vertex_store_state_restorer = VertexStoreStateRestorer::new_for_vertex_store(self.vertex_store)?;
         let reset_vertex_store_state_restorer = self
             .vertex_store_state_restorer
             .with_reset_state_to_restore();

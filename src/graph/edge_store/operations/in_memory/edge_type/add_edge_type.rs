@@ -2,20 +2,15 @@ use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
     CreateWeightedAdjacencyMatrixWithCachedAttributes, WeightedAdjacencyMatrixWithCachedAttributes,
 };
 
+use crate::graph::edge_store::operations::operations::edge_type::add_edge_type::{
+    AddPrivateEdgeType, AddPublicEdgeType,
+};
 use crate::graph::edge_store::{GetAdjacencyMatrices, GetEdgeTypeIndicer};
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::indexing::operations::{GeneratePrivateIndex, GeneratePublicIndex};
 use crate::graph::indexing::{AssignedIndex, EdgeTypeIndex, GetAssignedIndexData};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
-
-pub(crate) trait AddPublicEdgeType<T: ValueType> {
-    fn apply(&mut self) -> Result<EdgeTypeIndex, GraphComputingError>;
-}
-
-pub(crate) trait AddPrivateEdgeType<T: ValueType> {
-    fn apply(&mut self) -> Result<EdgeTypeIndex, GraphComputingError>;
-}
 
 impl<T: ValueType + GetValueTypeIdentifier> AddPublicEdgeType<T> for EdgeStore {
     fn apply(&mut self) -> Result<EdgeTypeIndex, GraphComputingError> {

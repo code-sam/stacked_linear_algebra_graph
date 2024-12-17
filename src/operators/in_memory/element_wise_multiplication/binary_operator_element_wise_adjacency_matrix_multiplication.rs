@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
 };
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationBinaryOperator;
 
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::{
     ArgumentsForAdjacencyMatricesOperator, CreateArgumentsForAdjacencyMatricesOperator,
     GetArgumentsForAdjacencyMatricesOperator,

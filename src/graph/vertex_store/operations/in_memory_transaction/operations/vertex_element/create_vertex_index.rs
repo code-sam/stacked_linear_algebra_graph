@@ -2,8 +2,8 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::in_memory_transaction::RegisterNewIndexToRevert;
 use crate::graph::indexing::AssignedIndex;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    InMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
-    GetVertexStoreStateReverters,
+    GetVertexStore, GetVertexStoreStateRestorer, GetVertexStoreStateReverters,
+    InMemoryVertexStoreTransaction,
 };
 use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex;
 

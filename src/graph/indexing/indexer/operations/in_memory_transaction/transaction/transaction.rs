@@ -11,8 +11,7 @@ use crate::graph::indexing::operations::{
 use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
 use crate::operators::transaction::RestoreState;
 use crate::{
-    error::GraphComputingError, graph::indexing::Indexer,
-    operators::transaction::UseTransaction,
+    error::GraphComputingError, graph::indexing::Indexer, operators::transaction::UseTransaction,
 };
 
 use super::IndexerStateRestorer;

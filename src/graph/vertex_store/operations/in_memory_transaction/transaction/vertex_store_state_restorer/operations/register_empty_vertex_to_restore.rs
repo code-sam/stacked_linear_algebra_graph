@@ -2,7 +2,6 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     GetSparseVectorElementValueTyped, SetSparseVectorElementTyped,
 };
 
-use crate::operators::in_memory_transaction::transaction::CreateSparseVectorStateReverter;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::VertexStoreStateRestorer;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStoreStateReverters;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::GetSparseVectorStateRevertersByVertexTypeMap;
@@ -24,7 +23,6 @@ where
         + GetSparseVectorElementValueTyped<T>
         + SetSparseVectorElementTyped<T>
         + GetSparseVectorStateRevertersByVertexTypeMap<T>
-        + CreateSparseVectorStateReverter<T>,
 {
     fn register_empty_vertex_to_restore(
         &mut self,

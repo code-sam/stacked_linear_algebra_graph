@@ -4,7 +4,7 @@ use crate::graph::indexing::operations::{
 };
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    InMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexValueToRestore,
+    GetVertexStore, InMemoryVertexStoreTransaction, RegisterVertexValueToRestore,
 };
 use crate::graph::vertex_store::operations::vertex_element::{
     DeleteVertexForAllTypes, DeleteVertexValue,
@@ -141,10 +141,12 @@ impl<'s> DeleteVertexForAllTypes for InMemoryVertexStoreTransaction<'s> {
 mod tests {
     use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 
-    use crate::graph::vertex_store::VertexStore;
-    use crate::graph::vertex_store::operations::vertex_type::{AddPrivateVertexType, AddPublicVertexType};
-    use crate::graph::vertex_store::operations::vertex_element::{AddVertex, GetVertexValue};
     use crate::graph::indexing::{GetAssignedIndexData, VertexIndex};
+    use crate::graph::vertex_store::operations::vertex_element::{AddVertex, GetVertexValue};
+    use crate::graph::vertex_store::operations::vertex_type::{
+        AddPrivateVertexType, AddPublicVertexType,
+    };
+    use crate::graph::vertex_store::VertexStore;
 
     use super::*;
 
@@ -169,8 +171,7 @@ mod tests {
         );
 
         {
-            let mut transaction =
-                InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
+            let mut transaction = InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
 
             transaction
                 .delete_public_vertex_element(&public_vertex_type_index, &public_vertex_index_0)

@@ -1,27 +1,12 @@
 use std::fmt::Debug;
 
-use crate::{
-    error::{GraphComputingError, LogicError, LogicErrorType},
-    graph::{
-        edge_store::{
-            adjacency_matrix_with_cached_attributes::GetCachedAttributesOfAdjacencyMatrix,
-            weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
-        },
-        indexing::GetEdgeTypeIndex,
-    },
+use crate::error::{GraphComputingError, LogicError, LogicErrorType};
+use crate::graph::edge_store::{
+    adjacency_matrix_with_cached_attributes::GetCachedAttributesOfAdjacencyMatrix,
+    operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes,
+    weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
 };
-
-pub(crate) trait GetAdjacencyMatrixCachedAttributes {
-    fn try_transposed_adjacency_matrix_ref(
-        &mut self,
-        edge_type_index: &(impl GetEdgeTypeIndex + Debug),
-    ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError>;
-
-    fn transposed_adjacency_matrix_ref_unchecked(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> &WeightedAdjacencyMatrix;
-}
+use crate::graph::indexing::GetEdgeTypeIndex;
 
 impl GetAdjacencyMatrixCachedAttributes for EdgeStore {
     fn transposed_adjacency_matrix_ref_unchecked(

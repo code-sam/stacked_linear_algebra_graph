@@ -12,11 +12,11 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::select_edge_vertices::SelectEdgeVertices;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
-    AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices, IntoSparseMatrix,
-    IntoSparseMatrixForValueType,
+    AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices,
 };
 use crate::graph::indexing::{GetVertexIndexIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
+use crate::graph::weighted_adjacency_matrix::{ToSparseMatrix, ToSparseMatrixForValueType};
 use crate::{
     error::GraphComputingError,
     graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix,
@@ -58,7 +58,7 @@ pub(crate) trait Indexing<T> {
 
 impl<
         T: ValueType
-            + IntoSparseMatrixForValueType<T>
+            + ToSparseMatrixForValueType<T>
             + GetSparseMatrixElementListTyped<T>
             + AnyMonoidTyped<T>
             + Copy
@@ -104,7 +104,7 @@ impl<
     fn adjacency_matrix_coordinates(
         &self,
     ) -> Result<Vec<AdjacencyMatrixCoordinate>, GraphComputingError> {
-        let matrix_element_list: MatrixElementList<T> = self.sparse_matrix()?.element_list()?;
+        let matrix_element_list: MatrixElementList<T> = self.to_sparse_matrix()?.element_list()?;
         let element_indices_vertices_with_outgoing_edges = matrix_element_list.row_indices_ref();
         let element_indices_vertices_with_incoming_edges = matrix_element_list.column_indices_ref();
 

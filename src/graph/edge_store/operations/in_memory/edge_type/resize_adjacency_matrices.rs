@@ -1,25 +1,11 @@
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::{
-            weighted_adjacency_matrix::{
-                operations::ResizeWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
-            },
-            EdgeStore, GetAdjacencyMatrices,
-        },
-        indexing::ElementCount,
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::operations::operations::edge_type::map::MapMutableAdjacencyMatrices;
+use crate::graph::edge_store::operations::operations::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    operations::ResizeWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
 };
-
-use super::map::MapMutableAdjacencyMatrices;
-
-pub(crate) trait ResizeAdjacencyMatrices {
-    ///
-    fn resize_adjacency_matrices(
-        &mut self,
-        new_vertex_capacity: ElementCount,
-    ) -> Result<(), GraphComputingError>;
-}
+use crate::graph::edge_store::{EdgeStore, GetAdjacencyMatrices};
+use crate::graph::indexing::ElementCount;
 
 impl ResizeAdjacencyMatrices for EdgeStore {
     fn resize_adjacency_matrices(

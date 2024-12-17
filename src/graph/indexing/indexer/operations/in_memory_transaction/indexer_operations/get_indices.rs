@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
 use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::in_memory_transaction::{
-    InMemoryIndexerTransaction, GetIndexerUnderTransaction,
+    GetIndexerUnderTransaction, InMemoryIndexerTransaction,
 };
 use crate::graph::indexing::operations::{
     GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,

@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::operators::{
 
 use crate::graph::{
     edge_store::{
-        operations::get_adjacency_matrix::GetAdjacencyMatrix,
+        operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix,
         ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
         ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument,
         CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,

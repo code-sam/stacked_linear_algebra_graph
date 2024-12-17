@@ -1,17 +1,10 @@
+use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::in_memory_transaction::IndexerStateRestorer;
+use crate::graph::indexing::{GetIndexCapacity, Indexer};
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, GetVertexVectors, VertexStore,
 };
 use crate::operators::transaction::RestoreState;
-use crate::{
-    error::GraphComputingError,
-    graph::indexing::{
-        ElementCount, GetIndexCapacity, GetIndexMask, GetQueueWithIndicesForReuse, Index, Indexer,
-    },
-    operators::in_memory_transaction::transaction::{
-        QueueStateReverter, SparseVectorStateReverter,
-    },
-};
 
 use super::VertexVectorsStateRestorer;
 
@@ -124,8 +117,9 @@ impl VertexStoreStateRestorer {
         let element_indexer_state_restorer =
             IndexerStateRestorer::new_for_indexer(vertex_element_indexer)?;
 
-        let vertex_vectors_state_restorer =
-            VertexVectorsStateRestorer::with_length_to_restore(vertex_element_indexer.capacity()?);
+        let vertex_vectors_state_restorer = VertexVectorsStateRestorer::with_vertex_type_vector_length_to_restore(
+            vertex_type_indexer.capacity()?,
+        );
 
         Ok(Self {
             vertex_type_indexer_state_restorer,

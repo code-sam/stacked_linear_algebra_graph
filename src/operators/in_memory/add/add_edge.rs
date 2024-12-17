@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
     AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
 };
@@ -13,13 +13,15 @@ use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValu
 use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
+use crate::graph::weighted_adjacency_matrix::ToSparseMatrixForValueType;
 use crate::operators::indexing::CheckIndex as GraphIndexing;
 use crate::operators::operators::add::{AddEdge, AddPrivateEdge};
 
 impl<T> AddEdge<T> for Graph
 where
     T: ValueType
-        + IntoSparseMatrixForValueType<T>
+        // + IntoSparseMatrixForValueType<T>
+        + ToSparseMatrixForValueType<T>
         + GetSparseMatrixElementListTyped<T>
         + GetSparseMatrixElementValueTyped<T>
         + GetValueTypeIdentifier
@@ -53,7 +55,7 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .try_public_adjacency_matrix_mut_ref(edge_type)?;
+            .public_adjacency_matrix_mut_ref(edge_type)?;
 
         if Indexing::<T>::is_edge(adjacency_matrix, tail, head)? {
             return Err(LogicError::new(
@@ -96,7 +98,7 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .try_public_adjacency_matrix_mut_ref(edge_type)?;
+            .public_adjacency_matrix_mut_ref(edge_type)?;
 
         adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
         Ok(())
@@ -106,7 +108,8 @@ where
 impl<T> AddPrivateEdge<T> for Graph
 where
     T: ValueType
-        + IntoSparseMatrixForValueType<T>
+        // + IntoSparseMatrixForValueType<T>
+        + ToSparseMatrixForValueType<T>
         + GetSparseMatrixElementListTyped<T>
         + GetSparseMatrixElementValueTyped<T>
         + GetValueTypeIdentifier
@@ -140,7 +143,7 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .try_private_adjacency_matrix_mut_ref(edge_type)?;
+            .private_adjacency_matrix_mut_ref(edge_type)?;
 
         if Indexing::<T>::is_edge(adjacency_matrix, tail, head)? {
             return Err(LogicError::new(
@@ -183,7 +186,7 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .try_private_adjacency_matrix_mut_ref(edge_type)?;
+            .private_adjacency_matrix_mut_ref(edge_type)?;
 
         adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
         Ok(())

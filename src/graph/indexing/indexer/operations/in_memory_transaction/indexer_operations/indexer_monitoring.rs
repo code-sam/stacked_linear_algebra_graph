@@ -2,7 +2,7 @@ use crate::{
     error::GraphComputingError,
     graph::indexing::{
         operations::{
-            in_memory_transaction::{InMemoryIndexerTransaction, GetIndexerUnderTransaction},
+            in_memory_transaction::{GetIndexerUnderTransaction, InMemoryIndexerTransaction},
             GetIndexerStatus,
         },
         ElementCount,

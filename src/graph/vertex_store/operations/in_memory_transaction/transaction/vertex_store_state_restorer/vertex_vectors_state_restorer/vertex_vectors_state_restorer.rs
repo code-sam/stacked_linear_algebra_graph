@@ -1,48 +1,54 @@
-use std::collections::hash_map::IntoIter;
 use std::collections::HashMap;
 
-use crate::error::GraphComputingError;
 use crate::graph::indexing::{
-    BuildIndexHasher, ElementCount, ElementIndex, ElementIndexMap, GetIndex, GetVertexTypeIndex,
-    VertexTypeIndex,
+    BuildIndexHasher, ElementCount, ElementIndex, ElementIndexMap, GetVertexTypeIndex,
 };
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
-use crate::graph::vertex_store::VertexVector;
-use crate::operators::in_memory_transaction::transaction::{
-    CreateSparseVectorStateReverter, SparseVectorStateReverter,
-};
-use crate::operators::transaction::RestoreState;
+use crate::operators::in_memory_transaction::transaction::SparseVectorStateReverter;
 
 pub(crate) struct VertexVectorsStateRestorer {
-    length_to_restore: ElementCount,
-    vertex_vector_state_reverters: TypedSparseVectorStateReverters,
+    pub(super) vertex_vector_length_to_restore: Option<ElementCount>,
+    pub(super) vertex_type_vector_length_to_restore: ElementCount,
+    pub(super) vertex_vector_state_reverters: TypedSparseVectorStateReverters,
 }
 
-struct TypedSparseVectorStateReverters {
-    sparse_vector_state_reverters_bool: ElementIndexMap<SparseVectorStateReverter<bool>>,
-    sparse_vector_state_reverters_i8: ElementIndexMap<SparseVectorStateReverter<i8>>,
-    sparse_vector_state_reverters_i16: ElementIndexMap<SparseVectorStateReverter<i16>>,
-    sparse_vector_state_reverters_i32: ElementIndexMap<SparseVectorStateReverter<i32>>,
-    sparse_vector_state_reverters_i64: ElementIndexMap<SparseVectorStateReverter<i64>>,
-    sparse_vector_state_reverters_u8: ElementIndexMap<SparseVectorStateReverter<u8>>,
-    sparse_vector_state_reverters_u16: ElementIndexMap<SparseVectorStateReverter<u16>>,
-    sparse_vector_state_reverters_u32: ElementIndexMap<SparseVectorStateReverter<u32>>,
-    sparse_vector_state_reverters_u64: ElementIndexMap<SparseVectorStateReverter<u64>>,
-    sparse_vector_state_reverters_f32: ElementIndexMap<SparseVectorStateReverter<f32>>,
-    sparse_vector_state_reverters_f64: ElementIndexMap<SparseVectorStateReverter<f64>>,
-    sparse_vector_state_reverters_isize: ElementIndexMap<SparseVectorStateReverter<isize>>,
-    sparse_vector_state_reverters_usize: ElementIndexMap<SparseVectorStateReverter<usize>>,
+pub(super) struct TypedSparseVectorStateReverters {
+    pub(super) sparse_vector_state_reverters_bool: ElementIndexMap<SparseVectorStateReverter<bool>>,
+    pub(super) sparse_vector_state_reverters_i8: ElementIndexMap<SparseVectorStateReverter<i8>>,
+    pub(super) sparse_vector_state_reverters_i16: ElementIndexMap<SparseVectorStateReverter<i16>>,
+    pub(super) sparse_vector_state_reverters_i32: ElementIndexMap<SparseVectorStateReverter<i32>>,
+    pub(super) sparse_vector_state_reverters_i64: ElementIndexMap<SparseVectorStateReverter<i64>>,
+    pub(super) sparse_vector_state_reverters_u8: ElementIndexMap<SparseVectorStateReverter<u8>>,
+    pub(super) sparse_vector_state_reverters_u16: ElementIndexMap<SparseVectorStateReverter<u16>>,
+    pub(super) sparse_vector_state_reverters_u32: ElementIndexMap<SparseVectorStateReverter<u32>>,
+    pub(super) sparse_vector_state_reverters_u64: ElementIndexMap<SparseVectorStateReverter<u64>>,
+    pub(super) sparse_vector_state_reverters_f32: ElementIndexMap<SparseVectorStateReverter<f32>>,
+    pub(super) sparse_vector_state_reverters_f64: ElementIndexMap<SparseVectorStateReverter<f64>>,
+    pub(super) sparse_vector_state_reverters_isize:
+        ElementIndexMap<SparseVectorStateReverter<isize>>,
+    pub(super) sparse_vector_state_reverters_usize:
+        ElementIndexMap<SparseVectorStateReverter<usize>>,
 }
 
-pub trait GetLengthToRestore {
-    fn length_to_restore(&self) -> ElementCount;
+pub trait GetVertexTypeVectorLengthToRestore {
+    fn vertex_type_vector_length_to_restore(&self) -> ElementCount;
 }
 
-impl GetLengthToRestore for VertexVectorsStateRestorer {
-    fn length_to_restore(&self) -> ElementCount {
-        self.length_to_restore
+impl GetVertexTypeVectorLengthToRestore for VertexVectorsStateRestorer {
+    fn vertex_type_vector_length_to_restore(&self) -> ElementCount {
+        self.vertex_type_vector_length_to_restore
+    }
+}
+
+pub trait GetVertexVectorLengthToRestore {
+    fn vertex_vector_length_to_restore(&self) -> Option<ElementCount>;
+}
+
+impl GetVertexVectorLengthToRestore for VertexVectorsStateRestorer {
+    fn vertex_vector_length_to_restore(&self) -> Option<ElementCount> {
+        self.vertex_vector_length_to_restore
     }
 }
 
@@ -61,7 +67,6 @@ impl<T> GetVertexVectorStateReverter<T> for VertexVectorsStateRestorer
 where
     T: ValueType
         + GetSparseVectorStateRevertersByVertexTypeMap<T>
-        + CreateSparseVectorStateReverter<T>,
 {
     fn vertex_vector_state_reverter_mut_ref(
         &mut self,
@@ -75,7 +80,7 @@ where
         sparse_vector_state_reverters_vertex_type_map
             .entry(vertex_type_index.index())
             .or_insert_with(|| {
-                T::sparse_vector_state_reverter_with_length_to_restore(self.length_to_restore)
+                SparseVectorStateReverter::new_default()
             })
     }
 }
@@ -113,97 +118,26 @@ implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
 );
 
 impl VertexVectorsStateRestorer {
-    pub(crate) fn with_length_to_restore(length_to_restore: ElementCount) -> Self {
+    pub(crate) fn new(
+        vertex_vector_length_to_restore: Option<ElementCount>,
+        vertex_type_vector_length_to_restore: ElementCount,
+    ) -> Self {
         Self {
-            length_to_restore,
-            vertex_vector_state_reverters: TypedSparseVectorStateReverters::with_length_to_restore(
-                length_to_restore,
-            ),
+            vertex_vector_length_to_restore,
+            vertex_type_vector_length_to_restore,
+            vertex_vector_state_reverters: TypedSparseVectorStateReverters::new(),
         }
     }
-}
 
-// Implementation in module to circumvent ownership problems
-pub(crate) fn restore_vertex_vectors_state(
-    vertex_vectors_state_restorer: VertexVectorsStateRestorer,
-    vectors_to_restore: &mut Vec<VertexVector>,
-) -> Result<(), crate::error::GraphComputingError> {
-    let vertex_vector_state_reverters = vertex_vectors_state_restorer.vertex_vector_state_reverters;
-
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_bool,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_i8,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_i16,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_i32,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_i64,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_u8,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_u16,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_u32,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_u64,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_f32,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_f64,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_isize,
-        vectors_to_restore,
-    )?;
-    restore_vertex_vectors(
-        vertex_vector_state_reverters.sparse_vector_state_reverters_usize,
-        vectors_to_restore,
-    )?;
-
-    vectors_to_restore.truncate(vertex_vectors_state_restorer.length_to_restore);
-
-    Ok(())
-}
-
-fn restore_vertex_vectors<T>(
-    typed_sparse_vector_state_reverters_for_vertex_type: ElementIndexMap<
-        SparseVectorStateReverter<T>,
-    >,
-    vectors_to_restore: &mut Vec<VertexVector>,
-) -> Result<(), GraphComputingError>
-where
-    T: ValueType,
-    SparseVectorStateReverter<T>: RestoreState<VertexVector>,
-{
-    for (vertex_type_index, sparse_vector_state_reverter) in
-        typed_sparse_vector_state_reverters_for_vertex_type.into_iter()
-    {
-        sparse_vector_state_reverter.restore(&mut vectors_to_restore[vertex_type_index])?;
+    pub(crate) fn with_vertex_type_vector_length_to_restore(
+        vertex_type_vector_length_to_restore: ElementCount,
+    ) -> Self {
+        Self {
+            vertex_vector_length_to_restore: None,
+            vertex_type_vector_length_to_restore,
+            vertex_vector_state_reverters: TypedSparseVectorStateReverters::new(),
+        }
     }
-    Ok(())
 }
 
 pub(crate) trait GetVertexVectorStateReverters<T: ValueType> {
@@ -240,7 +174,7 @@ implement_1_type_macro_with_typed_indentifier_for_all_value_types!(
 );
 
 impl TypedSparseVectorStateReverters {
-    pub(crate) fn with_length_to_restore(length_to_restore: ElementCount) -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             sparse_vector_state_reverters_bool: HashMap::<
                 ElementIndex,

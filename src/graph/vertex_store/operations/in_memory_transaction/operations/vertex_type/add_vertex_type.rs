@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::VertexTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    InMemoryVertexStoreTransaction, GetVertexStore, GetVertexStoreStateRestorer,
+    GetVertexStore, GetVertexStoreStateRestorer, InMemoryVertexStoreTransaction,
     RegisterNewVertexTypeToRevert,
 };
 use crate::graph::vertex_store::operations::vertex_type::{

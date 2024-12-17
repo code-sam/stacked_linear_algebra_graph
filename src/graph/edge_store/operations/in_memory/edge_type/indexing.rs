@@ -1,42 +1,8 @@
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::{EdgeStore, GetEdgeTypeIndicer},
-        indexing::{operations::CheckIndex, GetEdgeTypeIndex},
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::{
+    operations::operations::edge_type::indexing::Indexing, EdgeStore, GetEdgeTypeIndicer,
 };
-
-pub trait Indexing {
-    fn is_valid_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<bool, GraphComputingError>;
-
-    fn try_edge_type_index_validity(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError>;
-
-    fn is_valid_public_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<bool, GraphComputingError>;
-
-    fn try_is_valid_public_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError>;
-
-    fn is_valid_private_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<bool, GraphComputingError>;
-
-    fn try_is_valid_private_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError>;
-}
+use crate::graph::indexing::{operations::CheckIndex, GetEdgeTypeIndex};
 
 impl Indexing for EdgeStore {
     fn is_valid_edge_type_index(

@@ -1,7 +1,7 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
-    InMemoryVertexStoreTransaction, GetVertexStore, RegisterVertexVectorToRestore,
+    GetVertexStore, InMemoryVertexStoreTransaction, RegisterVertexVectorToRestore,
 };
 use crate::graph::vertex_store::operations::vertex_type::{
     delete_private_vertex_type_unchecked, delete_public_vertex_type_unchecked, DeleteVertexType,

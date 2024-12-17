@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBina
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyMatrices;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 
 use crate::graph::edge_store::ArgumentsForAdjacencyMatricesOperator;
 use crate::graph::edge_store::CreateArgumentsForAdjacencyMatricesOperator;

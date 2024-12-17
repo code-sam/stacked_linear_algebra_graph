@@ -1,17 +1,11 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::{
-    operations::{drop_sparse_vector_element, resize_sparse_vector, SetSparseVectorElementTyped},
-    GetGraphblasSparseVector,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
 
-use crate::{
-    error::GraphComputingError,
-    graph::{value_type::ValueType, vertex_store::VertexVector},
-    operators::transaction::RestoreState,
-};
+use crate::error::GraphComputingError;
+use crate::graph::{value_type::ValueType, vertex_store::VertexVector};
+use crate::operators::transaction::RestoreState;
 
 use super::{
-    restore_sparse_vector_state, GetSparseVectorStateToRestore, SparseVectorStateReverter,
-    SparseVectorStateToRestore,
+    restore_sparse_vector_state, GetSparseVectorStateToRestore, SparseVectorStateReverter
 };
 
 impl<T: ValueType + Copy + SetSparseVectorElementTyped<T>> RestoreState<VertexVector>

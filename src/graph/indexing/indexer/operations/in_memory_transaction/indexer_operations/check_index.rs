@@ -1,5 +1,5 @@
 use crate::graph::indexing::operations::in_memory_transaction::{
-    InMemoryIndexerTransaction, GetIndexerUnderTransaction,
+    GetIndexerUnderTransaction, InMemoryIndexerTransaction,
 };
 use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::Index;
