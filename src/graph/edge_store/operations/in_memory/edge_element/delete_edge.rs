@@ -4,21 +4,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
 use crate::error::GraphComputingError;
+use crate::graph::edge_store::operations::operations::edge_element::DeleteEdge;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::indexing::GetVertexIndexIndex;
-
-pub(crate) trait DeleteEdge {
-    fn delete_weight_at_unchecked_edge_coordinate(
-        &mut self,
-        coordinate: &(impl GetCoordinateIndices + Copy),
-    ) -> Result<(), GraphComputingError>;
-
-    fn delete_edge_weight_unchecked(
-        &mut self,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<(), GraphComputingError>;
-}
 
 impl DeleteEdge for WeightedAdjacencyMatrix {
     fn delete_weight_at_unchecked_edge_coordinate(

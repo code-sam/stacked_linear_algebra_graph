@@ -7,18 +7,16 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::{
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use graphblas_sparse_linear_algebra::operators::monoid::{Any, AnyMonoidTyped, LogicalOr};
 use graphblas_sparse_linear_algebra::operators::reduce::{MonoidReducer, MonoidVectorReducer};
-use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
+use crate::graph::edge_store::operations::operations::edge_element::GetMatrixSize;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::value_type::ValueType;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
-use super::GetMatrixSize;
-
-static DEFAULT_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
-    Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
+// static DEFAULT_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
+//     Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
 
 pub(crate) trait SelectEdgeVertices<T: ValueType> {
     fn select_vertices_with_outgoing_edges(
@@ -50,7 +48,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             &Assignment::new(),
             &mut from_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
-            &*DEFAULT_OPERATOR_OPTIONS,
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )?;
         Ok(from_vertex_vector_mask)
     }
@@ -78,7 +76,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             &Assignment::new(),
             &mut to_vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
-            &*DEFAULT_OPERATOR_OPTIONS,
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )?;
         Ok(to_vertex_vector_mask)
     }
@@ -95,7 +93,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
             &Assignment::new(),
             &mut vertex_vector_mask,
             &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
-            &*DEFAULT_OPERATOR_OPTIONS,
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )?;
         Ok(vertex_vector_mask)
     }

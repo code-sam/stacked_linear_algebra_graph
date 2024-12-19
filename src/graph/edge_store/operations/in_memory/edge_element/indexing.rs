@@ -10,55 +10,21 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Get
 use graphblas_sparse_linear_algebra::operators::monoid::AnyMonoidTyped;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
-use crate::graph::edge_store::weighted_adjacency_matrix::operations::select_edge_vertices::SelectEdgeVertices;
+use crate::graph::edge_store::operations::operations::edge_element::Indexing;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
-    AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices, IntoSparseMatrix,
-    IntoSparseMatrixForValueType,
+    AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices,
 };
 use crate::graph::indexing::{GetVertexIndexIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
-use crate::{
-    error::GraphComputingError,
-    graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix,
-};
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use crate::error::GraphComputingError;
+use crate::graph::weighted_adjacency_matrix::{ToSparseMatrix, ToSparseMatrixForValueType};
 
-pub(crate) trait Indexing<T> {
-    fn is_edge_at_coordinate(
-        &self,
-        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
-    ) -> Result<bool, GraphComputingError>;
-    fn is_edge(
-        &self,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<bool, GraphComputingError>;
-
-    fn try_is_edge_at_coordinate(
-        &self,
-        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
-    ) -> Result<(), GraphComputingError>;
-    fn try_is_edge(
-        &self,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<(), GraphComputingError>;
-
-    fn adjacency_matrix_coordinates(
-        &self,
-    ) -> Result<Vec<AdjacencyMatrixCoordinate>, GraphComputingError>;
-    fn indices_of_vertices_with_outgoing_edges(
-        &self,
-    ) -> Result<Vec<VertexIndex>, GraphComputingError>;
-    fn indices_of_vertices_with_incoming_edges(
-        &self,
-    ) -> Result<Vec<VertexIndex>, GraphComputingError>;
-
-    fn indices_of_connected_vertices(&self) -> Result<Vec<VertexIndex>, GraphComputingError>;
-}
+use super::select_edge_vertices::SelectEdgeVertices;
 
 impl<
         T: ValueType
-            + IntoSparseMatrixForValueType<T>
+            + ToSparseMatrixForValueType<T>
             + GetSparseMatrixElementListTyped<T>
             + AnyMonoidTyped<T>
             + Copy
@@ -104,7 +70,7 @@ impl<
     fn adjacency_matrix_coordinates(
         &self,
     ) -> Result<Vec<AdjacencyMatrixCoordinate>, GraphComputingError> {
-        let matrix_element_list: MatrixElementList<T> = self.sparse_matrix()?.element_list()?;
+        let matrix_element_list: MatrixElementList<T> = self.to_sparse_matrix()?.element_list()?;
         let element_indices_vertices_with_outgoing_edges = matrix_element_list.row_indices_ref();
         let element_indices_vertices_with_incoming_edges = matrix_element_list.column_indices_ref();
 

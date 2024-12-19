@@ -7,36 +7,28 @@ use graphblas_sparse_linear_algebra::operators::insert::{
     InsertVectorIntoColumnOperator, InsertVectorIntoRowOperator,
 };
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
-use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
+use crate::graph::edge_store::operations::operations::edge_element::DeleteVertexConnections;
+use crate::graph::edge_store::operations::operations::edge_element::GetMatrixSize;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
-use super::GetMatrixSize;
+// static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
+//     Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
 
-static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
-    Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
+// static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumnOperator> =
+//     Lazy::new(|| InsertVectorIntoColumnOperator::new());
 
-static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumnOperator> =
-    Lazy::new(|| InsertVectorIntoColumnOperator::new());
-
-static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRowOperator> =
-    Lazy::new(|| InsertVectorIntoRowOperator::new());
+// static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRowOperator> =
+//     Lazy::new(|| InsertVectorIntoRowOperator::new());
 
 // TODO: this doesn't work because Lazy generates a one-off type that doesn't implement AccumulatorBinaryOperator.
 // static BOOLEAN_ASSIGNMENT_OPERATOR: Lazy<Assignment<bool>> = Lazy::new(|| Assignment::<bool>::new());
 
-static OPERATOR_CACHE: Lazy<OperatorCache> = Lazy::new(|| OperatorCache::new());
-
-pub(crate) trait DeleteVertexConnections {
-    fn delete_vertex_connections_unchecked(
-        &mut self,
-        vertex_index: &impl GetVertexIndexIndex,
-    ) -> Result<(), GraphComputingError>;
-}
+// static OPERATOR_CACHE: Lazy<OperatorCache> = Lazy::new(|| OperatorCache::new());
 
 impl DeleteVertexConnections for WeightedAdjacencyMatrix {
     fn delete_vertex_connections_unchecked(
@@ -52,36 +44,36 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             SparseVector::<bool>::new(self.graphblas_context(), self.vertex_capacity()?)?;
 
         // TODO: is inserting an empty vector the fastest way to delete a row/column?
-        INSERT_VECTOR_INTO_COLUMN_OPERATOR.apply(
+        InsertVectorIntoColumnOperator::new().apply(
             self,
             &ElementIndexSelector::All,
             vertex_index.index_ref(),
             empty_column.clone(),
-            &OPERATOR_CACHE.boolean_assignment,
+            &Assignment::<bool>::new(),
             &SelectEntireVector::new(self.graphblas_context()), // TODO: could the mask be cached for better performance?
-            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )?;
-        INSERT_VECTOR_INTO_ROW_OPERATOR.apply(
+        InsertVectorIntoRowOperator::new().apply(
             self,
             &ElementIndexSelector::All,
             vertex_index.index_ref(),
             empty_column,
-            &OPERATOR_CACHE.boolean_assignment,
+            &Assignment::<bool>::new(),
             &SelectEntireVector::new(self.graphblas_context()), // TODO: could the mask be cached for better performance?
-            &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )?;
         Ok(())
     }
 }
 
-struct OperatorCache {
-    boolean_assignment: Assignment<bool>,
-}
+// struct OperatorCache {
+//     boolean_assignment: Assignment<bool>,
+// }
 
-impl OperatorCache {
-    fn new() -> OperatorCache {
-        OperatorCache {
-            boolean_assignment: Assignment::<bool>::new(),
-        }
-    }
-}
+// impl OperatorCache {
+//     fn new() -> OperatorCache {
+//         OperatorCache {
+//             boolean_assignment: Assignment::<bool>::new(),
+//         }
+//     }
+// }

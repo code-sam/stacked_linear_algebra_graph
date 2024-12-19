@@ -149,7 +149,7 @@ where
             return Err(LogicError::new(
                 LogicErrorType::EdgeAlreadyExists,
                 format!(
-                    "An edge already existis for: [edge_type: {:?}, tail: {:?}, head: {:?}]",
+                    "An edge already exists for: [edge_type: {:?}, tail: {:?}, head: {:?}]",
                     edge_type, tail, head
                 ),
                 None,

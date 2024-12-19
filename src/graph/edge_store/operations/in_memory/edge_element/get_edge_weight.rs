@@ -7,6 +7,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 
 use crate::error::LogicErrorType;
 use crate::error::{GraphComputingError, LogicError};
+use crate::graph::edge_store::operations::operations::edge_element::GetEdgeWeight;
 use crate::graph::edge_store::weighted_adjacency_matrix::{
     GetAdjacencyMatrixCoordinateIndices, WeightedAdjacencyMatrix,
 };
@@ -15,38 +16,6 @@ use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::value_type::{
     GetValueTypeIdentifierRef, IntoValueType, ValueType, ValueTypeIdentifier,
 };
-
-pub(crate) trait GetEdgeWeight<T> {
-    fn edge_weight_unchecked(
-        &self,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<Option<T>, GraphComputingError>;
-    fn edge_weight_at_coordinate_unchecked(
-        &self,
-        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
-    ) -> Result<Option<T>, GraphComputingError>;
-
-    fn edge_weight_or_default_unchecked(
-        &self,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<T, GraphComputingError>;
-    fn edge_weight_or_default_at_coordinate_unchecked(
-        &self,
-        coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
-    ) -> Result<T, GraphComputingError>;
-
-    fn try_edge_weight_unchecked(
-        &self,
-        tail: &(impl GetVertexIndexIndex + Debug),
-        head: &(impl GetVertexIndexIndex + Debug),
-    ) -> Result<T, GraphComputingError>;
-    fn try_edge_weight_at_coordinate_unchecked(
-        &self,
-        coordinate: &impl GetAdjacencyMatrixCoordinateIndices,
-    ) -> Result<T, GraphComputingError>;
-}
 
 impl<T> GetEdgeWeight<T> for WeightedAdjacencyMatrix
 where
