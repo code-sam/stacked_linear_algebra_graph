@@ -21,35 +21,39 @@ impl<'s> CheckVertexIndex for InMemoryVertexStoreTransaction<'s> {
             .try_vertex_index_validity(vertex_index)
     }
 
-    fn is_valid_public_vertex_index(
+    fn is_valid_vertex_element(
         &self,
+        vertex_type_index: &impl crate::graph::indexing::GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError> {
         self.vertex_store_ref()
-            .is_valid_public_vertex_index(vertex_index)
+            .is_valid_vertex_element(vertex_type_index, vertex_index)
     }
 
-    fn try_is_valid_public_vertex_index(
+    fn try_is_valid_vertex_element(
         &self,
+        vertex_type_index: &impl crate::graph::indexing::GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_ref()
-            .try_is_valid_public_vertex_index(vertex_index)
+            .try_is_valid_vertex_element(vertex_type_index, vertex_index)
     }
 
-    fn is_valid_private_vertex_index(
+    fn is_empty_vertex_element(
         &self,
+        vertex_type_index: &impl crate::graph::indexing::GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError> {
         self.vertex_store_ref()
-            .is_valid_private_vertex_index(vertex_index)
+            .is_empty_vertex_element(vertex_type_index, vertex_index)
     }
 
-    fn try_is_valid_private_vertex_index(
+    fn try_is_empty_vertex_element(
         &self,
+        vertex_type_index: &impl crate::graph::indexing::GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_ref()
-            .try_is_valid_private_vertex_index(vertex_index)
+            .try_is_empty_vertex_element(vertex_type_index, vertex_index)
     }
 }

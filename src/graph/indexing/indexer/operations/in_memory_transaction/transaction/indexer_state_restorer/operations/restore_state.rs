@@ -16,19 +16,6 @@ impl RestoreState<Indexer> for IndexerStateRestorer {
         self.mask_with_valid_indices_restorer_ref()
             .to_owned()
             .restore(instance_to_restore.mask_with_valid_indices_mut_ref())?;
-
-        self.mask_with_private_indices_restorer_ref()
-            .to_owned()
-            .restore(instance_to_restore.mask_with_private_indices_mut_ref())?;
-
-        self.mask_with_valid_private_indices_restorer_ref()
-            .to_owned()
-            .restore(instance_to_restore.mask_with_valid_private_indices_mut_ref())?;
-
-        self.mask_with_valid_public_indices_restorer_ref()
-            .to_owned()
-            .restore(instance_to_restore.mask_with_valid_public_indices_mut_ref())?;
-
         Ok(())
     }
 
@@ -42,26 +29,11 @@ impl RestoreState<Indexer> for IndexerStateRestorer {
             RestoreState::<VertexVector>::with_reset_state_to_restore(
                 self.mask_with_valid_indices_restorer_ref(),
             );
-        let mask_with_private_indices_restorer =
-            RestoreState::<VertexVector>::with_reset_state_to_restore(
-                self.mask_with_private_indices_restorer_ref(),
-            );
-        let mask_with_valid_private_indices_restorer =
-            RestoreState::<VertexVector>::with_reset_state_to_restore(
-                self.mask_with_valid_private_indices_restorer_ref(),
-            );
-        let mask_with_valid_public_indices_restorer =
-            RestoreState::<VertexVector>::with_reset_state_to_restore(
-                self.mask_with_valid_public_indices_restorer_ref(),
-            );
 
         IndexerStateRestorer::new(
             index_capacity_to_restore,
             indices_available_for_reuse_restorer,
             mask_with_valid_indices_restorer,
-            mask_with_private_indices_restorer,
-            mask_with_valid_private_indices_restorer,
-            mask_with_valid_public_indices_restorer,
         )
     }
 }

@@ -1,13 +1,10 @@
 use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
-use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::indexing::operations::{
-    GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
-};
+use crate::graph::indexing::operations::GetValidIndices;
 use crate::graph::indexing::{ElementCount, Index, Indexer, VertexTypeIndex};
 
 use super::VertexVector;
@@ -133,70 +130,6 @@ impl VertexStore {
         // TODO: would par_iter() give better performance?
         self.vertex_type_indexer
             .iter_valid_indices()?
-            .try_for_each(|i: Index| {
-                function_to_apply(&VertexTypeIndex::new(i), &mut self.vertex_vectors[i])
-            })?;
-        Ok(())
-    }
-
-    pub(crate) fn map_mut_all_valid_public_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.vertex_type_indexer
-            .iter_valid_public_indices()?
-            .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
-        Ok(())
-    }
-
-    pub(crate) fn indexed_map_mut_all_valid_public_vertex_vectors<F>(
-        &mut self,
-        mut function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: FnMut(&VertexTypeIndex, &mut VertexVector) -> Result<(), GraphComputingError>
-            + Send
-            + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.vertex_type_indexer
-            .iter_valid_public_indices()?
-            .try_for_each(|i: Index| {
-                function_to_apply(&VertexTypeIndex::new(i), &mut self.vertex_vectors[i])
-            })?;
-        Ok(())
-    }
-
-    pub(crate) fn map_mut_all_valid_private_vertex_vectors<F>(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: Fn(&mut VertexVector) -> Result<(), GraphComputingError> + Send + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.vertex_type_indexer
-            .iter_valid_private_indices()?
-            .try_for_each(|i: usize| function_to_apply(&mut self.vertex_vectors[i]))?;
-        Ok(())
-    }
-
-    pub(crate) fn indexed_map_mut_all_valid_private_vertex_vectors<F>(
-        &mut self,
-        mut function_to_apply: F,
-    ) -> Result<(), GraphComputingError>
-    where
-        F: FnMut(&VertexTypeIndex, &mut VertexVector) -> Result<(), GraphComputingError>
-            + Send
-            + Sync,
-    {
-        // TODO: would par_iter() give better performance?
-        self.vertex_type_indexer
-            .iter_valid_private_indices()?
             .try_for_each(|i: Index| {
                 function_to_apply(&VertexTypeIndex::new(i), &mut self.vertex_vectors[i])
             })?;

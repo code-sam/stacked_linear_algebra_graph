@@ -6,6 +6,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 };
 
 use crate::error::GraphComputingError;
+use crate::graph::edge_store::adjacency_matrix_attribute_caching::InvalidateChachedAdjacencyMatrixAttributes;
 use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
     GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
 };
@@ -24,8 +25,7 @@ impl<T: ValueType> GetSparseMatrixSizeToRestore
     for StateRestorerForAdjacencyMatrixWithCachedAttributes<T>
 {
     fn matrix_size_to_restore(&self) -> Option<Size> {
-        self.sparse_matrix_state_reverter
-            .matrix_size_to_restore()
+        self.sparse_matrix_state_reverter.matrix_size_to_restore()
     }
 
     fn matrix_size_to_restore_ref(&self) -> &Option<Size> {
@@ -148,6 +148,8 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T>>
         self,
         instance_to_restore: &mut WeightedAdjacencyMatrixWithCachedAttributes,
     ) -> Result<(), GraphComputingError> {
+        instance_to_restore.invalidate_all_attributes();
+
         restore_sparse_matrix_state(
             self.sparse_matrix_state_reverter,
             instance_to_restore.weighted_adjacency_matrix_mut_ref(),
@@ -156,7 +158,9 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T>>
 
     fn with_reset_state_to_restore(&self) -> Self {
         Self {
-            sparse_matrix_state_reverter: self.sparse_matrix_state_reverter.with_reset_state_to_restore()
+            sparse_matrix_state_reverter: self
+                .sparse_matrix_state_reverter
+                .with_reset_state_to_restore(),
         }
     }
 }

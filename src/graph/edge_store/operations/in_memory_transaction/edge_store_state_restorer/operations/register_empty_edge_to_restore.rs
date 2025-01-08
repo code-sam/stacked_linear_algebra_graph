@@ -23,7 +23,7 @@ where
         + Default
         + GetSparseMatrixElementValueTyped<T>
         + SetSparseMatrixElementTyped<T>
-        + GetAdjacencyMatrixStateRevertersByEdgeTypeMap<T>
+        + GetAdjacencyMatrixStateRevertersByEdgeTypeMap<T>,
 {
     fn register_empty_edge_to_restore(
         &mut self,

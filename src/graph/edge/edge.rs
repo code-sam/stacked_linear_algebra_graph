@@ -21,12 +21,17 @@ impl<T: ValueType> WeightedDirectedEdge<T> {
 }
 
 pub trait GetEdgeWeight<T: ValueType> {
+    fn weight(&self) -> T;
     fn weight_ref(&self) -> &T;
 }
 
-impl<T: ValueType> GetEdgeWeight<T> for WeightedDirectedEdge<T> {
+impl<T: ValueType + Clone + Copy> GetEdgeWeight<T> for WeightedDirectedEdge<T> {
     fn weight_ref(&self) -> &T {
         &self.weight
+    }
+
+    fn weight(&self) -> T {
+        self.weight
     }
 }
 

@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::context::{
     MatrixStorageFormat as GraphblasMatrixStorageFormat, Mode as GraphblasMode,
 };
 
-use crate::graph::indexing::ElementCount;
+use crate::graph::indexing::{ElementCount, MINIMUM_INDEXER_CAPACITY};
 use crate::graph::vertex_store::VertexStore;
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
 
@@ -27,6 +27,11 @@ use super::{GetGraphblasOperatorApplierCollection, GraphblasOperatorApplierColle
 // ) -> Result<Self, GraphComputingError>;
 // }
 
+// TODO: set these values for better performance
+const INITIAL_PRIVATE_VERTEX_TYPE_CAPACITY: ElementCount = MINIMUM_INDEXER_CAPACITY;
+const INITIAL_PRIVATE_VERTEX_CAPACITY: ElementCount = MINIMUM_INDEXER_CAPACITY;
+const INITIAL_PRIVATE_EDGE_TYPE_CAPACITY: ElementCount = MINIMUM_INDEXER_CAPACITY;
+
 pub(crate) trait GetGraphblasContext {
     fn graphblas_context(&self) -> Arc<GraphblasContext>;
     fn graphblas_context_ref(&self) -> &Arc<GraphblasContext>;
@@ -46,29 +51,29 @@ pub(crate) trait GetEdgeStore {
 
 impl GetVertexStore for Graph {
     fn vertex_store_ref(&self) -> &VertexStore {
-        &self.vertex_store
+        &self.public_vertex_store
     }
 
     fn vertex_store_mut_ref(&mut self) -> &mut VertexStore {
-        &mut self.vertex_store
+        &mut self.public_vertex_store
     }
 
     fn vertex_store_mut_ref_unsafe(&mut self) -> *mut VertexStore {
-        &mut self.vertex_store
+        &mut self.public_vertex_store
     }
 }
 
 impl GetEdgeStore for Graph {
     fn edge_store_ref(&self) -> &EdgeStore {
-        &self.edge_store
+        &self.public_edge_store
     }
 
     fn edge_store_mut_ref(&mut self) -> &mut EdgeStore {
-        &mut self.edge_store
+        &mut self.public_edge_store
     }
 
     fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore {
-        &mut self.edge_store
+        &mut self.public_edge_store
     }
 }
 
@@ -93,8 +98,11 @@ pub struct Graph {
     graphblas_context: Arc<GraphblasContext>,
     graphblas_operator_applier_collection: GraphblasOperatorApplierCollection,
 
-    vertex_store: VertexStore,
-    edge_store: EdgeStore,
+    public_vertex_store: VertexStore,
+    public_edge_store: EdgeStore,
+
+    private_vertex_store: VertexStore,
+    private_edge_store: EdgeStore,
 }
 
 impl Graph {
@@ -108,15 +116,26 @@ impl Graph {
             GraphblasMatrixStorageFormat::ByColumn,
         )?;
 
-        let vertex_store = VertexStore::with_initial_capacity(
+        let public_vertex_store = VertexStore::with_initial_capacity(
             graphblas_context.clone(),
             initial_vertex_type_capacity,
             initial_vertex_capacity,
         )?;
-        let edge_store = EdgeStore::with_initial_capacity(
+        let public_edge_store = EdgeStore::with_initial_capacity(
             graphblas_context.clone(),
             initial_vertex_capacity,
             initial_edge_type_capacity,
+        )?;
+
+        let private_vertex_store = VertexStore::with_initial_capacity(
+            graphblas_context.clone(),
+            INITIAL_PRIVATE_VERTEX_TYPE_CAPACITY,
+            INITIAL_PRIVATE_VERTEX_CAPACITY,
+        )?;
+        let private_edge_store = EdgeStore::with_initial_capacity(
+            graphblas_context.clone(),
+            INITIAL_PRIVATE_VERTEX_CAPACITY,
+            INITIAL_PRIVATE_EDGE_TYPE_CAPACITY,
         )?;
 
         let graph: Graph = Self {
@@ -125,8 +144,11 @@ impl Graph {
                 graphblas_context,
             ),
 
-            vertex_store,
-            edge_store,
+            public_vertex_store,
+            public_edge_store,
+
+            private_vertex_store,
+            private_edge_store,
         };
 
         Ok(graph)
@@ -200,7 +222,7 @@ mod tests {
         );
 
         graph_1
-            .update_vertex_value(&vertex_type_11_index, &vertex_11_index, 4)
+            .add_or_update_vertex(&vertex_type_11_index, &vertex_11_index, 4)
             .unwrap();
 
         assert_eq!(

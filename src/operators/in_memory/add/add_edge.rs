@@ -9,7 +9,6 @@ use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_m
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
     AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
 };
-use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
 use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
@@ -55,9 +54,9 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .public_adjacency_matrix_mut_ref(edge_type)?;
+            .adjacency_matrix_mut_ref(edge_type)?;
 
-        if Indexing::<T>::is_edge(adjacency_matrix, tail, head)? {
+        if Indexing::is_edge(adjacency_matrix, tail, head)? {
             return Err(LogicError::new(
                 LogicErrorType::EdgeAlreadyExists,
                 format!(
@@ -98,7 +97,7 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .public_adjacency_matrix_mut_ref(edge_type)?;
+            .adjacency_matrix_mut_ref(edge_type)?;
 
         adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
         Ok(())
@@ -143,9 +142,9 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .private_adjacency_matrix_mut_ref(edge_type)?;
+            .adjacency_matrix_mut_ref(edge_type)?;
 
-        if Indexing::<T>::is_edge(adjacency_matrix, tail, head)? {
+        if Indexing::is_edge(adjacency_matrix, tail, head)? {
             return Err(LogicError::new(
                 LogicErrorType::EdgeAlreadyExists,
                 format!(
@@ -186,7 +185,7 @@ where
 
         let adjacency_matrix = self
             .edge_store_mut_ref()
-            .private_adjacency_matrix_mut_ref(edge_type)?;
+            .adjacency_matrix_mut_ref(edge_type)?;
 
         adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
         Ok(())

@@ -41,6 +41,7 @@ pub enum LogicErrorType {
     VertexTypeAlreadyExsists,
     VertexTypeMustExist,
     VertexMustExist,
+    VertexElementNotEmpty,
     Other,
 }
 

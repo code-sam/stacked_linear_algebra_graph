@@ -1,33 +1,16 @@
+use crate::error::GraphComputingError;
+use crate::graph::indexing::operations::CheckIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier};
 use crate::graph::vertex_store::vertex_store::GetVertexVectors as GetVertexVectorFromVertexStore;
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        indexing::operations::CheckIndex,
-        vertex_store::{GetVertexTypeIndexer, VertexStore, VertexVector},
-    },
-};
+use crate::graph::vertex_store::{GetVertexTypeIndexer, VertexStore, VertexVector};
 
 pub(crate) trait GetVertexVector<'a> {
-    fn public_vertex_vector_ref(
+    fn vertex_vector_ref(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&VertexVector, GraphComputingError>;
-    fn public_vertex_vector_mut_ref(
-        &'a mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<&'a mut VertexVector, GraphComputingError>;
-    // fn vertex_vector_by_index_mut_ref_unsafe(
-    //     store: *mut VertexStore,
-    //     vertex_type_index: &impl GetVertexTypeIndex,
-    // ) -> Result<*mut VertexVector, GraphComputingError>;
-
-    fn private_vertex_vector_ref(
-        &self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<&VertexVector, GraphComputingError>;
-    fn private_vertex_vector_mut_ref(
+    fn vertex_vector_mut_ref(
         &'a mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&'a mut VertexVector, GraphComputingError>;
@@ -46,43 +29,23 @@ pub(crate) trait GetVertexVector<'a> {
     ) -> Result<&mut VertexVector, GraphComputingError>;
 }
 
-pub(crate) fn public_vertex_vector_ref<'s>(
+pub(crate) fn vertex_vector_ref<'s>(
     vertex_store: &'s VertexStore,
     vertex_type_index: &impl GetVertexTypeIndex,
 ) -> Result<&'s VertexVector, GraphComputingError> {
     vertex_store
         .vertex_type_indexer_ref()
-        .try_is_valid_public_index(vertex_type_index.index())?;
+        .try_index_validity(vertex_type_index.index())?;
     Ok(vertex_store.vertex_vector_ref_unchecked(vertex_type_index))
 }
 
-pub(crate) fn public_vertex_vector_mut_ref<'s>(
+pub(crate) fn vertex_vector_mut_ref<'s>(
     vertex_store: &'s mut VertexStore,
     vertex_type_index: &impl GetVertexTypeIndex,
 ) -> Result<&'s mut VertexVector, GraphComputingError> {
     vertex_store
         .vertex_type_indexer_ref()
-        .try_is_valid_public_index(vertex_type_index.index())?;
-    Ok(vertex_store.vertex_vector_mut_ref_unchecked(vertex_type_index)?)
-}
-
-pub(crate) fn private_vertex_vector_ref<'s>(
-    vertex_store: &'s VertexStore,
-    vertex_type_index: &impl GetVertexTypeIndex,
-) -> Result<&'s VertexVector, GraphComputingError> {
-    vertex_store
-        .vertex_type_indexer_ref()
-        .try_is_valid_private_index(vertex_type_index.index())?;
-    Ok(vertex_store.vertex_vector_ref_unchecked(vertex_type_index))
-}
-
-pub(crate) fn private_vertex_vector_mut_ref<'s>(
-    vertex_store: &'s mut VertexStore,
-    vertex_type_index: &impl GetVertexTypeIndex,
-) -> Result<&'s mut VertexVector, GraphComputingError> {
-    vertex_store
-        .vertex_type_indexer_ref()
-        .try_is_valid_private_index(vertex_type_index.index())?;
+        .try_index_validity(vertex_type_index.index())?;
     Ok(vertex_store.vertex_vector_mut_ref_unchecked(vertex_type_index)?)
 }
 

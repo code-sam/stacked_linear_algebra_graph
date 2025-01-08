@@ -3,7 +3,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::operations::edge_type::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
 use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::operators::drop::{DropEdgeType, DropPrivateEdgeType};
+use crate::operators::operators::drop::DropEdgeType;
 
 impl DropEdgeType for Graph {
     fn drop_edge_type(
@@ -11,17 +11,7 @@ impl DropEdgeType for Graph {
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
-            .drop_valid_public_edge_type(edge_type_index)
-    }
-}
-
-impl DropPrivateEdgeType for Graph {
-    fn drop_private_edge_type(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .drop_valid_private_edge_type(edge_type_index)
+            .drop_valid_edge_type(edge_type_index)
     }
 }
 

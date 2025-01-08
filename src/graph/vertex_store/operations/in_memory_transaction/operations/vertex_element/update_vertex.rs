@@ -15,32 +15,18 @@ use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 
 impl<'s, T> UpdateVertex<T> for InMemoryVertexStoreTransaction<'s>
 where
-    T: ValueType + Copy + SetSparseVectorElementTyped<T>,
+    T: ValueType + SetSparseVectorElementTyped<T>,
 {
-    fn update_public_vertex(
+    fn update_vertex(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_ref()
-            .try_is_valid_public_vertex_type_index(vertex_type_index)?;
+            .try_vertex_type_index_validity(vertex_type_index)?;
         self.vertex_store_ref()
-            .try_is_valid_public_vertex_index(vertex_index)?;
-
-        self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
-    }
-
-    fn update_private_vertex(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-        value: T,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_ref()
-            .try_is_valid_public_vertex_type_index(vertex_type_index)?;
-        self.vertex_store_ref()
-            .try_is_valid_public_vertex_index(vertex_index)?;
+            .try_vertex_index_validity(vertex_index)?;
 
         self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }

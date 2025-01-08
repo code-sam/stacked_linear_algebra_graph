@@ -9,7 +9,8 @@ use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::indexing::{ElementCount, Indexer as EdgeTypeIndexer};
+use crate::graph::indexing::operations::GetValidIndices;
+use crate::graph::indexing::{EdgeTypeIndex, ElementCount, Index, Indexer as EdgeTypeIndexer};
 
 #[derive(Clone, Debug)]
 pub(crate) struct EdgeStore {
@@ -105,5 +106,67 @@ impl GetEdgeTypeIndicer for EdgeStore {
 
     fn edge_type_indexer_mut_ref(&mut self) -> &mut EdgeTypeIndexer {
         &mut self.edge_type_indexer
+    }
+}
+
+// Implemented in module to work around limitations of the borrow checker
+impl EdgeStore {
+    pub(crate) fn map_mut_all_valid_adjacency_matrices<F>(
+        &mut self,
+        function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: Fn(&mut WeightedAdjacencyMatrixWithCachedAttributes) -> Result<(), GraphComputingError>
+            + Send
+            + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.edge_type_indexer
+            .iter_valid_indices()?
+            .try_for_each(|i: Index| function_to_apply(&mut self.adjacency_matrices[i]))?;
+        Ok(())
+    }
+
+    pub(crate) fn indexed_map_mut_all_adjacency_matrices<F>(
+        &mut self,
+        mut function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: FnMut(
+                &EdgeTypeIndex,
+                &mut WeightedAdjacencyMatrixWithCachedAttributes,
+            ) -> Result<(), GraphComputingError>
+            + Send
+            + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.adjacency_matrices
+            .iter_mut()
+            .enumerate()
+            .try_for_each(|(edge_type_index, adjacency_matrix)| {
+                function_to_apply(&EdgeTypeIndex::new(edge_type_index), adjacency_matrix)
+            })?;
+        Ok(())
+    }
+
+    pub(crate) fn indexed_map_mut_all_valid_adjacency_matrices<F>(
+        &mut self,
+        mut function_to_apply: F,
+    ) -> Result<(), GraphComputingError>
+    where
+        F: FnMut(
+                &EdgeTypeIndex,
+                &mut WeightedAdjacencyMatrixWithCachedAttributes,
+            ) -> Result<(), GraphComputingError>
+            + Send
+            + Sync,
+    {
+        // TODO: would par_iter() give better performance?
+        self.edge_type_indexer
+            .iter_valid_indices()?
+            .try_for_each(|i: Index| {
+                function_to_apply(&EdgeTypeIndex::new(i), &mut self.adjacency_matrices[i])
+            })?;
+        Ok(())
     }
 }

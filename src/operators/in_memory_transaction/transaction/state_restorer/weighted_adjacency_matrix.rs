@@ -18,6 +18,5 @@ impl<T: ValueType + Copy + SetSparseMatrixElementTyped<T>> RestoreState<Weighted
 
     fn with_reset_state_to_restore(&self) -> Self {
         Self::with_size_to_restore(self.matrix_size_to_restore())
-
     }
 }

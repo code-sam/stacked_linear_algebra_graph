@@ -27,58 +27,31 @@ where
     isize: IntoValueType<T>,
     usize: IntoValueType<T>,
 {
-    fn public_vertex_value(
+    fn vertex_value(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         self.vertex_store_ref()
-            .public_vertex_value(vertex_type_index, vertex_index)
+            .vertex_value(vertex_type_index, vertex_index)
     }
 
-    fn try_public_vertex_value(
+    fn try_vertex_value(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_store_ref()
-            .try_public_vertex_value(vertex_type_index, vertex_index)
+            .try_vertex_value(vertex_type_index, vertex_index)
     }
 
-    fn public_vertex_value_or_default(
+    fn vertex_value_or_default(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_store_ref()
-            .public_vertex_value_or_default(vertex_type_index, vertex_index)
-    }
-
-    fn private_vertex_value(
-        &self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-    ) -> Result<Option<T>, GraphComputingError> {
-        self.vertex_store_ref()
-            .private_vertex_value(vertex_type_index, vertex_index)
-    }
-
-    fn try_private_vertex_value(
-        &self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-    ) -> Result<T, GraphComputingError> {
-        self.vertex_store_ref()
-            .try_private_vertex_value(vertex_type_index, vertex_index)
-    }
-
-    fn private_vertex_value_or_default(
-        &self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-    ) -> Result<T, GraphComputingError> {
-        self.vertex_store_ref()
-            .private_vertex_value_or_default(vertex_type_index, vertex_index)
+            .vertex_value_or_default(vertex_type_index, vertex_index)
     }
 
     fn vertex_value_unchecked(

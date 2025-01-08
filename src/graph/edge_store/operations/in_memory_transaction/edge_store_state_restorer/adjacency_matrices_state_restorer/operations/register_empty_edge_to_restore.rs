@@ -3,8 +3,8 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
 };
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
+use crate::graph::edge_store::operations::in_memory_transaction::adjacency_matrices_state_restorer::state_restorer_for_adjacency_matrix_with_cached_attributes::StateRestorerForAdjacencyMatrixWithCachedAttributes;
 use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::{AdjacencyMatricesWithCachedAttributesStateRestorer, GetAdjacencyMatrixStateReverter, GetAdjacencyMatrixStateRevertersByEdgeTypeMap};
-use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::state_restorer_for_adjacency_matrix_with_cached_attributes::StateRestorerForAdjacencyMatrixWithCachedAttributes;
 use crate::graph::edge_store::operations::in_memory_transaction::RegisterEmptyEdgeToRestore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::value_type::ValueType;

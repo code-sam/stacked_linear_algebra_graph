@@ -5,6 +5,7 @@ mod delete_vertex;
 mod get_vertex_value;
 mod indexing;
 // mod resize;
+mod set_vertex;
 mod update_vertex;
 
 pub(crate) use add_vertex::*;
@@ -14,4 +15,5 @@ pub(crate) use delete_vertex::*;
 pub(crate) use get_vertex_value::*;
 pub(crate) use indexing::*;
 // pub(crate) use resize::*;
+pub(crate) use set_vertex::*;
 pub(crate) use update_vertex::*;

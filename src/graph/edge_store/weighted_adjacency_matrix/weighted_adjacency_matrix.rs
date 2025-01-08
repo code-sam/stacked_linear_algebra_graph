@@ -1,6 +1,6 @@
 use std::fmt::Display;
-use std::sync::Arc;
 use std::mem;
+use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     new_graphblas_matrix, GetGraphblasSparseMatrix,
@@ -12,8 +12,8 @@ use graphblas_sparse_linear_algebra::graphblas_bindings::{GrB_Matrix, GrB_Matrix
 use graphblas_sparse_linear_algebra::operators::apply::{ApplyUnaryOperator, UnaryOperatorApplier};
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::mask::{MatrixMask, SelectEntireMatrix};
-use graphblas_sparse_linear_algebra::operators::unary_operator::Identity;
 use graphblas_sparse_linear_algebra::operators::options::OptionsForOperatorWithMatrixArgument;
+use graphblas_sparse_linear_algebra::operators::unary_operator::Identity;
 use graphblas_sparse_linear_algebra::value_type::ValueType as GraphblasValueType;
 
 use once_cell::sync::Lazy;
@@ -28,10 +28,8 @@ use crate::graph::value_type::{
 };
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::{Size, SparseMatrix},
-    context::Context as GraphBLASContext,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::{Size, SparseMatrix};
+use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
 use super::operations::GetMatrixSize;
 
@@ -246,7 +244,9 @@ impl<T: ValueType + ToSparseMatrixForValueType<T>> ToSparseMatrix<T> for Weighte
     }
 }
 
-impl<T: ValueType + IntoSparseMatrixForValueType<T>> IntoSparseMatrix<T> for WeightedAdjacencyMatrix {
+impl<T: ValueType + IntoSparseMatrixForValueType<T>> IntoSparseMatrix<T>
+    for WeightedAdjacencyMatrix
+{
     fn into_sparse_matrix(self) -> Result<SparseMatrix<T>, GraphComputingError> {
         T::into_sparse_matrix(self)
     }
@@ -262,7 +262,9 @@ pub(crate) trait ToSparseMatrixForValueType<T: ValueType> {
 }
 
 pub(crate) trait IntoSparseMatrixForValueType<T: ValueType> {
-    fn into_sparse_matrix(matrix: WeightedAdjacencyMatrix) -> Result<SparseMatrix<T>, GraphComputingError>;
+    fn into_sparse_matrix(
+        matrix: WeightedAdjacencyMatrix,
+    ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
 pub(crate) trait IntoSparseMatrixAndClearValuesForValueType<T: ValueType> {

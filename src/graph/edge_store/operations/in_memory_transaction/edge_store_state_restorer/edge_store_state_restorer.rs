@@ -87,11 +87,9 @@ impl EdgeStoreStateRestorer {
         }
     }
 
-    pub(crate) fn new_for_edge_store(
-        edge_store: &EdgeStore,
-    ) -> Result<Self, GraphComputingError> {
+    pub(crate) fn new_for_edge_store(edge_store: &EdgeStore) -> Result<Self, GraphComputingError> {
         Ok(Self::new_for_edge_tyoe_indexer(
-            edge_store.edge_type_indexer_ref()
+            edge_store.edge_type_indexer_ref(),
         )?)
     }
 

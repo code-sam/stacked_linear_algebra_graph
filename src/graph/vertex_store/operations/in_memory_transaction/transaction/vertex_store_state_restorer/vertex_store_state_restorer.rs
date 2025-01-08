@@ -117,9 +117,10 @@ impl VertexStoreStateRestorer {
         let element_indexer_state_restorer =
             IndexerStateRestorer::new_for_indexer(vertex_element_indexer)?;
 
-        let vertex_vectors_state_restorer = VertexVectorsStateRestorer::with_vertex_type_vector_length_to_restore(
-            vertex_type_indexer.capacity()?,
-        );
+        let vertex_vectors_state_restorer =
+            VertexVectorsStateRestorer::with_vertex_type_vector_length_to_restore(
+                vertex_type_indexer.capacity()?,
+            );
 
         Ok(Self {
             vertex_type_indexer_state_restorer,

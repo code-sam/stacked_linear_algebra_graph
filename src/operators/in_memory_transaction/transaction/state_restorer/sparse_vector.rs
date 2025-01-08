@@ -1,7 +1,8 @@
 use std::mem;
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    drop_sparse_vector_element, resize_sparse_vector, GetSparseVectorElementValueTyped, GetSparseVectorLength, SetSparseVectorElementTyped
+    drop_sparse_vector_element, resize_sparse_vector, GetSparseVectorElementValueTyped,
+    GetSparseVectorLength, SetSparseVectorElementTyped,
 };
 use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     GetGraphblasSparseVector, SparseVector,
@@ -230,7 +231,8 @@ impl<T: ValueType> SparseVectorStateReverter<T> {
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-        DeleteSparseVectorElement, GetSparseVectorElementValue, GetSparseVectorLength, ResizeSparseVector, SetSparseVectorElement
+        DeleteSparseVectorElement, GetSparseVectorElementValue, GetSparseVectorLength,
+        ResizeSparseVector, SetSparseVectorElement,
     };
     use graphblas_sparse_linear_algebra::collections::Collection;
     use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;

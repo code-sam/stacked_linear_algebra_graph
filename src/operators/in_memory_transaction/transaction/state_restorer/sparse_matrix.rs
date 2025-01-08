@@ -221,7 +221,8 @@ pub(crate) fn restore_sparse_matrix_state<T: ValueType + SetSparseMatrixElementT
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
-        DropSparseMatrixElement, GetSparseMatrixElementValue, GetSparseMatrixSize, ResizeSparseMatrix, SetSparseMatrixElement
+        DropSparseMatrixElement, GetSparseMatrixElementValue, GetSparseMatrixSize,
+        ResizeSparseMatrix, SetSparseMatrixElement,
     };
     use graphblas_sparse_linear_algebra::collections::Collection;
     use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;

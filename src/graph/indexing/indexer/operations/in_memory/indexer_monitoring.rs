@@ -1,14 +1,8 @@
-use graphblas_sparse_linear_algebra::collections::{
-    sparse_vector::operations::GetSparseVectorLength, Collection,
+use crate::error::GraphComputingError;
+use crate::graph::indexing::operations::{
+    index_capacity, number_of_indexed_elements, GetIndexerStatus,
 };
-
-use crate::{
-    error::GraphComputingError,
-    graph::indexing::{
-        operations::{index_capacity, number_of_indexed_elements, GetIndexerStatus},
-        ElementCount, GetIndexMask, Indexer,
-    },
-};
+use crate::graph::indexing::{ElementCount, Indexer};
 
 impl GetIndexerStatus for Indexer {
     fn number_of_indexed_elements(&self) -> Result<ElementCount, GraphComputingError> {

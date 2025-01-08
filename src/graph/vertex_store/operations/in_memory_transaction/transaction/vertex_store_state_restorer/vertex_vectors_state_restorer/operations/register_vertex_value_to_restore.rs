@@ -22,7 +22,7 @@ where
         + Default
         + GetSparseVectorElementValueTyped<T>
         + SetSparseVectorElementTyped<T>
-        + GetSparseVectorStateRevertersByVertexTypeMap<T>
+        + GetSparseVectorStateRevertersByVertexTypeMap<T>,
 {
     fn register_vertex_value_to_restore(
         &mut self,

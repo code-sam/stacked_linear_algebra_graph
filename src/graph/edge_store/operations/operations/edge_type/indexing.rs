@@ -11,24 +11,4 @@ pub trait Indexing {
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError>;
-
-    fn is_valid_public_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<bool, GraphComputingError>;
-
-    fn try_is_valid_public_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError>;
-
-    fn is_valid_private_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<bool, GraphComputingError>;
-
-    fn try_is_valid_private_edge_type_index(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError>;
 }

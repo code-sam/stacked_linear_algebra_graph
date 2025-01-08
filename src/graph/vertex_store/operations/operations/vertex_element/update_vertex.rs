@@ -5,14 +5,7 @@ use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
 
 pub(crate) trait UpdateVertex<T: ValueType> {
-    fn update_public_vertex(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-        value: T,
-    ) -> Result<(), GraphComputingError>;
-
-    fn update_private_vertex(
+    fn update_vertex(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,

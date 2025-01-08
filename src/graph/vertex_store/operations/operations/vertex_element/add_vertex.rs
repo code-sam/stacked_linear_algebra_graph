@@ -8,26 +8,13 @@ pub(crate) trait AddVertex<'s, T>
 where
     T: ValueType,
 {
-    fn add_new_public_vertex(
+    fn add_new_vertex(
         &mut self,
         type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError>;
 
-    fn add_or_update_public_vertex(
-        &mut self,
-        vertex_type: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-        value: T,
-    ) -> Result<Option<AssignedIndex>, GraphComputingError>;
-
-    fn add_new_private_vertex(
-        &mut self,
-        type_index: &impl GetVertexTypeIndex,
-        value: T,
-    ) -> Result<AssignedIndex, GraphComputingError>;
-
-    fn add_or_update_private_vertex(
+    fn add_or_set_vertex(
         &mut self,
         vertex_type: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
@@ -40,7 +27,7 @@ where
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError>;
 
-    fn add_or_update_vertex_unchecked(
+    fn add_or_set_vertex_unchecked(
         &mut self,
         vertex_type: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,

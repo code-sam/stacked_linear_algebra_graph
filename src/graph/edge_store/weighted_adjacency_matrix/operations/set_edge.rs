@@ -2,8 +2,8 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Set
 
 use crate::error::GraphComputingError;
 
+use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::edge::GetEdgeWeight;
-use crate::graph::edge_store::weighted_adjacency_matrix::GetAdjacencyMatrixCoordinateIndices;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::indexing::GetIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
@@ -12,7 +12,7 @@ use crate::graph::value_type::ValueType;
 pub(crate) trait AddEdge<T: ValueType> {
     fn add_weighted_directed_edge_unchecked(
         &mut self,
-        edge: &(impl GetAdjacencyMatrixCoordinateIndices + GetEdgeWeight<T>),
+        edge: &(impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError>;
 
     fn add_edge_unchecked(
@@ -29,7 +29,7 @@ where
 {
     fn add_weighted_directed_edge_unchecked(
         &mut self,
-        edge: &(impl GetAdjacencyMatrixCoordinateIndices + GetEdgeWeight<T>),
+        edge: &(impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError> {
         T::set_graphblas_matrix_value(
             self,

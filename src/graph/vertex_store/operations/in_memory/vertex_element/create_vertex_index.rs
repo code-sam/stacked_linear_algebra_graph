@@ -1,19 +1,13 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::{GeneratePrivateIndex, GeneratePublicIndex};
+use crate::graph::indexing::operations::GenerateIndex;
 use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData};
 use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex;
 use crate::graph::vertex_store::operations::vertex_type::ResizeVertexVectors;
 use crate::graph::vertex_store::{GetVertexElementIndexer, VertexStore};
 
 impl CreateVertexIndex for VertexStore {
-    fn new_public_vertex_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
-        let assigned_index = self.element_indexer_mut_ref().new_public_index()?;
-        self.update_vertex_vectors_size(&assigned_index)?;
-        Ok(assigned_index)
-    }
-
-    fn new_private_vertex_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
-        let assigned_index = self.element_indexer_mut_ref().new_private_index()?;
+    fn new_vertex_index(&mut self) -> Result<AssignedIndex, GraphComputingError> {
+        let assigned_index = self.element_indexer_mut_ref().new_index()?;
         self.update_vertex_vectors_size(&assigned_index)?;
         Ok(assigned_index)
     }

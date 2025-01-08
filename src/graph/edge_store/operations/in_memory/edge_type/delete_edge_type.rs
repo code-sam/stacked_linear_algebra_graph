@@ -5,23 +5,13 @@ use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
 
 impl DropEdgeType for EdgeStore {
-    fn drop_valid_public_edge_type(
+    fn drop_valid_edge_type(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_type_indexer_mut_ref()
-            .try_is_valid_public_index(edge_type_index.index())?;
+            .try_index_validity(edge_type_index.index())?;
         self.edge_type_indexer_mut_ref()
-            .free_public_index_unchecked(edge_type_index.index())
-    }
-
-    fn drop_valid_private_edge_type(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.edge_type_indexer_mut_ref()
-            .try_is_valid_private_index(edge_type_index.index())?;
-        self.edge_type_indexer_mut_ref()
-            .free_private_index_unchecked(edge_type_index.index())
+            .free_index_unchecked(edge_type_index.index())
     }
 }

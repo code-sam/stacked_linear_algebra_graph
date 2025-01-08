@@ -6,7 +6,3 @@ use crate::{
 pub trait AddVertexType<T: ValueType> {
     fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
 }
-
-pub(crate) trait AddPrivateVertexType<T: ValueType> {
-    fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
-}

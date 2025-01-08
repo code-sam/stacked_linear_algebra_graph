@@ -11,7 +11,9 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
 };
 use crate::graph::indexing::ElementCount;
-use crate::graph::value_type::{GetValueTypeIdentifier, GetValueTypeIdentifierRef, ValueType, ValueTypeIdentifier};
+use crate::graph::value_type::{
+    GetValueTypeIdentifier, GetValueTypeIdentifierRef, ValueType, ValueTypeIdentifier,
+};
 
 #[derive(Clone, Debug)]
 pub(crate) struct WeightedAdjacencyMatrixWithCachedAttributes {
@@ -88,6 +90,12 @@ impl GetCachedAttributesOfAdjacencyMatrix for WeightedAdjacencyMatrixWithCachedA
 impl GetValueTypeIdentifierRef for WeightedAdjacencyMatrixWithCachedAttributes {
     fn value_type_identifier_ref(&self) -> &ValueTypeIdentifier {
         &self.adjacency_matrix.value_type_identifier_ref()
+    }
+}
+
+impl InvalidateChachedAdjacencyMatrixAttributes for WeightedAdjacencyMatrixWithCachedAttributes {
+    fn invalidate_all_attributes(&mut self) {
+        self.cached_attributes.invalidate_all_attributes();
     }
 }
 

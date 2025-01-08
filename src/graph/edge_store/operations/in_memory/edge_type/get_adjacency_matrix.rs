@@ -2,7 +2,9 @@ use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::WeightedAdjacencyMatrixWithCachedAttributes;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::{GetAdjacencyMatrix, GetAdjacencyMatrixWithCachedAttributes};
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::{
+    GetAdjacencyMatrix, GetAdjacencyMatrixWithCachedAttributes,
+};
 use crate::graph::edge_store::{
     adjacency_matrix_with_cached_attributes::GetWeightedAdjacencyMatrix,
     weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
@@ -11,39 +13,21 @@ use crate::graph::edge_store::{
 use crate::graph::indexing::{operations::CheckIndex, ElementCount, GetEdgeTypeIndex};
 
 impl GetAdjacencyMatrix for EdgeStore {
-    fn public_adjacency_matrix_ref(
+    fn adjacency_matrix_ref(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_public_index(edge_type_index.index())?;
+            .try_index_validity(edge_type_index.index())?;
         Ok(self.adjacency_matrix_ref_unchecked(edge_type_index))
     }
 
-    fn public_adjacency_matrix_mut_ref(
+    fn adjacency_matrix_mut_ref(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_public_index(edge_type_index.index())?;
-        Ok(self.adjacency_matrix_mut_ref_unchecked(edge_type_index))
-    }
-
-    fn private_adjacency_matrix_ref(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError> {
-        self.edge_type_indexer_ref()
-            .is_valid_private_index(edge_type_index.index())?;
-        Ok(self.adjacency_matrix_ref_unchecked(edge_type_index))
-    }
-
-    fn private_adjacency_matrix_mut_ref(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
-        self.edge_type_indexer_ref()
-            .is_valid_private_index(edge_type_index.index())?;
+            .try_index_validity(edge_type_index.index())?;
         Ok(self.adjacency_matrix_mut_ref_unchecked(edge_type_index))
     }
 
@@ -72,39 +56,21 @@ impl GetAdjacencyMatrix for EdgeStore {
 }
 
 impl GetAdjacencyMatrixWithCachedAttributes for EdgeStore {
-    fn public_adjacency_matrix_with_cached_attributes_ref(
+    fn adjacency_matrix_with_cached_attributes_ref(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_public_index(edge_type_index.index())?;
+            .try_index_validity(edge_type_index.index())?;
         Ok(self.adjacency_matrix_with_cached_attributes_ref_unchecked(edge_type_index))
     }
 
-    fn public_adjacency_matrix_with_cached_attributes_mut_ref(
+    fn adjacency_matrix_with_cached_attributes_mut_ref(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
         self.edge_type_indexer_ref()
-            .is_valid_public_index(edge_type_index.index())?;
-        Ok(self.adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index))
-    }
-
-    fn private_adjacency_matrix_with_cached_attributes_ref(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
-        self.edge_type_indexer_ref()
-            .is_valid_private_index(edge_type_index.index())?;
-        Ok(self.adjacency_matrix_with_cached_attributes_ref_unchecked(edge_type_index))
-    }
-
-    fn private_adjacency_matrix_with_cached_attributes_mut_ref(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
-        self.edge_type_indexer_ref()
-            .is_valid_private_index(edge_type_index.index())?;
+            .try_index_validity(edge_type_index.index())?;
         Ok(self.adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index))
     }
 
@@ -122,5 +88,3 @@ impl GetAdjacencyMatrixWithCachedAttributes for EdgeStore {
         &mut self.adjacency_matrices_mut_ref()[*edge_type_index.index_ref()]
     }
 }
-
-

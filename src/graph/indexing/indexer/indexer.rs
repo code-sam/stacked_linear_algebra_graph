@@ -2,18 +2,15 @@ use std::cmp::max;
 use std::fmt::Debug;
 use std::sync::Arc;
 
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
-    GetSparseVectorLength, SetSparseVectorElement,
-};
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorLength;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 use graphblas_sparse_linear_algebra::collections::Collection;
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 
 use crate::error::GraphComputingError;
-use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
+use crate::graph::indexing::{ElementCount, Index};
 
-use super::operations::SetIndexCapacity;
 use super::{Queue, VecDequeQueue};
 
 pub(crate) const MINIMUM_INDEXER_CAPACITY: usize = 1;
@@ -26,9 +23,6 @@ pub(crate) struct Indexer {
     indices_available_for_reuse: VecDequeQueue<Index>,
 
     mask_with_valid_indices: SparseVector<bool>,
-    mask_with_private_indices: SparseVector<bool>,
-    mask_with_valid_private_indices: SparseVector<bool>,
-    mask_with_valid_public_indices: SparseVector<bool>,
 }
 
 pub(crate) trait GetIndicesAvailableForReuse {
@@ -39,15 +33,6 @@ pub(crate) trait GetIndicesAvailableForReuse {
 pub(crate) trait GetIndexMask {
     fn mask_with_valid_indices_ref(&self) -> &SparseVector<bool>;
     fn mask_with_valid_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
-
-    fn mask_with_private_indices_ref(&self) -> &SparseVector<bool>;
-    fn mask_with_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
-
-    fn mask_with_valid_private_indices_ref(&self) -> &SparseVector<bool>;
-    fn mask_with_valid_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
-
-    fn mask_with_valid_public_indices_ref(&self) -> &SparseVector<bool>;
-    fn mask_with_valid_public_indices_mut_ref(&mut self) -> &mut SparseVector<bool>;
 }
 
 impl GetIndicesAvailableForReuse for Indexer {
@@ -67,30 +52,6 @@ impl GetIndexMask for Indexer {
 
     fn mask_with_valid_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
         &mut self.mask_with_valid_indices
-    }
-
-    fn mask_with_valid_private_indices_ref(&self) -> &SparseVector<bool> {
-        &self.mask_with_valid_private_indices
-    }
-
-    fn mask_with_valid_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
-        &mut self.mask_with_valid_private_indices
-    }
-
-    fn mask_with_valid_public_indices_ref(&self) -> &SparseVector<bool> {
-        &self.mask_with_valid_public_indices
-    }
-
-    fn mask_with_valid_public_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
-        &mut self.mask_with_valid_public_indices
-    }
-
-    fn mask_with_private_indices_ref(&self) -> &SparseVector<bool> {
-        &self.mask_with_private_indices
-    }
-
-    fn mask_with_private_indices_mut_ref(&mut self) -> &mut SparseVector<bool> {
-        &mut self.mask_with_private_indices
     }
 }
 
@@ -140,10 +101,7 @@ impl Indexer {
             _graphblas_context: graphblas_context.clone(),
             select_entire_vector: SelectEntireVector::new(graphblas_context.clone()),
             indices_available_for_reuse: VecDequeQueue::new(),
-            mask_with_valid_indices: empty_bool_vector.clone(),
-            mask_with_private_indices: empty_bool_vector.clone(),
-            mask_with_valid_private_indices: empty_bool_vector.clone(),
-            mask_with_valid_public_indices: empty_bool_vector,
+            mask_with_valid_indices: empty_bool_vector,
         })
     }
 
@@ -164,7 +122,7 @@ mod tests {
 
     use crate::graph::indexing::indexer::operations::GetIndexerStatus;
     use crate::graph::indexing::{
-        operations::{CheckIndex, FreeIndex, GeneratePublicIndex},
+        operations::{CheckIndex, FreeIndex, GenerateIndex},
         GetAssignedIndexData,
     };
 
@@ -187,7 +145,7 @@ mod tests {
         );
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 0);
 
-        let index = indexer.new_public_index().unwrap();
+        let index = indexer.new_index().unwrap();
         let mask_with_valid_indices = indexer.mask_with_valid_indices_ref();
 
         assert_eq!(
@@ -211,9 +169,7 @@ mod tests {
             Some(true)
         );
 
-        indexer
-            .free_public_index(index.index_ref().clone())
-            .unwrap();
+        indexer.free_valid_index(index.index_ref().clone()).unwrap();
         let mask_with_valid_indices = indexer.mask_with_valid_indices_ref();
 
         assert_eq!(
@@ -246,18 +202,18 @@ mod tests {
         let mut indices = Vec::new();
         let n_indices = 100;
         for _i in 0..n_indices {
-            let new_public_index = indexer.new_public_index().unwrap();
+            let new_public_index = indexer.new_index().unwrap();
             indices.push(new_public_index);
         }
 
         indexer
-            .free_public_index(indices[2].index_ref().clone())
+            .free_valid_index(indices[2].index_ref().clone())
             .unwrap();
         indexer
-            .free_public_index(indices[20].index_ref().clone())
+            .free_valid_index(indices[20].index_ref().clone())
             .unwrap();
         indexer
-            .free_public_index(indices[92].index_ref().clone())
+            .free_valid_index(indices[92].index_ref().clone())
             .unwrap();
 
         assert_eq!(
@@ -311,11 +267,11 @@ mod tests {
         let mut indices = Vec::new();
         let n_indices = 10;
         for _i in 0..n_indices {
-            indices.push(indexer.new_public_index().unwrap());
+            indices.push(indexer.new_index().unwrap());
         }
 
         for _i in 0..20 {
-            match indexer.free_public_index(1) {
+            match indexer.free_valid_index(1) {
                 // deleting the same key multiple times will result in errors, this error is not tested.
                 Ok(_) => (),
                 Err(_) => (),
@@ -332,7 +288,7 @@ mod tests {
         );
 
         for _i in 0..n_indices {
-            indices.push(indexer.new_public_index().unwrap());
+            indices.push(indexer.new_index().unwrap());
         }
 
         assert_eq!(indexer.number_of_indexed_elements().unwrap(), 19);
@@ -346,7 +302,7 @@ mod tests {
         let mut indices = Vec::new();
         let n_indices = 100;
         for i in 0..n_indices {
-            indices.push(indexer.new_public_index().unwrap());
+            indices.push(indexer.new_index().unwrap());
             assert_eq!(
                 indexer
                     .mask_with_valid_indices_ref()
@@ -367,7 +323,7 @@ mod tests {
             );
         }
 
-        indexer.free_public_index(0).unwrap();
+        indexer.free_valid_index(0).unwrap();
         assert_eq!(
             indexer
                 .mask_with_valid_indices_ref()
@@ -375,7 +331,7 @@ mod tests {
                 .unwrap(),
             false
         );
-        indexer.free_public_index(10).unwrap();
+        indexer.free_valid_index(10).unwrap();
         assert_eq!(
             indexer
                 .mask_with_valid_indices_ref()
@@ -399,14 +355,14 @@ mod tests {
 
         let n_indices = 10;
         for _i in 0..n_indices {
-            indexer.new_public_index().unwrap();
+            indexer.new_index().unwrap();
         }
 
-        indexer.free_public_index(0).unwrap();
-        indexer.free_public_index(3).unwrap();
-        indexer.free_public_index(4).unwrap();
+        indexer.free_valid_index(0).unwrap();
+        indexer.free_valid_index(3).unwrap();
+        indexer.free_valid_index(4).unwrap();
 
-        indexer.new_public_index().unwrap();
+        indexer.new_index().unwrap();
 
         assert_eq!(
             crate::graph::indexing::operations::GetValidIndices::valid_indices(&indexer).unwrap(),

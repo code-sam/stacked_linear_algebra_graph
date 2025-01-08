@@ -1,17 +1,13 @@
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
-    GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
-};
+use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::WeightedAdjacencyMatrixWithCachedAttributes;
 use crate::graph::edge_store::operations::operations::edge_type::map::{
     MapAdjacencyMatricesWithCachedAttributes, MapMutableAdjacencyMatrices,
 };
-use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::edge_store::{EdgeStore, GetAdjacencyMatrices, GetEdgeTypeIndicer};
-use crate::graph::indexing::operations::{
-    GetValidIndices, GetValidPrivateIndices, GetValidPublicIndices,
-};
+use crate::graph::indexing::operations::GetValidIndices;
+use crate::graph::indexing::EdgeTypeIndex;
 
 impl<MappingFunction> MapAdjacencyMatricesWithCachedAttributes<MappingFunction> for EdgeStore
 where
@@ -41,35 +37,13 @@ where
             .try_for_each(|i: usize| function_to_apply(&self.adjacency_matrices_ref()[i]))?;
         Ok(())
     }
-
-    // fn map_all_valid_public_adjacency_matrices(
-    //     &self,
-    //     function_to_apply: MappingFunction,
-    // ) -> Result<(), GraphComputingError> {
-    //     // TODO: would par_iter() give better performance?
-    //     self.edge_type_indexer_ref()
-    //         .valid_public_indices()?
-    //         .into_iter()
-    //         .try_for_each(|i: usize| function_to_apply(&self.adjacency_matrices_ref()[i]))?;
-    //     Ok(())
-    // }
-
-    // fn map_all_valid_private_adjacency_matrices(
-    //     &self,
-    //     function_to_apply: MappingFunction,
-    // ) -> Result<(), GraphComputingError> {
-    //     // TODO: would par_iter() give better performance?
-    //     self.edge_type_indexer_ref()
-    //         .valid_private_indices()?
-    //         .into_iter()
-    //         .try_for_each(|i: usize| function_to_apply(&self.adjacency_matrices_ref()[i]))?;
-    //     Ok(())
-    // }
 }
 
 impl<F> MapMutableAdjacencyMatrices<F> for EdgeStore
 where
-    F: Fn(&mut WeightedAdjacencyMatrix) -> Result<(), GraphComputingError> + Send + Sync,
+    F: Fn(&mut WeightedAdjacencyMatrixWithCachedAttributes) -> Result<(), GraphComputingError>
+        + Send
+        + Sync,
 {
     /// Apply function to all adjacency matrices
     fn map_mut_all_adjacency_matrices(
@@ -78,9 +52,7 @@ where
     ) -> Result<(), GraphComputingError> {
         self.adjacency_matrices_mut_ref()
             .into_par_iter()
-            .try_for_each(|adjacency_matrix| {
-                function_to_apply(adjacency_matrix.weighted_adjacency_matrix_mut_ref())
-            })?;
+            .try_for_each(|adjacency_matrix| function_to_apply(adjacency_matrix))?;
         Ok(())
     }
 
@@ -88,47 +60,45 @@ where
         &mut self,
         function_to_apply: F,
     ) -> Result<(), GraphComputingError> {
-        // TODO: would par_iter() give better performance?
-        self.edge_type_indexer_ref()
-            .valid_indices()?
-            .into_iter()
-            .try_for_each(|i: usize| {
-                function_to_apply(
-                    &mut self.adjacency_matrices_mut_ref()[i].weighted_adjacency_matrix_mut_ref(),
-                )
-            })?;
-        Ok(())
+        self.map_mut_all_valid_adjacency_matrices(function_to_apply)
     }
+}
 
-    fn map_mut_all_valid_public_adjacency_matrices(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError> {
-        // TODO: would par_iter() give better performance?
-        self.edge_type_indexer_mut_ref()
-            .valid_public_indices()?
-            .into_iter()
-            .try_for_each(|i: usize| {
-                function_to_apply(
-                    &mut self.adjacency_matrices_mut_ref()[i].weighted_adjacency_matrix_mut_ref(),
-                )
-            })?;
-        Ok(())
-    }
+pub(crate) fn map_mut_all_adjacency_matrices<F>(
+    edge_store: &mut EdgeStore,
+    function_to_apply: F,
+) -> Result<(), GraphComputingError>
+where
+    F: Fn(&mut WeightedAdjacencyMatrixWithCachedAttributes) -> Result<(), GraphComputingError>
+        + Send
+        + Sync,
+{
+    edge_store.map_mut_all_adjacency_matrices(function_to_apply)
+}
 
-    fn map_mut_all_valid_private_adjacency_matrices(
-        &mut self,
-        function_to_apply: F,
-    ) -> Result<(), GraphComputingError> {
-        // TODO: would par_iter() give better performance?
-        self.edge_type_indexer_mut_ref()
-            .valid_private_indices()?
-            .into_iter()
-            .try_for_each(|i: usize| {
-                function_to_apply(
-                    &mut self.adjacency_matrices_mut_ref()[i].weighted_adjacency_matrix_mut_ref(),
-                )
-            })?;
-        Ok(())
-    }
+pub(crate) fn map_mut_all_valid_adjacency_matrices<F>(
+    edge_store: &mut EdgeStore,
+    function_to_apply: F,
+) -> Result<(), GraphComputingError>
+where
+    F: Fn(&mut WeightedAdjacencyMatrixWithCachedAttributes) -> Result<(), GraphComputingError>
+        + Send
+        + Sync,
+{
+    edge_store.map_mut_all_valid_adjacency_matrices(function_to_apply)
+}
+
+pub(crate) fn indexed_map_mut_all_valid_adjacency_matrices<F>(
+    edge_store: &mut EdgeStore,
+    function_to_apply: F,
+) -> Result<(), GraphComputingError>
+where
+    F: FnMut(
+            &EdgeTypeIndex,
+            &mut WeightedAdjacencyMatrixWithCachedAttributes,
+        ) -> Result<(), GraphComputingError>
+        + Send
+        + Sync,
+{
+    edge_store.indexed_map_mut_all_valid_adjacency_matrices(function_to_apply)
 }

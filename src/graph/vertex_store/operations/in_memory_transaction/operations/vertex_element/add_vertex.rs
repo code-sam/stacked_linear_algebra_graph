@@ -14,7 +14,7 @@ use crate::graph::vertex_store::operations::in_memory_transaction::transaction::
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterEmptyVertexToRestore;
 use crate::graph::vertex_store::operations::vertex_element::AddVertex;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
-use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
+use crate::graph::vertex_store::operations::vertex_element::SetVertex;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 
 impl<'s, T> AddVertex<'s, T> for InMemoryVertexStoreTransaction<'s>
@@ -27,14 +27,14 @@ where
         + GetSparseVectorStateRevertersByVertexTypeMap<T>
         + SetSparseVectorElementTyped<T>,
 {
-    fn add_new_public_vertex(
+    fn add_new_vertex(
         &mut self,
         type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         let vertex_index = self
             .vertex_store_mut_ref()
-            .add_new_public_vertex(type_index, value)?;
+            .add_new_vertex(type_index, value)?;
 
         RegisterEmptyVertexToRestore::<T>::register_empty_vertex_to_restore(
             self.vertex_store_state_restorer_mut_ref(),
@@ -45,42 +45,14 @@ where
         Ok(vertex_index)
     }
 
-    fn add_or_update_public_vertex(
+    fn add_or_set_vertex(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
-        self.try_is_valid_public_vertex_type_index(vertex_type_index)?;
-        self.add_or_update_vertex_unchecked(vertex_type_index, vertex_index, value)
-    }
-
-    fn add_new_private_vertex(
-        &mut self,
-        type_index: &impl GetVertexTypeIndex,
-        value: T,
-    ) -> Result<AssignedIndex, GraphComputingError> {
-        let vertex_index = self
-            .vertex_store_mut_ref()
-            .add_new_private_vertex(type_index, value)?;
-
-        RegisterEmptyVertexToRestore::<T>::register_empty_vertex_to_restore(
-            self.vertex_store_state_restorer_mut_ref(),
-            type_index,
-            vertex_index.index(),
-        );
-
-        Ok(vertex_index)
-    }
-
-    fn add_or_update_private_vertex(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-        value: T,
-    ) -> Result<Option<AssignedIndex>, GraphComputingError> {
-        self.try_is_valid_private_vertex_type_index(vertex_type_index)?;
-        self.add_or_update_vertex_unchecked(vertex_type_index, vertex_index, value)
+        self.try_vertex_type_index_validity(vertex_type_index)?;
+        self.add_or_set_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
     fn add_new_vertex_unchecked(
@@ -101,14 +73,14 @@ where
         Ok(vertex_index)
     }
 
-    fn add_or_update_vertex_unchecked(
+    fn add_or_set_vertex_unchecked(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError> {
         if self.is_valid_vertex_index(vertex_index)? {
-            self.update_vertex_unchecked(vertex_type_index, vertex_index, value)?;
+            self.set_vertex_unchecked(vertex_type_index, vertex_index, value)?;
             return Ok(None);
         } else {
             let index = self.add_new_vertex_unchecked(vertex_type_index, value)?;
@@ -123,9 +95,7 @@ mod tests {
 
     use crate::graph::indexing::{VertexIndex, VertexTypeIndex};
     use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
-    use crate::graph::vertex_store::operations::vertex_type::{
-        AddPrivateVertexType, AddPublicVertexType,
-    };
+    use crate::graph::vertex_store::operations::vertex_type::AddVertexType;
     use crate::graph::vertex_store::VertexStore;
     use crate::operators::transaction::UseTransaction;
 
@@ -139,54 +109,44 @@ mod tests {
 
         let vertex_type_index_1 = VertexTypeIndex::new(2);
         let vertex_index_1 = transaction
-            .add_new_public_vertex(&vertex_type_index_1, 101)
+            .add_new_vertex(&vertex_type_index_1, 101)
             .unwrap();
         let vertex_index_2 = transaction
-            .add_new_public_vertex(&vertex_type_index_1, 102)
+            .add_new_vertex(&vertex_type_index_1, 102)
             .unwrap();
 
         assert_eq!(
             101,
-            transaction
-                .public_vertex_value(
-                    &vertex_type_index_1,
-                    &VertexIndex::new(vertex_index_1.index())
-                )
-                .unwrap()
-                .unwrap()
-        );
-        assert_eq!(
-            102,
-            transaction
-                .public_vertex_value(
-                    &vertex_type_index_1,
-                    &VertexIndex::new(vertex_index_2.index())
-                )
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<i32>::vertex_value(
+                &transaction,
+                &vertex_type_index_1,
+                &VertexIndex::new(vertex_index_1.index())
+            )
+            .unwrap()
+            .unwrap()
         );
 
         transaction.commit().unwrap();
 
         assert_eq!(
             101,
-            transaction
-                .public_vertex_value(
-                    &vertex_type_index_1,
-                    &VertexIndex::new(vertex_index_1.index())
-                )
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<i32>::vertex_value(
+                &transaction,
+                &vertex_type_index_1,
+                &VertexIndex::new(vertex_index_1.index())
+            )
+            .unwrap()
+            .unwrap()
         );
         assert_eq!(
             102,
-            transaction
-                .public_vertex_value(
-                    &vertex_type_index_1,
-                    &VertexIndex::new(vertex_index_2.index())
-                )
-                .unwrap()
-                .unwrap()
+            GetVertexValue::<i32>::vertex_value(
+                &transaction,
+                &vertex_type_index_1,
+                &VertexIndex::new(vertex_index_2.index())
+            )
+            .unwrap()
+            .unwrap()
         );
     }
 
@@ -199,21 +159,21 @@ mod tests {
 
             let vertex_type_index_1 = VertexTypeIndex::new(3);
             let _vertex_index_0 = transaction
-                .add_new_public_vertex(&VertexTypeIndex::new(0), 100)
+                .add_new_vertex(&VertexTypeIndex::new(0), 100)
                 .unwrap();
             let _vertex_index_1 = transaction
-                .add_new_private_vertex(&vertex_type_index_1, 101)
+                .add_new_vertex(&vertex_type_index_1, 101)
                 .unwrap();
             let _vertex_index_2 = transaction
-                .add_new_private_vertex(&vertex_type_index_1, 102)
+                .add_new_vertex(&vertex_type_index_1, 102)
                 .unwrap();
         }
 
         assert!(!vertex_store
-            .is_valid_private_vertex_index(&VertexIndex::new(0))
+            .is_valid_vertex_index(&VertexIndex::new(0))
             .unwrap());
         assert!(!vertex_store
-            .is_valid_private_vertex_index(&VertexIndex::new(1))
+            .is_valid_vertex_index(&VertexIndex::new(1))
             .unwrap());
     }
 
@@ -225,24 +185,24 @@ mod tests {
         let mut public_vertex_type_indices = Vec::new();
         for _i in 0..3 {
             public_vertex_type_indices
-                .push(AddPublicVertexType::<i32>::apply(&mut vertex_store).unwrap());
+                .push(AddVertexType::<i32>::apply(&mut vertex_store).unwrap());
         }
 
         for i in 0..5 {
             vertex_store
-                .add_new_public_vertex(&public_vertex_type_indices[1], i)
+                .add_new_vertex(&public_vertex_type_indices[1], i)
                 .unwrap();
         }
 
         let mut private_vertex_type_indices = Vec::new();
         for _i in 0..3 {
             private_vertex_type_indices
-                .push(AddPrivateVertexType::<i32>::apply(&mut vertex_store).unwrap());
+                .push(AddVertexType::<i32>::apply(&mut vertex_store).unwrap());
         }
 
         for i in 0..5 {
             vertex_store
-                .add_new_private_vertex(&private_vertex_type_indices[1], i)
+                .add_new_vertex(&private_vertex_type_indices[1], i)
                 .unwrap();
         }
 

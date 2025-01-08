@@ -1,17 +1,11 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
-    operations::{
-        sparse_matrix_column_width, sparse_matrix_row_height, sparse_matrix_size,
-        GetSparseMatrixSize,
-    },
-    Size,
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
+    sparse_matrix_column_width, sparse_matrix_row_height, sparse_matrix_size, GetSparseMatrixSize,
 };
+use graphblas_sparse_linear_algebra::collections::sparse_matrix::Size;
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, indexing::ElementCount,
-    },
-};
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use crate::graph::indexing::ElementCount;
 
 pub trait GetMatrixSize {
     fn size(&self) -> Result<Size, GraphComputingError>;

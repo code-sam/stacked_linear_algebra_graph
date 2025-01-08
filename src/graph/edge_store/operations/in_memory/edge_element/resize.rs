@@ -1,23 +1,18 @@
-use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
-    operations::resize_sparse_matrix, Size,
-};
-
-use crate::graph::{
-        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, indexing::ElementCount,
-    };
 use crate::error::GraphComputingError;
+use crate::graph::weighted_adjacency_matrix::operations::ResizeWeightedAdjacencyMatrix as ResizeWeightedAdjacencyMatrixForEdgeType;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::weighted_adjacency_matrix::operations::ResizeWeightedAdjacencyMatrix;
+use crate::graph::edge_store::EdgeStore;
+use crate::graph::indexing::ElementCount;
+use crate::graph::indexing::GetEdgeTypeIndex;
 
-pub(crate) trait ResizeWeightedAdjacencyMatrix {
-    fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError>;
-}
-
-impl ResizeWeightedAdjacencyMatrix for WeightedAdjacencyMatrix {
-    // TODO: find a more generic solution, e.g. by using TAITs as soon as they are stable
-    // https://github.com/rust-lang/rust/issues/63063
-    fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError> {
-        Ok(resize_sparse_matrix(
-            self,
-            Size::new(new_vertex_capacity, new_vertex_capacity),
-        )?)
+impl ResizeWeightedAdjacencyMatrixForEdgeType for EdgeStore {
+    fn resize(
+        &mut self,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        new_vertex_capacity: ElementCount,
+    ) -> Result<(), GraphComputingError> {
+        self.adjacency_matrix_mut_ref(edge_type_index)?
+            .resize(new_vertex_capacity)
     }
 }

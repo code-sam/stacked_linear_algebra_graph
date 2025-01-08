@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::GetVertexIndexIndex;
+use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 
 pub(crate) trait CheckVertexIndex {
     fn is_valid_vertex_index(
@@ -12,23 +12,27 @@ pub(crate) trait CheckVertexIndex {
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError>;
 
-    fn is_valid_public_vertex_index(
+    fn is_valid_vertex_element(
         &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError>;
 
-    fn try_is_valid_public_vertex_index(
+    fn try_is_valid_vertex_element(
         &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError>;
 
-    fn is_valid_private_vertex_index(
+    fn is_empty_vertex_element(
         &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError>;
 
-    fn try_is_valid_private_vertex_index(
+    fn try_is_empty_vertex_element(
         &self,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError>;
 }

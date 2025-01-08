@@ -5,7 +5,7 @@ use crate::graph::{value_type::ValueType, vertex_store::VertexVector};
 use crate::operators::transaction::RestoreState;
 
 use super::{
-    restore_sparse_vector_state, GetSparseVectorStateToRestore, SparseVectorStateReverter
+    restore_sparse_vector_state, GetSparseVectorStateToRestore, SparseVectorStateReverter,
 };
 
 impl<T: ValueType + Copy + SetSparseVectorElementTyped<T>> RestoreState<VertexVector>

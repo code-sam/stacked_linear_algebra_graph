@@ -8,7 +8,6 @@ use crate::graph::graph::Graph;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::operators::operators::delete::DeleteEdge;
-use crate::operators::operators::delete::DeletePrivateEdge;
 
 impl DeleteEdge for Graph {
     fn delete_edge(
@@ -18,7 +17,7 @@ impl DeleteEdge for Graph {
         head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         self.edge_store_mut_ref()
-            .public_adjacency_matrix_mut_ref(edge_type)?
+            .adjacency_matrix_mut_ref(edge_type)?
             .delete_edge_weight_unchecked(tail, head)?;
         Ok(())
     }
@@ -28,27 +27,6 @@ impl DeleteEdge for Graph {
         edge: &impl GetDirectedEdgeCoordinateIndex,
     ) -> Result<(), GraphComputingError> {
         self.delete_edge(edge.edge_type_ref(), edge.tail_ref(), edge.head_ref())
-    }
-}
-
-impl DeletePrivateEdge for Graph {
-    fn delete_private_edge(
-        &mut self,
-        edge_type: &impl GetEdgeTypeIndex,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .private_adjacency_matrix_mut_ref(edge_type)?
-            .delete_edge_weight_unchecked(tail, head)?;
-        Ok(())
-    }
-
-    fn delete_private_edge_for_coordinate(
-        &mut self,
-        edge: &impl GetDirectedEdgeCoordinateIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.delete_private_edge(edge.edge_type_ref(), edge.tail_ref(), edge.head_ref())
     }
 }
 

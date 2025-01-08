@@ -2,10 +2,11 @@ use std::fmt::Debug;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::edge_store::{
-    adjacency_matrix_with_cached_attributes::GetCachedAttributesOfAdjacencyMatrix,
-    operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes,
-    weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
+    EdgeStore, GetAdjacencyMatrices,
 };
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::GetCachedAttributesOfAdjacencyMatrix;
 use crate::graph::indexing::GetEdgeTypeIndex;
 
 impl GetAdjacencyMatrixCachedAttributes for EdgeStore {

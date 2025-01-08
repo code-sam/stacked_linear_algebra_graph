@@ -23,7 +23,7 @@ where
     ) -> Result<VertexIndex, GraphComputingError> {
         let new_index = self
             .vertex_store_mut_ref()
-            .add_new_public_vertex(vertex_type, value)?;
+            .add_new_vertex(vertex_type, value)?;
         match new_index.new_index_capacity() {
             Some(new_vertex_capacity) => {
                 self.edge_store_mut_ref()
@@ -40,11 +40,10 @@ where
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<VertexIndex>, GraphComputingError> {
-        match self.vertex_store_mut_ref().add_or_update_public_vertex(
-            vertex_type,
-            vertex_index,
-            value,
-        )? {
+        match self
+            .vertex_store_mut_ref()
+            .add_or_set_vertex(vertex_type, vertex_index, value)?
+        {
             Some(new_index) => {
                 match new_index.new_index_capacity() {
                     Some(new_vertex_capacity) => {
@@ -64,65 +63,6 @@ where
         vertex: &(impl GetVertexIndex + GetVertexValue<T>),
     ) -> Result<Option<VertexIndex>, GraphComputingError> {
         self.add_or_update_vertex(
-            vertex.type_index_ref(),
-            vertex.index_ref(),
-            *vertex.value_ref(),
-        )
-    }
-}
-
-impl<T> AddPrivateVertex<T> for Graph
-where
-    T: ValueType + SetSparseVectorElementTyped<T> + Copy,
-{
-    fn add_private_vertex(
-        &mut self,
-        vertex_type: &impl GetVertexTypeIndex,
-        value: T,
-    ) -> Result<VertexIndex, GraphComputingError> {
-        let new_index = self
-            .vertex_store_mut_ref()
-            .add_new_private_vertex(vertex_type, value)?;
-        match new_index.new_index_capacity() {
-            Some(new_vertex_capacity) => {
-                self.edge_store_mut_ref()
-                    .resize_adjacency_matrices(new_vertex_capacity)?;
-            }
-            None => (),
-        }
-        Ok(VertexIndex::new(*new_index.index_ref()))
-    }
-
-    fn add_or_update_private_vertex(
-        &mut self,
-        vertex_type: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-        value: T,
-    ) -> Result<Option<VertexIndex>, GraphComputingError> {
-        match self.vertex_store_mut_ref().add_or_update_private_vertex(
-            vertex_type,
-            vertex_index,
-            value,
-        )? {
-            Some(new_index) => {
-                match new_index.new_index_capacity() {
-                    Some(new_vertex_capacity) => {
-                        self.edge_store_mut_ref()
-                            .resize_adjacency_matrices(new_vertex_capacity)?;
-                    }
-                    None => (),
-                }
-                Ok(Some(VertexIndex::new(*new_index.index_ref())))
-            }
-            None => Ok(None),
-        }
-    }
-
-    fn add_or_update_private_vertex_from_vertex(
-        &mut self,
-        vertex: &(impl GetVertexIndex + GetVertexValue<T>),
-    ) -> Result<Option<VertexIndex>, GraphComputingError> {
-        self.add_or_update_private_vertex(
             vertex.type_index_ref(),
             vertex.index_ref(),
             *vertex.value_ref(),

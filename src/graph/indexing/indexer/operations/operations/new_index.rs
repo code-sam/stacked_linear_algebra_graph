@@ -1,25 +1,19 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElement;
 use graphblas_sparse_linear_algebra::collections::Collection;
 
+use crate::error::GraphComputingError;
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
 use crate::graph::indexing::indexer::GetIndicesAvailableForReuse;
+use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData};
 use crate::graph::indexing::{GetIndexCapacity, Index, Queue};
-use crate::{
-    error::GraphComputingError,
-    graph::indexing::{AssignedIndex, GetAssignedIndexData, Indexer},
-};
 
 use super::SetIndexCapacity;
 
-pub(crate) trait GeneratePublicIndex {
-    fn new_public_index(&mut self) -> Result<AssignedIndex, GraphComputingError>;
+pub(crate) trait GenerateIndex {
+    fn new_index(&mut self) -> Result<AssignedIndex, GraphComputingError>;
 }
 
-pub(crate) trait GeneratePrivateIndex {
-    fn new_private_index(&mut self) -> Result<AssignedIndex, GraphComputingError>;
-}
-
-pub(crate) fn new_public_index(
+pub(crate) fn new_index(
     indexer: &mut (impl GetIndexMask
               + GetIndexCapacity
               + SetIndexCapacity
@@ -27,23 +21,7 @@ pub(crate) fn new_public_index(
 ) -> Result<AssignedIndex, GraphComputingError> {
     let index = claim_available_index(indexer)?;
     indexer
-        .mask_with_valid_public_indices_mut_ref()
-        .set_value(index.index(), true)?;
-    Ok(index)
-}
-
-pub(crate) fn new_private_index(
-    indexer: &mut (impl GetIndexMask
-              + GetIndexCapacity
-              + SetIndexCapacity
-              + GetIndicesAvailableForReuse),
-) -> Result<AssignedIndex, GraphComputingError> {
-    let index = claim_available_index(indexer)?;
-    indexer
-        .mask_with_private_indices_mut_ref()
-        .set_value(index.index(), true)?;
-    indexer
-        .mask_with_valid_private_indices_mut_ref()
+        .mask_with_valid_indices_mut_ref()
         .set_value(index.index(), true)?;
     Ok(index)
 }

@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Get
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::indexing::{
-    operations::{GeneratePrivateIndex, GeneratePublicIndex, GetValidIndices},
+    operations::{GenerateIndex, GetValidIndices},
     AssignedIndex, GetAssignedIndexData, VertexTypeIndex,
 };
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
@@ -12,30 +12,14 @@ use crate::graph::vertex_store::{
     VertexStore, VertexVector,
 };
 
-pub(crate) trait AddPublicVertexType<'a, T: ValueType> {
+pub(crate) trait AddVertexType<'a, T: ValueType> {
     fn apply(&'a mut self) -> Result<VertexTypeIndex, GraphComputingError>;
 }
 
-pub(crate) trait AddPrivateVertexType<'a, T: ValueType> {
-    fn apply(&'a mut self) -> Result<VertexTypeIndex, GraphComputingError>;
-}
-
-pub(crate) fn add_public_vertex_type<T: ValueType + GetValueTypeIdentifier>(
+pub(crate) fn add_vertex_type<T: ValueType + GetValueTypeIdentifier>(
     vertex_store: &mut VertexStore,
 ) -> Result<AssignedIndex, GraphComputingError> {
-    let new_type_index = vertex_store
-        .vertex_type_indexer_mut_ref()
-        .new_public_index()?;
-    vertex_store.add_vertex_type::<T>(&new_type_index)?;
-    Ok(new_type_index)
-}
-
-pub(crate) fn add_private_vertex_type<T: ValueType + GetValueTypeIdentifier>(
-    vertex_store: &mut VertexStore,
-) -> Result<AssignedIndex, GraphComputingError> {
-    let new_type_index = vertex_store
-        .vertex_type_indexer_mut_ref()
-        .new_private_index()?;
+    let new_type_index = vertex_store.vertex_type_indexer_mut_ref().new_index()?;
     vertex_store.add_vertex_type::<T>(&new_type_index)?;
     Ok(new_type_index)
 }

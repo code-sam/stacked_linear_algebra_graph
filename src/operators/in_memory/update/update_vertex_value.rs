@@ -19,7 +19,7 @@ where
         value: T,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
-            .update_public_vertex(vertex_type_index, vertex_index, value)
+            .update_vertex(vertex_type_index, vertex_index, value)
     }
 }
 

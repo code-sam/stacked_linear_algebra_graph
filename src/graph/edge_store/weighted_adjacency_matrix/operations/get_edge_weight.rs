@@ -71,13 +71,13 @@ where
         head: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         match self.value_type_identifier_ref() {
-            &ValueTypeIdentifier::Bool => unsafe {
+            &ValueTypeIdentifier::Bool => {
                 // get_matrix_element_value::<bool, T>(self, tail, head)
                 match unsafe { bool::element_value(self, tail.index(), head.index())? } {
                     Some(edge_weight) => Ok(Some(edge_weight.into_value_type())),
                     None => Ok(None),
                 }
-            },
+            }
             &ValueTypeIdentifier::Int8 => unsafe {
                 get_matrix_element_value::<i8, T>(self, tail, head)
             },

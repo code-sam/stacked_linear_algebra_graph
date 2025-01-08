@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::Size;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes};
-use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::state_restorer_for_adjacency_matrix_with_cached_attributes::StateRestorerForAdjacencyMatrixWithCachedAttributes;
+use crate::graph::edge_store::operations::in_memory_transaction::adjacency_matrices_state_restorer::state_restorer_for_adjacency_matrix_with_cached_attributes::StateRestorerForAdjacencyMatrixWithCachedAttributes;
 use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::GetAdjacencyMatrixSizeToRestore;
 use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::GetAdjacencyMatrixVectorLengthToRestore;
 use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::AdjacencyMatricesWithCachedAttributesStateRestorer;

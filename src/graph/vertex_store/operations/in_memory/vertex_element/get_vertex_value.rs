@@ -35,73 +35,37 @@ where
     isize: IntoValueType<T>,
     usize: IntoValueType<T>,
 {
-    fn public_vertex_value(
+    fn vertex_value(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index())?;
+            .try_index_validity(vertex_type_index.index())?;
         self.element_indexer_ref()
             .try_index_validity(vertex_index.index())?;
         self.vertex_value_unchecked(vertex_type_index, vertex_index)
     }
 
-    fn try_public_vertex_value(
+    fn try_vertex_value(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index())?;
+            .try_index_validity(vertex_type_index.index())?;
         self.element_indexer_ref()
             .try_index_validity(vertex_index.index())?;
         self.try_vertex_value_unchecked(vertex_type_index, vertex_index)
     }
 
-    fn public_vertex_value_or_default(
+    fn vertex_value_or_default(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
         self.vertex_type_indexer_ref()
-            .try_is_valid_public_index(vertex_type_index.index())?;
-        self.element_indexer_ref()
-            .try_index_validity(vertex_index.index())?;
-        self.vertex_value_or_default_unchecked(vertex_type_index, vertex_index)
-    }
-
-    fn private_vertex_value(
-        &self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-    ) -> Result<Option<T>, GraphComputingError> {
-        self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index())?;
-        self.element_indexer_ref()
-            .try_index_validity(vertex_index.index())?;
-        self.vertex_value_unchecked(vertex_type_index, vertex_index)
-    }
-
-    fn try_private_vertex_value(
-        &self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-    ) -> Result<T, GraphComputingError> {
-        self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index())?;
-        self.element_indexer_ref()
-            .try_index_validity(vertex_index.index())?;
-        self.try_vertex_value_unchecked(vertex_type_index, vertex_index)
-    }
-
-    fn private_vertex_value_or_default(
-        &self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-    ) -> Result<T, GraphComputingError> {
-        self.vertex_type_indexer_ref()
-            .try_is_valid_private_index(vertex_type_index.index())?;
+            .try_index_validity(vertex_type_index.index())?;
         self.element_indexer_ref()
             .try_index_validity(vertex_index.index())?;
         self.vertex_value_or_default_unchecked(vertex_type_index, vertex_index)

@@ -11,13 +11,7 @@ use crate::graph::vertex_store::vertex_vector::IntoSparseVectorAndClearValuesFor
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::GetVertexStoreStateReverters;
 
 pub(crate) trait RegisterVertexVectorToRestore<'t> {
-    fn register_deleted_public_vertex_vector_to_restore(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_vector: &mut VertexVector,
-    ) -> Result<(), GraphComputingError>;
-
-    fn register_deleted_private_vertex_vector_to_restore(
+    fn register_deleted_vertex_vector_to_restore(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_vector: &mut VertexVector,
@@ -31,25 +25,13 @@ pub(crate) trait RegisterVertexVectorToRestore<'t> {
 }
 
 impl<'t> RegisterVertexVectorToRestore<'t> for VertexStoreStateRestorer {
-    fn register_deleted_public_vertex_vector_to_restore(
+    fn register_deleted_vertex_vector_to_restore(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
         vertex_vector: &mut VertexVector,
     ) -> Result<(), GraphComputingError> {
         self.vertex_type_indexer_state_restorer_mut_ref()
-            .register_freed_public_index_to_restore(vertex_type_index.index())?;
-
-        self.register_deleted_vertex_vector_to_restore(vertex_vector, vertex_type_index)?;
-        Ok(())
-    }
-
-    fn register_deleted_private_vertex_vector_to_restore(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_vector: &mut VertexVector,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_type_indexer_state_restorer_mut_ref()
-            .register_freed_private_index_to_restore(vertex_type_index.index())?;
+            .register_freed_index_to_restore(vertex_type_index.index())?;
 
         self.register_deleted_vertex_vector_to_restore(vertex_vector, vertex_type_index)?;
         Ok(())
@@ -263,26 +245,11 @@ implement_macro_for_all_native_value_types!(
 );
 
 impl<'s> InMemoryVertexStoreTransaction<'s> {
-    fn register_updated_private_vertex_vector_to_restore(
+    fn register_updated_vertex_vector_to_restore(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
-        let vertex_vector = self
-            .vertex_store
-            .private_vertex_vector_ref(vertex_type_index)?;
-
-        self.vertex_store_state_restorer
-            .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;
-        Ok(())
-    }
-
-    fn register_updated_public_vertex_vector_to_restore(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        let vertex_vector = self
-            .vertex_store
-            .public_vertex_vector_ref(vertex_type_index)?;
+        let vertex_vector = self.vertex_store.vertex_vector_ref(vertex_type_index)?;
 
         self.vertex_store_state_restorer
             .register_updated_vertex_vector_to_restore(vertex_type_index, vertex_vector)?;

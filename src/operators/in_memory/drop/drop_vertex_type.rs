@@ -4,7 +4,7 @@ use crate::graph::graph::{GetVertexStore, Graph};
 use crate::graph::indexing::operations::FreeIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
-use crate::operators::operators::drop::{DropPrivateVertexType, DropVertexType};
+use crate::operators::operators::drop::DropVertexType;
 
 impl DropVertexType for Graph {
     fn drop_vertex_type(
@@ -13,18 +13,7 @@ impl DropVertexType for Graph {
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
             .vertex_type_indexer_mut_ref()
-            .free_public_index(*vertex_type_index.index_ref())
-    }
-}
-
-impl DropPrivateVertexType for Graph {
-    fn drop_private_vertex_type(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .vertex_type_indexer_mut_ref()
-            .free_private_index(*vertex_type_index.index_ref())
+            .free_valid_index(*vertex_type_index.index_ref())
     }
 }
 

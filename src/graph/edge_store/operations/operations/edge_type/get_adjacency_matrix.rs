@@ -6,20 +6,11 @@ use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix
 use crate::graph::indexing::{ElementCount, GetEdgeTypeIndex};
 
 pub(crate) trait GetAdjacencyMatrix {
-    fn public_adjacency_matrix_ref(
+    fn adjacency_matrix_ref(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError>;
-    fn public_adjacency_matrix_mut_ref(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError>;
-
-    fn private_adjacency_matrix_ref(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&WeightedAdjacencyMatrix, GraphComputingError>;
-    fn private_adjacency_matrix_mut_ref(
+    fn adjacency_matrix_mut_ref(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError>;
@@ -38,20 +29,11 @@ pub(crate) trait GetAdjacencyMatrix {
 }
 
 pub(crate) trait GetAdjacencyMatrixWithCachedAttributes {
-    fn public_adjacency_matrix_with_cached_attributes_ref(
+    fn adjacency_matrix_with_cached_attributes_ref(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError>;
-    fn public_adjacency_matrix_with_cached_attributes_mut_ref(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError>;
-
-    fn private_adjacency_matrix_with_cached_attributes_ref(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<&WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError>;
-    fn private_adjacency_matrix_with_cached_attributes_mut_ref(
+    fn adjacency_matrix_with_cached_attributes_mut_ref(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError>;

@@ -8,7 +8,7 @@ use crate::operators::operators::add::CreateVertexIndex;
 
 impl CreateVertexIndex for Graph {
     fn new_vertex_index(&mut self) -> Result<VertexIndex, GraphComputingError> {
-        let assigned_index = self.vertex_store_mut_ref().new_public_vertex_index()?;
+        let assigned_index = self.vertex_store_mut_ref().new_vertex_index()?;
         match assigned_index.new_index_capacity() {
             Some(new_vertex_capacity) => {
                 self.edge_store_mut_ref()

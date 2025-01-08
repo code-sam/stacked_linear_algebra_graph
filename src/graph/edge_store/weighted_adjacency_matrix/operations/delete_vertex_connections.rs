@@ -20,12 +20,6 @@ use super::GetMatrixSize;
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
     Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
 
-static INSERT_VECTOR_INTO_COLUMN_OPERATOR: Lazy<InsertVectorIntoColumnOperator> =
-    Lazy::new(|| InsertVectorIntoColumnOperator::new());
-
-static INSERT_VECTOR_INTO_ROW_OPERATOR: Lazy<InsertVectorIntoRowOperator> =
-    Lazy::new(|| InsertVectorIntoRowOperator::new());
-
 // TODO: this doesn't work because Lazy generates a one-off type that doesn't implement AccumulatorBinaryOperator.
 // static BOOLEAN_ASSIGNMENT_OPERATOR: Lazy<Assignment<bool>> = Lazy::new(|| Assignment::<bool>::new());
 
@@ -52,7 +46,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             SparseVector::<bool>::new(self.graphblas_context(), self.vertex_capacity()?)?;
 
         // TODO: is inserting an empty vector the fastest way to delete a row/column?
-        INSERT_VECTOR_INTO_COLUMN_OPERATOR.apply(
+        InsertVectorIntoColumnOperator::new().apply(
             self,
             &ElementIndexSelector::All,
             vertex_index.index_ref(),
@@ -61,7 +55,7 @@ impl DeleteVertexConnections for WeightedAdjacencyMatrix {
             &SelectEntireVector::new(self.graphblas_context()), // TODO: could the mask be cached for better performance?
             &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
         )?;
-        INSERT_VECTOR_INTO_ROW_OPERATOR.apply(
+        InsertVectorIntoRowOperator::new().apply(
             self,
             &ElementIndexSelector::All,
             vertex_index.index_ref(),
