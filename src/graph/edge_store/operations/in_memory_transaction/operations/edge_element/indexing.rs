@@ -11,6 +11,17 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, VertexIndex};
 
 impl<'s> Indexing for InMemoryEdgeStoreTransaction<'s> {
+    fn is_valid_edge(
+        &self,
+        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<bool, GraphComputingError> {
+        self.edge_store
+            .is_valid_edge(vertex_indexer, edge_type_index, tail, head)
+    }
+
     fn is_edge(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
@@ -78,5 +89,16 @@ impl<'s> Indexing for InMemoryEdgeStoreTransaction<'s> {
     ) -> Result<Vec<VertexIndex>, GraphComputingError> {
         self.edge_store_ref()
             .indices_of_connected_vertices(edge_type_index)
+    }
+
+    fn try_is_valid_edge(
+        &self,
+        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.edge_store
+            .try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)
     }
 }

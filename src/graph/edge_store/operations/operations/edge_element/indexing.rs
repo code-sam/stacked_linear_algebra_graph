@@ -5,8 +5,17 @@ use crate::graph::edge_store::weighted_adjacency_matrix::{
     AdjacencyMatrixCoordinate, GetAdjacencyMatrixCoordinateIndices,
 };
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, VertexIndex};
+use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 
 pub(crate) trait Indexing {
+    fn is_valid_edge(
+        &self,
+        vertex_indexer: &impl CheckVertexIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<bool, GraphComputingError>;
+
     fn is_edge_at_coordinate(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
@@ -18,6 +27,14 @@ pub(crate) trait Indexing {
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError>;
+
+    fn try_is_valid_edge(
+        &self,
+        vertex_indexer: &impl CheckVertexIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<(), GraphComputingError>;
 
     fn try_is_edge_at_coordinate(
         &self,

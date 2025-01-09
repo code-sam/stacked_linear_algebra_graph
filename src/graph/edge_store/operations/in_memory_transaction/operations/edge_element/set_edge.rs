@@ -8,6 +8,7 @@ use crate::graph::edge::GetEdgeWeight;
 use crate::graph::edge_store::operations::in_memory_transaction::GetEdgeStore;
 use crate::graph::edge_store::operations::in_memory_transaction::InMemoryEdgeStoreTransaction;
 use crate::graph::edge_store::operations::in_memory_transaction::RegisterEdgeWeightToRestore;
+use crate::graph::edge_store::operations::operations::edge_element::Indexing;
 use crate::graph::edge_store::operations::operations::edge_element::SetEdge;
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrixWithCachedAttributes;
 use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
@@ -49,10 +50,7 @@ where
         head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_type_index_validity(edge_type_index)?;
-
-        vertex_indexer.try_vertex_index_validity(tail)?;
-        vertex_indexer.try_vertex_index_validity(head)?;
+        self.try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
 
         self.set_edge_unchecked(edge_type_index, tail, head, weight)
     }

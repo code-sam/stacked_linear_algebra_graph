@@ -3,9 +3,8 @@ use std::fmt::Debug;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::operations::edge_element::GetEdgeWeight;
+use crate::graph::edge_store::operations::operations::edge_element::{GetEdgeWeight, Indexing};
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing;
 use crate::graph::edge_store::weighted_adjacency_matrix::GetAdjacencyMatrixCoordinateIndices;
 
 use crate::graph::edge_store::EdgeStore;
@@ -37,11 +36,7 @@ where
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
-        self.try_edge_type_index_validity(edge_type_index)?;
-
-        vertex_indexer.try_vertex_index_validity(tail)?;
-        vertex_indexer.try_vertex_index_validity(head)?;
-
+        self.try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
         self.edge_weight_unchecked(edge_type_index, tail, head)
     }
 
@@ -85,11 +80,7 @@ where
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
-        self.try_edge_type_index_validity(edge_type_index)?;
-
-        vertex_indexer.try_vertex_index_validity(tail)?;
-        vertex_indexer.try_vertex_index_validity(head)?;
-
+        self.try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
         self.edge_weight_or_default_unchecked(edge_type_index, tail, head)
     }
 
@@ -133,11 +124,7 @@ where
         tail: &(impl GetVertexIndexIndex + Debug),
         head: &(impl GetVertexIndexIndex + Debug),
     ) -> Result<T, GraphComputingError> {
-        self.try_edge_type_index_validity(edge_type_index)?;
-
-        vertex_indexer.try_vertex_index_validity(tail)?;
-        vertex_indexer.try_vertex_index_validity(head)?;
-
+        self.try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
         self.try_edge_weight_unchecked(edge_type_index, tail, head)
     }
 

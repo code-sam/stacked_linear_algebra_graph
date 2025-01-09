@@ -4,9 +4,8 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::operations::edge_element::DeleteEdge;
+use crate::graph::edge_store::operations::operations::edge_element::{DeleteEdge, Indexing};
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing;
 use crate::graph::edge_store::EdgeStore;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
@@ -45,9 +44,7 @@ impl DeleteEdge for EdgeStore {
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_type_index_validity(edge_type_index)?;
-        vertex_indexer.try_vertex_index_validity(tail)?;
-        vertex_indexer.try_vertex_index_validity(head)?;
+        self.try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
 
         self.delete_edge_weight_unchecked(edge_type_index, tail, head)
     }
