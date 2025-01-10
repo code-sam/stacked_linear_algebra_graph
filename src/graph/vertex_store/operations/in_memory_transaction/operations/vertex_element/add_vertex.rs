@@ -84,10 +84,12 @@ where
 mod tests {
     use super::*;
 
-    use crate::graph::indexing::{GetAssignedIndexData, GetIndex, VertexIndex, VertexTypeIndex};
+    use crate::graph::indexing::{
+        GetAssignedIndexData, GetIndex, GetIndexCapacity, VertexIndex, VertexTypeIndex,
+    };
     use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
     use crate::graph::vertex_store::operations::vertex_type::AddVertexType;
-    use crate::graph::vertex_store::VertexStore;
+    use crate::graph::vertex_store::{GetVertexElementIndexer, VertexStore};
     use crate::operators::transaction::UseTransaction;
 
     use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
@@ -153,6 +155,8 @@ mod tests {
             .add_new_vertex(&vertex_type_1_index, 1)
             .unwrap();
 
+        let vertex_capacity = vertex_store.element_indexer_ref().capacity().unwrap();
+
         {
             let mut transaction = InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
 
@@ -161,12 +165,12 @@ mod tests {
             let _ = transaction
                 .add_new_vertex(&vertex_type_1_index, 100)
                 .unwrap();
-            let _ = transaction
-                .add_new_vertex(&vertex_type_2_index, 101)
-                .unwrap();
-            let _ = transaction
-                .add_new_vertex(&vertex_type_2_index, 102)
-                .unwrap();
+
+            for value in 100..200 {
+                let _ = transaction
+                    .add_new_vertex(&vertex_type_2_index, value)
+                    .unwrap();
+            }
         }
 
         assert!(vertex_store
@@ -182,6 +186,11 @@ mod tests {
         assert!(!vertex_store
             .is_valid_vertex_index(&VertexIndex::new(vertex_index_2.index() + 1))
             .unwrap());
+
+        assert_eq!(
+            vertex_store.element_indexer_ref().capacity().unwrap(),
+            vertex_capacity
+        );
     }
 
     fn initialize_vertex_store() -> VertexStore {

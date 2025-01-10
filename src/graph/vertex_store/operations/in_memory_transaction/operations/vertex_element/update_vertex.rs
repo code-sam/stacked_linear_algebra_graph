@@ -43,7 +43,7 @@ where
 
         self.vertex_store_state_restorer
             .register_vertex_value_to_restore(vertex_vector, vertex_type_index, vertex_index)?;
-        
+
         self.vertex_store_mut_ref()
             .update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
