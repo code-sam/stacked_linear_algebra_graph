@@ -3,7 +3,6 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Set
 
 use crate::error::GraphComputingError;
 use crate::graph::indexing::AssignedIndex;
-use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
@@ -11,7 +10,6 @@ use crate::graph::vertex_store::operations::in_memory_transaction::transaction::
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStoreStateRestorer;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::InMemoryVertexStoreTransaction;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterEmptyVertexToRestore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterNewVertexToRevert;
 use crate::graph::vertex_store::operations::vertex_element::AddVertex;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
@@ -33,7 +31,8 @@ where
         vertex_type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
-        self.vertex_store_ref().try_vertex_type_index_validity(vertex_type_index)?;
+        self.vertex_store_ref()
+            .try_vertex_type_index_validity(vertex_type_index)?;
         self.add_new_vertex_unchecked(vertex_type_index, value)
     }
 
@@ -56,7 +55,11 @@ where
             .vertex_store_mut_ref()
             .add_new_vertex_unchecked(vertex_type_index, value)?;
 
-        RegisterNewVertexToRevert::<T>::register_new_vertex_to_revert(self.vertex_store_state_restorer_mut_ref(), vertex_type_index, &vertex_index)?;
+        RegisterNewVertexToRevert::<T>::register_new_vertex_to_revert(
+            self.vertex_store_state_restorer_mut_ref(),
+            vertex_type_index,
+            &vertex_index,
+        )?;
 
         Ok(vertex_index)
     }
@@ -81,7 +84,7 @@ where
 mod tests {
     use super::*;
 
-    use crate::graph::indexing::{GetIndex, VertexIndex, VertexTypeIndex};
+    use crate::graph::indexing::{GetAssignedIndexData, GetIndex, VertexIndex, VertexTypeIndex};
     use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
     use crate::graph::vertex_store::operations::vertex_type::AddVertexType;
     use crate::graph::vertex_store::VertexStore;

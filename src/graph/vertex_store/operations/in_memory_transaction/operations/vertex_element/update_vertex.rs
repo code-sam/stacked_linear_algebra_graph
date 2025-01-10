@@ -26,7 +26,7 @@ where
         self.vertex_store_ref()
             .try_vertex_type_index_validity(vertex_type_index)?;
         self.vertex_store_ref()
-            .try_vertex_index_validity(vertex_index)?;
+            .try_is_valid_vertex_element(vertex_type_index, vertex_index)?;
 
         self.update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
@@ -40,8 +40,10 @@ where
         let vertex_vector = self
             .vertex_store
             .vertex_vector_ref_unchecked(vertex_type_index);
+
         self.vertex_store_state_restorer
             .register_vertex_value_to_restore(vertex_vector, vertex_type_index, vertex_index)?;
+        
         self.vertex_store_mut_ref()
             .update_vertex_unchecked(vertex_type_index, vertex_index, value)
     }

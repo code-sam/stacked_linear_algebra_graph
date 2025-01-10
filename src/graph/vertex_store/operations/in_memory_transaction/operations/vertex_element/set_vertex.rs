@@ -30,7 +30,7 @@ where
                 vertex_vector,
                 vertex_type_index,
                 vertex_index,
-            );
+            )?;
         self.vertex_store_mut_ref()
             .set_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
@@ -47,7 +47,7 @@ where
                 vertex_vector,
                 vertex_type_index,
                 vertex_index,
-            );
+            )?;
         self.vertex_store_mut_ref()
             .set_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
