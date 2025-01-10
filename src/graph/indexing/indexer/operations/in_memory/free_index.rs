@@ -25,20 +25,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_resuse_index() {
+    fn test_reuse_index() {
         let mut indexer =
             Indexer::with_initial_capacity(GraphBLASContext::init_default().unwrap(), 10).unwrap();
 
-        let public_index = indexer.new_index().unwrap();
-        indexer.free_valid_index(public_index.index()).unwrap();
+        let initial_index = indexer.new_index().unwrap();
+        indexer.free_valid_index(initial_index.index()).unwrap();
 
-        let index = indexer.new_index().unwrap();
+        let reused_index = indexer.new_index().unwrap();
 
-        assert_eq!(public_index.index(), index.index());
+        assert_eq!(initial_index.index(), reused_index.index());
 
-        assert!(indexer.is_valid_index(index.index()).unwrap());
-        assert!(indexer.is_valid_index(index.index()).unwrap());
-        assert!(!indexer.is_valid_index(index.index()).unwrap());
-        assert!(!indexer.is_valid_index(index.index()).unwrap());
+        assert!(indexer.is_valid_index(initial_index.index()).unwrap());
     }
 }

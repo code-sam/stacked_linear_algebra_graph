@@ -32,31 +32,16 @@ mod tests {
             indexer.new_index().unwrap();
         }
 
-        for _i in 0..n_indices {
-            indexer.new_index().unwrap();
-        }
-
         indexer.free_valid_index(0).unwrap();
         indexer.free_valid_index(3).unwrap();
         indexer.free_valid_index(4).unwrap();
 
-        indexer.free_valid_index(10).unwrap();
-        indexer.free_valid_index(13).unwrap();
-        indexer.free_valid_index(14).unwrap();
-
-        indexer.new_index().unwrap();
         indexer.new_index().unwrap();
 
-        assert!(indexer.is_valid_index(0).unwrap());
-        assert!(indexer.is_valid_index(15).unwrap());
-        assert_eq!(indexer.is_valid_index(1).unwrap(), false);
-
+        assert_eq!(indexer.is_valid_index(0).unwrap(), true);
+        assert_eq!(indexer.is_valid_index(15).unwrap(), false);
+        assert_eq!(indexer.is_valid_index(1).unwrap(), true);
         assert_eq!(indexer.is_valid_index(3).unwrap(), false);
-        assert_eq!(indexer.is_valid_index(3).unwrap(), true);
-
-        assert_eq!(indexer.is_valid_index(5).unwrap(), false);
         assert_eq!(indexer.is_valid_index(5).unwrap(), true);
-
-        assert_eq!(indexer.is_valid_index(1).unwrap(), false);
     }
 }

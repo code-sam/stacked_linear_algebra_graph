@@ -12,6 +12,7 @@ use crate::graph::vertex_store::operations::in_memory_transaction::transaction::
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStoreStateRestorer;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::InMemoryVertexStoreTransaction;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterEmptyVertexToRestore;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterNewVertexToRevert;
 use crate::graph::vertex_store::operations::vertex_element::AddVertex;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::graph::vertex_store::operations::vertex_element::SetVertex;
@@ -29,20 +30,11 @@ where
 {
     fn add_new_vertex(
         &mut self,
-        type_index: &impl GetVertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
-        let vertex_index = self
-            .vertex_store_mut_ref()
-            .add_new_vertex(type_index, value)?;
-
-        RegisterEmptyVertexToRestore::<T>::register_empty_vertex_to_restore(
-            self.vertex_store_state_restorer_mut_ref(),
-            type_index,
-            vertex_index.index(),
-        );
-
-        Ok(vertex_index)
+        self.vertex_store_ref().try_vertex_type_index_validity(vertex_type_index)?;
+        self.add_new_vertex_unchecked(vertex_type_index, value)
     }
 
     fn add_or_set_vertex(
@@ -57,18 +49,14 @@ where
 
     fn add_new_vertex_unchecked(
         &mut self,
-        type_index: &impl GetVertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError> {
         let vertex_index = self
             .vertex_store_mut_ref()
-            .add_new_vertex_unchecked(type_index, value)?;
+            .add_new_vertex_unchecked(vertex_type_index, value)?;
 
-        RegisterEmptyVertexToRestore::<T>::register_empty_vertex_to_restore(
-            self.vertex_store_state_restorer_mut_ref(),
-            type_index,
-            vertex_index.index(),
-        );
+        RegisterNewVertexToRevert::<T>::register_new_vertex_to_revert(self.vertex_store_state_restorer_mut_ref(), vertex_type_index, &vertex_index)?;
 
         Ok(vertex_index)
     }
@@ -93,7 +81,7 @@ where
 mod tests {
     use super::*;
 
-    use crate::graph::indexing::{VertexIndex, VertexTypeIndex};
+    use crate::graph::indexing::{GetIndex, VertexIndex, VertexTypeIndex};
     use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
     use crate::graph::vertex_store::operations::vertex_type::AddVertexType;
     use crate::graph::vertex_store::VertexStore;
@@ -154,26 +142,42 @@ mod tests {
     fn test_rollback_added_vertex() {
         let mut vertex_store = initialize_vertex_store();
 
+        let vertex_type_1_index = AddVertexType::<u16>::apply(&mut vertex_store).unwrap();
+        let vertex_index_1 = vertex_store
+            .add_new_vertex(&vertex_type_1_index, 1)
+            .unwrap();
+        let vertex_index_2 = vertex_store
+            .add_new_vertex(&vertex_type_1_index, 1)
+            .unwrap();
+
         {
             let mut transaction = InMemoryVertexStoreTransaction::new(&mut vertex_store).unwrap();
 
-            let vertex_type_index_1 = VertexTypeIndex::new(3);
-            let _vertex_index_0 = transaction
-                .add_new_vertex(&VertexTypeIndex::new(0), 100)
+            let vertex_type_2_index = AddVertexType::<u16>::apply(&mut transaction).unwrap();
+
+            let _ = transaction
+                .add_new_vertex(&vertex_type_1_index, 100)
                 .unwrap();
-            let _vertex_index_1 = transaction
-                .add_new_vertex(&vertex_type_index_1, 101)
+            let _ = transaction
+                .add_new_vertex(&vertex_type_2_index, 101)
                 .unwrap();
-            let _vertex_index_2 = transaction
-                .add_new_vertex(&vertex_type_index_1, 102)
+            let _ = transaction
+                .add_new_vertex(&vertex_type_2_index, 102)
                 .unwrap();
         }
 
+        assert!(vertex_store
+            .is_valid_vertex_type_index(&vertex_type_1_index)
+            .unwrap());
+        assert!(vertex_store
+            .is_valid_vertex_index(&VertexIndex::new(vertex_index_2.index()))
+            .unwrap());
+
         assert!(!vertex_store
-            .is_valid_vertex_index(&VertexIndex::new(0))
+            .is_valid_vertex_type_index(&VertexTypeIndex::new(vertex_type_1_index.index() + 1))
             .unwrap());
         assert!(!vertex_store
-            .is_valid_vertex_index(&VertexIndex::new(1))
+            .is_valid_vertex_index(&VertexIndex::new(vertex_index_2.index() + 1))
             .unwrap());
     }
 

@@ -33,9 +33,6 @@ pub(crate) fn free_index_unchecked(
     indexer
         .mask_with_valid_indices_mut_ref()
         .drop_element(index)?;
-    indexer
-        .mask_with_valid_indices_mut_ref()
-        .drop_element(index)?;
 
     indexer
         .indices_available_for_reuse_mut_ref()

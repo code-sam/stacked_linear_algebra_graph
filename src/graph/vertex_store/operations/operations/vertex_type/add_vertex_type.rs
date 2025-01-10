@@ -12,8 +12,8 @@ use crate::graph::vertex_store::{
     VertexStore, VertexVector,
 };
 
-pub(crate) trait AddVertexType<'a, T: ValueType> {
-    fn apply(&'a mut self) -> Result<VertexTypeIndex, GraphComputingError>;
+pub(crate) trait AddVertexType<T: ValueType> {
+    fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
 }
 
 pub(crate) fn add_vertex_type<T: ValueType + GetValueTypeIdentifier>(

@@ -1,4 +1,4 @@
-use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValue;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::IsSparseVectorElement;
 
 use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::indexing::indexer::indexer::GetIndexMask;
@@ -13,10 +13,7 @@ pub(crate) fn is_valid_index(
     indexer: &impl GetIndexMask,
     index: Index,
 ) -> Result<bool, GraphComputingError> {
-    match indexer.mask_with_valid_indices_ref().element_value(index)? {
-        Some(_) => Ok(true),
-        None => Ok(false),
-    }
+    Ok(indexer.mask_with_valid_indices_ref().is_element(index)?)
 }
 
 pub(crate) fn try_index_validity(

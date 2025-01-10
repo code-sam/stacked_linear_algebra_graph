@@ -10,26 +10,26 @@ where
 {
     fn add_new_vertex(
         &mut self,
-        type_index: &impl GetVertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError>;
 
     fn add_or_set_vertex(
         &mut self,
-        vertex_type: &impl GetVertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError>;
 
     fn add_new_vertex_unchecked(
         &mut self,
-        type_index: &impl GetVertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<AssignedIndex, GraphComputingError>;
 
     fn add_or_set_vertex_unchecked(
         &mut self,
-        vertex_type: &impl GetVertexTypeIndex,
+        vertex_type_index: &impl GetVertexTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<Option<AssignedIndex>, GraphComputingError>;
