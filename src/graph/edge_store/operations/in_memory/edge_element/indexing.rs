@@ -1,6 +1,6 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
-use crate::error::GraphComputingError;
+use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::edge_store::operations::operations::edge_element::Indexing;
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
@@ -35,6 +35,17 @@ impl Indexing for EdgeStore {
             .is_edge(tail, head)
     }
 
+    fn is_empty_edge(
+        &self,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<bool, GraphComputingError> {
+        Ok(!self
+            .adjacency_matrix_ref(edge_type_index)?
+            .is_edge(tail, head)?)
+    }
+
     fn is_edge_at_coordinate(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
@@ -52,6 +63,23 @@ impl Indexing for EdgeStore {
     ) -> Result<(), GraphComputingError> {
         self.adjacency_matrix_ref(edge_type_index)?
             .try_is_edge(tail, head)
+    }
+
+    fn try_is_empty_edge(
+        &self,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<(), GraphComputingError> {
+        match self.is_empty_edge(edge_type_index, tail, head)? {
+            true => Ok(()),
+            false => Err(LogicError::new(
+                LogicErrorType::EdgeAlreadyExists,
+                String::from("Edge already exists"),
+                None,
+            )
+            .into()),
+        }
     }
 
     fn try_is_edge_at_coordinate(

@@ -28,6 +28,13 @@ pub(crate) trait Indexing {
         head: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError>;
 
+    fn is_empty_edge(
+        &self,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<bool, GraphComputingError>;
+
     fn try_is_valid_edge(
         &self,
         vertex_indexer: &impl CheckVertexIndex,
@@ -42,6 +49,13 @@ pub(crate) trait Indexing {
         coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
     ) -> Result<(), GraphComputingError>;
     fn try_is_edge(
+        &self,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<(), GraphComputingError>;
+
+    fn try_is_empty_edge(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,

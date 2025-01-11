@@ -9,13 +9,13 @@ use crate::graph::indexing::GetIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::value_type::ValueType;
 
-pub(crate) trait AddEdge<T: ValueType> {
-    fn add_weighted_directed_edge_unchecked(
+pub(crate) trait SetEdge<T: ValueType> {
+    fn set_weighted_directed_edge_unchecked(
         &mut self,
         edge: &(impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError>;
 
-    fn add_edge_unchecked(
+    fn set_edge_unchecked(
         &mut self,
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
@@ -23,11 +23,11 @@ pub(crate) trait AddEdge<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T> AddEdge<T> for WeightedAdjacencyMatrix
+impl<T> SetEdge<T> for WeightedAdjacencyMatrix
 where
     T: ValueType + Copy + SetSparseMatrixElementTyped<T>,
 {
-    fn add_weighted_directed_edge_unchecked(
+    fn set_weighted_directed_edge_unchecked(
         &mut self,
         edge: &(impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError> {
@@ -40,7 +40,7 @@ where
         Ok(())
     }
 
-    fn add_edge_unchecked(
+    fn set_edge_unchecked(
         &mut self,
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,

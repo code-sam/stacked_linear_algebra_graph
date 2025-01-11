@@ -368,7 +368,8 @@ macro_rules! implement_register_edge_weight_to_restore_typed {
                         RegisterEmptyEdgeToRestore::<$value_type>::register_empty_edge_to_restore(
                             edge_store_state_restorer.adjacency_matrices_state_restorer_mut_ref(),
                             edge_type_index,
-                            &Coordinate::new(tail.index(), head.index()),
+                            tail,
+                            head,
                         );
                     }
                 }

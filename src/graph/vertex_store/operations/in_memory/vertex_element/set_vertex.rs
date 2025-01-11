@@ -26,6 +26,19 @@ where
         self.set_vertex_unchecked(vertex_type_index, vertex_index, value)
     }
 
+    fn set_new_vertex(
+        &mut self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
+        value: T,
+    ) -> Result<(), GraphComputingError> {
+        self.try_vertex_type_index_validity(vertex_type_index)?;
+        self.try_vertex_index_validity(vertex_index)?;
+        self.try_is_empty_vertex_element(vertex_type_index, vertex_index)?;
+
+        self.set_vertex_unchecked(vertex_type_index, vertex_index, value)
+    }
+
     fn set_vertex_unchecked(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,

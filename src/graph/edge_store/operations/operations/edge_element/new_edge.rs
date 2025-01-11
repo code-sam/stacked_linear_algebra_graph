@@ -5,30 +5,30 @@ use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 
-pub(crate) trait SetEdge<T: ValueType> {
-    fn set_weighted_directed_edge(
+pub(crate) trait NewEdge<T: ValueType> {
+    fn new_weighted_directed_edge(
         &mut self,
         vertex_indexer: &impl CheckVertexIndex,
         edge: &(impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError>;
 
-    fn set_edge(
+    fn new_edge(
         &mut self,
         vertex_indexer: &impl CheckVertexIndex,
-        edge_type_index: &impl GetEdgeTypeIndex,
+        edge_type: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError>;
 
-    fn set_weighted_directed_edge_unchecked(
+    fn new_weighted_directed_edge_unchecked(
         &mut self,
         edge: &(impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError>;
 
-    fn set_edge_unchecked(
+    fn new_edge_unchecked(
         &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
+        edge_type: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
         weight: T,

@@ -83,7 +83,7 @@ mod tests {
 
     use crate::graph::{
         edge_store::weighted_adjacency_matrix::{
-            operations::{AddEdge, GetEdgeWeight},
+            operations::{GetEdgeWeight, SetEdge},
             CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
         },
         indexing::VertexIndex,
@@ -99,10 +99,10 @@ mod tests {
         .unwrap();
 
         adjacency_matrix
-            .add_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
+            .set_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
             .unwrap();
         adjacency_matrix
-            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
+            .set_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
             .unwrap();
 
         let transposed = transpose_adjacency_matrix_u32(

@@ -7,7 +7,7 @@ use crate::error::{GraphComputingError, LogicError, LogicErrorType};
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::weighted_adjacency_matrix::operations::{
-    AddEdge as AddEdgeToAdjacencyMatrix, Indexing,
+    Indexing, SetEdge as AddEdgeToAdjacencyMatrix,
 };
 use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
@@ -68,7 +68,7 @@ where
             .into());
         }
 
-        adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
+        adjacency_matrix.set_edge_unchecked(tail, head, weight)?;
         Ok(())
     }
 
@@ -99,7 +99,7 @@ where
             .edge_store_mut_ref()
             .adjacency_matrix_mut_ref(edge_type)?;
 
-        adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
+        adjacency_matrix.set_edge_unchecked(tail, head, weight)?;
         Ok(())
     }
 }
@@ -156,7 +156,7 @@ where
             .into());
         }
 
-        adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
+        adjacency_matrix.set_edge_unchecked(tail, head, weight)?;
         Ok(())
     }
 
@@ -187,7 +187,7 @@ where
             .edge_store_mut_ref()
             .adjacency_matrix_mut_ref(edge_type)?;
 
-        adjacency_matrix.add_edge_unchecked(tail, head, weight)?;
+        adjacency_matrix.set_edge_unchecked(tail, head, weight)?;
         Ok(())
     }
 }

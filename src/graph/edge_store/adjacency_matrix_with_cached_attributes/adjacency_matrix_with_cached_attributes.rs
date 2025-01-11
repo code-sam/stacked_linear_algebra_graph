@@ -105,7 +105,7 @@ mod tests {
     use graphblas_sparse_linear_algebra::context::Context;
 
     use crate::graph::{
-        edge_store::weighted_adjacency_matrix::operations::{AddEdge, GetEdgeWeight},
+        edge_store::weighted_adjacency_matrix::operations::{GetEdgeWeight, SetEdge},
         indexing::VertexIndex,
     };
 
@@ -120,11 +120,11 @@ mod tests {
 
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
+            .set_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
             .unwrap();
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
+            .set_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
             .unwrap();
 
         assert_eq!(
@@ -142,7 +142,7 @@ mod tests {
 
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e2)
+            .set_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e2)
             .unwrap();
 
         assert_eq!(

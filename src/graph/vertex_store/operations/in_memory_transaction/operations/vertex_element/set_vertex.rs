@@ -1,3 +1,4 @@
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValueTyped;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
 
 use crate::error::GraphComputingError;
@@ -5,16 +6,24 @@ use crate::error::GraphComputingError;
 use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStore;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetVertexStoreStateRestorer;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::InMemoryVertexStoreTransaction;
+use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterEmptyVertexToRestore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::RegisterVertexValueToRestore;
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::graph::vertex_store::operations::vertex_element::SetVertex;
+use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 
 impl<'s, T> SetVertex<T> for InMemoryVertexStoreTransaction<'s>
 where
-    T: ValueType + SetSparseVectorElementTyped<T>,
+    T: ValueType
+        + SetSparseVectorElementTyped<T>
+        + Default
+        + GetSparseVectorElementValueTyped<T>
+        + GetSparseVectorStateRevertersByVertexTypeMap<T>,
 {
     fn set_vertex(
         &mut self,
@@ -31,6 +40,27 @@ where
                 vertex_type_index,
                 vertex_index,
             )?;
+        self.vertex_store_mut_ref()
+            .set_vertex_unchecked(vertex_type_index, vertex_index, value)
+    }
+
+    fn set_new_vertex(
+        &mut self,
+        vertex_type_index: &impl GetVertexTypeIndex,
+        vertex_index: &impl GetVertexIndexIndex,
+        value: T,
+    ) -> Result<(), GraphComputingError> {
+        self.vertex_store
+            .try_vertex_type_index_validity(vertex_type_index)?;
+        self.vertex_store.try_vertex_index_validity(vertex_index)?;
+        self.try_is_empty_vertex_element(vertex_type_index, vertex_index)?;
+
+        RegisterEmptyVertexToRestore::<T>::register_empty_vertex_to_restore(
+            self.vertex_store_state_restorer_mut_ref(),
+            vertex_type_index,
+            vertex_index.index(),
+        );
+
         self.vertex_store_mut_ref()
             .set_vertex_unchecked(vertex_type_index, vertex_index, value)
     }

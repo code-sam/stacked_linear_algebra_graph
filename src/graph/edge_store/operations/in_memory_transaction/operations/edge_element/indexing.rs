@@ -31,6 +31,15 @@ impl<'s> Indexing for InMemoryEdgeStoreTransaction<'s> {
         self.edge_store_ref().is_edge(edge_type_index, tail, head)
     }
 
+    fn is_empty_edge(
+        &self,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<bool, GraphComputingError> {
+        self.edge_store_ref().is_empty_edge(edge_type_index, tail, head)
+    }
+
     fn is_edge_at_coordinate(
         &self,
         edge_type_index: &impl GetEdgeTypeIndex,
@@ -48,6 +57,16 @@ impl<'s> Indexing for InMemoryEdgeStoreTransaction<'s> {
     ) -> Result<(), GraphComputingError> {
         self.edge_store_ref()
             .try_is_edge(edge_type_index, tail, head)
+    }
+
+    fn try_is_empty_edge(
+        &self,
+        edge_type_index: &impl GetEdgeTypeIndex,
+        tail: &impl GetVertexIndexIndex,
+        head: &impl GetVertexIndexIndex,
+    ) -> Result<(), GraphComputingError> {
+        self.edge_store_ref()
+            .try_is_empty_edge(edge_type_index, tail, head)
     }
 
     fn try_is_edge_at_coordinate(
