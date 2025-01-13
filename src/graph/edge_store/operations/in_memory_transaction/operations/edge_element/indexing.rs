@@ -37,7 +37,8 @@ impl<'s> Indexing for InMemoryEdgeStoreTransaction<'s> {
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError> {
-        self.edge_store_ref().is_empty_edge(edge_type_index, tail, head)
+        self.edge_store_ref()
+            .is_empty_edge(edge_type_index, tail, head)
     }
 
     fn is_edge_at_coordinate(

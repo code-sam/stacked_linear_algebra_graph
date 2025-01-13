@@ -13,7 +13,7 @@ pub(crate) trait RegisterEmptyEdgeToRestore<T: ValueType> {
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex
+        head: &impl GetVertexIndexIndex,
     );
 
     fn register_empty_edge_coordinate_to_restore(
@@ -36,13 +36,13 @@ where
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex
+        head: &impl GetVertexIndexIndex,
     ) {
         RegisterEmptyEdgeToRestore::<T>::register_empty_edge_to_restore(
             self.adjacency_matrices_state_restorer_mut_ref(),
             edge_type_index,
             tail,
-            head
+            head,
         );
     }
 

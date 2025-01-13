@@ -6,6 +6,7 @@ use crate::operators::transaction::RestoreState;
 
 use super::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::AdjacencyMatricesWithCachedAttributesStateRestorer;
 
+#[derive(Debug)]
 pub(crate) struct EdgeStoreStateRestorer {
     edge_type_indexer_state_restorer: IndexerStateRestorer,
 

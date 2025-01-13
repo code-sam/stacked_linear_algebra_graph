@@ -31,18 +31,16 @@ where
             edge_coordinate.column_index(),
         )
     }
-    
+
     fn register_empty_edge_to_restore(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex
+        head: &impl GetVertexIndexIndex,
     ) {
         let adjacency_matrix_state_reverter: &mut StateRestorerForAdjacencyMatrixWithCachedAttributes<T> =
         self.adjacency_matrix_with_cached_attributes_state_reverter_mut_ref(edge_type_index);
-    adjacency_matrix_state_reverter.register_empty_element_to_restore(
-        tail.index(),
-        head.index(),
-    )
+        adjacency_matrix_state_reverter
+            .register_empty_element_to_restore(tail.index(), head.index())
     }
 }

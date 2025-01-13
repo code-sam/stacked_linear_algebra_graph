@@ -17,6 +17,7 @@ use crate::operators::in_memory_transaction::transaction::{
 };
 use crate::operators::transaction::RestoreState;
 
+#[derive(Debug)]
 pub(crate) struct StateRestorerForAdjacencyMatrixWithCachedAttributes<T: ValueType> {
     sparse_matrix_state_reverter: SparseMatrixStateReverter<T>,
 }

@@ -16,6 +16,7 @@ pub(crate) trait UseEdgeStoreTransaction: UseTransaction {}
 //     element_indexer: VertexElementIndexer,
 // }
 
+#[derive(Debug)]
 pub(crate) struct InMemoryEdgeStoreTransaction<'s> {
     pub(in crate::graph::edge_store::operations::in_memory_transaction) edge_store:
         &'s mut EdgeStore,

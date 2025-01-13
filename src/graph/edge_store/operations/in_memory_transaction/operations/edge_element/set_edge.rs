@@ -20,7 +20,6 @@ use crate::graph::edge_store::operations::in_memory_transaction::edge_store_stat
 impl<'s, T> SetEdge<T> for InMemoryEdgeStoreTransaction<'s>
 where
     T: ValueType
-        + GetEdgeTypeIndex
         + Copy
         + Default
         + GetSparseMatrixElementValueTyped<T>
@@ -84,5 +83,130 @@ where
 
         self.edge_store_mut_ref()
             .set_edge_unchecked(edge_type_index, tail, head, weight)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::graph::edge_store::operations::operations::edge_type::add_edge_type::AddEdgeType;
+    use crate::graph::edge_store::{EdgeStore, GetEdgeTypeIndicer};
+    use crate::graph::graph::GetGraphblasContext;
+    use crate::graph::indexing::{GetIndexCapacity, VertexIndex};
+    use crate::graph::vertex_store::operations::vertex_element::AddVertex;
+    use crate::graph::vertex_store::operations::vertex_type::AddVertexType;
+    use crate::graph::vertex_store::{GetVertexTypeIndexer, VertexStore};
+
+    use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
+
+    #[test]
+    fn test_rollback_set_edge() {
+        let mut vertex_store = initialize_vertex_store();
+
+        let mut edge_store = EdgeStore::with_initial_capacity(
+            vertex_store.graphblas_context(),
+            vertex_store.vertex_type_indexer_ref().capacity().unwrap(),
+            2,
+        )
+        .unwrap();
+
+        let edge_type_index_1 = AddEdgeType::<u16>::apply(&mut edge_store).unwrap();
+        let edge_type_index_2 = AddEdgeType::<u16>::apply(&mut edge_store).unwrap();
+
+        let _ = edge_store
+            .set_edge(
+                &vertex_store,
+                &edge_type_index_1,
+                &VertexIndex::new(2),
+                &VertexIndex::new(3),
+                0u16,
+            )
+            .unwrap();
+
+        {
+            let mut transaction = InMemoryEdgeStoreTransaction::new(&mut edge_store).unwrap();
+
+            let edge_type_index_3 = AddEdgeType::<u16>::apply(&mut transaction).unwrap();
+
+            let _ = transaction
+                .set_edge(
+                    &vertex_store,
+                    &edge_type_index_2,
+                    &VertexIndex::new(0),
+                    &VertexIndex::new(1),
+                    0u16,
+                )
+                .unwrap();
+
+            let _ = transaction
+                .set_edge(
+                    &vertex_store,
+                    &edge_type_index_2,
+                    &VertexIndex::new(0),
+                    &VertexIndex::new(1),
+                    10u16,
+                )
+                .unwrap();
+
+            let _ = transaction
+                .set_edge(
+                    &vertex_store,
+                    &edge_type_index_3,
+                    &VertexIndex::new(2),
+                    &VertexIndex::new(3),
+                    3u16,
+                )
+                .unwrap();
+        }
+
+        assert_eq!(edge_store.edge_type_indexer_ref().capacity().unwrap(), 2);
+        assert!(edge_store
+            .is_edge(
+                &edge_type_index_1,
+                &VertexIndex::new(2),
+                &VertexIndex::new(3),
+            )
+            .unwrap());
+
+        assert!(!edge_store
+            .is_edge(
+                &edge_type_index_2,
+                &VertexIndex::new(0),
+                &VertexIndex::new(1),
+            )
+            .unwrap())
+    }
+
+    fn initialize_vertex_store() -> VertexStore {
+        let context = GraphblasContext::init_default().unwrap();
+
+        let mut vertex_store = VertexStore::with_initial_capacity(context, 0, 0).unwrap();
+
+        let mut public_vertex_type_indices = Vec::new();
+        for _i in 0..3 {
+            public_vertex_type_indices
+                .push(AddVertexType::<i32>::apply(&mut vertex_store).unwrap());
+        }
+
+        for i in 0..5 {
+            vertex_store
+                .add_new_vertex(&public_vertex_type_indices[1], i)
+                .unwrap();
+        }
+
+        let mut private_vertex_type_indices = Vec::new();
+        for _i in 0..3 {
+            private_vertex_type_indices
+                .push(AddVertexType::<i32>::apply(&mut vertex_store).unwrap());
+        }
+
+        for i in 0..5 {
+            vertex_store
+                .add_new_vertex(&private_vertex_type_indices[1], i)
+                .unwrap();
+        }
+
+        vertex_store
     }
 }

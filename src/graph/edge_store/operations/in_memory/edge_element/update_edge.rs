@@ -5,7 +5,6 @@ use crate::error::GraphComputingError;
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::edge::GetEdgeWeight;
 use crate::graph::edge_store::operations::operations::edge_element::Indexing;
-use crate::graph::edge_store::operations::operations::edge_element::NewEdge;
 use crate::graph::edge_store::operations::operations::edge_element::UpdateEdge;
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::edge_store::EdgeStore;

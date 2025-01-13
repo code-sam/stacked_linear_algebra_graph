@@ -14,6 +14,7 @@ use super::state_restorer_for_adjacency_matrix_with_cached_attributes::{
     StateRestorerForAdjacencyMatrixWithCachedAttributes,
 };
 
+#[derive(Debug)]
 pub(crate) struct AdjacencyMatricesWithCachedAttributesStateRestorer {
     pub(super) adjacency_matrix_size_to_restore: Option<Size>,
     pub(super) adjacency_matrix_vector_length_to_restore: ElementCount,
@@ -21,6 +22,7 @@ pub(crate) struct AdjacencyMatricesWithCachedAttributesStateRestorer {
         TypedAdjacencyMatrixWithCachedAttributesStateReverters,
 }
 
+#[derive(Debug)]
 pub(super) struct TypedAdjacencyMatrixWithCachedAttributesStateReverters {
     pub(super) adjacency_matrix_state_reverters_bool:
         ElementIndexMap<StateRestorerForAdjacencyMatrixWithCachedAttributes<bool>>,
@@ -79,7 +81,7 @@ pub(crate) trait GetAdjacencyMatrixStateReverter<T: ValueType> {
     // ) -> &'a SparseVectorStateReverter<T>;
     fn adjacency_matrix_with_cached_attributes_state_reverter_mut_ref(
         &mut self,
-        edgeg_type_index: &impl GetEdgeTypeIndex,
+        edge_type_index: &impl GetEdgeTypeIndex,
     ) -> &mut StateRestorerForAdjacencyMatrixWithCachedAttributes<T>;
 }
 

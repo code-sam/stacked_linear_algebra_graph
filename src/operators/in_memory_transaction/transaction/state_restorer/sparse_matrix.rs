@@ -12,12 +12,14 @@ use crate::error::GraphComputingError;
 use crate::graph::value_type::ValueType;
 use crate::operators::transaction::RestoreState;
 
+#[derive(Debug)]
 pub(crate) enum SparseMatrixStateToRestore<T: ValueType> {
     EmptyElement(RowIndex, ColumnIndex),
     ElementValue(RowIndex, ColumnIndex, T),
     SparseMatrix(SparseMatrix<T>),
 }
 
+#[derive(Debug)]
 pub(crate) struct SparseMatrixStateReverter<T: ValueType> {
     size_to_restore: Option<Size>,
     state_to_restore: Vec<SparseMatrixStateToRestore<T>>,
@@ -186,10 +188,10 @@ pub(crate) fn restore_sparse_matrix_state<T: ValueType + SetSparseMatrixElementT
 ) -> Result<(), GraphComputingError> {
     for state_to_restore in state_reverter.state_to_restore.into_iter().rev() {
         match state_to_restore {
-            SparseMatrixStateToRestore::EmptyElement(column_index, row_index) => {
+            SparseMatrixStateToRestore::EmptyElement(row_index, column_index) => {
                 drop_sparse_matrix_element(instance_to_restore, row_index, column_index)?
             }
-            SparseMatrixStateToRestore::ElementValue(column_index, row_index, element_value) => {
+            SparseMatrixStateToRestore::ElementValue(row_index, column_index, element_value) => {
                 T::set_graphblas_matrix_value(
                     instance_to_restore,
                     row_index,
@@ -222,7 +224,7 @@ pub(crate) fn restore_sparse_matrix_state<T: ValueType + SetSparseMatrixElementT
 mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
         DropSparseMatrixElement, GetSparseMatrixElementValue, GetSparseMatrixSize,
-        ResizeSparseMatrix, SetSparseMatrixElement,
+        IsSparseMatrixElement, ResizeSparseMatrix, SetSparseMatrixElement,
     };
     use graphblas_sparse_linear_algebra::collections::Collection;
     use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
@@ -266,5 +268,27 @@ mod tests {
         assert_eq!(matrix.element_value(1, 1).unwrap(), Some(1));
         assert_eq!(matrix.element_value(4, 4).unwrap(), Some(4));
         assert_eq!(matrix.number_of_stored_elements().unwrap(), 3);
+    }
+
+    #[test]
+    fn restore_empty_sparse_matrix_element() {
+        let context = GraphBLASContext::init_default().unwrap();
+        let mut matrix = SparseMatrix::<u16>::new(context, (10, 10).into()).unwrap();
+
+        let mut state_reverter =
+            SparseMatrixStateReverter::new(Some(matrix.size().unwrap()), Vec::new(), false);
+
+        matrix.set_value(0, 0, 0);
+        state_reverter.register_empty_element_to_restore(0, 0);
+
+        matrix.set_value(0, 0, 10);
+        state_reverter.register_element_value_to_restore(0, 0, 10);
+
+        matrix.set_value(0, 0, 40).unwrap();
+        state_reverter.register_element_value_to_restore(4, 4, 4);
+
+        restore_sparse_matrix_state(state_reverter, &mut matrix).unwrap();
+
+        assert!(!matrix.is_element(0, 0).unwrap());
     }
 }

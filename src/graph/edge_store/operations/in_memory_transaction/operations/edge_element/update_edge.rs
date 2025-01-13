@@ -34,7 +34,7 @@ where
         edge: &(impl GetDirectedEdgeCoordinateIndex + GetEdgeWeight<T>),
     ) -> Result<(), GraphComputingError> {
         self.update_edge(
-        vertex_indexer,
+            vertex_indexer,
             edge.edge_type_ref(),
             edge.tail_ref(),
             edge.head_ref(),
@@ -50,8 +50,10 @@ where
         head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        self.edge_store_ref().try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
-        self.edge_store_ref().try_is_edge(edge_type_index, tail, head)?;
+        self.edge_store_ref()
+            .try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
+        self.edge_store_ref()
+            .try_is_edge(edge_type_index, tail, head)?;
 
         self.update_edge_unchecked(edge_type_index, tail, head, weight)
     }

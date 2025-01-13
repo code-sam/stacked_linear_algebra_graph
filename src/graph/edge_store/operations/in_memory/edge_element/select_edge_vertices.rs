@@ -2,8 +2,6 @@ use std::fmt::Debug;
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
-use once_cell::sync::Lazy;
-
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::operations::edge_element::GetEdgeVerticesMask;
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
@@ -11,10 +9,6 @@ use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_m
 use crate::graph::edge_store::EdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::weighted_adjacency_matrix::operations::{select_connected_vertices, SelectEdgeVertices};
-use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
-
-static DEFAULT_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
-    Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
 
 impl GetEdgeVerticesMask for EdgeStore {
     fn select_vertices_with_outgoing_edges(

@@ -9,6 +9,7 @@ use crate::{
     },
 };
 
+#[derive(Debug)]
 pub(crate) struct IndexerStateRestorer {
     index_capacity_to_restore: ElementCount,
     indices_available_for_reuse_restorer: QueueStateReverter<Index>,
