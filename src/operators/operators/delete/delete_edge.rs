@@ -17,18 +17,5 @@ pub trait DeleteEdge {
     ) -> Result<(), GraphComputingError>;
 }
 
-pub(crate) trait DeletePrivateEdge {
-    fn delete_private_edge(
-        &mut self,
-        edge_type: &impl GetEdgeTypeIndex,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<(), GraphComputingError>;
-    fn delete_private_edge_for_coordinate(
-        &mut self,
-        edge_to_delete: &impl GetDirectedEdgeCoordinateIndex,
-    ) -> Result<(), GraphComputingError>;
-}
-
 #[cfg(test)]
 mod tests {}

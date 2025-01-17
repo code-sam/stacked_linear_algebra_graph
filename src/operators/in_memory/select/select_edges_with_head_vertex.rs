@@ -4,14 +4,12 @@ use crate::graph::edge_store::{
 };
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::indexing::CheckIndex;
+use crate::operators::operators::select::{SelectEdgesWithHeadVertex, SelectEdgesWithHeadVertexUnchecked};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
 use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixColumn;
-use graphblas_sparse_linear_algebra::{
-    collections::sparse_matrix::SparseMatrix,
-    operators::{binary_operator::AccumulatorBinaryOperator, mask::MatrixMask},
-};
+use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
 
 use crate::graph::graph::Graph;
 use crate::graph::graph::{
@@ -19,38 +17,6 @@ use crate::graph::graph::{
     GetVertexStore,
 };
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
-
-pub trait SelectEdgesWithHeadVertex<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-    SparseMatrix<EvaluationDomain>: MatrixMask,
-{
-    fn apply(
-        &mut self,
-        adjacency_matrix: &impl GetEdgeTypeIndex,
-        head_vertex: &impl GetVertexIndexIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
-        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
-    ) -> Result<(), GraphComputingError>;
-}
-
-pub(crate) trait SelectEdgesWithHeadVertexUnchecked<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-    SparseMatrix<EvaluationDomain>: MatrixMask,
-{
-    fn apply(
-        &mut self,
-        adjacency_matrix: &impl GetEdgeTypeIndex,
-        head_vertex: &impl GetVertexIndexIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
-        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
-    ) -> Result<(), GraphComputingError>;
-}
 
 impl<EvaluationDomain> SelectEdgesWithHeadVertex<EvaluationDomain> for Graph
 where
@@ -154,7 +120,7 @@ mod tests {
     use super::*;
 
     use crate::graph::indexing::VertexTypeIndex;
-    use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
     use crate::operators::operators::read::GetVertexValue;
 
     #[test]
@@ -168,22 +134,22 @@ mod tests {
         let edge_vertex2_vertex1_value = 2u8;
         let edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
-        let vertex_result_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_result_type_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
-        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
-        let _result_edge_type_index = AddEdgeType::<f32>::apply(&mut graph).unwrap();
+        let edge_type_1_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = NewEdgeType::<u16>::apply(&mut graph).unwrap();
+        let _result_edge_type_index = NewEdgeType::<f32>::apply(&mut graph).unwrap();
 
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_1_index,
                 &vertex_2_index,
@@ -191,7 +157,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_2_index,
                 &vertex_1_index,
@@ -199,7 +165,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_2_index,
                 &vertex_1_index,
                 &vertex_2_index,

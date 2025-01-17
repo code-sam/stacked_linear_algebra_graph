@@ -3,15 +3,13 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Get
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::operations::GetEdgeWeight as GetAdjacencyMatrixEdgeWeight;
+use crate::graph::edge_store::operations::operations::edge_element::GetEdgeWeight as GetEdgeWeihtFromEdgeStore;
 use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValueType;
-use crate::graph::graph::{GetEdgeStore, Graph};
+use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
 
-use crate::operators::indexing::CheckIndex;
-use crate::operators::operators::read::{GetEdgeWeight, GetPrivateEdgeWeight};
+use crate::operators::operators::read::GetEdgeWeight;
 
 impl<T> GetEdgeWeight<T> for Graph
 where
@@ -36,20 +34,20 @@ where
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<Option<T>, GraphComputingError> {
-        self.try_edge_validity(edge_type, tail, head)?;
-        self.edge_store_ref()
-            .adjacency_matrix_ref_unchecked(edge_type)
-            .edge_weight_unchecked(tail, head)
+        self.public_edge_store
+            .edge_weight(&self.public_vertex_store, edge_type, tail, head)
     }
 
     fn edge_weight_for_coordinate(
         &self,
         edge_coordinate: &impl GetDirectedEdgeCoordinateIndex,
     ) -> Result<Option<T>, GraphComputingError> {
-        self.try_edge_coordinate_validity(edge_coordinate)?;
-        self.edge_store_ref()
-            .adjacency_matrix_ref_unchecked(edge_coordinate.edge_type_ref())
-            .edge_weight_at_coordinate_unchecked(&edge_coordinate.adjacency_matrix_coordinate())
+        self.public_edge_store.edge_weight(
+            &self.public_vertex_store,
+            edge_coordinate.edge_type_ref(),
+            edge_coordinate.tail_ref(),
+            edge_coordinate.head_ref(),
+        )
     }
 
     fn try_edge_weight(
@@ -58,20 +56,20 @@ where
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
-        self.try_edge_validity(edge_type, tail, head)?;
-        self.edge_store_ref()
-            .adjacency_matrix_ref_unchecked(edge_type)
-            .try_edge_weight_unchecked(tail, head)
+        self.public_edge_store
+            .try_edge_weight(&self.public_vertex_store, edge_type, tail, head)
     }
 
     fn try_edge_weight_for_coordinate(
         &self,
         edge_coordinate: &impl GetDirectedEdgeCoordinateIndex,
     ) -> Result<T, GraphComputingError> {
-        self.try_edge_coordinate_validity(edge_coordinate)?;
-        self.edge_store_ref()
-            .adjacency_matrix_ref_unchecked(edge_coordinate.edge_type_ref())
-            .try_edge_weight_at_coordinate_unchecked(&edge_coordinate.adjacency_matrix_coordinate())
+        self.public_edge_store.try_edge_weight(
+            &self.public_vertex_store,
+            edge_coordinate.edge_type_ref(),
+            edge_coordinate.tail_ref(),
+            edge_coordinate.head_ref(),
+        )
     }
 
     /// Requires valid coordinate
@@ -81,10 +79,8 @@ where
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
-        self.try_edge_validity(edge_type, tail, head)?;
-        self.edge_store_ref()
-            .adjacency_matrix_ref_unchecked(edge_type)
-            .edge_weight_or_default_unchecked(tail, head)
+        self.public_edge_store
+            .edge_weight_or_default(&self.public_vertex_store, edge_type, tail, head)
     }
 
     /// Requires valid coordinate
@@ -92,12 +88,12 @@ where
         &self,
         edge_coordinate: &impl GetDirectedEdgeCoordinateIndex,
     ) -> Result<T, GraphComputingError> {
-        self.try_edge_coordinate_validity(edge_coordinate)?;
-        self.edge_store_ref()
-            .adjacency_matrix_ref_unchecked(edge_coordinate.edge_type_ref())
-            .edge_weight_or_default_at_coordinate_unchecked(
-                &edge_coordinate.adjacency_matrix_coordinate(),
-            )
+        self.public_edge_store.edge_weight_or_default(
+            &self.public_vertex_store,
+            edge_coordinate.edge_type_ref(),
+            edge_coordinate.tail_ref(),
+            edge_coordinate.head_ref(),
+        )
     }
 }
 

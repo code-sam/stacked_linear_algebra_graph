@@ -12,30 +12,8 @@ pub trait GetSparseAdjacencyMatrix<T: ValueType> {
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
-pub(crate) trait GetPrivateSparseAdjacencyMatrix<T: ValueType> {
-    fn private_sparse_adjacency_matrix(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<SparseMatrix<T>, GraphComputingError>;
-    fn sparse_adjacency_matrix_unchecked(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<SparseMatrix<T>, GraphComputingError>;
-}
-
 pub trait GetTransposedSparseAdjacencyMatrix<T: ValueType> {
     fn transposed_sparse_adjacency_matrix(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<SparseMatrix<T>, GraphComputingError>;
-}
-
-pub(crate) trait GetTransposedPrivateSparseAdjacencyMatrix<T: ValueType> {
-    fn transposed_private_sparse_adjacency_matrix(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<SparseMatrix<T>, GraphComputingError>;
-    fn transposed_sparse_adjacency_matrix_unchecked(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
@@ -48,30 +26,8 @@ pub trait GetAdjacencyMatrixElementList<T: ValueType> {
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
 
-pub(crate) trait GetPrivateAdjacencyMatrixElementList<T: ValueType> {
-    fn private_adjacency_matrix_element_list(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
-    fn adjacency_matrix_element_list_unchecked(
-        &self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
-}
-
 pub trait GetTransposedAdjacencyMatrixElementList<T: ValueType> {
     fn transposed_adjacency_matrix_element_list(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
-}
-
-pub(crate) trait GetTransposedPrivateAdjacencyMatrixElementList<T: ValueType> {
-    fn transposed_private_adjacency_matrix_element_list(
-        &mut self,
-        edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
-    fn transposed_adjacency_matrix_element_list_unchecked(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;

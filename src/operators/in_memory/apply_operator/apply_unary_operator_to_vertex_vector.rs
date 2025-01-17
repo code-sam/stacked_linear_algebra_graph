@@ -8,9 +8,9 @@ use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::{GetGraphblasOperatorAppliers, GetVertexStore};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVector;
 use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;
+use crate::operators::operators::indexing::CheckIndex;
 use crate::{
     error::GraphComputingError,
     graph::{graph::Graph, value_type::ValueType},
@@ -102,7 +102,7 @@ mod tests {
     use super::*;
 
     use crate::graph::indexing::{GetIndex, GetVertexIndexIndex};
-    use crate::operators::operators::add::{AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewVertex, NewVertexType};
     use crate::operators::operators::read::GetVertexValue;
 
     #[test]
@@ -111,10 +111,10 @@ mod tests {
 
         let vertex_value_1 = 1u8;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
 
         ApplyUnaryOperatorToVertexVector::<i32>::apply(

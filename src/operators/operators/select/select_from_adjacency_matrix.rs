@@ -13,7 +13,7 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,
@@ -29,7 +29,7 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetEdgeTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetEdgeTypeIndex,

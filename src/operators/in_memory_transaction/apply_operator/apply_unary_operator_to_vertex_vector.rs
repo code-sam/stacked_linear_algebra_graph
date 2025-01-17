@@ -10,7 +10,7 @@ use crate::graph::{
     graph::GetGraphblasOperatorApplierCollection,
     vertex_store::operations::get_vertex_vector::GetVertexVector,
 };
-use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::indexing::CheckIndex;
 use crate::{
     error::GraphComputingError,
     graph::{graph::Graph, value_type::ValueType},

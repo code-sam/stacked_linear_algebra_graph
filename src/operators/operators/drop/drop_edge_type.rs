@@ -10,13 +10,5 @@ pub trait DropEdgeType {
     ) -> Result<(), GraphComputingError>;
 }
 
-pub(crate) trait DropPrivateEdgeType {
-    /// Deletes the edge type, and all its edges
-    fn drop_private_edge_type(
-        &mut self,
-        edge_type: &impl GetEdgeTypeIndex,
-    ) -> Result<(), GraphComputingError>;
-}
-
 #[cfg(test)]
 mod tests {}

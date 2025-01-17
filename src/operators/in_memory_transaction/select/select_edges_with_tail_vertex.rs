@@ -16,7 +16,7 @@ use crate::graph::graph::{
 };
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 

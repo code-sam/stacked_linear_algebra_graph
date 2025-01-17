@@ -8,40 +8,10 @@ use crate::graph::graph::{
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::indexing::CheckIndex;
+use crate::operators::operators::select::{SelectFromVertexVector, SelectFromVertexVectorUnchecked};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait SelectFromVertexVector<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-{
-    fn by_index(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: EvaluationDomain,
-        argument: &impl GetVertexTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &impl GetVertexTypeIndex,
-        mask: Option<&VertexTypeIndex>,
-        options: &OperatorOptions,
-    ) -> Result<(), GraphComputingError>;
-}
-
-pub(crate) trait SelectFromVertexVectorUnchecked<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-{
-    fn apply(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: EvaluationDomain,
-        argument: &impl GetVertexTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &impl GetVertexTypeIndex,
-        mask: Option<&VertexTypeIndex>,
-        options: &OperatorOptions,
-    ) -> Result<(), GraphComputingError>;
-}
 
 impl<EvaluationDomain> SelectFromVertexVector<EvaluationDomain> for Graph
 where
@@ -145,7 +115,7 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::add::{AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewVertex, NewVertexType};
     use crate::operators::operators::read::GetVertexValue;
 
     #[test]
@@ -155,14 +125,14 @@ mod tests {
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
-        let _vertex_result_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
+        let _vertex_result_type_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
         SelectFromVertexVector::<u8>::by_index(

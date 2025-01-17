@@ -11,8 +11,8 @@ use crate::graph::graph::{
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
+use crate::operators::operators::indexing::CheckIndex;
 use crate::{
     graph::vertex_store::operations::vertex_type::GetVertexVector,
     operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVector,

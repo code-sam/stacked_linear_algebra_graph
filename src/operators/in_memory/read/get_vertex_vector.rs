@@ -7,11 +7,9 @@ use crate::graph::graph::GetVertexStore;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::{ToSparseVector, ToSparseVectorForValueType};
-use crate::operators::operators::read::{GetPrivateSparseVertexVector, GetSparseVertexVector};
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
-};
+use crate::operators::operators::read::{GetSparseVertexVector, GetVertexVectorElementList};
+use crate::graph::{graph::Graph, value_type::ValueType};
+use crate::error::GraphComputingError;
 
 impl<T> GetSparseVertexVector<T> for Graph
 where
@@ -27,13 +25,6 @@ where
             .vertex_vector_ref(type_index)?
             .to_sparse_vector()?)
     }
-}
-
-pub trait GetVertexVectorElementList<T: ValueType> {
-    fn sparse_vector_element_list(
-        &self,
-        type_index: &impl GetVertexTypeIndex,
-    ) -> Result<VertexVectorElementList<T>, GraphComputingError>;
 }
 
 impl<T> GetVertexVectorElementList<T> for Graph

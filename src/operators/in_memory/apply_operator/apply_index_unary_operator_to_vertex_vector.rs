@@ -12,8 +12,8 @@ use crate::graph::graph::{
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
+use crate::operators::operators::indexing::CheckIndex;
 use crate::{
     graph::vertex_store::operations::vertex_type::GetVertexVector,
     operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector,
@@ -121,7 +121,7 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
     use crate::operators::operators::read::GetVertexValue;
 
     #[test]
@@ -135,21 +135,21 @@ mod tests {
         let edge_vertex2_vertex1_value = 2u8;
         let edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
-        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
-        let _result_edge_type_index = AddEdgeType::<f32>::apply(&mut graph).unwrap();
+        let edge_type_1_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = NewEdgeType::<u16>::apply(&mut graph).unwrap();
+        let _result_edge_type_index = NewEdgeType::<f32>::apply(&mut graph).unwrap();
 
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_1_index,
                 &vertex_2_index,
@@ -157,7 +157,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_2_index,
                 &vertex_1_index,
@@ -165,7 +165,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_2_index,
                 &vertex_1_index,
                 &vertex_2_index,

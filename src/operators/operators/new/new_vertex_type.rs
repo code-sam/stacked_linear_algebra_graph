@@ -3,6 +3,6 @@ use crate::{
     graph::{indexing::VertexTypeIndex, value_type::ValueType},
 };
 
-pub trait AddVertexType<T: ValueType> {
+pub trait NewVertexType<T: ValueType> {
     fn apply(&mut self) -> Result<VertexTypeIndex, GraphComputingError>;
 }

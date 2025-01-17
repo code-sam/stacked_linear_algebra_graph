@@ -12,7 +12,7 @@ use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
 };
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
-use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{
     error::GraphComputingError,

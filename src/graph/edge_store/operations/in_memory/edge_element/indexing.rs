@@ -75,7 +75,10 @@ impl Indexing for EdgeStore {
             true => Ok(()),
             false => Err(LogicError::new(
                 LogicErrorType::EdgeAlreadyExists,
-                String::from("Edge already exists"),
+                format!(
+                    "An edge already exists for: [edge_type: {:?}, tail: {:?}, head: {:?}]",
+                    edge_type_index, tail, head
+                ),
                 None,
             )
             .into()),

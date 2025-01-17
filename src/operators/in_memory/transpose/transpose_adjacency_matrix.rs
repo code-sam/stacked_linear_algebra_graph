@@ -11,7 +11,7 @@ use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::indexing::CheckIndex;
 use crate::operators::operators::transpose::TransposeAdjacencyMatrix;
 use crate::operators::operators::transpose::TransposeAdjacencyMatrixUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
@@ -100,26 +100,26 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
-    use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
     use crate::operators::operators::read::GetEdgeWeight;
 
     #[test]
     fn transpose_adjacency_matrix() {
         let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
-        let vertex_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_2_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let result_edge_type_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_1_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let result_edge_type_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
 
         let vertex_index_1 = graph
-            .add_vertex(&vertex_type_index, vertex_value_1)
+            .new_vertex(&vertex_type_index, vertex_value_1)
             .unwrap();
         let vertex_index_2 = graph
-            .add_vertex(&vertex_type_index, vertex_value_2)
+            .new_vertex(&vertex_type_index, vertex_value_2)
             .unwrap();
 
         let edge_vertex1_vertex2 = WeightedDirectedEdge::new(
@@ -136,13 +136,13 @@ mod tests {
         );
 
         graph
-            .add_edge_from_edge(edge_vertex1_vertex2.clone())
+            .new_edge_from_edge(edge_vertex1_vertex2.clone())
             .unwrap();
         graph
-            .add_edge_from_edge(edge_vertex2_vertex1.clone())
+            .new_edge_from_edge(edge_vertex2_vertex1.clone())
             .unwrap();
         graph
-            .add_edge_from_edge(edge_vertex1_vertex2_type_2.clone())
+            .new_edge_from_edge(edge_vertex1_vertex2_type_2.clone())
             .unwrap();
 
         TransposeAdjacencyMatrix::<u16>::apply(

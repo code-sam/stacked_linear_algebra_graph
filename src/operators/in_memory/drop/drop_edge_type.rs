@@ -10,8 +10,7 @@ impl DropEdgeType for Graph {
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .drop_valid_edge_type(edge_type_index)
+        self.edge_store_mut_ref().drop_edge_type(edge_type_index)
     }
 }
 

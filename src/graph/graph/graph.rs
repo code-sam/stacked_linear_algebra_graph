@@ -43,10 +43,22 @@ pub(crate) trait GetVertexStore {
     fn vertex_store_mut_ref_unsafe(&mut self) -> *mut VertexStore;
 }
 
+pub(crate) trait GetPrivateVertexStore {
+    fn private_vertex_store_ref(&self) -> &VertexStore;
+    fn private_vertex_store_mut_ref(&mut self) -> &mut VertexStore;
+    fn private_vertex_store_mut_ref_unsafe(&mut self) -> *mut VertexStore;
+}
+
 pub(crate) trait GetEdgeStore {
     fn edge_store_ref(&self) -> &EdgeStore;
     fn edge_store_mut_ref(&mut self) -> &mut EdgeStore;
     fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore;
+}
+
+pub(crate) trait GetPrivateEdgeStore {
+    fn private_edge_store_ref(&self) -> &EdgeStore;
+    fn private_edge_store_mut_ref(&mut self) -> &mut EdgeStore;
+    fn private_edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore;
 }
 
 impl GetVertexStore for Graph {
@@ -63,6 +75,20 @@ impl GetVertexStore for Graph {
     }
 }
 
+impl GetPrivateVertexStore for Graph {
+    fn private_vertex_store_ref(&self) -> &VertexStore {
+        &self.private_vertex_store
+    }
+
+    fn private_vertex_store_mut_ref(&mut self) -> &mut VertexStore {
+        &mut self.private_vertex_store
+    }
+
+    fn private_vertex_store_mut_ref_unsafe(&mut self) -> *mut VertexStore {
+        &mut self.private_vertex_store
+    }
+}
+
 impl GetEdgeStore for Graph {
     fn edge_store_ref(&self) -> &EdgeStore {
         &self.public_edge_store
@@ -73,6 +99,20 @@ impl GetEdgeStore for Graph {
     }
 
     fn edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore {
+        &mut self.public_edge_store
+    }
+}
+
+impl GetPrivateEdgeStore for Graph {
+    fn private_edge_store_ref(&self) -> &EdgeStore {
+        &self.public_edge_store
+    }
+
+    fn private_edge_store_mut_ref(&mut self) -> &mut EdgeStore {
+        &mut self.public_edge_store
+    }
+
+    fn private_edge_store_mut_ref_unsafe(&mut self) -> *mut EdgeStore {
         &mut self.public_edge_store
     }
 }
@@ -95,14 +135,14 @@ impl GetGraphblasOperatorApplierCollection for Graph {
 
 #[derive(Clone, Debug)]
 pub struct Graph {
-    graphblas_context: Arc<GraphblasContext>,
-    graphblas_operator_applier_collection: GraphblasOperatorApplierCollection,
+    pub(crate) graphblas_context: Arc<GraphblasContext>,
+    pub(crate) graphblas_operator_applier_collection: GraphblasOperatorApplierCollection,
 
-    public_vertex_store: VertexStore,
-    public_edge_store: EdgeStore,
+    pub(crate) public_vertex_store: VertexStore,
+    pub(crate) public_edge_store: EdgeStore,
 
-    private_vertex_store: VertexStore,
-    private_edge_store: EdgeStore,
+    pub(crate) private_vertex_store: VertexStore,
+    pub(crate) private_edge_store: EdgeStore,
 }
 
 impl Graph {
@@ -158,7 +198,7 @@ impl Graph {
 #[cfg(test)]
 mod tests {
     use crate::operators::operators::{
-        add::{AddVertex, AddVertexType},
+        new::{NewVertex, NewVertexType},
         read::GetVertexValue,
         update::UpdateVertexValue,
     };
@@ -173,14 +213,14 @@ mod tests {
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph_1).unwrap();
-        let vertex_type_2_index = AddVertexType::<u8>::apply(&mut graph_2).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph_1).unwrap();
+        let vertex_type_2_index = NewVertexType::<u8>::apply(&mut graph_2).unwrap();
 
         let vertex_1_index = graph_1
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph_2
-            .add_vertex(&vertex_type_2_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_2_index, vertex_value_2.clone())
             .unwrap();
 
         assert_eq!(
@@ -199,19 +239,19 @@ mod tests {
     fn graph_cloning() {
         let mut graph_1 = Graph::with_initial_capacity(10, 20, 20).unwrap();
 
-        let vertex_type_11_index = AddVertexType::<u8>::apply(&mut graph_1).unwrap();
+        let vertex_type_11_index = NewVertexType::<u8>::apply(&mut graph_1).unwrap();
 
         let vertex_11_index = graph_1
-            .add_vertex(&vertex_type_11_index, 1.clone())
+            .new_vertex(&vertex_type_11_index, 1.clone())
             .unwrap();
 
         let mut graph_2 = graph_1.clone();
 
-        let vertex_type_21_index = AddVertexType::<u8>::apply(&mut graph_2).unwrap();
+        let vertex_type_21_index = NewVertexType::<u8>::apply(&mut graph_2).unwrap();
 
         assert_ne!(vertex_type_11_index, vertex_type_21_index);
 
-        let vertex_21_index = graph_2.add_vertex(&vertex_type_11_index, 2).unwrap();
+        let vertex_21_index = graph_2.new_vertex(&vertex_type_11_index, 2).unwrap();
 
         assert_ne!(vertex_11_index, vertex_21_index);
 

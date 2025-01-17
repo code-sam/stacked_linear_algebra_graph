@@ -12,7 +12,7 @@ where
     fn by_index(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetVertexTypeIndex,
@@ -28,7 +28,7 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetVertexTypeIndex,

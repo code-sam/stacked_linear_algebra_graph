@@ -10,11 +10,11 @@ use crate::graph::graph::{
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::element_wise_addition::{
     BinaryOperatorElementWiseVertexVectorAddition,
     BinaryOperatorElementWiseVertexVectorAdditionUnchecked,
 };
+use crate::operators::operators::indexing::CheckIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<EvaluationDomain> BinaryOperatorElementWiseVertexVectorAddition<EvaluationDomain> for Graph
@@ -121,7 +121,7 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::add::{AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewVertex, NewVertexType};
     use crate::operators::operators::read::GetVertexValue;
 
     #[test]
@@ -134,10 +134,10 @@ mod tests {
         let _edge_vertex2_vertex1_value = 2u8;
         let _edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
         BinaryOperatorElementWiseVertexVectorAddition::<u8>::apply(

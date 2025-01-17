@@ -2,9 +2,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Set
 
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
 
+use crate::graph::edge_store::operations::operations::edge_element::UpdateEdge;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::indexing::CheckIndex;
 use crate::operators::operators::update::UpdateEdgeWeight;
 use crate::{error::GraphComputingError, graph::graph::Graph};
 
@@ -28,8 +28,7 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T> + Copy> UpdateEdgeWeight<T> f
         head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_validity(edge_type, tail, head)?;
-        self.set_edge_weight_unchecked(edge_type, tail, head, weight)
+        self.public_edge_store.update_edge(&self.public_vertex_store, edge_type, tail, head, weight)
     }
 }
 

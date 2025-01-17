@@ -13,41 +13,11 @@ use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::indexing::CheckIndex;
+use crate::operators::operators::indexing::CheckIndex;
+use crate::operators::operators::select::SelectFromAdjacencyMatrix;
+use crate::operators::operators::select::SelectFromAdjacencyMatrixUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
-
-pub trait SelectFromAdjacencyMatrix<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-{
-    fn apply(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: EvaluationDomain,
-        argument: &impl GetEdgeTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &impl GetEdgeTypeIndex,
-        mask: Option<&EdgeTypeIndex>,
-        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
-    ) -> Result<(), GraphComputingError>;
-}
-
-pub(crate) trait SelectFromAdjacencyMatrixUnchecked<EvaluationDomain>
-where
-    EvaluationDomain: ValueType,
-{
-    fn apply(
-        &mut self,
-        selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: EvaluationDomain,
-        argument: &impl GetEdgeTypeIndex,
-        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
-        product: &impl GetEdgeTypeIndex,
-        mask: Option<&EdgeTypeIndex>,
-        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
-    ) -> Result<(), GraphComputingError>;
-}
 
 impl<EvaluationDomain: ValueType> SelectFromAdjacencyMatrix<EvaluationDomain> for Graph
 where
@@ -125,7 +95,8 @@ where
                     .graphblas_operator_applier_collection_ref()
                     .entire_matrix_selector();
 
-                Ok(self
+                Ok(
+                    self
                     .graphblas_operator_applier_collection_ref()
                     .matrix_selector()
                     .apply(
@@ -154,7 +125,7 @@ mod tests {
         GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
     };
     use crate::graph::edge_store::operations::operations::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
-    use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
     use crate::operators::operators::read::GetEdgeWeight;
 
     #[test]
@@ -168,21 +139,21 @@ mod tests {
         let edge_vertex2_vertex1_value = 2u8;
         let edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
-        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
-        let result_edge_type_index = AddEdgeType::<f32>::apply(&mut graph).unwrap();
+        let edge_type_1_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = NewEdgeType::<u16>::apply(&mut graph).unwrap();
+        let result_edge_type_index = NewEdgeType::<f32>::apply(&mut graph).unwrap();
 
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_1_index,
                 &vertex_2_index,
@@ -190,7 +161,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_2_index,
                 &vertex_1_index,
@@ -198,7 +169,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_2_index,
                 &vertex_1_index,
                 &vertex_2_index,

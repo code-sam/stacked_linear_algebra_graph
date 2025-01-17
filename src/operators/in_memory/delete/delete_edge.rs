@@ -1,9 +1,7 @@
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteEdge as DeleteEdgeInAdjacencyMatrix;
-use crate::graph::graph::GetEdgeStore;
+use crate::graph::edge_store::operations::operations::edge_element::DeleteEdge as DeleteEdgeFromEdgeStore;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
@@ -16,10 +14,8 @@ impl DeleteEdge for Graph {
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .adjacency_matrix_mut_ref(edge_type)?
-            .delete_edge_weight_unchecked(tail, head)?;
-        Ok(())
+        self.public_edge_store
+            .delete_edge_weight(&self.public_vertex_store, edge_type, tail, head)
     }
 
     fn delete_edge_for_coordinate(
@@ -34,7 +30,7 @@ impl DeleteEdge for Graph {
 mod tests {
     use super::*;
 
-    use crate::operators::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
+    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
     use crate::operators::operators::read::GetEdgeWeight;
 
     #[test]
@@ -48,20 +44,20 @@ mod tests {
         let edge_vertex2_vertex1_value = 2u8;
         let edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
-        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
+        let edge_type_1_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = NewEdgeType::<u16>::apply(&mut graph).unwrap();
 
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_1_index,
                 &vertex_2_index,
@@ -69,7 +65,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_2_index,
                 &vertex_1_index,
@@ -77,7 +73,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_2_index,
                 &vertex_1_index,
                 &vertex_2_index,

@@ -1,9 +1,8 @@
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::{GetVertexStore, Graph};
-use crate::graph::indexing::operations::FreeIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
-use crate::graph::vertex_store::GetVertexTypeIndexer;
+use crate::graph::vertex_store::operations::vertex_type::DeleteVertexType;
 use crate::operators::operators::drop::DropVertexType;
 
 impl DropVertexType for Graph {
@@ -12,8 +11,7 @@ impl DropVertexType for Graph {
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
         self.vertex_store_mut_ref()
-            .vertex_type_indexer_mut_ref()
-            .free_valid_index(*vertex_type_index.index_ref())
+            .delete_vertex_type(vertex_type_index)
     }
 }
 
