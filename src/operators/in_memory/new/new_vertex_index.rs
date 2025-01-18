@@ -12,12 +12,39 @@ impl NewVertexIndex for Graph {
         let assigned_vertex_index = self.vertex_store_mut_ref().new_vertex_index()?;
 
         match assigned_vertex_index.new_index_capacity() {
-            Some(new_vertex_capacity) => {
-                self.edge_store_mut_ref().resize_adjacency_matrices(new_vertex_capacity)?
-            },
+            Some(new_vertex_capacity) => self
+                .edge_store_mut_ref()
+                .resize_adjacency_matrices(new_vertex_capacity)?,
             None => {}
         }
 
         Ok(VertexIndex::new(assigned_vertex_index.index()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::graph::edge_store::GetAdjacencyMatrices;
+    use crate::graph::indexing::GetIndexCapacity;
+    use crate::graph::vertex_store::GetVertexElementIndexer;
+
+    #[test]
+    fn add_new_vertex() {
+        let mut graph = Graph::with_initial_capacity(1, 1, 1).unwrap();
+
+        for _ in 0..50 {
+            graph.new_vertex_index().unwrap();
+        }
+
+        assert_eq!(
+            graph.edge_store_ref().adjacency_matrix_size(),
+            graph
+                .vertex_store_ref()
+                .element_indexer_ref()
+                .capacity()
+                .unwrap()
+        )
     }
 }

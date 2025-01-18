@@ -10,7 +10,7 @@ use crate::operators::operators::set::SetVertexValue;
 
 impl<T> SetVertexValue<T> for Graph
 where
-    T: ValueType + SetSparseVectorElementTyped<T>
+    T: ValueType + SetSparseVectorElementTyped<T>,
 {
     fn set_vertex_value(
         &mut self,

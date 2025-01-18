@@ -79,8 +79,12 @@ where
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<T, GraphComputingError> {
-        self.public_edge_store
-            .edge_weight_or_default(&self.public_vertex_store, edge_type, tail, head)
+        self.public_edge_store.edge_weight_or_default(
+            &self.public_vertex_store,
+            edge_type,
+            tail,
+            head,
+        )
     }
 
     /// Requires valid coordinate

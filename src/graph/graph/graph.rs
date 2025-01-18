@@ -198,7 +198,10 @@ impl Graph {
 #[cfg(test)]
 mod tests {
     use crate::operators::operators::{
-        new::{NewVertex, NewVertexType}, read::GetVertexValue, set::{SetEdgeWeight, SetVertexValue}, update::UpdateVertexValue
+        new::{NewVertex, NewVertexType},
+        read::GetVertexValue,
+        set::{SetEdgeWeight, SetVertexValue},
+        update::UpdateVertexValue,
     };
 
     use super::*;

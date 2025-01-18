@@ -3,13 +3,13 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::{
     SparseVector, VectorElementList as VertexVectorElementList,
 };
 
+use crate::error::GraphComputingError;
 use crate::graph::graph::GetVertexStore;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::{ToSparseVector, ToSparseVectorForValueType};
-use crate::operators::operators::read::{GetSparseVertexVector, GetVertexVectorElementList};
 use crate::graph::{graph::Graph, value_type::ValueType};
-use crate::error::GraphComputingError;
+use crate::operators::operators::read::{GetSparseVertexVector, GetVertexVectorElementList};
 
 impl<T> GetSparseVertexVector<T> for Graph
 where

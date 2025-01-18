@@ -28,7 +28,8 @@ impl<T: ValueType + SetSparseMatrixElementTyped<T> + Copy> UpdateEdgeWeight<T> f
         head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        self.public_edge_store.update_edge(&self.public_vertex_store, edge_type, tail, head, weight)
+        self.public_edge_store
+            .update_edge(&self.public_vertex_store, edge_type, tail, head, weight)
     }
 }
 

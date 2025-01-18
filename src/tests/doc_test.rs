@@ -41,7 +41,7 @@ fn main() {
             ),
             true,
         );
-        
+
         graph.new_edge_from_edge(edge).unwrap();
     }
 

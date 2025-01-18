@@ -5,11 +5,13 @@ use crate::graph::edge_store::{
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::operators::operators::indexing::CheckIndex;
-use crate::operators::operators::select::{SelectEdgesWithHeadVertex, SelectEdgesWithHeadVertexUnchecked};
+use crate::operators::operators::select::{
+    SelectEdgesWithHeadVertex, SelectEdgesWithHeadVertexUnchecked,
+};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelector;
-use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixColumn;
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
+use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixColumn;
 
 use crate::graph::graph::Graph;
 use crate::graph::graph::{

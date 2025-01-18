@@ -95,8 +95,7 @@ where
                     .graphblas_operator_applier_collection_ref()
                     .entire_matrix_selector();
 
-                Ok(
-                    self
+                Ok(self
                     .graphblas_operator_applier_collection_ref()
                     .matrix_selector()
                     .apply(

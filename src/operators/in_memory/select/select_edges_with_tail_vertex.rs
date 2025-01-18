@@ -17,7 +17,9 @@ use crate::graph::graph::{
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::operators::operators::indexing::CheckIndex;
-use crate::operators::operators::select::{SelectEdgesWithTailVertex, SelectEdgesWithTailVertexUnchecked};
+use crate::operators::operators::select::{
+    SelectEdgesWithTailVertex, SelectEdgesWithTailVertexUnchecked,
+};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 

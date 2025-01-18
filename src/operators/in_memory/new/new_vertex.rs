@@ -23,12 +23,12 @@ where
             .add_new_vertex(vertex_type, value)?;
 
         match assigned_vertex_index.new_index_capacity() {
-            Some(new_vertex_capacity) => {
-                self.edge_store_mut_ref().resize_adjacency_matrices(new_vertex_capacity)?
-            },
+            Some(new_vertex_capacity) => self
+                .edge_store_mut_ref()
+                .resize_adjacency_matrices(new_vertex_capacity)?,
             None => {}
         }
-        
+
         Ok(VertexIndex::new(assigned_vertex_index.index()))
     }
 }
@@ -37,7 +37,13 @@ where
 mod tests {
     use super::*;
 
-    use crate::operators::operators::{new::NewVertexType, read::GetVertexValue};
+    use crate::{
+        graph::{
+            edge_store::GetAdjacencyMatrices, indexing::GetIndexCapacity,
+            vertex_store::GetVertexElementIndexer,
+        },
+        operators::operators::{new::NewVertexType, read::GetVertexValue},
+    };
 
     #[test]
     fn add_vertex() {
@@ -76,5 +82,14 @@ mod tests {
                 graph.new_vertex(&vertex_type_index, i).unwrap();
             }
         }
+
+        assert_eq!(
+            graph.edge_store_ref().adjacency_matrix_size(),
+            graph
+                .vertex_store_ref()
+                .element_indexer_ref()
+                .capacity()
+                .unwrap()
+        )
     }
 }

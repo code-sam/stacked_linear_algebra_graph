@@ -9,9 +9,10 @@ use crate::graph::graph::{
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::operators::operators::indexing::CheckIndex;
-use crate::operators::operators::select::{SelectFromVertexVector, SelectFromVertexVectorUnchecked};
+use crate::operators::operators::select::{
+    SelectFromVertexVector, SelectFromVertexVectorUnchecked,
+};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
-
 
 impl<EvaluationDomain> SelectFromVertexVector<EvaluationDomain> for Graph
 where
