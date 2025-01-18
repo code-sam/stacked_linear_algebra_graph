@@ -198,9 +198,7 @@ impl Graph {
 #[cfg(test)]
 mod tests {
     use crate::operators::operators::{
-        new::{NewVertex, NewVertexType},
-        read::GetVertexValue,
-        update::UpdateVertexValue,
+        new::{NewVertex, NewVertexType}, read::GetVertexValue, set::{SetEdgeWeight, SetVertexValue}, update::UpdateVertexValue
     };
 
     use super::*;
@@ -262,7 +260,7 @@ mod tests {
         );
 
         graph_1
-            .add_or_update_vertex(&vertex_type_11_index, &vertex_11_index, 4)
+            .set_vertex_value(&vertex_type_11_index, &vertex_11_index, 4)
             .unwrap();
 
         assert_eq!(

@@ -13,6 +13,7 @@ use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVerte
 use crate::operators::operators::read::GetVertexValue;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 
+#[test]
 fn main() {
     let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
@@ -40,7 +41,7 @@ fn main() {
             ),
             true,
         );
-
+        println!("{:?}", edge);
         graph.new_edge_from_edge(edge).unwrap();
     }
 

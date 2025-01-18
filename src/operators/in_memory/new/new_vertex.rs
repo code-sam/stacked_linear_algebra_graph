@@ -1,7 +1,8 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
 
 use crate::error::GraphComputingError;
-use crate::graph::graph::{GetVertexStore, Graph};
+use crate::graph::edge_store::operations::operations::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 
 use crate::graph::indexing::{GetAssignedIndexData, GetVertexTypeIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
@@ -17,10 +18,18 @@ where
         vertex_type: &impl GetVertexTypeIndex,
         value: T,
     ) -> Result<VertexIndex, GraphComputingError> {
-        let assigned_index = self
+        let assigned_vertex_index = self
             .vertex_store_mut_ref()
             .add_new_vertex(vertex_type, value)?;
-        Ok(VertexIndex::new(assigned_index.index()))
+
+        match assigned_vertex_index.new_index_capacity() {
+            Some(new_vertex_capacity) => {
+                self.edge_store_mut_ref().resize_adjacency_matrices(new_vertex_capacity)?
+            },
+            None => {}
+        }
+        
+        Ok(VertexIndex::new(assigned_vertex_index.index()))
     }
 }
 

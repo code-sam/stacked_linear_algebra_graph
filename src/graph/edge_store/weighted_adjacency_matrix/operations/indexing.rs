@@ -56,6 +56,7 @@ impl Indexing for WeightedAdjacencyMatrix {
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<bool, GraphComputingError> {
+        println!("{}", self);
         Ok(is_sparse_matrix_element(self, tail.index(), head.index())?)
     }
 
