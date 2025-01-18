@@ -40,9 +40,7 @@ where
         weight: T,
     ) -> Result<(), GraphComputingError> {
         self.try_is_valid_edge(vertex_indexer, edge_type_index, tail, head)?;
-        println!("{:?}", "valid edge");
         self.try_is_empty_edge(edge_type_index, tail, head)?;
-        println!("{:?}", "empty edge");
 
         self.new_edge_unchecked(edge_type_index, tail, head, weight)
     }
