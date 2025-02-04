@@ -1,10 +1,12 @@
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::{
     ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
     GetArgumentsForAdjacencyMatrixOperator,
 };
-use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::operators::indexing::CheckIndex;
+use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex};
+use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::operators::operators::select::{
     SelectEdgesWithHeadVertex, SelectEdgesWithHeadVertexUnchecked,
 };
@@ -13,11 +15,9 @@ use graphblas_sparse_linear_algebra::index::ElementIndexSelector as VertexSelect
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
 use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixColumn;
 
-use crate::graph::graph::Graph;
-use crate::graph::graph::{
-    GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
-    GetVertexStore,
-};
+use crate::graph::graph::GetGraphblasOperatorAppliers;
+use crate::graph::graph::{Graph, GraphblasOperatorApplierCollection};
+use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<EvaluationDomain> SelectEdgesWithHeadVertex<EvaluationDomain> for Graph
@@ -30,22 +30,19 @@ where
         head_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
+        mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_type_index_validity(adjacency_matrix)?;
-        self.try_vertex_index_validity(head_vertex)?;
-        self.try_vertex_type_index_validity(extract_to)?;
-        self.try_optional_vertex_type_index_validity(mask)?;
-
-        SelectEdgesWithHeadVertexUnchecked::apply(
-            self,
+        select_edges_with_head_vertex::<EvaluationDomain>(
+            &mut self.public_edge_store,
+            &mut self.public_vertex_store,
             adjacency_matrix,
             head_vertex,
             accumlator,
             extract_to,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
@@ -60,57 +57,108 @@ where
         head_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
+        mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        let edge_store = self.edge_store_mut_ref_unsafe();
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
-
-        let adjacency_matrix_argument = ArgumentsForAdjacencyMatrixOperator::create_unchecked(
-            edge_store,
+        select_edges_with_head_vertex_unchecked::<EvaluationDomain>(
+            &mut self.public_edge_store,
+            &mut self.public_vertex_store,
             adjacency_matrix,
+            head_vertex,
+            accumlator,
+            extract_to,
+            mask,
             options,
-        );
+            &self.graphblas_operator_applier_collection,
+        )
+    }
+}
 
-        let vertex_vector_extract_to =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(extract_to)?;
+pub(crate) fn select_edges_with_head_vertex<EvaluationDomain>(
+    edge_store: &mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + EdgeTypeIndexing),
+    vertex_store: &mut (impl GetVertexVector + CheckVertexTypeIndex + CheckVertexIndex),
+    adjacency_matrix: &impl GetEdgeTypeIndex,
+    head_vertex: &impl GetVertexIndexIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    extract_to: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OptionsForOperatorWithAdjacencyMatrixArgument,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+{
+    edge_store.try_edge_type_index_validity(adjacency_matrix)?;
+    vertex_store.try_vertex_index_validity(head_vertex)?;
+    vertex_store.try_vertex_type_index_validity(extract_to)?;
+    vertex_store.try_optional_vertex_type_index_validity(mask)?;
 
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+    select_edges_with_head_vertex_unchecked::<EvaluationDomain>(
+        edge_store,
+        vertex_store,
+        adjacency_matrix,
+        head_vertex,
+        accumlator,
+        extract_to,
+        mask,
+        options,
+        graphblas_operator_applier_collection,
+    )
+}
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        head_vertex.index(),
-                        &VertexSelector::All,
-                        accumlator,
-                        vertex_vector_extract_to,
-                        vertex_vector_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
+pub(crate) fn select_edges_with_head_vertex_unchecked<EvaluationDomain>(
+    edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes),
+    vertex_store: *mut impl GetVertexVector,
+    adjacency_matrix: &impl GetEdgeTypeIndex,
+    head_vertex: &impl GetVertexIndexIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    extract_to: &impl GetVertexTypeIndex,
+    mask: Option<&impl GetVertexTypeIndex>,
+    options: &OptionsForOperatorWithAdjacencyMatrixArgument,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+{
+    let adjacency_matrix_argument = ArgumentsForAdjacencyMatrixOperator::create_unchecked(
+        edge_store,
+        adjacency_matrix,
+        options,
+    );
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_column_extractor()
-                    .apply(
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        head_vertex.index(),
-                        &VertexSelector::All,
-                        accumlator,
-                        vertex_vector_extract_to,
-                        vertex_vector_mask,
-                        adjacency_matrix_argument.options_ref(),
-                    )?)
-            }
+    let vertex_vector_extract_to =
+        unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(extract_to)?;
+
+    match mask {
+        Some(mask) => {
+            let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+
+            Ok(graphblas_operator_applier_collection
+                .matrix_column_extractor()
+                .apply(
+                    adjacency_matrix_argument.adjacency_matrix_ref(),
+                    head_vertex.index(),
+                    &VertexSelector::All,
+                    accumlator,
+                    vertex_vector_extract_to,
+                    vertex_vector_mask,
+                    adjacency_matrix_argument.options_ref(),
+                )?)
+        }
+        None => {
+            let vertex_vector_mask = graphblas_operator_applier_collection.entire_vector_selector();
+
+            Ok(graphblas_operator_applier_collection
+                .matrix_column_extractor()
+                .apply(
+                    adjacency_matrix_argument.adjacency_matrix_ref(),
+                    head_vertex.index(),
+                    &VertexSelector::All,
+                    accumlator,
+                    vertex_vector_extract_to,
+                    vertex_vector_mask,
+                    adjacency_matrix_argument.options_ref(),
+                )?)
         }
     }
 }

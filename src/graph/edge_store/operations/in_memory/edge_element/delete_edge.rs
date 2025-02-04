@@ -32,7 +32,7 @@ impl DeleteEdge for EdgeStore {
         coordinate: &(impl GetCoordinateIndices + Copy),
     ) -> Result<(), GraphComputingError> {
         let adjancency_matrix_to_delete_from =
-            self.adjacency_matrix_mut_ref_unchecked(edge_type_index);
+            self.adjacency_matrix_mut_ref_unchecked(edge_type_index)?;
         drop_sparse_matrix_element_with_coordinate(adjancency_matrix_to_delete_from, *coordinate)?;
         Ok(())
     }
@@ -56,7 +56,7 @@ impl DeleteEdge for EdgeStore {
         head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
         let adjancency_matrix_to_delete_from =
-            self.adjacency_matrix_mut_ref_unchecked(edge_type_index);
+            self.adjacency_matrix_mut_ref_unchecked(edge_type_index)?;
         drop_sparse_matrix_element(adjancency_matrix_to_delete_from, tail.index(), head.index())?;
         Ok(())
     }

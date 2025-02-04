@@ -28,7 +28,7 @@ impl GetAdjacencyMatrix for EdgeStore {
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
         self.edge_type_indexer_ref()
             .try_index_validity(edge_type_index.index())?;
-        Ok(self.adjacency_matrix_mut_ref_unchecked(edge_type_index))
+        self.adjacency_matrix_mut_ref_unchecked(edge_type_index)
     }
 
     fn adjacency_matrix_ref_unchecked(
@@ -41,9 +41,11 @@ impl GetAdjacencyMatrix for EdgeStore {
     fn adjacency_matrix_mut_ref_unchecked(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> &mut WeightedAdjacencyMatrix {
-        self.adjacency_matrices_mut_ref()[*edge_type_index.index_ref()]
-            .weighted_adjacency_matrix_mut_ref()
+    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
+        Ok(
+            self.adjacency_matrices_mut_ref()[*edge_type_index.index_ref()]
+                .weighted_adjacency_matrix_mut_ref(),
+        )
     }
 
     fn adjacency_matrix_size_ref(&self) -> &ElementCount {
@@ -71,7 +73,7 @@ impl GetAdjacencyMatrixWithCachedAttributes for EdgeStore {
     ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
         self.edge_type_indexer_ref()
             .try_index_validity(edge_type_index.index())?;
-        Ok(self.adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index))
+        self.adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index)
     }
 
     fn adjacency_matrix_with_cached_attributes_ref_unchecked(
@@ -84,7 +86,7 @@ impl GetAdjacencyMatrixWithCachedAttributes for EdgeStore {
     fn adjacency_matrix_with_cached_attributes_mut_ref_unchecked(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> &mut WeightedAdjacencyMatrixWithCachedAttributes {
-        &mut self.adjacency_matrices_mut_ref()[*edge_type_index.index_ref()]
+    ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
+        Ok(&mut self.adjacency_matrices_mut_ref()[*edge_type_index.index_ref()])
     }
 }

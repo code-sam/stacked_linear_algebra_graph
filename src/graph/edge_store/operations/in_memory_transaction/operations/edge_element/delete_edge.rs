@@ -59,7 +59,7 @@ impl<'s> DeleteEdge for InMemoryEdgeStoreTransaction<'s> {
     ) -> Result<(), GraphComputingError> {
         let adjacency_matrix_to_delete_from = self
             .edge_store
-            .adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index);
+            .adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index)?;
         self.edge_store_state_restorer
             .register_edge_weight_to_restore(
                 adjacency_matrix_to_delete_from,

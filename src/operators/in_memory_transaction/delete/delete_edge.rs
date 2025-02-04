@@ -1,24 +1,25 @@
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::weighted_adjacency_matrix::operations::DeleteEdge as DeleteEdgeInAdjacencyMatrix;
-use crate::graph::graph::GetEdgeStore;
-use crate::graph::graph::Graph;
+use crate::graph::edge_store::operations::operations::edge_element::DeleteEdge as DeleteEdgeFromEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
+use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
+use crate::operators::operators::delete::DeleteEdge;
 
-impl DeleteEdge for Graph {
+impl<'g> DeleteEdge for InMemoryGraphTransaction<'g> {
     fn delete_edge(
         &mut self,
         edge_type: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .try_public_adjacency_matrix_mut_ref(edge_type)?
-            .delete_edge_weight_unchecked(tail, head)?;
-        Ok(())
+        self.edge_store_transaction.delete_edge_weight(
+            &self.vertex_store_transaction,
+            edge_type,
+            tail,
+            head,
+        )
     }
 
     fn delete_edge_for_coordinate(
@@ -29,37 +30,17 @@ impl DeleteEdge for Graph {
     }
 }
 
-impl DeletePrivateEdge for Graph {
-    fn delete_private_edge(
-        &mut self,
-        edge_type: &impl GetEdgeTypeIndex,
-        tail: &impl GetVertexIndexIndex,
-        head: &impl GetVertexIndexIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.edge_store_mut_ref()
-            .try_private_adjacency_matrix_mut_ref(edge_type)?
-            .delete_edge_weight_unchecked(tail, head)?;
-        Ok(())
-    }
-
-    fn delete_private_edge_for_coordinate(
-        &mut self,
-        edge: &impl GetDirectedEdgeCoordinateIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.delete_private_edge(edge.edge_type_ref(), edge.tail_ref(), edge.head_ref())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
-    use crate::operators::read::GetEdgeWeight;
+    use crate::graph::graph::Graph;
+    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operators::read::GetEdgeWeight;
 
     #[test]
     fn delete_edge() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
@@ -68,20 +49,20 @@ mod tests {
         let edge_vertex2_vertex1_value = 2u8;
         let edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
-        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
+        let edge_type_1_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = NewEdgeType::<u16>::apply(&mut graph).unwrap();
 
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_1_index,
                 &vertex_2_index,
@@ -89,7 +70,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_2_index,
                 &vertex_1_index,
@@ -97,7 +78,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_2_index,
                 &vertex_1_index,
                 &vertex_2_index,

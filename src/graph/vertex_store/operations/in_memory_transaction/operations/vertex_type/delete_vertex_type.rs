@@ -7,9 +7,9 @@ use crate::graph::vertex_store::operations::vertex_type::{
     delete_vertex_type_unchecked, DeleteVertexType, GetVertexVector,
 };
 
-impl<'t> DeleteVertexType<'t> for InMemoryVertexStoreTransaction<'t> {
+impl<'t> DeleteVertexType for InMemoryVertexStoreTransaction<'t> {
     fn delete_vertex_type(
-        &'t mut self,
+        &mut self,
         index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
         register_deleted_vertex_vector_to_restore(self, index)?;
@@ -17,7 +17,7 @@ impl<'t> DeleteVertexType<'t> for InMemoryVertexStoreTransaction<'t> {
     }
 
     fn delete_vertex_type_unchecked(
-        &'t mut self,
+        &mut self,
         index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
         register_deleted_vertex_vector_to_restore_unchecked(self, index)?;

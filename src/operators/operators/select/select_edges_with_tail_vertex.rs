@@ -3,7 +3,9 @@ use graphblas_sparse_linear_algebra::{
     operators::{binary_operator::AccumulatorBinaryOperator, mask::MatrixMask},
 };
 
-use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
+use crate::graph::indexing::{
+    GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex,
+};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
@@ -18,7 +20,7 @@ where
         tail_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
+        mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }
@@ -34,7 +36,7 @@ where
         tail_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
+        mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }

@@ -4,11 +4,11 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
 
 use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore, Graph,
+    GetGraphblasOperatorAppliers, Graph, GraphblasOperatorApplierCollection,
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::operators::indexing::CheckIndex;
+use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
+use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::operators::operators::select::{
     SelectFromVertexVector, SelectFromVertexVectorUnchecked,
 };
@@ -29,12 +29,8 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        self.try_vertex_type_index_validity(argument)?;
-        self.try_vertex_type_index_validity(product)?;
-        self.try_optional_vertex_type_index_validity(mask)?;
-
-        SelectFromVertexVectorUnchecked::apply(
-            self,
+        select_from_vertex_vector_unchecked::<EvaluationDomain>(
+            &mut self.public_vertex_store,
             selector,
             selector_argument,
             argument,
@@ -42,6 +38,7 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
@@ -61,50 +58,102 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        select_from_vertex_vector_unchecked::<EvaluationDomain>(
+            &mut self.public_vertex_store,
+            selector,
+            selector_argument,
+            argument,
+            accumlator,
+            product,
+            mask,
+            options,
+            &self.graphblas_operator_applier_collection,
+        )
+    }
+}
 
-        let vertex_vector_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(argument);
+pub(crate) fn select_from_vertex_vector<EvaluationDomain>(
+    vertex_store: &mut (impl GetVertexVector + CheckVertexTypeIndex + CheckVertexIndex),
+    selector: &impl IndexUnaryOperator<EvaluationDomain>,
+    selector_argument: EvaluationDomain,
+    argument: &impl GetVertexTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OperatorOptions,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+    VectorSelector: SelectFromVector<EvaluationDomain>,
+{
+    vertex_store.try_vertex_type_index_validity(argument)?;
+    vertex_store.try_vertex_type_index_validity(product)?;
+    vertex_store.try_optional_vertex_type_index_validity(mask)?;
 
-        let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
+    select_from_vertex_vector_unchecked::<EvaluationDomain>(
+        vertex_store,
+        selector,
+        selector_argument,
+        argument,
+        accumlator,
+        product,
+        mask,
+        options,
+        graphblas_operator_applier_collection,
+    )
+}
 
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+pub(crate) fn select_from_vertex_vector_unchecked<EvaluationDomain>(
+    vertex_store: *mut impl GetVertexVector,
+    selector: &impl IndexUnaryOperator<EvaluationDomain>,
+    selector_argument: EvaluationDomain,
+    argument: &impl GetVertexTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OperatorOptions,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+    VectorSelector: SelectFromVector<EvaluationDomain>,
+{
+    let vertex_vector_argument = unsafe { &*vertex_store }.vertex_vector_ref_unchecked(argument);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        vertex_vector_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
+    let vertex_vector_product =
+        unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        vertex_vector_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
+    match mask {
+        Some(mask) => {
+            let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+
+            Ok(graphblas_operator_applier_collection
+                .vector_selector()
+                .apply(
+                    selector,
+                    selector_argument,
+                    vertex_vector_argument,
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
+        }
+        None => {
+            let vertex_vector_mask = graphblas_operator_applier_collection.entire_vector_selector();
+
+            Ok(graphblas_operator_applier_collection
+                .vector_selector()
+                .apply(
+                    selector,
+                    selector_argument,
+                    vertex_vector_argument,
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
         }
     }
 }

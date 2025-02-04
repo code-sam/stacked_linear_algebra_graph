@@ -6,14 +6,14 @@ use crate::{
     },
 };
 
-pub(crate) trait DeleteVertexType<'a> {
+pub(crate) trait DeleteVertexType {
     fn delete_vertex_type(
-        &'a mut self,
+        &mut self,
         index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError>;
 
     fn delete_vertex_type_unchecked(
-        &'a mut self,
+        &mut self,
         index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError>;
 }

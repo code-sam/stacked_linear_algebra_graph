@@ -3,16 +3,13 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::monoid::Monoid;
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 
-use crate::graph::graph::Graph;
-use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
-};
+use crate::graph::graph::GetGraphblasOperatorAppliers;
+use crate::graph::graph::{Graph, GraphblasOperatorApplierCollection};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
+use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::operators::operators::element_wise_addition::{
     MonoidElementWiseVertexVectorAddition, MonoidElementWiseVertexVectorAdditionUnchecked,
 };
-use crate::operators::operators::indexing::CheckIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<EvaluationDomain> MonoidElementWiseVertexVectorAddition<EvaluationDomain> for Graph
@@ -29,13 +26,8 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        self.try_vertex_type_index_validity(left_argument)?;
-        self.try_vertex_type_index_validity(right_argument)?;
-        self.try_vertex_type_index_validity(product)?;
-        self.try_optional_vertex_type_index_validity(mask)?;
-
-        MonoidElementWiseVertexVectorAdditionUnchecked::apply(
-            self,
+        apply_monoid_element_wise_vertex_vector_addition::<EvaluationDomain>(
+            &mut self.public_vertex_store,
             left_argument,
             operator,
             right_argument,
@@ -43,6 +35,7 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
@@ -61,53 +54,105 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        apply_monoid_element_wise_vertex_vector_addition_unchecked::<EvaluationDomain>(
+            &mut self.public_vertex_store,
+            left_argument,
+            operator,
+            right_argument,
+            accumlator,
+            product,
+            mask,
+            options,
+            &self.graphblas_operator_applier_collection,
+        )
+    }
+}
 
-        let vertex_vector_left_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(left_argument);
+pub(crate) fn apply_monoid_element_wise_vertex_vector_addition<EvaluationDomain>(
+    vertex_store: &mut (impl GetVertexVector + CheckVertexTypeIndex),
+    left_argument: &impl GetVertexTypeIndex,
+    operator: &impl Monoid<EvaluationDomain>,
+    right_argument: &impl GetVertexTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OperatorOptions,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+{
+    vertex_store.try_vertex_type_index_validity(left_argument)?;
+    vertex_store.try_vertex_type_index_validity(right_argument)?;
+    vertex_store.try_vertex_type_index_validity(product)?;
+    vertex_store.try_optional_vertex_type_index_validity(mask)?;
 
-        let vertex_vector_right_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(right_argument);
+    apply_monoid_element_wise_vertex_vector_addition_unchecked::<EvaluationDomain>(
+        vertex_store,
+        left_argument,
+        operator,
+        right_argument,
+        accumlator,
+        product,
+        mask,
+        options,
+        graphblas_operator_applier_collection,
+    )
+}
 
-        let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
+pub(crate) fn apply_monoid_element_wise_vertex_vector_addition_unchecked<EvaluationDomain>(
+    vertex_store: *mut impl GetVertexVector,
+    left_argument: &impl GetVertexTypeIndex,
+    operator: &impl Monoid<EvaluationDomain>,
+    right_argument: &impl GetVertexTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OperatorOptions,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+{
+    let vertex_vector_left_argument =
+        unsafe { &*vertex_store }.vertex_vector_ref_unchecked(left_argument);
 
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+    let vertex_vector_right_argument =
+        unsafe { &*vertex_store }.vertex_vector_ref_unchecked(right_argument);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_monoid_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        vertex_vector_right_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
+    let vertex_vector_product =
+        unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_monoid_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        vertex_vector_right_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
+    match mask {
+        Some(mask) => {
+            let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+
+            Ok(graphblas_operator_applier_collection
+                .element_wise_vector_addition_monoid_operator()
+                .apply(
+                    vertex_vector_left_argument,
+                    operator,
+                    vertex_vector_right_argument,
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
+        }
+        None => {
+            let vertex_vector_mask = graphblas_operator_applier_collection.entire_vector_selector();
+
+            Ok(graphblas_operator_applier_collection
+                .element_wise_vector_addition_monoid_operator()
+                .apply(
+                    vertex_vector_left_argument,
+                    operator,
+                    vertex_vector_right_argument,
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
         }
     }
 }

@@ -19,4 +19,14 @@ impl CheckVertexTypeIndex for VertexStore {
         self.vertex_type_indexer_ref()
             .try_index_validity(vertex_type_index.index())
     }
+
+    fn try_optional_vertex_type_index_validity(
+        &self,
+        vertex_type_index: Option<&crate::graph::indexing::VertexTypeIndex>,
+    ) -> Result<(), GraphComputingError> {
+        match vertex_type_index {
+            Some(index) => self.try_vertex_type_index_validity(index),
+            None => Ok(()),
+        }
+    }
 }

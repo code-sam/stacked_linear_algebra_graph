@@ -11,7 +11,7 @@ use crate::graph::vertex_store::operations::vertex_type::{
 };
 use crate::graph::vertex_store::VertexVector;
 
-impl<'s> GetVertexVector<'s> for InMemoryVertexStoreTransaction<'s> {
+impl<'s> GetVertexVector for InMemoryVertexStoreTransaction<'s> {
     fn vertex_vector_ref(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,

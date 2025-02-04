@@ -1,5 +1,7 @@
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::WeightedAdjacencyMatrixWithCachedAttributes;
+use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
+    GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
+};
 use crate::graph::edge_store::operations::in_memory_transaction::{
     GetEdgeStore, InMemoryEdgeStoreTransaction, RegisterAdjacencyMatrixToRestore,
 };
@@ -51,7 +53,7 @@ where
                 self.edge_store_state_restorer
                     .register_updated_adjacency_matrix_to_restore(
                         edge_type_index,
-                        &adjacency_matrix,
+                        &adjacency_matrix.weighted_adjacency_matrix_ref(),
                     )?;
 
                 function_to_apply(adjacency_matrix)
@@ -73,7 +75,7 @@ where
                 self.edge_store_state_restorer
                     .register_updated_adjacency_matrix_to_restore(
                         edge_type_index,
-                        &adjacency_matrix,
+                        &adjacency_matrix.weighted_adjacency_matrix_ref(),
                     )?;
 
                 function_to_apply(adjacency_matrix)
@@ -128,7 +130,10 @@ where
          -> Result<(), GraphComputingError> {
             edge_store_transaction
                 .edge_store_state_restorer
-                .register_updated_adjacency_matrix_to_restore(edge_type_index, &adjacency_matrix)?;
+                .register_updated_adjacency_matrix_to_restore(
+                    edge_type_index,
+                    &adjacency_matrix.weighted_adjacency_matrix_ref(),
+                )?;
 
             function_to_apply(edge_type_index, adjacency_matrix)
         };

@@ -16,7 +16,7 @@ use crate::graph::vertex_store::GetVertexElementIndexer;
 use crate::graph::vertex_store::GetVertexTypeIndexer;
 use crate::graph::vertex_store::VertexVector;
 
-impl<'s, T> AddVertex<'s, T> for VertexStore
+impl<'s, T> AddVertex<T> for VertexStore
 where
     T: ValueType + SetSparseVectorElementTyped<T>,
 {

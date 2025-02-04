@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-pub trait SemiringElementWiseMaskedVertexVectorMultiplication<EvaluationDomain>
+pub trait SemiringElementWiseVertexVectorMultiplication<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
 {
@@ -21,7 +21,7 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-pub(crate) trait SemiringElementWiseMaskedVertexVectorMultiplicationUnchecked<EvaluationDomain>
+pub(crate) trait SemiringElementWiseVertexVectorMultiplicationUnchecked<EvaluationDomain>
 where
     EvaluationDomain: ValueType,
 {

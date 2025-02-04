@@ -1,4 +1,6 @@
-use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
+use crate::graph::indexing::{
+    GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex,
+};
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
@@ -18,7 +20,7 @@ where
         head_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
+        mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }
@@ -34,7 +36,7 @@ where
         head_vertex: &impl GetVertexIndexIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         extract_to: &impl GetVertexTypeIndex,
-        mask: Option<&impl GetVertexTypeIndex>,
+        mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }

@@ -1,15 +1,16 @@
-use crate::graph::graph::GetVertexStore;
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
+
+use crate::error::GraphComputingError;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
+use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::VertexStore;
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, vertex_store::UpdateVertex},
-};
+use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
+use crate::operators::operators::update::UpdateVertexValue;
 
-impl<T> UpdateVertexValue<T> for Graph
+impl<'g, T> UpdateVertexValue<T> for InMemoryGraphTransaction<'g>
 where
-    T: ValueType,
+    T: ValueType + Default + SetSparseVectorElementTyped<T>,
     VertexStore: UpdateVertex<T>,
 {
     fn update_vertex_value(
@@ -18,34 +19,8 @@ where
         vertex_index: &impl GetVertexIndexIndex,
         value: T,
     ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .update_public_vertex(vertex_type_index, vertex_index, value)
-    }
-}
-
-impl<T> UpdatePrivateVertexValue<T> for Graph
-where
-    T: ValueType,
-    VertexStore: UpdateVertex<T>,
-{
-    fn update_private_vertex_value(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-        value: T,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .update_private_vertex(vertex_type_index, vertex_index, value)
-    }
-
-    fn update_vertex_value_unchecked(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-        vertex_index: &impl GetVertexIndexIndex,
-        value: T,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .update_vertex_unchecked(vertex_type_index, vertex_index, value)
+        self.vertex_store_transaction
+            .update_vertex(vertex_type_index, vertex_index, value)
     }
 }
 

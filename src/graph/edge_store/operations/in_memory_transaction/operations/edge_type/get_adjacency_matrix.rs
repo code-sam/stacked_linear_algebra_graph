@@ -1,9 +1,11 @@
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireMatrix;
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::WeightedAdjacencyMatrixWithCachedAttributes;
+use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
+    GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
+};
 use crate::graph::edge_store::operations::in_memory_transaction::{
-    GetEdgeStore, InMemoryEdgeStoreTransaction,
+    GetEdgeStore, InMemoryEdgeStoreTransaction, RegisterAdjacencyMatrixToRestore,
 };
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::{
     GetAdjacencyMatrix, GetAdjacencyMatrixWithCachedAttributes,
@@ -23,8 +25,12 @@ impl<'s> GetAdjacencyMatrix for InMemoryEdgeStoreTransaction<'s> {
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
-        self.edge_store_mut_ref()
-            .adjacency_matrix_mut_ref(edge_type_index)
+        let adjacency_matrix = self.edge_store.adjacency_matrix_mut_ref(edge_type_index)?;
+
+        self.edge_store_state_restorer
+            .register_updated_adjacency_matrix_to_restore(edge_type_index, adjacency_matrix)?;
+
+        Ok(adjacency_matrix)
     }
 
     fn adjacency_matrix_ref_unchecked(
@@ -38,9 +44,15 @@ impl<'s> GetAdjacencyMatrix for InMemoryEdgeStoreTransaction<'s> {
     fn adjacency_matrix_mut_ref_unchecked(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> &mut WeightedAdjacencyMatrix {
-        self.edge_store_mut_ref()
-            .adjacency_matrix_mut_ref_unchecked(edge_type_index)
+    ) -> Result<&mut WeightedAdjacencyMatrix, GraphComputingError> {
+        let adjacency_matrix = self
+            .edge_store
+            .adjacency_matrix_mut_ref_unchecked(edge_type_index)?;
+
+        self.edge_store_state_restorer
+            .register_updated_adjacency_matrix_to_restore(edge_type_index, adjacency_matrix)?;
+
+        Ok(adjacency_matrix)
     }
 
     fn adjacency_matrix_size_ref(&self) -> &ElementCount {
@@ -65,8 +77,17 @@ impl<'s> GetAdjacencyMatrixWithCachedAttributes for InMemoryEdgeStoreTransaction
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
     ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
-        self.edge_store_mut_ref()
-            .adjacency_matrix_with_cached_attributes_mut_ref(edge_type_index)
+        let adjacency_matrix = self
+            .edge_store
+            .adjacency_matrix_with_cached_attributes_mut_ref(edge_type_index)?;
+
+        self.edge_store_state_restorer
+            .register_updated_adjacency_matrix_to_restore(
+                edge_type_index,
+                adjacency_matrix.weighted_adjacency_matrix_ref(),
+            )?;
+
+        Ok(adjacency_matrix)
     }
 
     fn adjacency_matrix_with_cached_attributes_ref_unchecked(
@@ -80,8 +101,17 @@ impl<'s> GetAdjacencyMatrixWithCachedAttributes for InMemoryEdgeStoreTransaction
     fn adjacency_matrix_with_cached_attributes_mut_ref_unchecked(
         &mut self,
         edge_type_index: &impl GetEdgeTypeIndex,
-    ) -> &mut WeightedAdjacencyMatrixWithCachedAttributes {
-        self.edge_store_mut_ref()
-            .adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index)
+    ) -> Result<&mut WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
+        let adjacency_matrix = self
+            .edge_store
+            .adjacency_matrix_with_cached_attributes_mut_ref_unchecked(edge_type_index)?;
+
+        self.edge_store_state_restorer
+            .register_updated_adjacency_matrix_to_restore(
+                edge_type_index,
+                adjacency_matrix.weighted_adjacency_matrix_ref(),
+            )?;
+
+        Ok(adjacency_matrix)
     }
 }

@@ -1,31 +1,25 @@
-use graphblas_sparse_linear_algebra::operators::{
-    apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
-    binary_operator::AccumulatorBinaryOperator,
-    index_unary_operator::IndexUnaryOperator,
+use graphblas_sparse_linear_algebra::operators::apply::{
+    ApplyIndexUnaryOperator, IndexUnaryOperatorApplier,
 };
+use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
+use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 
-use crate::{
-    graph::{
-        edge_store::{
-            ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
-            GetArgumentsForAdjacencyMatrixOperator,
-        },
-        graph::{
-            GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
-        },
-        indexing::{EdgeTypeIndex, GetEdgeTypeIndex},
-    },
-    operators::{indexing::CheckIndex, options::OptionsForOperatorWithAdjacencyMatrixArgument},
+use crate::graph::graph::GetGraphblasOperatorApplierCollection;
+use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
+use crate::operators::in_memory::apply_operator::{
+    apply_index_unary_operator_to_adjacency_matrix,
+    apply_index_unary_operator_to_adjacency_matrix_unchecked,
 };
+use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
+use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
-use crate::graph::edge_store::operations::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, value_type::ValueType},
-};
+use crate::error::GraphComputingError;
+use crate::graph::value_type::ValueType;
+use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrix;
+use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked;
 
-impl<EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
-    for Graph
+impl<'g, EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
+    for InMemoryGraphTransaction<'g>
 where
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
 {
@@ -39,12 +33,8 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_type_index_validity(adjacency_matrix)?;
-        self.try_edge_type_index_validity(product)?;
-        self.try_optional_edge_type_index_validity(mask)?;
-
-        ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked::<EvaluationDomain>::apply(
-            self,
+        apply_index_unary_operator_to_adjacency_matrix(
+            &mut self.edge_store_transaction,
             adjacency_matrix,
             operator,
             argument,
@@ -52,12 +42,14 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
 
-impl<EvaluationDomain: ValueType>
-    ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked<EvaluationDomain> for Graph
+impl<'g, EvaluationDomain: ValueType>
+    ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked<EvaluationDomain>
+    for InMemoryGraphTransaction<'g>
 where
     IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
 {
@@ -71,54 +63,17 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        let edge_store = self.edge_store_mut_ref_unsafe();
-
-        let operator_argument = ArgumentsForAdjacencyMatrixOperator::create_unchecked(
-            edge_store,
+        apply_index_unary_operator_to_adjacency_matrix_unchecked(
+            &mut self.edge_store_transaction,
             adjacency_matrix,
+            operator,
+            argument,
+            accumlator,
+            product,
+            mask,
             options,
-        );
-
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_unchecked(product);
-
-        match mask {
-            Some(mask) => {
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(mask);
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .index_unary_operator_applier()
-                    .apply_to_matrix(
-                        operator_argument.adjacency_matrix_ref(),
-                        operator,
-                        argument,
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        operator_argument.options_ref(),
-                    )?)
-            }
-            None => {
-                let adjacency_matrix_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_matrix_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .index_unary_operator_applier()
-                    .apply_to_matrix(
-                        operator_argument.adjacency_matrix_ref(),
-                        operator,
-                        argument,
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        operator_argument.options_ref(),
-                    )?)
-            }
-        }
+            self.graphblas_operator_applier_collection_ref(),
+        )
     }
 }
 
@@ -131,12 +86,13 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
-    use crate::operators::read::GetEdgeWeight;
+    use crate::graph::graph::Graph;
+    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operators::read::GetEdgeWeight;
 
     #[test]
     fn add_scalar_to_adjacency_matrix() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
@@ -145,21 +101,21 @@ mod tests {
         let edge_vertex2_vertex1_value = 2u8;
         let edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
-        let edge_type_1_index = AddEdgeType::<u8>::apply(&mut graph).unwrap();
-        let edge_type_2_index = AddEdgeType::<u16>::apply(&mut graph).unwrap();
-        let result_edge_type_index = AddEdgeType::<f32>::apply(&mut graph).unwrap();
+        let edge_type_1_index = NewEdgeType::<u8>::apply(&mut graph).unwrap();
+        let edge_type_2_index = NewEdgeType::<u16>::apply(&mut graph).unwrap();
+        let result_edge_type_index = NewEdgeType::<f32>::apply(&mut graph).unwrap();
 
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_1_index,
                 &vertex_2_index,
@@ -167,7 +123,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_1_index,
                 &vertex_2_index,
                 &vertex_1_index,
@@ -175,7 +131,7 @@ mod tests {
             )
             .unwrap();
         graph
-            .add_edge(
+            .new_edge(
                 &edge_type_2_index,
                 &vertex_1_index,
                 &vertex_2_index,

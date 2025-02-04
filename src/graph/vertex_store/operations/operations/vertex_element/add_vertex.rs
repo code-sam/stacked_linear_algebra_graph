@@ -4,7 +4,7 @@ use crate::graph::indexing::GetVertexIndexIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::value_type::ValueType;
 
-pub(crate) trait AddVertex<'s, T>
+pub(crate) trait AddVertex<T>
 where
     T: ValueType,
 {

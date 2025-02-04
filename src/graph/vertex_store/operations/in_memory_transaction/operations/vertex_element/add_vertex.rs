@@ -16,7 +16,7 @@ use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::graph::vertex_store::operations::vertex_element::SetVertex;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 
-impl<'s, T> AddVertex<'s, T> for InMemoryVertexStoreTransaction<'s>
+impl<'s, T> AddVertex<T> for InMemoryVertexStoreTransaction<'s>
 where
     T: ValueType
         + Copy

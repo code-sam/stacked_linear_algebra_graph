@@ -3,15 +3,17 @@ use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnary
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::select::{SelectFromVector, VectorSelector};
 
-use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore, Graph,
-};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
-use crate::operators::operators::indexing::CheckIndex;
+use crate::operators::in_memory::select::{
+    select_from_vertex_vector, select_from_vertex_vector_unchecked,
+};
+use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
+use crate::operators::operators::select::{
+    SelectFromVertexVector, SelectFromVertexVectorUnchecked,
+};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-impl<EvaluationDomain> SelectFromVertexVector<EvaluationDomain> for Graph
+impl<'g, EvaluationDomain> SelectFromVertexVector<EvaluationDomain> for InMemoryGraphTransaction<'g>
 where
     VectorSelector: SelectFromVector<EvaluationDomain>,
     EvaluationDomain: ValueType,
@@ -19,19 +21,15 @@ where
     fn by_index(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        self.try_vertex_type_index_validity(argument)?;
-        self.try_vertex_type_index_validity(product)?;
-        self.try_optional_vertex_type_index_validity(mask)?;
-
-        SelectFromVertexVectorUnchecked::apply(
-            self,
+        select_from_vertex_vector::<EvaluationDomain>(
+            &mut self.vertex_store_transaction,
             selector,
             selector_argument,
             argument,
@@ -39,11 +37,13 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
 
-impl<EvaluationDomain> SelectFromVertexVectorUnchecked<EvaluationDomain> for Graph
+impl<'g, EvaluationDomain> SelectFromVertexVectorUnchecked<EvaluationDomain>
+    for InMemoryGraphTransaction<'g>
 where
     VectorSelector: SelectFromVector<EvaluationDomain>,
     EvaluationDomain: ValueType,
@@ -51,58 +51,24 @@ where
     fn apply(
         &mut self,
         selector: &impl IndexUnaryOperator<EvaluationDomain>,
-        selector_argument: &EvaluationDomain,
+        selector_argument: EvaluationDomain,
         argument: &impl GetVertexTypeIndex,
         accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
         product: &impl GetVertexTypeIndex,
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
-
-        let vertex_vector_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(argument);
-
-        let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product);
-
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        vertex_vector_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        vertex_vector_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-        }
+        select_from_vertex_vector_unchecked::<EvaluationDomain>(
+            &mut self.vertex_store_transaction,
+            selector,
+            selector_argument,
+            argument,
+            accumlator,
+            product,
+            mask,
+            options,
+            &self.graphblas_operator_applier_collection,
+        )
     }
 }
 
@@ -113,30 +79,31 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::add::{AddVertex, AddVertexType};
-    use crate::operators::read::GetVertexValue;
+    use crate::graph::graph::Graph;
+    use crate::operators::operators::new::{NewVertex, NewVertexType};
+    use crate::operators::operators::read::GetVertexValue;
 
     #[test]
     fn select_from_vertex_vector() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
-        let _vertex_result_type_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
+        let _vertex_result_type_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
         SelectFromVertexVector::<u8>::by_index(
             &mut graph,
             &IsValueGreaterThan::<u8>::new(),
-            &1,
+            1,
             &vertex_type_1_index,
             &Assignment::new(),
             &vertex_type_1_index,

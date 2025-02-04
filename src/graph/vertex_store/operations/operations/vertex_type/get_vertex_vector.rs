@@ -5,15 +5,15 @@ use crate::graph::value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier};
 use crate::graph::vertex_store::vertex_store::GetVertexVectors as GetVertexVectorFromVertexStore;
 use crate::graph::vertex_store::{GetVertexTypeIndexer, VertexStore, VertexVector};
 
-pub(crate) trait GetVertexVector<'a> {
+pub(crate) trait GetVertexVector {
     fn vertex_vector_ref(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&VertexVector, GraphComputingError>;
     fn vertex_vector_mut_ref(
-        &'a mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<&'a mut VertexVector, GraphComputingError>;
+    ) -> Result<&mut VertexVector, GraphComputingError>;
     // fn vertex_vector_by_index_mut_ref_unsafe(
     //     store: *mut VertexStore,
     //     vertex_type_index: &impl GetVertexTypeIndex,
@@ -24,7 +24,7 @@ pub(crate) trait GetVertexVector<'a> {
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> &VertexVector;
     fn vertex_vector_mut_ref_unchecked(
-        &'a mut self,
+        &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<&mut VertexVector, GraphComputingError>;
 }

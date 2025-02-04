@@ -11,6 +11,7 @@ use crate::graph::edge_store::weighted_adjacency_matrix::GetAdjacencyMatrixCoord
 
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
+use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 
 impl<'s, T> GetEdgeWeight<T> for InMemoryEdgeStoreTransaction<'s>
 where
@@ -31,7 +32,7 @@ where
 {
     fn edge_weight(
         &self,
-        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        vertex_indexer: &impl CheckVertexIndex,
         edge_type_index: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
@@ -52,7 +53,7 @@ where
 
     fn edge_weight_at_coordinate(
         &self,
-        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        vertex_indexer: &impl CheckVertexIndex,
         edge_type_index: &impl GetEdgeTypeIndex,
         coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
     ) -> Result<Option<T>, GraphComputingError> {
@@ -71,7 +72,7 @@ where
 
     fn edge_weight_or_default(
         &self,
-        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        vertex_indexer: &impl CheckVertexIndex,
         edge_type_index: &impl GetEdgeTypeIndex,
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
@@ -92,7 +93,7 @@ where
 
     fn edge_weight_or_default_at_coordinate(
         &self,
-        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        vertex_indexer: &impl CheckVertexIndex,
         edge_type_index: &impl GetEdgeTypeIndex,
         coordinate: &(impl GetCoordinateIndices + GetAdjacencyMatrixCoordinateIndices),
     ) -> Result<T, GraphComputingError> {
@@ -114,7 +115,7 @@ where
 
     fn try_edge_weight(
         &self,
-        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        vertex_indexer: &impl CheckVertexIndex,
         edge_type_index: &impl GetEdgeTypeIndex,
         tail: &(impl GetVertexIndexIndex + Debug),
         head: &(impl GetVertexIndexIndex + Debug),
@@ -135,7 +136,7 @@ where
 
     fn try_edge_weight_at_coordinate(
         &self,
-        vertex_indexer: &impl crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex,
+        vertex_indexer: &impl CheckVertexIndex,
         edge_type_index: &impl GetEdgeTypeIndex,
         coordinate: &impl GetAdjacencyMatrixCoordinateIndices,
     ) -> Result<T, GraphComputingError> {

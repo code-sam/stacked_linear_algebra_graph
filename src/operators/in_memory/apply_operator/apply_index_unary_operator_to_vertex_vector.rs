@@ -1,23 +1,20 @@
-use graphblas_sparse_linear_algebra::operators::{
-    apply::{ApplyIndexUnaryOperator, IndexUnaryOperatorApplier},
-    binary_operator::AccumulatorBinaryOperator,
-    index_unary_operator::IndexUnaryOperator,
-    options::OperatorOptions,
+use graphblas_sparse_linear_algebra::operators::apply::{
+    ApplyIndexUnaryOperator, IndexUnaryOperatorApplier,
 };
+use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
+use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
+use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 
 use crate::error::GraphComputingError;
+use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
-use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
-};
+use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
+use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
+use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
 use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
-use crate::operators::operators::indexing::CheckIndex;
-use crate::{
-    graph::vertex_store::operations::vertex_type::GetVertexVector,
-    operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector,
-};
 
 impl<EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
@@ -33,12 +30,8 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        self.try_vertex_type_index_validity(vertex_vector)?;
-        self.try_vertex_type_index_validity(product)?;
-        self.try_optional_vertex_type_index_validity(mask)?;
-
-        ApplyIndexUnaryOperatorToVertexVectorUnchecked::apply(
-            self,
+        apply_index_unary_operator_to_vertex_vector::<EvaluationDomain>(
+            &mut self.public_vertex_store,
             vertex_vector,
             operator,
             argument,
@@ -46,6 +39,7 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
@@ -65,50 +59,103 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        apply_index_unary_operator_to_vertex_vector_unchecked::<EvaluationDomain>(
+            &mut self.public_vertex_store,
+            vertex_vector,
+            operator,
+            argument,
+            accumlator,
+            product,
+            mask,
+            options,
+            &self.graphblas_operator_applier_collection,
+        )
+    }
+}
 
-        let vertex_vector_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(vertex_vector);
+pub(crate) fn apply_index_unary_operator_to_vertex_vector<EvaluationDomain>(
+    vertex_store: &mut (impl GetVertexVector + CheckVertexTypeIndex),
+    vertex_vector: &impl GetVertexTypeIndex,
+    operator: &impl IndexUnaryOperator<EvaluationDomain>,
+    argument: &EvaluationDomain,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OperatorOptions,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+{
+    vertex_store.try_vertex_type_index_validity(vertex_vector)?;
+    vertex_store.try_vertex_type_index_validity(product)?;
+    vertex_store.try_optional_vertex_type_index_validity(mask)?;
 
-        let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
+    apply_index_unary_operator_to_vertex_vector_unchecked::<EvaluationDomain>(
+        vertex_store,
+        vertex_vector,
+        operator,
+        argument,
+        accumlator,
+        product,
+        mask,
+        options,
+        graphblas_operator_applier_collection,
+    )
+}
 
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+pub(crate) fn apply_index_unary_operator_to_vertex_vector_unchecked<EvaluationDomain>(
+    vertex_store: *mut impl GetVertexVector,
+    vertex_vector: &impl GetVertexTypeIndex,
+    operator: &impl IndexUnaryOperator<EvaluationDomain>,
+    argument: &EvaluationDomain,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OperatorOptions,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+    IndexUnaryOperatorApplier: ApplyIndexUnaryOperator<EvaluationDomain>,
+{
+    let vertex_vector_argument =
+        unsafe { &*vertex_store }.vertex_vector_ref_unchecked(vertex_vector);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .index_unary_operator_applier()
-                    .apply_to_vector(
-                        vertex_vector_argument,
-                        operator,
-                        argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
+    let vertex_vector_product =
+        unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .index_unary_operator_applier()
-                    .apply_to_vector(
-                        vertex_vector_argument,
-                        operator,
-                        argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
+    match mask {
+        Some(mask) => {
+            let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+
+            Ok(graphblas_operator_applier_collection
+                .index_unary_operator_applier()
+                .apply_to_vector(
+                    vertex_vector_argument,
+                    operator,
+                    argument,
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
+        }
+        None => {
+            let vertex_vector_mask = graphblas_operator_applier_collection.entire_vector_selector();
+
+            Ok(graphblas_operator_applier_collection
+                .index_unary_operator_applier()
+                .apply_to_vector(
+                    vertex_vector_argument,
+                    operator,
+                    argument,
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
         }
     }
 }

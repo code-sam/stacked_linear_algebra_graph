@@ -25,7 +25,7 @@ impl DeleteVertexConnections for EdgeStore {
         edge_type_index: &impl GetEdgeTypeIndex,
         vertex_index: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
-        self.adjacency_matrix_mut_ref_unchecked(edge_type_index)
+        self.adjacency_matrix_mut_ref_unchecked(edge_type_index)?
             .delete_vertex_connections_unchecked(vertex_index)
     }
 }

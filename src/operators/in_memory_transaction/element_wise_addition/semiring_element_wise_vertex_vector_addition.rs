@@ -1,18 +1,20 @@
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
-use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElementWiseVectorAdditionSemiringOperator;
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::graph::Graph;
-use crate::graph::graph::{
-    GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
-};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::get_vertex_vector::GetVertexVector;
-use crate::operators::operators::indexing::CheckIndex;
+use crate::operators::in_memory::element_wise_addition::{
+    apply_semiring_element_wise_vertex_vector_addition,
+    apply_semiring_element_wise_vertex_vector_addition_unchecked,
+};
+use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
+use crate::operators::operators::element_wise_addition::{
+    SemiringElementWiseVertexVectorAddition, SemiringElementWiseVertexVectorAdditionUnchecked,
+};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-impl<EvaluationDomain> SemiringElementWiseVertexVectorAddition<EvaluationDomain> for Graph
+impl<'g, EvaluationDomain> SemiringElementWiseVertexVectorAddition<EvaluationDomain>
+    for InMemoryGraphTransaction<'g>
 where
     EvaluationDomain: ValueType,
 {
@@ -26,13 +28,8 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        self.try_vertex_type_index_validity(left_argument)?;
-        self.try_vertex_type_index_validity(right_argument)?;
-        self.try_vertex_type_index_validity(product)?;
-        self.try_optional_vertex_type_index_validity(mask)?;
-
-        SemiringElementWiseVertexVectorAdditionUnchecked::apply(
-            self,
+        apply_semiring_element_wise_vertex_vector_addition::<EvaluationDomain>(
+            &mut self.vertex_store_transaction,
             left_argument,
             operator,
             right_argument,
@@ -40,11 +37,13 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
 
-impl<EvaluationDomain> SemiringElementWiseVertexVectorAdditionUnchecked<EvaluationDomain> for Graph
+impl<'g, EvaluationDomain> SemiringElementWiseVertexVectorAdditionUnchecked<EvaluationDomain>
+    for InMemoryGraphTransaction<'g>
 where
     EvaluationDomain: ValueType,
 {
@@ -58,54 +57,17 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OperatorOptions,
     ) -> Result<(), GraphComputingError> {
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
-
-        let vertex_vector_left_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(left_argument);
-
-        let vertex_vector_right_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(right_argument);
-
-        let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product);
-
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        vertex_vector_right_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
-
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .element_wise_vector_addition_semiring_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        vertex_vector_right_argument,
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-        }
+        apply_semiring_element_wise_vertex_vector_addition_unchecked::<EvaluationDomain>(
+            &mut self.vertex_store_transaction,
+            left_argument,
+            operator,
+            right_argument,
+            accumlator,
+            product,
+            mask,
+            options,
+            &self.graphblas_operator_applier_collection,
+        )
     }
 }
 
@@ -115,12 +77,13 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::add::{AddVertex, AddVertexType};
-    use crate::operators::read::GetVertexValue;
+    use crate::graph::graph::Graph;
+    use crate::operators::operators::new::{NewVertex, NewVertexType};
+    use crate::operators::operators::read::GetVertexValue;
 
     #[test]
     fn semiring_element_wise_vertex_vector_addition() {
-        let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+        let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
         let vertex_value_1 = 1u8;
         let vertex_value_2 = 2u8;
@@ -129,13 +92,13 @@ mod tests {
         let _edge_vertex2_vertex1_value = 2u8;
         let _edge_vertex1_vertex2_type_2_value = 3u32;
 
-        let vertex_type_1_index = AddVertexType::<u8>::apply(&mut graph).unwrap();
+        let vertex_type_1_index = NewVertexType::<u8>::apply(&mut graph).unwrap();
 
         let _vertex_1_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_1.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_1.clone())
             .unwrap();
         let vertex_2_index = graph
-            .add_vertex(&vertex_type_1_index, vertex_value_2.clone())
+            .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
         SemiringElementWiseVertexVectorAddition::<u8>::by_index(

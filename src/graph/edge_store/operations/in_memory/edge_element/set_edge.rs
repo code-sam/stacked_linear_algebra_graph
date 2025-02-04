@@ -64,7 +64,7 @@ where
         head: &impl GetVertexIndexIndex,
         weight: T,
     ) -> Result<(), GraphComputingError> {
-        self.adjacency_matrix_mut_ref_unchecked(edge_type_index)
+        self.adjacency_matrix_mut_ref_unchecked(edge_type_index)?
             .set_edge_unchecked(tail, head, weight)
     }
 }

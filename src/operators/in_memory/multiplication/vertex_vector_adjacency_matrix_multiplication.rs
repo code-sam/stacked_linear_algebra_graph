@@ -2,6 +2,9 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBina
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyVectorByMatrix;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::{
     ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument,
     CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument,
@@ -9,11 +12,11 @@ use crate::graph::edge_store::{
 };
 use crate::graph::graph::{
     GetEdgeStore, GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers,
-    GetVertexStore, Graph,
+    GetVertexStore, Graph, GraphblasOperatorApplierCollection,
 };
 
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
+use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::operators::operators::indexing::CheckIndex;
 use crate::operators::operators::multiplication::{
     VertexVectorAdjacencyMatrixMultiplication, VertexVectorAdjacencyMatrixMultiplicationUnchecked,
@@ -35,13 +38,9 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError> {
-        self.try_vertex_type_index_validity(left_argument)?;
-        self.try_edge_type_index_validity(right_argument)?;
-        self.try_vertex_type_index_validity(product)?;
-        self.try_optional_vertex_type_index_validity(mask)?;
-
-        VertexVectorAdjacencyMatrixMultiplicationUnchecked::apply(
-            self,
+        apply_vertex_vector_adjacency_matrix_multiplication::<EvaluationDomain>(
+            &mut self.public_edge_store,
+            &mut self.public_vertex_store,
             left_argument,
             operator,
             right_argument,
@@ -49,6 +48,7 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
@@ -68,58 +68,113 @@ where
         mask: Option<&VertexTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError> {
-        let edge_store = self.edge_store_mut_ref_unsafe();
-        let vertex_store = self.vertex_store_mut_ref_unsafe();
+        apply_vertex_vector_adjacency_matrix_multiplication_unchecked::<EvaluationDomain>(
+            &mut self.public_edge_store,
+            &mut self.public_vertex_store,
+            left_argument,
+            operator,
+            right_argument,
+            accumlator,
+            product,
+            mask,
+            options,
+            &self.graphblas_operator_applier_collection,
+        )
+    }
+}
 
-        let vertex_vector_left_argument =
-            unsafe { &*vertex_store }.vertex_vector_ref_unchecked(left_argument);
+pub(crate) fn apply_vertex_vector_adjacency_matrix_multiplication<EvaluationDomain>(
+    edge_store: &mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + EdgeTypeIndexing),
+    vertex_store: &mut (impl GetVertexVector + CheckVertexTypeIndex),
+    left_argument: &impl GetVertexTypeIndex,
+    operator: &impl Semiring<EvaluationDomain>,
+    right_argument: &impl GetEdgeTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+{
+    vertex_store.try_vertex_type_index_validity(left_argument)?;
+    edge_store.try_edge_type_index_validity(right_argument)?;
+    vertex_store.try_vertex_type_index_validity(product)?;
+    vertex_store.try_optional_vertex_type_index_validity(mask)?;
 
-        let adjacency_matrix_argument =
-            ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument::create_unchecked(
-                edge_store,
-                right_argument,
-                options,
-            );
+    apply_vertex_vector_adjacency_matrix_multiplication_unchecked::<EvaluationDomain>(
+        edge_store,
+        vertex_store,
+        left_argument,
+        operator,
+        right_argument,
+        accumlator,
+        product,
+        mask,
+        options,
+        graphblas_operator_applier_collection,
+    )
+}
 
-        let vertex_vector_product =
-            unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
+pub(crate) fn apply_vertex_vector_adjacency_matrix_multiplication_unchecked<EvaluationDomain>(
+    edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes),
+    vertex_store: *mut impl GetVertexVector,
+    left_argument: &impl GetVertexTypeIndex,
+    operator: &impl Semiring<EvaluationDomain>,
+    right_argument: &impl GetEdgeTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetVertexTypeIndex,
+    mask: Option<&VertexTypeIndex>,
+    options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+{
+    let vertex_vector_left_argument =
+        unsafe { &*vertex_store }.vertex_vector_ref_unchecked(left_argument);
 
-        match mask {
-            Some(mask) => {
-                let vertex_vector_mask =
-                    unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+    let adjacency_matrix_argument =
+        ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument::create_unchecked(
+            edge_store,
+            right_argument,
+            options,
+        );
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_matrix_multiplication_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
-            None => {
-                let vertex_vector_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_vector_selector();
+    let vertex_vector_product =
+        unsafe { &mut *vertex_store }.vertex_vector_mut_ref_unchecked(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .vector_matrix_multiplication_operator()
-                    .apply(
-                        vertex_vector_left_argument,
-                        operator,
-                        adjacency_matrix_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        vertex_vector_product,
-                        vertex_vector_mask,
-                        options,
-                    )?)
-            }
+    match mask {
+        Some(mask) => {
+            let vertex_vector_mask = unsafe { &*vertex_store }.vertex_vector_ref_unchecked(mask);
+
+            Ok(graphblas_operator_applier_collection
+                .vector_matrix_multiplication_operator()
+                .apply(
+                    vertex_vector_left_argument,
+                    operator,
+                    adjacency_matrix_argument.adjacency_matrix_ref(),
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
+        }
+        None => {
+            let vertex_vector_mask = graphblas_operator_applier_collection.entire_vector_selector();
+
+            Ok(graphblas_operator_applier_collection
+                .vector_matrix_multiplication_operator()
+                .apply(
+                    vertex_vector_left_argument,
+                    operator,
+                    adjacency_matrix_argument.adjacency_matrix_ref(),
+                    accumlator,
+                    vertex_vector_product,
+                    vertex_vector_mask,
+                    options,
+                )?)
         }
     }
 }

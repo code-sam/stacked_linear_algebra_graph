@@ -4,16 +4,16 @@ use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::ArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::CreateArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::GetArgumentsForAdjacencyMatrixOperator;
-use crate::graph::graph::GetEdgeStore;
-use crate::graph::graph::GetGraphblasOperatorApplierCollection;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
+use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::operators::indexing::CheckIndex;
 use crate::operators::operators::select::SelectFromAdjacencyMatrix;
 use crate::operators::operators::select::SelectFromAdjacencyMatrixUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
@@ -33,12 +33,8 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        self.try_edge_type_index_validity(argument)?;
-        self.try_edge_type_index_validity(product)?;
-        self.try_optional_edge_type_index_validity(mask)?;
-
-        SelectFromAdjacencyMatrixUnchecked::apply(
-            self,
+        select_from_adjacency_matrix_unchecked::<EvaluationDomain>(
+            &mut self.public_edge_store,
             selector,
             selector_argument,
             argument,
@@ -46,6 +42,7 @@ where
             product,
             mask,
             options,
+            &self.graphblas_operator_applier_collection,
         )
     }
 }
@@ -64,50 +61,105 @@ where
         mask: Option<&EdgeTypeIndex>,
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError> {
-        let edge_store = self.edge_store_mut_ref_unsafe();
+        select_from_adjacency_matrix_unchecked::<EvaluationDomain>(
+            &mut self.public_edge_store,
+            selector,
+            selector_argument,
+            argument,
+            accumlator,
+            product,
+            mask,
+            options,
+            &self.graphblas_operator_applier_collection,
+        )
+    }
+}
 
-        let operator_argument =
-            ArgumentsForAdjacencyMatrixOperator::create_unchecked(edge_store, argument, options);
+pub(crate) fn select_from_adjacency_matrix<EvaluationDomain>(
+    edge_store: &mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes + EdgeTypeIndexing),
+    selector: &impl IndexUnaryOperator<EvaluationDomain>,
+    selector_argument: EvaluationDomain,
+    argument: &impl GetEdgeTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetEdgeTypeIndex,
+    mask: Option<&EdgeTypeIndex>,
+    options: &OptionsForOperatorWithAdjacencyMatrixArgument,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+    MatrixSelector: SelectFromMatrix<EvaluationDomain>,
+{
+    edge_store.try_edge_type_index_validity(argument)?;
+    edge_store.try_edge_type_index_validity(product)?;
+    edge_store.try_optional_edge_type_index_validity(mask)?;
 
-        let adjacency_matrix_product =
-            unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_unchecked(product);
+    select_from_adjacency_matrix_unchecked::<EvaluationDomain>(
+        edge_store,
+        selector,
+        selector_argument,
+        argument,
+        accumlator,
+        product,
+        mask,
+        options,
+        graphblas_operator_applier_collection,
+    )
+}
 
-        match mask {
-            Some(mask) => {
-                let adjacency_matrix_mask =
-                    unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(mask);
+pub(crate) fn select_from_adjacency_matrix_unchecked<EvaluationDomain>(
+    edge_store: *mut (impl GetAdjacencyMatrix + GetAdjacencyMatrixCachedAttributes),
+    selector: &impl IndexUnaryOperator<EvaluationDomain>,
+    selector_argument: EvaluationDomain,
+    argument: &impl GetEdgeTypeIndex,
+    accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+    product: &impl GetEdgeTypeIndex,
+    mask: Option<&EdgeTypeIndex>,
+    options: &OptionsForOperatorWithAdjacencyMatrixArgument,
+    graphblas_operator_applier_collection: &GraphblasOperatorApplierCollection,
+) -> Result<(), GraphComputingError>
+where
+    EvaluationDomain: ValueType,
+    MatrixSelector: SelectFromMatrix<EvaluationDomain>,
+{
+    let operator_argument =
+        ArgumentsForAdjacencyMatrixOperator::create_unchecked(edge_store, argument, options);
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        operator_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        operator_argument.options_ref(),
-                    )?)
-            }
-            None => {
-                let adjacency_matrix_mask = self
-                    .graphblas_operator_applier_collection_ref()
-                    .entire_matrix_selector();
+    let adjacency_matrix_product =
+        unsafe { &mut *edge_store }.adjacency_matrix_mut_ref_unchecked(product)?;
 
-                Ok(self
-                    .graphblas_operator_applier_collection_ref()
-                    .matrix_selector()
-                    .apply(
-                        selector,
-                        selector_argument,
-                        operator_argument.adjacency_matrix_ref(),
-                        accumlator,
-                        adjacency_matrix_product,
-                        adjacency_matrix_mask,
-                        operator_argument.options_ref(),
-                    )?)
-            }
+    match mask {
+        Some(mask) => {
+            let adjacency_matrix_mask =
+                unsafe { &*edge_store }.adjacency_matrix_ref_unchecked(mask);
+
+            Ok(graphblas_operator_applier_collection
+                .matrix_selector()
+                .apply(
+                    selector,
+                    selector_argument,
+                    operator_argument.adjacency_matrix_ref(),
+                    accumlator,
+                    adjacency_matrix_product,
+                    adjacency_matrix_mask,
+                    operator_argument.options_ref(),
+                )?)
+        }
+        None => {
+            let adjacency_matrix_mask =
+                graphblas_operator_applier_collection.entire_matrix_selector();
+
+            Ok(graphblas_operator_applier_collection
+                .matrix_selector()
+                .apply(
+                    selector,
+                    selector_argument,
+                    operator_argument.adjacency_matrix_ref(),
+                    accumlator,
+                    adjacency_matrix_product,
+                    adjacency_matrix_mask,
+                    operator_argument.options_ref(),
+                )?)
         }
     }
 }
@@ -124,6 +176,7 @@ mod tests {
         GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
     };
     use crate::graph::edge_store::operations::operations::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
+    use crate::graph::graph::GetEdgeStore;
     use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
     use crate::operators::operators::read::GetEdgeWeight;
 

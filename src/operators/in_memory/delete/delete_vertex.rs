@@ -1,7 +1,10 @@
 use crate::error::GraphComputingError;
+use crate::graph::edge;
 use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
     GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
 };
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
 use crate::graph::edge_store::operations::operations::edge_type::map::MapMutableAdjacencyMatrices;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore};
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
@@ -11,6 +14,7 @@ use crate::graph::vertex_store::operations::vertex_element::DeleteVertexValue as
 use crate::graph::vertex_store::operations::vertex_element::{
     CheckVertexIndex, DeleteVertexForAllTypes,
 };
+use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::weighted_adjacency_matrix::operations::DeleteVertexConnections;
 use crate::operators::operators::delete::DeleteVertexValue;
 use crate::operators::operators::delete::DropVertexIndex;

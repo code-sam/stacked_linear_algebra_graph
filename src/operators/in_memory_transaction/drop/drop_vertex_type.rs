@@ -1,29 +1,17 @@
 use crate::error::GraphComputingError;
 
-use crate::graph::graph::{GetVertexStore, Graph};
-use crate::graph::indexing::operations::FreeIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
-use crate::graph::vertex_store::GetVertexTypeIndexer;
+use crate::graph::vertex_store::operations::vertex_type::DeleteVertexType;
+use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
+use crate::operators::operators::drop::DropVertexType;
 
-impl DropVertexType for Graph {
+impl<'g> DropVertexType for InMemoryGraphTransaction<'g> {
     fn drop_vertex_type(
         &mut self,
         vertex_type_index: &impl GetVertexTypeIndex,
     ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .vertex_type_indexer_mut_ref()
-            .free_public_index(*vertex_type_index.index_ref())
-    }
-}
-
-impl DropPrivateVertexType for Graph {
-    fn drop_private_vertex_type(
-        &mut self,
-        vertex_type_index: &impl GetVertexTypeIndex,
-    ) -> Result<(), GraphComputingError> {
-        self.vertex_store_mut_ref()
-            .vertex_type_indexer_mut_ref()
-            .free_private_index(*vertex_type_index.index_ref())
+        self.vertex_store_transaction
+            .delete_vertex_type(vertex_type_index)
     }
 }
 

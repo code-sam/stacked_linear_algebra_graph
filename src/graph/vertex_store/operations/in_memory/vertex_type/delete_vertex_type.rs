@@ -5,7 +5,7 @@ use crate::graph::vertex_store::operations::vertex_type::{
 use crate::{error::GraphComputingError, graph::vertex_store::VertexStore};
 
 // TODO: deleting a vertex type, may result in vertices without any value, is this desired?
-impl<'store> DeleteVertexType<'store> for VertexStore {
+impl DeleteVertexType for VertexStore {
     fn delete_vertex_type(
         &mut self,
         index: &impl GetVertexTypeIndex,

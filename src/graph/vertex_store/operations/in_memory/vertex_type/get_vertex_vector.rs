@@ -8,7 +8,7 @@ use crate::graph::vertex_store::operations::vertex_type::{
 };
 use crate::graph::vertex_store::{VertexStore, VertexVector};
 
-impl<'s> GetVertexVector<'s> for VertexStore {
+impl<'s> GetVertexVector for VertexStore {
     fn vertex_vector_ref(
         &self,
         vertex_type_index: &impl GetVertexTypeIndex,
