@@ -176,7 +176,7 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinate;
     use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operators::read::{GetEdgeWeight, GetSparseAdjacencyMatrix};
 
     #[test]
     fn semiring_element_wise_adjacency_matrix_multiplication() {
@@ -251,7 +251,7 @@ mod tests {
                 ),
             )
             .unwrap(),
-            Some(2)
+            Some(4)
         );
 
         SemiringElementWiseAdjacencyMatrixMultiplication::<u8>::apply(
@@ -276,7 +276,7 @@ mod tests {
                 ),
             )
             .unwrap(),
-            None
+            Some(2)
         );
     }
 }

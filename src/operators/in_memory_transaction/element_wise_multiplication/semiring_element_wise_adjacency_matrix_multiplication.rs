@@ -152,7 +152,7 @@ mod tests {
                 ),
             )
             .unwrap(),
-            Some(2)
+            Some(4)
         );
 
         SemiringElementWiseAdjacencyMatrixMultiplication::<u8>::apply(
@@ -177,7 +177,7 @@ mod tests {
                 ),
             )
             .unwrap(),
-            None
+            Some(2)
         );
     }
 }

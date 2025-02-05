@@ -277,7 +277,7 @@ mod tests {
                 ),
             )
             .unwrap(),
-            None
+            Some(2)
         );
     }
 }
