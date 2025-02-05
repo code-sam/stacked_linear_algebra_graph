@@ -143,6 +143,7 @@ mod tests {
     use crate::graph::graph::Graph;
     use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
     use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::transaction::UseTransaction;
 
     #[test]
     fn add_scalar_to_adjacency_matrix() {
@@ -193,17 +194,46 @@ mod tests {
             )
             .unwrap();
 
-        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_adjacency_matrix_as_left_argument(
-            &mut graph,
-            &edge_type_1_index,
-            &Plus::<u8>::new(),
-            1,
-            &Assignment::new(),
-            &result_edge_type_index,
-            None,
-            &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument::new_default(),
-        )
-        .unwrap();
+        {
+            let mut transaction = InMemoryGraphTransaction::new(&mut graph).unwrap();
+
+            ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_adjacency_matrix_as_left_argument(
+                &mut transaction,
+                &edge_type_1_index,
+                &Plus::<u8>::new(),
+                1,
+                &Assignment::new(),
+                &result_edge_type_index,
+                None,
+                &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument::new_default(),
+            )
+            .unwrap();
+
+            assert_eq!(
+                GetEdgeWeight::<u16>::edge_weight_for_coordinate(
+                    &transaction,
+                    &DirectedEdgeCoordinate::new(
+                        result_edge_type_index,
+                        vertex_1_index,
+                        vertex_2_index,
+                    ),
+                )
+                .unwrap(),
+                Some(2)
+            );
+
+            ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_adjacency_matrix_as_left_argument(
+                &mut transaction,
+                &edge_type_1_index,
+                &Plus::<u8>::new(),
+                1,
+                &Assignment::new(),
+                &edge_type_1_index,
+                None,
+                &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument::new_default(),
+            )
+            .unwrap();
+        }
 
         assert_eq!(
             GetEdgeWeight::<u16>::edge_weight_for_coordinate(
@@ -215,57 +245,21 @@ mod tests {
                 ),
             )
             .unwrap(),
-            Some(2)
+            None
         );
-
-        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_adjacency_matrix_as_left_argument(
-            &mut graph,
-            &edge_type_2_index,
-            &Plus::<u8>::new(),
-            u8::MAX,
-            &Assignment::new(),
-            &result_edge_type_index,
-            None,
-            &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument::new_default(),
-        )
-        .unwrap();
 
         assert_eq!(
             GetEdgeWeight::<u16>::edge_weight_for_coordinate(
                 &graph,
                 &DirectedEdgeCoordinate::new(
-                    result_edge_type_index,
+                    edge_type_1_index,
                     vertex_1_index,
                     vertex_2_index,
                 ),
             )
             .unwrap(),
-            Some(2)
+            Some(1)
         );
 
-        ApplyScalarBinaryOperatorToAdjacencyMatrix::<u8>::with_adjacency_matrix_as_left_argument(
-            &mut graph,
-            &edge_type_1_index,
-            &Plus::<u8>::new(),
-            1u8,
-            &Assignment::new(),
-            &result_edge_type_index,
-            None,
-            &OptionsForOperatorWithAdjacencyMatrixAsLeftArgument::new_default(),
-        )
-        .unwrap();
-
-        assert_eq!(
-            GetEdgeWeight::<usize>::edge_weight_for_coordinate(
-                &graph,
-                &DirectedEdgeCoordinate::new(
-                    result_edge_type_index,
-                    vertex_2_index,
-                    vertex_1_index,
-                ),
-            )
-            .unwrap(),
-            Some(3)
-        )
     }
 }

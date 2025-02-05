@@ -74,6 +74,7 @@ where
 #[cfg(test)]
 mod tests {
     use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
+    use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 
     use super::*;
 
@@ -101,22 +102,35 @@ mod tests {
             .new_vertex(&vertex_type_1_index, vertex_value_2.clone())
             .unwrap();
 
-        SemiringElementWiseVertexVectorAddition::<u8>::by_index(
-            &mut graph,
-            &vertex_type_1_index,
-            &graphblas_sparse_linear_algebra::operators::semiring::PlusTimes::<u8>::new(),
-            &vertex_type_1_index,
-            &Assignment::new(),
-            &vertex_type_1_index,
-            Some(&vertex_type_1_index),
-            &OperatorOptions::new_default(),
-        )
-        .unwrap();
+        {
+            let mut transaction = InMemoryGraphTransaction::new(&mut graph).unwrap();
+
+            SemiringElementWiseVertexVectorAddition::<u8>::by_index(
+                &mut transaction,
+                &vertex_type_1_index,
+                &PlusTimes::<u8>::new(),
+                &vertex_type_1_index,
+                &Assignment::new(),
+                &vertex_type_1_index,
+                Some(&vertex_type_1_index),
+                &OperatorOptions::new_default(),
+            )
+            .unwrap();
+    
+            assert_eq!(
+                GetVertexValue::<u16>::vertex_value(&transaction, &vertex_type_1_index, &vertex_2_index)
+                    .unwrap(),
+                Some(4)
+            );
+
+        }
 
         assert_eq!(
             GetVertexValue::<u16>::vertex_value(&graph, &vertex_type_1_index, &vertex_2_index)
                 .unwrap(),
-            Some(4)
+            Some(2)
         );
+
+
     }
 }
