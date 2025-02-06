@@ -10,15 +10,11 @@ use graphblas_sparse_linear_algebra::{
 };
 use once_cell::sync::Lazy;
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::weighted_adjacency_matrix::{
-            CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
-        },
-        value_type::implement_macro_for_all_native_value_types_with_capitalized_value_type,
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
 };
+use crate::graph::value_type::implement_macro_for_all_native_value_types_with_capitalized_value_type;
 
 static DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithMatrixArgument> =
     Lazy::new(|| OptionsForOperatorWithMatrixArgument::new_default());
@@ -46,19 +42,29 @@ macro_rules! create_transpose_adjacency_matrix_function {
                 let sparse_matrix_size = sparse_matrix_size(adjacency_matrix)?; // TODO: would it be more efficient to use a cached size here?
                 let mut transposed_adjacency_matrix =
                     <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<$value_type>>::new(
-                        adjacency_matrix.context_ref(),
-                        sparse_matrix_size.column_width_ref(),
+                        adjacency_matrix.context(),
+                        sparse_matrix_size.column_width(),
                     )?;
 
-                MATRIX_TRANSPOSE_OPERATOR.apply(
+                MatrixTranspose::new().apply(
                     adjacency_matrix,
-                    &*[<ASSIGNMENT_OPERATOR_ $VALUE_TYPE>],
-                    // Assignment::<$value_type>::new() TODO: it might be that the overhead of dereferncing the Lazy is more expensive than inlining the function call.
+                    &Assignment::<$value_type>::new(),
                     &mut transposed_adjacency_matrix,
                     // &SelectEntireMatrix::new(adjacency_matrix.context_ref()), // TODO: consider caching the selector into the edge store
                     mask,
                     &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
                 )?;
+
+                // TODO: performance benchmarking to select fastest variant
+                // MATRIX_TRANSPOSE_OPERATOR.apply(
+                //     adjacency_matrix,
+                //     &*[<ASSIGNMENT_OPERATOR_ $VALUE_TYPE>],
+                //     // Assignment::<$value_type>::new() TODO: it might be that the overhead of dereferncing the Lazy is more expensive than inlining the function call.
+                //     &mut transposed_adjacency_matrix,
+                //     // &SelectEntireMatrix::new(adjacency_matrix.context_ref()), // TODO: consider caching the selector into the edge store
+                //     mask,
+                //     &*DEFAULT_GRAPHBLAS_OPERATOR_OPTIONS,
+                // )?;
 
                 Ok(transposed_adjacency_matrix)
             }
@@ -77,7 +83,7 @@ mod tests {
 
     use crate::graph::{
         edge_store::weighted_adjacency_matrix::{
-            operations::{AddEdge, GetEdgeWeight},
+            operations::{GetEdgeWeight, SetEdge},
             CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
         },
         indexing::VertexIndex,
@@ -87,20 +93,23 @@ mod tests {
     fn transpose_adjacency_matrix() {
         let context = Context::init_default().unwrap();
 
-        let mut adjacency_matrix =
-            <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<u32>>::new(&context, &10)
-                .unwrap();
+        let mut adjacency_matrix = <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<
+            u32,
+        >>::new(context.clone(), 10)
+        .unwrap();
 
         adjacency_matrix
-            .add_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
+            .set_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
             .unwrap();
         adjacency_matrix
-            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
+            .set_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
             .unwrap();
 
-        let transposed =
-            transpose_adjacency_matrix_u32(&adjacency_matrix, &SelectEntireMatrix::new(&context))
-                .unwrap();
+        let transposed = transpose_adjacency_matrix_u32(
+            &adjacency_matrix,
+            &SelectEntireMatrix::new(context.clone()),
+        )
+        .unwrap();
 
         assert_eq!(
             GetEdgeWeight::<u32>::edge_weight_unchecked(

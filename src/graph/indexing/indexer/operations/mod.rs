@@ -1,11 +1,5 @@
-mod check_index;
-mod create_index;
-mod free_index;
-mod get_indices;
-mod indexer_monitoring;
+pub(crate) mod in_memory;
+pub(crate) mod in_memory_transaction;
+mod operations;
 
-pub(crate) use check_index::*;
-pub(crate) use create_index::*;
-pub(crate) use free_index::*;
-pub(crate) use get_indices::*;
-pub(crate) use indexer_monitoring::*;
+pub(crate) use operations::*;

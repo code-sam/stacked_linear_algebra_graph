@@ -2,12 +2,11 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
     is_element, try_is_element,
 };
 
-use crate::{
-    error::GraphComputingError,
-    graph::{indexing::GetVertexIndexIndex, value_type::ValueType, vertex_store::VertexVector},
-};
+use crate::error::GraphComputingError;
+use crate::graph::indexing::GetVertexIndexIndex;
+use crate::graph::vertex_store::VertexVector;
 
-pub(crate) trait IsElementInVertexVector<T: ValueType> {
+pub(crate) trait IsElementInVertexVector {
     fn is_vertex_element(
         &self,
         vertex_index: &impl GetVertexIndexIndex,
@@ -19,7 +18,7 @@ pub(crate) trait IsElementInVertexVector<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-impl<T: ValueType> IsElementInVertexVector<T> for VertexVector {
+impl IsElementInVertexVector for VertexVector {
     fn is_vertex_element(
         &self,
         vertex_index: &impl GetVertexIndexIndex,

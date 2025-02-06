@@ -5,6 +5,7 @@ use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::GetGraphblasSparseMatrix, context::GetContext,
 };
 
+use crate::error::GraphComputingError;
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_bool;
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_f32;
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_f64;
@@ -18,14 +19,9 @@ use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adja
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_u64;
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_u8;
 use crate::graph::edge_store::adjacency_matrix_attribute_caching::transpose_adjacency_matrix_usize;
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::GraphblasContext;
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix,
-        value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier},
-    },
-};
+use crate::graph::value_type::{GetValueTypeIdentifierRef, ValueTypeIdentifier};
 
 #[derive(Clone, Debug)]
 pub(crate) struct CachedAdjacencyMatrixAttributes {
@@ -34,7 +30,7 @@ pub(crate) struct CachedAdjacencyMatrixAttributes {
 }
 
 impl CachedAdjacencyMatrixAttributes {
-    pub(crate) fn new(context: &Arc<GraphblasContext>) -> Self {
+    pub(crate) fn new(context: Arc<GraphblasContext>) -> Self {
         CachedAdjacencyMatrixAttributes {
             transpose: None,
             select_entire_adjacency_matrix: SelectEntireMatrix::new(context),

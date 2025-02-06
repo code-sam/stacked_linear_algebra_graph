@@ -2,19 +2,17 @@ use std::sync::Arc;
 
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::{
-            adjacency_matrix_attribute_caching::{
-                CachedAdjacencyMatrixAttributes, GetAdjacencyMatrixTranspose,
-                InvalidateChachedAdjacencyMatrixAttributes,
-            },
-            weighted_adjacency_matrix::{CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix},
-        },
-        indexing::ElementCount,
-        value_type::{GetValueTypeIdentifier, ValueType},
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::adjacency_matrix_attribute_caching::{
+    CachedAdjacencyMatrixAttributes, GetAdjacencyMatrixTranspose,
+    InvalidateChachedAdjacencyMatrixAttributes,
+};
+use crate::graph::edge_store::weighted_adjacency_matrix::{
+    CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
+};
+use crate::graph::indexing::ElementCount;
+use crate::graph::value_type::{
+    GetValueTypeIdentifier, GetValueTypeIdentifierRef, ValueType, ValueTypeIdentifier,
 };
 
 #[derive(Clone, Debug)]
@@ -25,8 +23,8 @@ pub(crate) struct WeightedAdjacencyMatrixWithCachedAttributes {
 
 pub(crate) trait CreateWeightedAdjacencyMatrixWithCachedAttributes<T> {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError>;
 }
 
@@ -34,11 +32,11 @@ impl<T: ValueType + GetValueTypeIdentifier> CreateWeightedAdjacencyMatrixWithCac
     for WeightedAdjacencyMatrixWithCachedAttributes
 {
     fn new(
-        graphblas_context: &Arc<GraphBLASContext>,
-        initial_vertex_capacity: &ElementCount,
+        graphblas_context: Arc<GraphBLASContext>,
+        initial_vertex_capacity: ElementCount,
     ) -> Result<WeightedAdjacencyMatrixWithCachedAttributes, GraphComputingError> {
         let adjacency_matrix = <WeightedAdjacencyMatrix as CreateWeightedAdjacencyMatrix<T>>::new(
-            graphblas_context,
+            graphblas_context.clone(),
             initial_vertex_capacity,
         )?;
         let cached_attributes = CachedAdjacencyMatrixAttributes::new(graphblas_context);
@@ -89,13 +87,25 @@ impl GetCachedAttributesOfAdjacencyMatrix for WeightedAdjacencyMatrixWithCachedA
     // }
 }
 
+impl GetValueTypeIdentifierRef for WeightedAdjacencyMatrixWithCachedAttributes {
+    fn value_type_identifier_ref(&self) -> &ValueTypeIdentifier {
+        &self.adjacency_matrix.value_type_identifier_ref()
+    }
+}
+
+impl InvalidateChachedAdjacencyMatrixAttributes for WeightedAdjacencyMatrixWithCachedAttributes {
+    fn invalidate_all_attributes(&mut self) {
+        self.cached_attributes.invalidate_all_attributes();
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
     use graphblas_sparse_linear_algebra::context::Context;
 
     use crate::graph::{
-        edge_store::weighted_adjacency_matrix::operations::{AddEdge, GetEdgeWeight},
+        edge_store::weighted_adjacency_matrix::operations::{GetEdgeWeight, SetEdge},
         indexing::VertexIndex,
     };
 
@@ -105,16 +115,16 @@ mod tests {
     fn cached_adjacency_matrix_transpose() {
         let context = Context::init_default().unwrap();
 
-        let mut adjacency_matrix = <WeightedAdjacencyMatrixWithCachedAttributes as CreateWeightedAdjacencyMatrixWithCachedAttributes<u32>>::new(&context, &10)
+        let mut adjacency_matrix = <WeightedAdjacencyMatrixWithCachedAttributes as CreateWeightedAdjacencyMatrixWithCachedAttributes<u32>>::new(context.clone(), 10)
         .unwrap();
 
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
+            .set_edge_unchecked(&VertexIndex::new(0), &VertexIndex::new(0), 1e3)
             .unwrap();
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
+            .set_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e3)
             .unwrap();
 
         assert_eq!(
@@ -132,7 +142,7 @@ mod tests {
 
         adjacency_matrix
             .weighted_adjacency_matrix_mut_ref()
-            .add_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e2)
+            .set_edge_unchecked(&VertexIndex::new(1), &VertexIndex::new(0), 2e2)
             .unwrap();
 
         assert_eq!(

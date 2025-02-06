@@ -1,4 +1,7 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
+    GetSparseVectorElementValue, SetSparseVectorElement,
+};
 use graphblas_sparse_linear_algebra::collections::Collection;
 use rand::distributions::{Distribution, Uniform};
 use rustc_hash::FxHashMap;
@@ -7,7 +10,7 @@ use nohash_hasher::NoHashHasher;
 use std::{collections::HashMap, hash::BuildHasherDefault};
 
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
-use graphblas_sparse_linear_algebra::context::{Context, Mode};
+use graphblas_sparse_linear_algebra::context::{Context, MatrixStorageFormat, Mode};
 
 // use graph_computing::util::indexed_data_store::IndexedDataStore;
 
@@ -22,11 +25,10 @@ fn sparse_vector_indexing_benchmark(c: &mut Criterion) {
 
     c.bench_function("no_hash_hashmap", |b| b.iter(|| bench_no_hash_hashmap()));
 
-    let context = Context::init_ready(Mode::NonBlocking).unwrap();
-    let mut data = SparseVector::<i32>::new(&context, &(100000 * 10)).unwrap();
+    let context = Context::init(Mode::NonBlocking, MatrixStorageFormat::ByColumn).unwrap();
+    let mut data = SparseVector::<i32>::new(context, (100000 * 10)).unwrap();
     for i in 0..100000 {
-        data.set_element((i * 10 as usize, (i * 10) as i32).into())
-            .unwrap();
+        data.set_value(i * 10 as usize, (i * 10) as i32).unwrap();
     }
     c.bench_with_input(
         BenchmarkId::new("sparse_vector_lookup", data.clone()),
@@ -123,7 +125,7 @@ fn bench_hashmap() {
 // }
 
 fn bench_no_hash_hashmap() {
-    let mut data: HashMap<usize, i32, BuildHasherDefault<NoHashHasher<i32>>> =
+    let mut data: HashMap<usize, i32, BuildHasherDefault<NoHashHasher<usize>>> =
         HashMap::with_hasher(BuildHasherDefault::default());
 
     let mut rng = rand::thread_rng();
@@ -162,7 +164,7 @@ fn bench_sparse_vector_lookup(data: SparseVector<i32>) {
     let mut rng = rand::thread_rng();
     for _i in 0..100000 {
         let _value = data
-            .get_element_value(&(10 * random_distribution.sample(&mut rng)))
+            .element_value(10 * random_distribution.sample(&mut rng))
             .unwrap();
         // println!("{}",value)
     }

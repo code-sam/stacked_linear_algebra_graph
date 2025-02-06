@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIn
 
 use crate::graph::{
     edge_store::weighted_adjacency_matrix::AdjacencyMatrixCoordinate,
-    indexing::{EdgeTypeIndex, GetVertexIndexIndex, VertexIndex},
+    indexing::{EdgeTypeIndex, GetIndex, VertexIndex},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq)]

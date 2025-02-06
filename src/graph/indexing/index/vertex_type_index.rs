@@ -1,18 +1,15 @@
 use std::fmt::Debug;
 
-use super::Index;
+use super::{AssignedIndex, GetAssignedIndexData, GetIndex, Index};
 
-pub trait GetVertexTypeIndex: Debug {
-    fn index_ref(&self) -> &Index;
-    fn index(&self) -> Index;
-}
+pub trait GetVertexTypeIndex: GetIndex {}
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq, Default)]
 pub struct VertexTypeIndex {
     index: Index,
 }
 
-impl GetVertexTypeIndex for VertexTypeIndex {
+impl GetIndex for VertexTypeIndex {
     fn index_ref(&self) -> &Index {
         &self.index
     }
@@ -22,8 +19,16 @@ impl GetVertexTypeIndex for VertexTypeIndex {
     }
 }
 
+impl GetVertexTypeIndex for VertexTypeIndex {}
+
 impl VertexTypeIndex {
     pub fn new(index: Index) -> Self {
         Self { index }
+    }
+}
+
+impl From<AssignedIndex> for VertexTypeIndex {
+    fn from(assigned_index: AssignedIndex) -> Self {
+        VertexTypeIndex::new(assigned_index.index())
     }
 }

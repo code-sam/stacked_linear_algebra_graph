@@ -10,7 +10,7 @@ use crate::graph::indexing::GetVertexIndexIndex;
 pub(crate) trait DeleteEdge {
     fn delete_weight_at_unchecked_edge_coordinate(
         &mut self,
-        coordinate: &impl GetCoordinateIndices,
+        coordinate: &(impl GetCoordinateIndices + Copy),
     ) -> Result<(), GraphComputingError>;
 
     fn delete_edge_weight_unchecked(
@@ -23,9 +23,9 @@ pub(crate) trait DeleteEdge {
 impl DeleteEdge for WeightedAdjacencyMatrix {
     fn delete_weight_at_unchecked_edge_coordinate(
         &mut self,
-        coordinate: &impl GetCoordinateIndices,
+        coordinate: &(impl GetCoordinateIndices + Copy),
     ) -> Result<(), GraphComputingError> {
-        drop_sparse_matrix_element_with_coordinate(self, coordinate)?;
+        drop_sparse_matrix_element_with_coordinate(self, *coordinate)?;
         Ok(())
     }
 
@@ -34,7 +34,7 @@ impl DeleteEdge for WeightedAdjacencyMatrix {
         tail: &impl GetVertexIndexIndex,
         head: &impl GetVertexIndexIndex,
     ) -> Result<(), GraphComputingError> {
-        drop_sparse_matrix_element(self, tail.index_ref(), head.index_ref())?;
+        drop_sparse_matrix_element(self, tail.index(), head.index())?;
         Ok(())
     }
 }

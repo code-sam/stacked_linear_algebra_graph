@@ -2,11 +2,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     operations::resize_sparse_matrix, Size,
 };
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, indexing::ElementCount,
-    },
+use crate::error::GraphComputingError;
+use crate::graph::{
+    edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix, indexing::ElementCount,
 };
 
 pub(crate) trait ResizeWeightedAdjacencyMatrix {
@@ -19,7 +17,7 @@ impl ResizeWeightedAdjacencyMatrix for WeightedAdjacencyMatrix {
     fn resize(&mut self, new_vertex_capacity: ElementCount) -> Result<(), GraphComputingError> {
         Ok(resize_sparse_matrix(
             self,
-            &Size::new(new_vertex_capacity, new_vertex_capacity),
+            Size::new(new_vertex_capacity, new_vertex_capacity),
         )?)
     }
 }

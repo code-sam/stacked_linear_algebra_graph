@@ -2,21 +2,13 @@ use graphblas_sparse_linear_algebra::operators::options::{
     GetTransposeMatrixArgument, WithTransposeMatrixArgument,
 };
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        edge_store::{
-            operations::{
-                get_adjacency_matrix::GetAdjacencyMatrix,
-                get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes,
-            },
-            weighted_adjacency_matrix::WeightedAdjacencyMatrix,
-        },
-        indexing::GetEdgeTypeIndex,
-    },
-    operators::options::{
-        GetUseCachedAdjacencyMatrixTranspose, OptionsForOperatorWithAdjacencyMatrixArgument,
-    },
+use crate::error::GraphComputingError;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
+use crate::graph::indexing::GetEdgeTypeIndex;
+use crate::operators::options::{
+    GetUseCachedAdjacencyMatrixTranspose, OptionsForOperatorWithAdjacencyMatrixArgument,
 };
 
 use super::{

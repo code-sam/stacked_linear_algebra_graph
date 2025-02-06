@@ -1,6 +1,6 @@
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::GetCoordinateIndices;
 
-use crate::graph::indexing::{GetVertexIndexIndex, VertexIndex};
+use crate::graph::indexing::{GetIndex, VertexIndex};
 
 pub struct AdjacencyMatrixCoordinate {
     tail: VertexIndex,

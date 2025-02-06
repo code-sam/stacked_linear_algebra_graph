@@ -48,26 +48,26 @@ use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 use stacked_linear_algebra_graph::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
 use stacked_linear_algebra_graph::graph::graph::Graph;
 use stacked_linear_algebra_graph::graph::indexing::{VertexIndex, VertexTypeIndex};
-use stacked_linear_algebra_graph::operators::add::{AddEdge, AddEdgeType, AddVertex, AddVertexType};
-use stacked_linear_algebra_graph::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
-use stacked_linear_algebra_graph::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
-use stacked_linear_algebra_graph::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use stacked_linear_algebra_graph::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+use stacked_linear_algebra_graph::operators::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
+use stacked_linear_algebra_graph::operators::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use stacked_linear_algebra_graph::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+use stacked_linear_algebra_graph::operators::operators::read::GetVertexValue;
 use stacked_linear_algebra_graph::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
-use stacked_linear_algebra_graph::operators::read::GetVertexValue;
 
 fn main() {
-    let mut graph = Graph::with_initial_capacity(&5, &5, &5).unwrap();
+    let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();
 
     let numbers_vertex_type_index: VertexTypeIndex =
-        AddVertexType::<i32>::apply(&mut graph).unwrap();
-    let odd_number_sequence_edge_type_index = AddEdgeType::<i32>::apply(&mut graph).unwrap();
+        NewVertexType::<i32>::apply(&mut graph).unwrap();
+    let odd_number_sequence_edge_type_index = NewEdgeType::<i32>::apply(&mut graph).unwrap();
 
     // Add vertices
     let mut vertex_indices: Vec<VertexIndex> = Vec::new();
     for n in 0..12 {
         vertex_indices.push(
             graph
-                .add_vertex(&numbers_vertex_type_index, n as u8)
+                .new_vertex(&numbers_vertex_type_index, n as u8)
                 .unwrap(),
         );
     }
@@ -83,11 +83,11 @@ fn main() {
             true,
         );
 
-        graph.add_or_replace_edge_from_edge(edge).unwrap();
+        graph.new_edge_from_edge(edge).unwrap();
     }
 
     // Find the fourth number in the sequence, starting at 1
-    let selected_vertices_index: VertexTypeIndex = AddVertexType::<i32>::apply(&mut graph).unwrap();
+    let selected_vertices_index: VertexTypeIndex = NewVertexType::<i32>::apply(&mut graph).unwrap();
 
     ApplyIndexUnaryOperatorToVertexVector::<u8>::apply(
         &mut graph,

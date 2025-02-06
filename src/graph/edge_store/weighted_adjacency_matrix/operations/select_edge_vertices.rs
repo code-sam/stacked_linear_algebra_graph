@@ -1,5 +1,7 @@
+use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorLength;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
+use graphblas_sparse_linear_algebra::context::GetContext;
 use graphblas_sparse_linear_algebra::operators::binary_operator::Assignment;
 use graphblas_sparse_linear_algebra::operators::element_wise_addition::{
     ApplyElementWiseVectorAdditionMonoidOperator, ElementWiseVectorAdditionMonoidOperator,
@@ -7,7 +9,6 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::{
 use graphblas_sparse_linear_algebra::operators::mask::SelectEntireVector;
 use graphblas_sparse_linear_algebra::operators::monoid::{Any, AnyMonoidTyped, LogicalOr};
 use graphblas_sparse_linear_algebra::operators::reduce::{MonoidReducer, MonoidVectorReducer};
-use once_cell::sync::Lazy;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
@@ -17,10 +18,7 @@ use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
 use super::GetMatrixSize;
 
-static DEFAULT_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
-    Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());
-
-pub(crate) trait SelectEdgeVertices<T: ValueType> {
+pub(crate) trait SelectEdgeVertices {
     fn select_vertices_with_outgoing_edges(
         &self,
     ) -> Result<SparseVector<bool>, GraphComputingError>;
@@ -30,12 +28,12 @@ pub(crate) trait SelectEdgeVertices<T: ValueType> {
     fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError>;
 }
 
-impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacencyMatrix {
+impl SelectEdgeVertices for WeightedAdjacencyMatrix {
     fn select_vertices_with_outgoing_edges(
         &self,
     ) -> Result<SparseVector<bool>, GraphComputingError> {
         let mut from_vertex_vector_mask =
-            SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+            SparseVector::new(self.graphblas_context(), self.vertex_capacity()?)?;
 
         // TODO: think about caching for performance optimization
         // let GRAPHBLAS_ANY_OPERATOR_IN_HORIZONTAL_DIRECTION =
@@ -45,12 +43,12 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
         //         &Assignment::new(),
         //     );
         MonoidReducer::new().to_column_vector(
-            &Any::<T>::new(),
+            &Any::<bool>::new(),
             self,
             &Assignment::new(),
             &mut from_vertex_vector_mask,
-            &SelectEntireVector::new(self.graphblas_context_ref()),
-            &*DEFAULT_OPERATOR_OPTIONS,
+            &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )?;
         Ok(from_vertex_vector_mask)
     }
@@ -59,7 +57,7 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
         &self,
     ) -> Result<SparseVector<bool>, GraphComputingError> {
         let mut to_vertex_vector_mask =
-            SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
+            SparseVector::new(self.graphblas_context(), self.vertex_capacity()?)?;
         // let GRAPHBLAS_ANY_OPERATOR_IN_VERTICAL_DIRECTION =
         //     MonoidReducer::<$value_type>::new(
         //         &Any::<$value_type>::new(),
@@ -73,30 +71,42 @@ impl<T: ValueType + AnyMonoidTyped<T>> SelectEdgeVertices<T> for WeightedAdjacen
         //     &mut to_vertex_vector_mask,
         // )?;
         MonoidReducer::new().to_row_vector(
-            &Any::<T>::new(),
+            &Any::<bool>::new(),
             self,
             &Assignment::new(),
             &mut to_vertex_vector_mask,
-            &SelectEntireVector::new(self.graphblas_context_ref()),
-            &*DEFAULT_OPERATOR_OPTIONS,
+            &SelectEntireVector::new(self.graphblas_context()), // TODO: cache this operator?
+            &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
         )?;
         Ok(to_vertex_vector_mask)
     }
 
     // TODO: wrap mask into a business struct
     fn select_connected_vertices(&self) -> Result<SparseVector<bool>, GraphComputingError> {
-        let mut vertex_vector_mask =
-            SparseVector::new(self.graphblas_context_ref(), &self.vertex_capacity()?)?;
-
-        ElementWiseVectorAdditionMonoidOperator::new().apply(
-            &SelectEdgeVertices::<T>::select_vertices_with_incoming_edges(self)?,
-            &LogicalOr::<bool>::new(),
-            &SelectEdgeVertices::<T>::select_vertices_with_outgoing_edges(self)?,
-            &Assignment::new(),
-            &mut vertex_vector_mask,
-            &SelectEntireVector::new(self.graphblas_context_ref()),
-            &*DEFAULT_OPERATOR_OPTIONS,
-        )?;
-        Ok(vertex_vector_mask)
+        select_connected_vertices(
+            &SelectEdgeVertices::select_vertices_with_incoming_edges(self)?,
+            &SelectEdgeVertices::select_vertices_with_outgoing_edges(self)?,
+        )
     }
+}
+
+pub(crate) fn select_connected_vertices(
+    vertices_with_incoming_edges: &SparseVector<bool>,
+    vertices_with_outgoing_edges: &SparseVector<bool>,
+) -> Result<SparseVector<bool>, GraphComputingError> {
+    let mut vertex_vector_mask = SparseVector::new(
+        vertices_with_incoming_edges.context(),
+        vertices_with_incoming_edges.length()?,
+    )?;
+
+    ElementWiseVectorAdditionMonoidOperator::new().apply(
+        vertices_with_incoming_edges,
+        &LogicalOr::<bool>::new(),
+        vertices_with_outgoing_edges,
+        &Assignment::new(),
+        &mut vertex_vector_mask,
+        &SelectEntireVector::new(vertices_with_incoming_edges.context()), // TODO: cache this operator?
+        &OptionsForOperatorWithAdjacencyMatrixArgument::new_default(),
+    )?;
+    Ok(vertex_vector_mask)
 }
