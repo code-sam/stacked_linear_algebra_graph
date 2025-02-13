@@ -3,26 +3,22 @@ use graphblas_sparse_linear_algebra::operators::{
     binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
 };
 
+use crate::error::GraphComputingError;
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrixUnchecked;
+use crate::operators::in_memory::apply_operator::{
+    apply_scalar_binary_operator_with_adjacency_matrix_as_left_argument,
+    apply_scalar_binary_operator_with_adjacency_matrix_as_left_argument_and_by_unchecked_index,
+    apply_scalar_binary_operator_with_adjacency_matrix_as_right_argument,
+    apply_scalar_binary_operator_with_adjacency_matrix_as_right_argument_and_by_unchecked_index,
+};
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix;
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrixUnchecked;
 use crate::operators::options::{
     OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
 };
-use crate::{
-    error::GraphComputingError,
-    operators::{
-        in_memory::apply_operator::{
-            apply_scalar_binary_operator_with_adjacency_matrix_as_left_argument,
-            apply_scalar_binary_operator_with_adjacency_matrix_as_left_argument_and_by_unchecked_index,
-            apply_scalar_binary_operator_with_adjacency_matrix_as_right_argument,
-            apply_scalar_binary_operator_with_adjacency_matrix_as_right_argument_and_by_unchecked_index,
-        },
-        in_memory_transaction::transaction::InMemoryGraphTransaction,
-    },
-};
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
     for InMemoryGraphTransaction<'g>
@@ -141,8 +137,8 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinate;
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
     use crate::operators::transaction::UseTransaction;
 
     #[test]
@@ -251,15 +247,10 @@ mod tests {
         assert_eq!(
             GetEdgeWeight::<u16>::edge_weight_for_coordinate(
                 &graph,
-                &DirectedEdgeCoordinate::new(
-                    edge_type_1_index,
-                    vertex_1_index,
-                    vertex_2_index,
-                ),
+                &DirectedEdgeCoordinate::new(edge_type_1_index, vertex_1_index, vertex_2_index,),
             )
             .unwrap(),
             Some(1)
         );
-
     }
 }

@@ -17,8 +17,8 @@ use crate::graph::graph::{
 
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
-use crate::operators::operators::indexing::CheckIndex;
-use crate::operators::operators::multiplication::{
+use crate::operators::operator_traits::indexing::CheckIndex;
+use crate::operators::operator_traits::multiplication::{
     VertexVectorAdjacencyMatrixMultiplication, VertexVectorAdjacencyMatrixMultiplicationUnchecked,
 };
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
@@ -186,8 +186,8 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn multiply_vertex_vector_with_adjacency_matrix() {

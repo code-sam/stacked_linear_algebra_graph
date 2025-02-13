@@ -5,10 +5,10 @@ use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::operators::in_memory::element_wise_addition::apply_monoid_element_wise_adjacency_matrix_addition;
 use crate::operators::in_memory::element_wise_addition::apply_monoid_element_wise_adjacency_matrix_addition_unchecked;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::element_wise_addition::MonoidElementWiseAdjacencyMatrixAddition;
-use crate::operators::operators::element_wise_addition::MonoidElementWiseAdjacencyMatrixAdditionUnchecked;
+use crate::operators::operator_traits::element_wise_addition::MonoidElementWiseAdjacencyMatrixAddition;
+use crate::operators::operator_traits::element_wise_addition::MonoidElementWiseAdjacencyMatrixAdditionUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain: ValueType> MonoidElementWiseAdjacencyMatrixAddition<EvaluationDomain>
@@ -75,8 +75,8 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinate;
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn monoid_element_wise_adjacency_matrix_addition() {

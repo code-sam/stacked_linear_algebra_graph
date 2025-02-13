@@ -19,8 +19,8 @@ use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::graph::{graph::Graph, value_type::ValueType};
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrix;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrix;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
     for Graph
@@ -181,8 +181,8 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn add_scalar_to_adjacency_matrix() {

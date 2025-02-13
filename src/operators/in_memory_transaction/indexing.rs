@@ -4,9 +4,8 @@ use crate::graph::edge_store::operations::operations::edge_type::indexing::Index
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
-use crate::operators::operators::indexing::CheckIndex;
-
-use super::transaction::InMemoryGraphTransaction;
+use crate::operators::operator_traits::indexing::CheckIndex;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g> CheckIndex for InMemoryGraphTransaction<'g> {
     fn is_valid_vertex_index(

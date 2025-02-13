@@ -9,8 +9,8 @@ use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::graph::{graph::Graph, value_type::ValueType};
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;
+use crate::operators::operator_traits::apply_operator::ApplyUnaryOperatorToVertexVector;
+use crate::operators::operator_traits::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyUnaryOperatorToVertexVector<EvaluationDomain> for Graph {
     fn apply(
@@ -147,8 +147,8 @@ mod tests {
     use super::*;
 
     use crate::graph::indexing::GetIndex;
-    use crate::operators::operators::new::{NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn add_scalar_to_vertex_vector() {

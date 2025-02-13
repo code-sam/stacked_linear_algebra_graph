@@ -7,11 +7,11 @@ use crate::operators::in_memory::element_wise_multiplication::{
     apply_semiring_element_wise_vertex_vector_multiplication,
     apply_semiring_element_wise_vertex_vector_multiplication_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::element_wise_multiplication::{
+use crate::operators::operator_traits::element_wise_multiplication::{
     SemiringElementWiseVertexVectorMultiplication,
     SemiringElementWiseVertexVectorMultiplicationUnchecked,
 };
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain> SemiringElementWiseVertexVectorMultiplication<EvaluationDomain>
@@ -79,8 +79,8 @@ mod tests {
     use super::*;
 
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn semiring_element_wise_vertex_vector_multiplication() {

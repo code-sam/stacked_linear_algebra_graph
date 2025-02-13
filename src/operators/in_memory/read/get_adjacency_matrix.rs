@@ -7,8 +7,8 @@ use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_m
 use crate::graph::graph::GetEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::weighted_adjacency_matrix::{ToSparseMatrix, ToSparseMatrixForValueType};
-use crate::operators::operators::indexing::CheckIndex;
-use crate::operators::operators::read::{GetAdjacencyMatrixElementList, GetSparseAdjacencyMatrix, GetTransposedAdjacencyMatrixElementList, GetTransposedSparseAdjacencyMatrix};
+use crate::operators::operator_traits::indexing::CheckIndex;
+use crate::operators::operator_traits::read::{GetAdjacencyMatrixElementList, GetSparseAdjacencyMatrix, GetTransposedAdjacencyMatrixElementList, GetTransposedSparseAdjacencyMatrix};
 use crate::graph::value_type::ValueType;
 use crate::graph::graph::Graph;
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;

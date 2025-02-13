@@ -1,18 +1,15 @@
 use std::fmt::Debug;
 
-use super::Index;
+use super::{GetIndex, Index};
 
-pub trait GetEdgeTypeIndex: Debug {
-    fn index_ref(&self) -> &Index;
-    fn index(&self) -> Index;
-}
+pub trait GetEdgeTypeIndex: GetIndex {}
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct EdgeTypeIndex {
     index: Index,
 }
 
-impl GetEdgeTypeIndex for EdgeTypeIndex {
+impl GetIndex for EdgeTypeIndex {
     fn index_ref(&self) -> &Index {
         &self.index
     }
@@ -21,6 +18,8 @@ impl GetEdgeTypeIndex for EdgeTypeIndex {
         self.index.to_owned()
     }
 }
+
+impl GetEdgeTypeIndex for EdgeTypeIndex {}
 
 impl EdgeTypeIndex {
     pub fn new(index: Index) -> Self {

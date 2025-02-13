@@ -8,8 +8,8 @@ use crate::graph::indexing::{GetVertexTypeIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
 use crate::operators::in_memory::new::new_vertex;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::new::NewVertex;
+use crate::operators::operator_traits::new::NewVertex;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, T> NewVertex<T> for InMemoryGraphTransaction<'g>
 where
@@ -42,7 +42,7 @@ mod tests {
     use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
     use crate::graph::indexing::GetIndexCapacity;
     use crate::graph::vertex_store::GetVertexElementIndexer;
-    use crate::operators::operators::{new::NewVertexType, read::GetVertexValue};
+    use crate::operators::operator_traits::{new::NewVertexType, read::GetVertexValue};
 
     #[test]
     fn add_vertex() {

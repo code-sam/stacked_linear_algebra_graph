@@ -7,7 +7,7 @@ use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollection};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
-use crate::operators::operators::element_wise_addition::{
+use crate::operators::operator_traits::element_wise_addition::{
     SemiringElementWiseVertexVectorAddition, SemiringElementWiseVertexVectorAdditionUnchecked,
 };
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -163,8 +163,8 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::new::{NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn semiring_element_wise_vertex_vector_addition() {

@@ -5,7 +5,7 @@ use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::VertexStore;
-use crate::operators::operators::update::UpdateVertexValue;
+use crate::operators::operator_traits::update::UpdateVertexValue;
 
 impl<T> UpdateVertexValue<T> for Graph
 where

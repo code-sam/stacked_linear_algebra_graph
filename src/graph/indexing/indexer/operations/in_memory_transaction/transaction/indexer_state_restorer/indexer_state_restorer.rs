@@ -1,13 +1,9 @@
+use crate::error::GraphComputingError;
 use crate::graph::indexing::indexer::indexer::GetQueueWithIndicesForReuse;
 use crate::graph::indexing::indexer::GetIndexMask;
 use crate::graph::indexing::GetIndexCapacity;
-use crate::{
-    error::GraphComputingError,
-    graph::indexing::{ElementCount, Index, Indexer},
-    operators::in_memory_transaction::transaction::{
-        QueueStateReverter, SparseVectorStateReverter,
-    },
-};
+use crate::graph::indexing::{ElementCount, Index, Indexer};
+use crate::operators::transaction::in_memory::{QueueStateReverter, SparseVectorStateReverter};
 
 #[derive(Debug)]
 pub(crate) struct IndexerStateRestorer {

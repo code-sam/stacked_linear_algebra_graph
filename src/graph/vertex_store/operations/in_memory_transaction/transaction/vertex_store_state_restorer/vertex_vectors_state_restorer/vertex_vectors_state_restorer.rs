@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 use crate::graph::indexing::{
     BuildIndexHasher, ElementCount, ElementIndex, ElementIndexMap, GetVertexTypeIndex,
@@ -6,7 +6,7 @@ use crate::graph::indexing::{
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
-use crate::operators::in_memory_transaction::transaction::SparseVectorStateReverter;
+use crate::operators::transaction::in_memory::SparseVectorStateReverter;
 
 pub(crate) struct VertexVectorsStateRestorer {
     pub(super) vertex_vector_length_to_restore: Option<ElementCount>,

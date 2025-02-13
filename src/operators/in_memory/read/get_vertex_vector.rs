@@ -9,7 +9,7 @@ use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::{ToSparseVector, ToSparseVectorForValueType};
 use crate::graph::{graph::Graph, value_type::ValueType};
-use crate::operators::operators::read::{GetSparseVertexVector, GetVertexVectorElementList};
+use crate::operators::operator_traits::read::{GetSparseVertexVector, GetVertexVectorElementList};
 
 impl<T> GetSparseVertexVector<T> for Graph
 where

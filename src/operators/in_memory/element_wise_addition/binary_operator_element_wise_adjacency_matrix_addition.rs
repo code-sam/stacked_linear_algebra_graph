@@ -14,7 +14,7 @@ use crate::graph::graph::{
     GetGraphblasOperatorAppliers, Graph, GraphblasOperatorApplierCollection,
 };
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
-use crate::operators::operators::element_wise_addition::{
+use crate::operators::operator_traits::element_wise_addition::{
     BinaryOperatorElementWiseAdjacencyMatrixAddition,
     BinaryOperatorElementWiseAdjacencyMatrixAdditionUnchecked,
 };
@@ -176,8 +176,8 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn binary_operator_element_wise_adjacency_matrix_addition() {

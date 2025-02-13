@@ -7,10 +7,10 @@ use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::operators::in_memory::select::select_from_adjacency_matrix;
 use crate::operators::in_memory::select::select_from_adjacency_matrix_unchecked;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::select::SelectFromAdjacencyMatrix;
-use crate::operators::operators::select::SelectFromAdjacencyMatrixUnchecked;
+use crate::operators::operator_traits::select::SelectFromAdjacencyMatrix;
+use crate::operators::operator_traits::select::SelectFromAdjacencyMatrixUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain: ValueType> SelectFromAdjacencyMatrix<EvaluationDomain>
@@ -84,8 +84,8 @@ mod tests {
     };
     use crate::graph::edge_store::operations::operations::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
     use crate::graph::graph::{GetEdgeStore, Graph};
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn select_from_adjacency_matrix() {

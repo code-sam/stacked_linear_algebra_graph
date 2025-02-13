@@ -14,8 +14,8 @@ use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::operators::multiplication::AdjacencyMatrixMultiplication;
-use crate::operators::operators::multiplication::AdjacencyMatrixMultiplicationUnchecked;
+use crate::operators::operator_traits::multiplication::AdjacencyMatrixMultiplication;
+use crate::operators::operator_traits::multiplication::AdjacencyMatrixMultiplicationUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
@@ -171,8 +171,8 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn multiply_adjacency_matrices() {

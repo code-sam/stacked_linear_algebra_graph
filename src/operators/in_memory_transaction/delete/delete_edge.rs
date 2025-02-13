@@ -4,8 +4,8 @@ use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::edge_store::operations::operations::edge_element::DeleteEdge as DeleteEdgeFromEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::delete::DeleteEdge;
+use crate::operators::operator_traits::delete::DeleteEdge;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g> DeleteEdge for InMemoryGraphTransaction<'g> {
     fn delete_edge(
@@ -35,8 +35,8 @@ mod tests {
     use super::*;
 
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn delete_edge() {

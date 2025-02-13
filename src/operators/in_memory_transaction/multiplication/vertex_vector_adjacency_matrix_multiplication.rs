@@ -6,11 +6,11 @@ use crate::operators::in_memory::multiplication::{
     apply_vertex_vector_adjacency_matrix_multiplication,
     apply_vertex_vector_adjacency_matrix_multiplication_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::multiplication::{
+use crate::operators::operator_traits::multiplication::{
     VertexVectorAdjacencyMatrixMultiplication, VertexVectorAdjacencyMatrixMultiplicationUnchecked,
 };
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain> VertexVectorAdjacencyMatrixMultiplication<EvaluationDomain>
@@ -81,8 +81,8 @@ mod tests {
     use super::*;
 
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn multiply_vertex_vector_with_adjacency_matrix() {

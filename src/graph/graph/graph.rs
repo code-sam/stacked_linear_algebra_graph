@@ -156,6 +156,20 @@ impl Graph {
             GraphblasMatrixStorageFormat::ByColumn,
         )?;
 
+        Self::with_context_and_initial_capacity(
+            graphblas_context,
+            initial_vertex_type_capacity,
+            initial_vertex_capacity,
+            initial_edge_type_capacity,
+        )
+    }
+
+    pub fn with_context_and_initial_capacity(
+        graphblas_context: Arc<GraphblasContext>,
+        initial_vertex_type_capacity: ElementCount,
+        initial_vertex_capacity: ElementCount,
+        initial_edge_type_capacity: ElementCount,
+    ) -> Result<Self, GraphComputingError> {
         let public_vertex_store = VertexStore::with_initial_capacity(
             graphblas_context.clone(),
             initial_vertex_type_capacity,
@@ -197,7 +211,7 @@ impl Graph {
 
 #[cfg(test)]
 mod tests {
-    use crate::operators::operators::{
+    use crate::operators::operator_traits::{
         new::{NewVertex, NewVertexType},
         read::GetVertexValue,
         set::{SetEdgeWeight, SetVertexValue},

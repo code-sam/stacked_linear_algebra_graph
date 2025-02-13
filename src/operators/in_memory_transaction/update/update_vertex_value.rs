@@ -5,8 +5,8 @@ use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::VertexStore;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::update::UpdateVertexValue;
+use crate::operators::operator_traits::update::UpdateVertexValue;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, T> UpdateVertexValue<T> for InMemoryGraphTransaction<'g>
 where

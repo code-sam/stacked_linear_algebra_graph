@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::VertexIndex;
 use crate::operators::in_memory::new::new_vertex_index;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::new::NewVertexIndex;
+use crate::operators::operator_traits::new::NewVertexIndex;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g> NewVertexIndex for InMemoryGraphTransaction<'g> {
     fn new_vertex_index(&mut self) -> Result<VertexIndex, GraphComputingError> {

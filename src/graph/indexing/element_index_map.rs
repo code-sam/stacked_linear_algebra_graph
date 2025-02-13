@@ -1,7 +1,5 @@
-use std::{
-    collections::HashMap,
-    hash::{BuildHasherDefault, Hasher},
-};
+use hashbrown::HashMap;
+use std::hash::{BuildHasherDefault, Hasher};
 
 use super::ElementIndex;
 

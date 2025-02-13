@@ -3,7 +3,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::operations::edge_type::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
 use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::operators::drop::DropEdgeType;
+use crate::operators::operator_traits::drop::DropEdgeType;
 
 impl DropEdgeType for Graph {
     fn drop_edge_type(

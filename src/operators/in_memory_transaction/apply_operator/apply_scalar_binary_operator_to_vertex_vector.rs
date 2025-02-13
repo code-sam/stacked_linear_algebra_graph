@@ -6,22 +6,18 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::{
 };
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 
+use crate::error::GraphComputingError;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
-use crate::{
-    error::GraphComputingError,
-    operators::{
-        in_memory::apply_operator::{
-            apply_scalar_binary_operator_with_vertex_vector_as_left_argument,
-            apply_scalar_binary_operator_with_vertex_vector_as_left_argument_and_by_unchecked_index,
-            apply_scalar_binary_operator_with_vertex_vector_as_right_argument,
-            apply_scalar_binary_operator_with_vertex_vector_as_right_argument_and_by_unchecked_index,
-        },
-        in_memory_transaction::transaction::InMemoryGraphTransaction,
-    },
+use crate::operators::in_memory::apply_operator::{
+    apply_scalar_binary_operator_with_vertex_vector_as_left_argument,
+    apply_scalar_binary_operator_with_vertex_vector_as_left_argument_and_by_unchecked_index,
+    apply_scalar_binary_operator_with_vertex_vector_as_right_argument,
+    apply_scalar_binary_operator_with_vertex_vector_as_right_argument_and_by_unchecked_index,
 };
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, EvaluationDomain: ValueType> ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain>
     for InMemoryGraphTransaction<'g>

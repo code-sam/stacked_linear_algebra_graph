@@ -5,20 +5,16 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBina
 use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
 use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 
+use crate::error::GraphComputingError;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
-use crate::{
-    error::GraphComputingError,
-    operators::{
-        in_memory::apply_operator::{
-            apply_index_unary_operator_to_vertex_vector,
-            apply_index_unary_operator_to_vertex_vector_unchecked,
-        },
-        in_memory_transaction::transaction::InMemoryGraphTransaction,
-    },
+use crate::operators::in_memory::apply_operator::{
+    apply_index_unary_operator_to_vertex_vector,
+    apply_index_unary_operator_to_vertex_vector_unchecked,
 };
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain>
     for InMemoryGraphTransaction<'g>
@@ -88,8 +84,8 @@ mod tests {
     use super::*;
 
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn add_scalar_to_vertex_vector() {

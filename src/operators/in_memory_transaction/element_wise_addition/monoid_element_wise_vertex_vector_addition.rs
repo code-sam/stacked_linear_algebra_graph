@@ -13,11 +13,11 @@ use crate::operators::in_memory::element_wise_addition::{
     apply_monoid_element_wise_vertex_vector_addition,
     apply_monoid_element_wise_vertex_vector_addition_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::element_wise_addition::{
+use crate::operators::operator_traits::element_wise_addition::{
     MonoidElementWiseVertexVectorAddition, MonoidElementWiseVertexVectorAdditionUnchecked,
 };
-use crate::operators::operators::indexing::CheckIndex;
+use crate::operators::operator_traits::indexing::CheckIndex;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain> MonoidElementWiseVertexVectorAddition<EvaluationDomain>
@@ -84,8 +84,8 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::new::{NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn monoid_element_wise_vertex_vector_addition() {

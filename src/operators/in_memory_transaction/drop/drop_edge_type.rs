@@ -2,8 +2,8 @@ use crate::error::GraphComputingError;
 
 use crate::graph::edge_store::operations::operations::edge_type::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::drop::DropEdgeType;
+use crate::operators::operator_traits::drop::DropEdgeType;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g> DropEdgeType for InMemoryGraphTransaction<'g> {
     fn drop_edge_type(

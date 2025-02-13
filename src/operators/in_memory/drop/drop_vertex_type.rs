@@ -3,7 +3,7 @@ use crate::error::GraphComputingError;
 use crate::graph::graph::{GetVertexStore, Graph};
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::DeleteVertexType;
-use crate::operators::operators::drop::DropVertexType;
+use crate::operators::operator_traits::drop::DropVertexType;
 
 impl DropVertexType for Graph {
     fn drop_vertex_type(

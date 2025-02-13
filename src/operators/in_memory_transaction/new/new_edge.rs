@@ -8,8 +8,8 @@ use crate::graph::edge_store::operations::in_memory_transaction::adjacency_matri
 use crate::graph::edge_store::operations::operations::edge_element::NewEdge as NewEdgeInEdgeStore;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::new::NewEdge;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
+use crate::operators::operator_traits::new::NewEdge;
 
 impl<'g, T> NewEdge<T> for InMemoryGraphTransaction<'g>
 where
@@ -56,8 +56,10 @@ mod tests {
     use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
     use crate::graph::graph::Graph;
     use crate::graph::vertex::{GetVertexIndex, VertexDefinition};
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertexIndex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{
+        NewEdge, NewEdgeType, NewVertexIndex, NewVertexType,
+    };
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn add_edge() {

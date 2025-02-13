@@ -6,7 +6,7 @@ use crate::graph::edge_store::operations::operations::edge_element::NewEdge as N
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::operators::new::NewEdge;
+use crate::operators::operator_traits::new::NewEdge;
 
 impl<T> NewEdge<T> for Graph
 where
@@ -42,8 +42,10 @@ mod tests {
     use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
     use crate::graph::graph::Graph;
     use crate::graph::vertex::{GetVertexIndex, VertexDefinition};
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertexIndex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{
+        NewEdge, NewEdgeType, NewVertexIndex, NewVertexType,
+    };
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn add_edge() {

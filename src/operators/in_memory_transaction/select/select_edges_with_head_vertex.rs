@@ -4,11 +4,11 @@ use crate::graph::indexing::{
 use crate::operators::in_memory::select::{
     select_edges_with_head_vertex, select_edges_with_head_vertex_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::select::{
+use crate::operators::operator_traits::select::{
     SelectEdgesWithHeadVertex, SelectEdgesWithHeadVertexUnchecked,
 };
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
 
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -77,8 +77,8 @@ mod tests {
 
     use crate::graph::graph::Graph;
     use crate::graph::indexing::VertexTypeIndex;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn select_edges_with_head_vertex() {

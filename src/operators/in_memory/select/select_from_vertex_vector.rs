@@ -9,7 +9,7 @@ use crate::graph::graph::{
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
-use crate::operators::operators::select::{
+use crate::operators::operator_traits::select::{
     SelectFromVertexVector, SelectFromVertexVectorUnchecked,
 };
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
@@ -165,8 +165,8 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::new::{NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn select_from_vertex_vector() {

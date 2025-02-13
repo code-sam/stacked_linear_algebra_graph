@@ -13,8 +13,8 @@ use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
 
 impl<EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain> for Graph
 where
@@ -168,8 +168,8 @@ mod tests {
 
     use super::*;
 
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn add_scalar_to_vertex_vector() {

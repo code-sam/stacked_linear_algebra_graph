@@ -15,9 +15,9 @@ use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::operators::element_wise_addition::SemiringElementWiseAdjacencyMatrixAddition;
-use crate::operators::operators::element_wise_addition::SemiringElementWiseAdjacencyMatrixAdditionUnchecked;
-use crate::operators::operators::indexing::CheckIndex;
+use crate::operators::operator_traits::element_wise_addition::SemiringElementWiseAdjacencyMatrixAddition;
+use crate::operators::operator_traits::element_wise_addition::SemiringElementWiseAdjacencyMatrixAdditionUnchecked;
+use crate::operators::operator_traits::indexing::CheckIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
@@ -175,8 +175,8 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn semiring_element_wise_adjacency_matrix_addition() {

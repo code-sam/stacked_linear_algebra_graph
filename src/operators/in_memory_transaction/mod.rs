@@ -9,6 +9,5 @@ pub mod new;
 pub mod read;
 pub mod select;
 pub mod set;
-pub mod transaction;
 pub mod transpose;
 pub mod update;

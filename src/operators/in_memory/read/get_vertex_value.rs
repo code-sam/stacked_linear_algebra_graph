@@ -7,7 +7,7 @@ use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
 use crate::graph::vertex_store::operations::vertex_element::GetVertexValue as GetVertexValueFromVertexStore;
 use crate::graph::vertex_store::ToSparseVectorForValueType;
-use crate::operators::operators::read::GetVertexValue;
+use crate::operators::operator_traits::read::GetVertexValue;
 
 impl<T> GetVertexValue<T> for Graph
 where

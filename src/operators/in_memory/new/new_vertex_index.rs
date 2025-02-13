@@ -3,7 +3,7 @@ use crate::graph::edge_store::operations::operations::edge_type::resize_adjacenc
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetAssignedIndexData, VertexIndex};
 use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex as CreateVertexIndexInVertexStore;
-use crate::operators::operators::new::NewVertexIndex;
+use crate::operators::operator_traits::new::NewVertexIndex;
 
 impl NewVertexIndex for Graph {
     fn new_vertex_index(&mut self) -> Result<VertexIndex, GraphComputingError> {

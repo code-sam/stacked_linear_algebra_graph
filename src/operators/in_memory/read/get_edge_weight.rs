@@ -9,7 +9,7 @@ use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
 
-use crate::operators::operators::read::GetEdgeWeight;
+use crate::operators::operator_traits::read::GetEdgeWeight;
 
 impl<T> GetEdgeWeight<T> for Graph
 where

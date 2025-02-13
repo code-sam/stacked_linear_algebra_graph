@@ -9,9 +9,9 @@ use crate::graph::value_type::ValueType;
 use crate::operators::in_memory::apply_operator::{
     apply_unary_operator_to_vertex_vector, apply_unary_operator_to_vertex_vector_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;
+use crate::operators::operator_traits::apply_operator::ApplyUnaryOperatorToVertexVector;
+use crate::operators::operator_traits::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, EvaluationDomain: ValueType> ApplyUnaryOperatorToVertexVector<EvaluationDomain>
     for InMemoryGraphTransaction<'g>
@@ -72,8 +72,8 @@ mod tests {
 
     use crate::graph::graph::Graph;
     use crate::graph::indexing::GetIndex;
-    use crate::operators::operators::new::{NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn add_scalar_to_vertex_vector() {

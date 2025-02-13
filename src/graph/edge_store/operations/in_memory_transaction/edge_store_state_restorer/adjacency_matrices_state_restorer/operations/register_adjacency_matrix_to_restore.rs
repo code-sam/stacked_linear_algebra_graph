@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::SparseMatrix;
 use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::{AdjacencyMatricesWithCachedAttributesStateRestorer, GetAdjacencyMatrixStateReverter, GetAdjacencyMatrixStateRevertersByEdgeTypeMap};
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::value_type::ValueType;
-use crate::operators::in_memory_transaction::transaction::RegisterSparseMatrixChangeToRevert;
+use crate::operators::transaction::in_memory::RegisterSparseMatrixChangeToRevert;
 
 pub(crate) trait RegisterTypedAdjacencyMatrixToRestore<'a, T: ValueType> {
     fn register_adjacency_matrix_to_restore(

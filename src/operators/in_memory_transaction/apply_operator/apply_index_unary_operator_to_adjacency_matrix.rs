@@ -10,13 +10,14 @@ use crate::operators::in_memory::apply_operator::{
     apply_index_unary_operator_to_adjacency_matrix,
     apply_index_unary_operator_to_adjacency_matrix_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
+
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
 use crate::error::GraphComputingError;
 use crate::graph::value_type::ValueType;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrix;
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrix;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToAdjacencyMatrixUnchecked;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, EvaluationDomain: ValueType> ApplyIndexUnaryOperatorToAdjacencyMatrix<EvaluationDomain>
     for InMemoryGraphTransaction<'g>
@@ -87,8 +88,8 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinate;
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn add_scalar_to_adjacency_matrix() {

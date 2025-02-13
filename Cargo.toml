@@ -15,9 +15,11 @@ repository = "https://github.com/code-sam/stacked_linear_algebra_graph"
 [dependencies]
 graphblas_sparse_linear_algebra = {version = "0.54.2"}
 # graphblas_sparse_linear_algebra = {git = "https://github.com/code-sam/graphblas_sparse_linear_algebra.git", branch = "simpler-operators"}
+hashbrown = {version = "0.15.2"}
 once_cell = {version = "1.17"}
 paste = {version = "1.0"}
 rayon = {version = "1.7"}
+uuid = {version = "1.13", features = ["v4", "fast-rng", "macro-diagnostics"]}
 
 [dev-dependencies]
 criterion = "0.5"

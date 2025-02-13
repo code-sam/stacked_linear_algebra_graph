@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::Size;
 

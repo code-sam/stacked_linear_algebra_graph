@@ -7,12 +7,12 @@ use crate::operators::in_memory::element_wise_addition::{
     apply_binary_operator_element_wise_adjacency_matrix_addition,
     apply_binary_operator_element_wise_adjacency_matrix_addition_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::element_wise_addition::{
+use crate::operators::operator_traits::element_wise_addition::{
     BinaryOperatorElementWiseAdjacencyMatrixAddition,
     BinaryOperatorElementWiseAdjacencyMatrixAdditionUnchecked,
 };
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArguments;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain: ValueType>
@@ -79,8 +79,8 @@ mod tests {
 
     use crate::graph::edge::DirectedEdgeCoordinate;
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn binary_operator_element_wise_adjacency_matrix_addition() {

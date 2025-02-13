@@ -6,9 +6,9 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::weighted_adjacency_matrix::{ToSparseMatrix, ToSparseMatrixForValueType};
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::indexing::CheckIndex;
-use crate::operators::operators::read::{GetAdjacencyMatrixElementList, GetSparseAdjacencyMatrix, GetTransposedAdjacencyMatrixElementList, GetTransposedSparseAdjacencyMatrix};
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
+use crate::operators::operator_traits::indexing::CheckIndex;
+use crate::operators::operator_traits::read::{GetAdjacencyMatrixElementList, GetSparseAdjacencyMatrix, GetTransposedAdjacencyMatrixElementList, GetTransposedSparseAdjacencyMatrix};
 use crate::graph::value_type::ValueType;
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::error::GraphComputingError;

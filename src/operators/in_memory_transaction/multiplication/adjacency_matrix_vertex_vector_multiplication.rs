@@ -6,10 +6,10 @@ use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::indexing::VertexTypeIndex;
 use crate::operators::in_memory::multiplication::apply_adjacency_matrix_vertex_vector_multiplication;
 use crate::operators::in_memory::multiplication::apply_adjacency_matrix_vertex_vector_multiplication_unchecked;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::multiplication::AdjacencyMatrixVertexVectorMultiplication;
-use crate::operators::operators::multiplication::AdjacencyMatrixVertexVectorMultiplicationUnchecked;
+use crate::operators::operator_traits::multiplication::AdjacencyMatrixVertexVectorMultiplication;
+use crate::operators::operator_traits::multiplication::AdjacencyMatrixVertexVectorMultiplicationUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsLeftArgument;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain: ValueType> AdjacencyMatrixVertexVectorMultiplication<EvaluationDomain>
@@ -79,8 +79,8 @@ mod tests {
     use super::*;
 
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn multiply_vertex_vector_with_adjacency_matrix() {

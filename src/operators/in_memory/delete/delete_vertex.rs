@@ -16,8 +16,8 @@ use crate::graph::vertex_store::operations::vertex_element::{
 };
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::weighted_adjacency_matrix::operations::DeleteVertexConnections;
-use crate::operators::operators::delete::DeleteVertexValue;
-use crate::operators::operators::delete::DropVertexIndex;
+use crate::operators::operator_traits::delete::DeleteVertexValue;
+use crate::operators::operator_traits::delete::DropVertexIndex;
 
 impl DropVertexIndex for Graph {
     fn drop_vertex_index_and_connected_edges(

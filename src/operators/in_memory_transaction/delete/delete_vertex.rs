@@ -10,9 +10,9 @@ use crate::graph::vertex_store::operations::vertex_element::{
     CheckVertexIndex, DeleteVertexForAllTypes,
 };
 use crate::graph::weighted_adjacency_matrix::operations::DeleteVertexConnections;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::delete::DeleteVertexValue;
-use crate::operators::operators::delete::DropVertexIndex;
+use crate::operators::operator_traits::delete::DeleteVertexValue;
+use crate::operators::operator_traits::delete::DropVertexIndex;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g> DropVertexIndex for InMemoryGraphTransaction<'g> {
     fn drop_vertex_index_and_connected_edges(

@@ -24,13 +24,10 @@ use crate::operators::transaction::UseTransaction;
 
 pub struct InMemoryGraphTransaction<'g> {
     graphblas_context: Arc<GraphblasContext>,
-    pub(in crate::operators::in_memory_transaction) graphblas_operator_applier_collection:
-        &'g GraphblasOperatorApplierCollection,
+    pub(crate) graphblas_operator_applier_collection: &'g GraphblasOperatorApplierCollection,
     // graph: &'g mut Graph,
-    pub(in crate::operators::in_memory_transaction) vertex_store_transaction:
-        InMemoryVertexStoreTransaction<'g>,
-    pub(in crate::operators::in_memory_transaction) edge_store_transaction:
-        InMemoryEdgeStoreTransaction<'g>,
+    pub(crate) vertex_store_transaction: InMemoryVertexStoreTransaction<'g>,
+    pub(crate) edge_store_transaction: InMemoryEdgeStoreTransaction<'g>,
 }
 
 impl<'g> UseTransaction for InMemoryGraphTransaction<'g> {

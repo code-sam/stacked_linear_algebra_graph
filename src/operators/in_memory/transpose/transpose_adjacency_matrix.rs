@@ -12,8 +12,8 @@ use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::operators::transpose::TransposeAdjacencyMatrix;
-use crate::operators::operators::transpose::TransposeAdjacencyMatrixUnchecked;
+use crate::operators::operator_traits::transpose::TransposeAdjacencyMatrix;
+use crate::operators::operator_traits::transpose::TransposeAdjacencyMatrixUnchecked;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
@@ -149,8 +149,8 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn transpose_adjacency_matrix() {

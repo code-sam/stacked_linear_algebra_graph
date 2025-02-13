@@ -6,8 +6,8 @@ use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
 use crate::graph::vertex_store::operations::vertex_element::SetVertex;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::set::SetVertexValue;
+use crate::operators::operator_traits::set::SetVertexValue;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, T> SetVertexValue<T> for InMemoryGraphTransaction<'g>
 where

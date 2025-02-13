@@ -11,7 +11,7 @@ use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
     GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
 };
 use crate::graph::value_type::ValueType;
-use crate::operators::in_memory_transaction::transaction::{
+use crate::operators::transaction::in_memory::{
     restore_sparse_matrix_state, GetSparseMatrixSizeToRestore, RegisterSparseMatrixChangeToRevert,
     SparseMatrixStateReverter, SparseMatrixStateToRestore,
 };

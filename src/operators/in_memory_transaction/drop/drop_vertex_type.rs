@@ -2,8 +2,8 @@ use crate::error::GraphComputingError;
 
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::vertex_store::operations::vertex_type::DeleteVertexType;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::drop::DropVertexType;
+use crate::operators::operator_traits::drop::DropVertexType;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g> DropVertexType for InMemoryGraphTransaction<'g> {
     fn drop_vertex_type(

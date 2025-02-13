@@ -5,7 +5,7 @@ use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
 use crate::graph::edge_store::operations::operations::edge_element::SetEdge;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::operators::set::SetEdgeWeight;
+use crate::operators::operator_traits::set::SetEdgeWeight;
 use crate::{error::GraphComputingError, graph::graph::Graph};
 
 impl<T: ValueType + SetSparseMatrixElementTyped<T> + Copy> SetEdgeWeight<T> for Graph {

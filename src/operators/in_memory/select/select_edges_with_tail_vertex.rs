@@ -20,8 +20,8 @@ use crate::graph::graph::{
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
 use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
-use crate::operators::operators::indexing::CheckIndex;
-use crate::operators::operators::select::{
+use crate::operators::operator_traits::indexing::CheckIndex;
+use crate::operators::operator_traits::select::{
     SelectEdgesWithTailVertex, SelectEdgesWithTailVertexUnchecked,
 };
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
@@ -178,8 +178,8 @@ mod tests {
     use super::*;
 
     use crate::graph::indexing::VertexTypeIndex;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn select_edges_with_tail_vertex() {

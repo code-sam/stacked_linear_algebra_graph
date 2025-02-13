@@ -6,7 +6,7 @@ use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::vertex_element::SetVertex;
-use crate::operators::operators::set::SetVertexValue;
+use crate::operators::operator_traits::set::SetVertexValue;
 
 impl<T> SetVertexValue<T> for Graph
 where

@@ -8,8 +8,8 @@ use crate::graph::edge_store::weighted_adjacency_matrix::IntoSparseMatrixForValu
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::{IntoValueType, ValueType};
 
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::read::GetEdgeWeight;
+use crate::operators::operator_traits::read::GetEdgeWeight;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 
 impl<'g, T> GetEdgeWeight<T> for InMemoryGraphTransaction<'g>
 where

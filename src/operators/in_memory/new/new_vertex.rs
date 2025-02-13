@@ -10,7 +10,7 @@ use crate::graph::indexing::{GetAssignedIndexData, GetVertexTypeIndex, VertexInd
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
 use crate::graph::vertex_store::operations::vertex_element::AddVertex as AddVertexToVertexVector;
-use crate::operators::operators::new::NewVertex;
+use crate::operators::operator_traits::new::NewVertex;
 
 impl<T> NewVertex<T> for Graph
 where
@@ -63,7 +63,7 @@ mod tests {
             edge_store::GetAdjacencyMatrices, indexing::GetIndexCapacity,
             vertex_store::GetVertexElementIndexer,
         },
-        operators::operators::{new::NewVertexType, read::GetVertexValue},
+        operators::operator_traits::{new::NewVertexType, read::GetVertexValue},
     };
 
     #[test]

@@ -8,8 +8,8 @@ use crate::graph::edge_store::operations::in_memory_transaction::adjacency_matri
 use crate::graph::edge_store::operations::operations::edge_element::UpdateEdge;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::update::UpdateEdgeWeight;
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
+use crate::operators::operator_traits::update::UpdateEdgeWeight;
 use crate::error::GraphComputingError;
 
 impl<

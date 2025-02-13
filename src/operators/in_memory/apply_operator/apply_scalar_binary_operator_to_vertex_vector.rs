@@ -9,8 +9,8 @@ use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
 use crate::{
     error::GraphComputingError,
     graph::{

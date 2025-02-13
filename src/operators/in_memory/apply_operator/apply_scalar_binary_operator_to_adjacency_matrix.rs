@@ -17,8 +17,8 @@ use crate::graph::edge_store::{
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 use crate::graph::{graph::Graph, value_type::ValueType};
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix;
-use crate::operators::operators::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrixUnchecked;
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrix;
+use crate::operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToAdjacencyMatrixUnchecked;
 use crate::operators::options::{
     OptionsForOperatorWithAdjacencyMatrixAsLeftArgument,
     OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
@@ -344,8 +344,8 @@ mod tests {
     use super::*;
 
     use crate::graph::edge::DirectedEdgeCoordinate;
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn add_scalar_to_adjacency_matrix() {

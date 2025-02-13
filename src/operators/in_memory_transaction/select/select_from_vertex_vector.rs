@@ -7,10 +7,10 @@ use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::operators::in_memory::select::{
     select_from_vertex_vector, select_from_vertex_vector_unchecked,
 };
-use crate::operators::in_memory_transaction::transaction::InMemoryGraphTransaction;
-use crate::operators::operators::select::{
+use crate::operators::operator_traits::select::{
     SelectFromVertexVector, SelectFromVertexVectorUnchecked,
 };
+use crate::operators::transaction::in_memory::InMemoryGraphTransaction;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<'g, EvaluationDomain> SelectFromVertexVector<EvaluationDomain> for InMemoryGraphTransaction<'g>
@@ -80,8 +80,8 @@ mod tests {
     use super::*;
 
     use crate::graph::graph::Graph;
-    use crate::operators::operators::new::{NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetVertexValue;
+    use crate::operators::operator_traits::new::{NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetVertexValue;
 
     #[test]
     fn select_from_vertex_vector() {

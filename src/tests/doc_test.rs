@@ -6,11 +6,11 @@ use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 use crate::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{VertexIndex, VertexTypeIndex};
-use crate::operators::operators::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
-use crate::operators::operators::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
-use crate::operators::operators::multiplication::VertexVectorAdjacencyMatrixMultiplication;
-use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-use crate::operators::operators::read::GetVertexValue;
+use crate::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+use crate::operators::operator_traits::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
+use crate::operators::operator_traits::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+use crate::operators::operator_traits::read::GetVertexValue;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 
 #[test]

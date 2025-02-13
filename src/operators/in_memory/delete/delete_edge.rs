@@ -5,7 +5,7 @@ use crate::graph::edge_store::operations::operations::edge_element::DeleteEdge a
 use crate::graph::graph::Graph;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexIndexIndex;
-use crate::operators::operators::delete::DeleteEdge;
+use crate::operators::operator_traits::delete::DeleteEdge;
 
 impl DeleteEdge for Graph {
     fn delete_edge(
@@ -30,8 +30,8 @@ impl DeleteEdge for Graph {
 mod tests {
     use super::*;
 
-    use crate::operators::operators::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-    use crate::operators::operators::read::GetEdgeWeight;
+    use crate::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
+    use crate::operators::operator_traits::read::GetEdgeWeight;
 
     #[test]
     fn delete_edge() {
