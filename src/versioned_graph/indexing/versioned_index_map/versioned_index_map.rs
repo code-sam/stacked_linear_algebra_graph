@@ -3,12 +3,12 @@ use uuid::Uuid;
 
 use crate::graph::indexing::{BuildIndexHasher, ElementCount, Index};
 
-pub(crate) struct UniqueIndexMap {
+pub(crate) struct VersionedIndexMap {
     unique_index_to_index_map: HashMap<Uuid, Index, BuildIndexHasher>,
     index_to_unique_index_map: Vec<Uuid>,
 }
 
-impl UniqueIndexMap {
+impl VersionedIndexMap {
     pub(crate) fn with_initial_capacity(initial_capacity: ElementCount) -> Self {
         Self {
             unique_index_to_index_map: HashMap::with_capacity_and_hasher(

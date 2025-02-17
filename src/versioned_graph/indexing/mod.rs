@@ -1,4 +1,5 @@
-pub(crate) mod unique_index;
-mod unique_index_map;
+mod versioned_index;
 
-pub(crate) use unique_index_map::*;
+pub(crate) mod versioned_index_map;
+
+pub use versioned_index::*;

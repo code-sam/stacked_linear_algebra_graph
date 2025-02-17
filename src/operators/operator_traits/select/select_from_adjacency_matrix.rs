@@ -4,7 +4,25 @@ use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnary
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
+use crate::versioned_graph::indexing::GetVersionedEdgeTypeIndex;
+use crate::versioned_graph::indexing::VersionedEdgeTypeIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
+
+pub trait SelectFromAdjacencyMatrixVersioned<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
+        &mut self,
+        selector: &impl IndexUnaryOperator<EvaluationDomain>,
+        selector_argument: EvaluationDomain,
+        argument: &impl GetVersionedEdgeTypeIndex,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &impl GetVersionedEdgeTypeIndex,
+        mask: Option<&VersionedEdgeTypeIndex>,
+        options: &OptionsForOperatorWithAdjacencyMatrixArgument,
+    ) -> Result<(), GraphComputingError>;
+}
 
 pub trait SelectFromAdjacencyMatrix<EvaluationDomain>
 where

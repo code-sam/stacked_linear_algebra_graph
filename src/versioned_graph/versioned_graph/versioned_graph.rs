@@ -3,15 +3,13 @@ use graphblas_sparse_linear_algebra::context::{
     Mode as GraphblasMode,
 };
 
-use crate::{
-    error::GraphComputingError,
-    graph::{graph::Graph, indexing::ElementCount},
-    versioned_graph::indexing::UniqueIndexMap,
-};
+use crate::error::GraphComputingError;
+use crate::graph::{graph::Graph, indexing::ElementCount};
+use crate::versioned_graph::indexing::versioned_index_map::VersionedIndexMap;
 
-pub(crate) type UniqueVertexTypeIndexMap = UniqueIndexMap;
-pub(crate) type UniqueEdgeTypeIndexMap = UniqueIndexMap;
-pub(crate) type UniqueVertexIndexIndexMap = UniqueIndexMap;
+pub(crate) type UniqueVertexTypeIndexMap = VersionedIndexMap;
+pub(crate) type UniqueEdgeTypeIndexMap = VersionedIndexMap;
+pub(crate) type UniqueVertexIndexIndexMap = VersionedIndexMap;
 
 pub struct VersionedGraph {
     graph: Graph,

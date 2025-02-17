@@ -1,15 +1,29 @@
-use graphblas_sparse_linear_algebra::operators::{
-    binary_operator::AccumulatorBinaryOperator, index_unary_operator::IndexUnaryOperator,
-    options::OperatorOptions,
+use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBinaryOperator;
+use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnaryOperator;
+use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
+
+use crate::error::GraphComputingError;
+use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
+use crate::graph::value_type::ValueType;
+use crate::versioned_graph::indexing::{
+    GetVersionedVertexTypeIndex, VersionedVertexTypeIndex,
 };
 
-use crate::{
-    error::GraphComputingError,
-    graph::{
-        indexing::{GetVertexTypeIndex, VertexTypeIndex},
-        value_type::ValueType,
-    },
-};
+pub trait ApplyIndexUnaryOperatorToVersionedVertexVector<EvaluationDomain>
+where
+    EvaluationDomain: ValueType,
+{
+    fn apply(
+        &mut self,
+        vertex_vector: &impl GetVersionedVertexTypeIndex,
+        operator: &impl IndexUnaryOperator<EvaluationDomain>,
+        argument: &EvaluationDomain,
+        accumlator: &impl AccumulatorBinaryOperator<EvaluationDomain>,
+        product: &impl GetVersionedVertexTypeIndex,
+        mask: Option<&VersionedVertexTypeIndex>,
+        options: &OperatorOptions,
+    ) -> Result<(), GraphComputingError>;
+}
 
 pub trait ApplyIndexUnaryOperatorToVertexVector<EvaluationDomain>
 where
