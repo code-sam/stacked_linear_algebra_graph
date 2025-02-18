@@ -9,7 +9,7 @@ use crate::graph::edge_store::operations::in_memory_transaction::edge_store_stat
 use crate::graph::edge_store::operations::in_memory_transaction::edge_store_state_restorer::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::AdjacencyMatricesWithCachedAttributesStateRestorer;
 use crate::graph::indexing::ElementIndexMap;
 use crate::graph::value_type::ValueType;
-use crate::operators::transaction::RestoreState;
+use crate::transaction::RestoreState;
 
 impl RestoreState<Vec<WeightedAdjacencyMatrixWithCachedAttributes>>
     for AdjacencyMatricesWithCachedAttributesStateRestorer

@@ -1,8 +1,11 @@
+use crate::graph::value_type::ValueType;
 use crate::versioned_graph::indexing::VersionedEdgeTypeIndex;
 use crate::{graph::edge::GetEdgeWeight, versioned_graph::indexing::VersionedVertexIndex};
-use crate::graph::value_type::ValueType;
 
-use super::{GetVersionedAdjacencyMatrixCoordinateIndices, GetVersionedDirectedEdgeCoordinateIndex, VersionedAdjacencyMatrixCoordinate, VersionedDirectedEdgeCoordinate};
+use super::{
+    GetVersionedAdjacencyMatrixCoordinateIndices, GetVersionedDirectedEdgeCoordinateIndex,
+    VersionedAdjacencyMatrixCoordinate, VersionedDirectedEdgeCoordinate,
+};
 
 #[derive(Clone, Debug)]
 pub struct VersionedWeightedDirectedEdge<T: ValueType> {
@@ -15,7 +18,6 @@ impl<T: ValueType> VersionedWeightedDirectedEdge<T> {
         Self { coordinate, weight }
     }
 }
-
 
 impl<T: ValueType + Clone + Copy> GetEdgeWeight<T> for VersionedWeightedDirectedEdge<T> {
     fn weight_ref(&self) -> &T {
@@ -66,7 +68,9 @@ impl<T: ValueType> GetVersionedDirectedEdgeCoordinateIndex for VersionedWeighted
     }
 }
 
-impl<T: ValueType> GetVersionedAdjacencyMatrixCoordinateIndices for VersionedWeightedDirectedEdge<T> {
+impl<T: ValueType> GetVersionedAdjacencyMatrixCoordinateIndices
+    for VersionedWeightedDirectedEdge<T>
+{
     fn tail(&self) -> VersionedVertexIndex {
         self.coordinate.tail()
     }

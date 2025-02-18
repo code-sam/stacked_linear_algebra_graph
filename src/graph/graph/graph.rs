@@ -211,7 +211,7 @@ impl Graph {
 
 #[cfg(test)]
 mod tests {
-    use crate::operators::operator_traits::{
+    use crate::graph_operators::operator_traits::{
         new::{NewVertex, NewVertexType},
         read::GetVertexValue,
         set::{SetEdgeWeight, SetVertexValue},

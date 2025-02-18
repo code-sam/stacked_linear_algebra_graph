@@ -1,4 +1,3 @@
-
 use crate::versioned_graph::indexing::{VersionedEdgeTypeIndex, VersionedVertexIndex};
 
 use super::VersionedAdjacencyMatrixCoordinate;
@@ -11,7 +10,11 @@ pub struct VersionedDirectedEdgeCoordinate {
 }
 
 impl VersionedDirectedEdgeCoordinate {
-    pub fn new(edge_type: VersionedEdgeTypeIndex, tail: VersionedVertexIndex, head: VersionedVertexIndex) -> Self {
+    pub fn new(
+        edge_type: VersionedEdgeTypeIndex,
+        tail: VersionedVertexIndex,
+        head: VersionedVertexIndex,
+    ) -> Self {
         // TODO: review if a self-connected edge is allowed
         Self {
             edge_type,

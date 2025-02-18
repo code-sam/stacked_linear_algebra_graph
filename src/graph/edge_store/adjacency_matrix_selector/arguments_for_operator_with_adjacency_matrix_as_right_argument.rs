@@ -7,7 +7,7 @@ use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_m
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::indexing::GetEdgeTypeIndex;
-use crate::operators::options::{
+use crate::operator_options::{
     GetUseCachedAdjacencyMatrixTranspose, OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
 };
 

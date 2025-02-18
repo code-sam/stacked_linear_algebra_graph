@@ -1,5 +1,5 @@
 use crate::graph::value_type::ValueType;
-use crate::versioned_graph::indexing::{VersionedVertexTypeIndex, VersionedVertexIndex};
+use crate::versioned_graph::indexing::{VersionedVertexIndex, VersionedVertexTypeIndex};
 
 pub trait GetUniqueVertexIndex {
     fn type_index_ref(&self) -> &VersionedVertexTypeIndex;
@@ -30,7 +30,11 @@ impl<T: ValueType> GetVertexValue<T> for UniqueVertexDefinition<T> {
 }
 
 impl<T: ValueType + Clone> UniqueVertexDefinition<T> {
-    pub fn new(vertex_type: VersionedVertexTypeIndex, index: VersionedVertexIndex, value: T) -> Self {
+    pub fn new(
+        vertex_type: VersionedVertexTypeIndex,
+        index: VersionedVertexIndex,
+        value: T,
+    ) -> Self {
         Self {
             index: index,
             vertex_type: vertex_type,

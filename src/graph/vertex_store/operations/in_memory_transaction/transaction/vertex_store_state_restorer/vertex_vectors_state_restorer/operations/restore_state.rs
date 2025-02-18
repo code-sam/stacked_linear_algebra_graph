@@ -4,8 +4,8 @@ use graphblas_sparse_linear_algebra::index::ElementCount;
 use crate::error::GraphComputingError;
 use crate::graph::indexing::ElementIndexMap;
 use crate::graph::value_type::ValueType;
-use crate::operators::transaction::in_memory::SparseVectorStateReverter;
-use crate::operators::transaction::RestoreState;
+use crate::transaction::in_memory::SparseVectorStateReverter;
+use crate::transaction::RestoreState;
 use crate::graph::vertex_store::VertexVector;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::vertex_store_state_restorer::vertex_vectors_state_restorer::vertex_vectors_state_restorer::{GetVertexTypeVectorLengthToRestore, VertexVectorsStateRestorer};
 

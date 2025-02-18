@@ -90,7 +90,7 @@ mod tests {
     use crate::graph::vertex_store::operations::vertex_element::GetVertexValue;
     use crate::graph::vertex_store::operations::vertex_type::AddVertexType;
     use crate::graph::vertex_store::{GetVertexElementIndexer, VertexStore};
-    use crate::operators::transaction::UseTransaction;
+    use crate::transaction::UseTransaction;
 
     use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 

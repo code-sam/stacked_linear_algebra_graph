@@ -14,7 +14,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::weighted_adjacency_matrix::WeightedAdjacencyMatrix;
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::value_type::ValueType;
-use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
+use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
 use super::GetMatrixSize;
 

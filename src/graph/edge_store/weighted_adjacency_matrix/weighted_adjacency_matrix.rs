@@ -26,7 +26,7 @@ use crate::graph::value_type::{
     implement_macro_for_all_native_value_types, GetValueTypeIdentifier, GetValueTypeIdentifierRef,
     ValueType, ValueTypeIdentifier,
 };
-use crate::operators::options::OptionsForOperatorWithAdjacencyMatrixArgument;
+use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixArgument;
 
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{Size, SparseMatrix};
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;

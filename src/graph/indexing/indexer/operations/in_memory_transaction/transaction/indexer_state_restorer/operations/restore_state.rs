@@ -1,7 +1,7 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::operations::in_memory_transaction::transaction::indexer_state_restorer::GetIndexerStateReverters;
 use crate::graph::vertex_store::VertexVector;
-use crate::operators::transaction::RestoreState;
+use crate::transaction::RestoreState;
 use crate::graph::indexing::indexer::GetIndexMask;
 use crate::graph::indexing::indexer::GetIndicesAvailableForReuse;
 use crate::graph::indexing::Indexer;

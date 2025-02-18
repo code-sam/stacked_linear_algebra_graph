@@ -11,11 +11,11 @@ use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
     GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
 };
 use crate::graph::value_type::ValueType;
-use crate::operators::transaction::in_memory::{
+use crate::transaction::in_memory::{
     restore_sparse_matrix_state, GetSparseMatrixSizeToRestore, RegisterSparseMatrixChangeToRevert,
     SparseMatrixStateReverter, SparseMatrixStateToRestore,
 };
-use crate::operators::transaction::RestoreState;
+use crate::transaction::RestoreState;
 
 #[derive(Debug)]
 pub(crate) struct StateRestorerForAdjacencyMatrixWithCachedAttributes<T: ValueType> {

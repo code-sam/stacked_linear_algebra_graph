@@ -4,7 +4,6 @@ use uuid::Uuid;
 
 use super::GetVersionedIndex;
 
-
 pub trait GetVersionedVertexTypeIndex: GetVersionedIndex {}
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq, Default)]

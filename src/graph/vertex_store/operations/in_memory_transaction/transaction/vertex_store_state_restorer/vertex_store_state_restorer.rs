@@ -4,7 +4,7 @@ use crate::graph::indexing::{GetIndexCapacity, Indexer};
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, GetVertexVectors, VertexStore,
 };
-use crate::operators::transaction::RestoreState;
+use crate::transaction::RestoreState;
 
 use super::VertexVectorsStateRestorer;
 

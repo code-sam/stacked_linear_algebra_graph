@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::{EdgeStore, GetAdjacencyMatrices, GetEdgeTypeIndicer};
 use crate::graph::indexing::operations::in_memory_transaction::IndexerStateRestorer;
 use crate::graph::indexing::{GetIndexCapacity, Indexer};
-use crate::operators::transaction::RestoreState;
+use crate::transaction::RestoreState;
 
 use super::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::AdjacencyMatricesWithCachedAttributesStateRestorer;
 

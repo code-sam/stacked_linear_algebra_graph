@@ -3,7 +3,7 @@ use crate::graph::indexing::indexer::indexer::GetQueueWithIndicesForReuse;
 use crate::graph::indexing::indexer::GetIndexMask;
 use crate::graph::indexing::GetIndexCapacity;
 use crate::graph::indexing::{ElementCount, Index, Indexer};
-use crate::operators::transaction::in_memory::{QueueStateReverter, SparseVectorStateReverter};
+use crate::transaction::in_memory::{QueueStateReverter, SparseVectorStateReverter};
 
 #[derive(Debug)]
 pub(crate) struct IndexerStateRestorer {

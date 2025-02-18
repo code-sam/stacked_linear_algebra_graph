@@ -8,7 +8,7 @@ use crate::graph::edge_store::operations::in_memory_transaction::edge_store_stat
 use crate::graph::edge_store::operations::in_memory_transaction::RegisterEmptyEdgeToRestore;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
-use crate::operators::transaction::in_memory::RegisterSparseMatrixChangeToRevert;
+use crate::transaction::in_memory::RegisterSparseMatrixChangeToRevert;
 
 impl<T> RegisterEmptyEdgeToRestore<T> for AdjacencyMatricesWithCachedAttributesStateRestorer
 where

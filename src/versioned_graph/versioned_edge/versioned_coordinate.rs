@@ -1,4 +1,3 @@
-
 use crate::versioned_graph::indexing::VersionedVertexIndex;
 
 pub struct VersionedAdjacencyMatrixCoordinate {

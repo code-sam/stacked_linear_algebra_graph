@@ -7,8 +7,8 @@ use crate::graph::indexing::operations::in_memory_transaction::indexer_operation
 use crate::graph::indexing::operations::{FreeIndex, GenerateIndex, SetIndexCapacity};
 use crate::graph::indexing::Indexer;
 use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
-use crate::operators::transaction::RestoreState;
-use crate::operators::transaction::UseTransaction;
+use crate::transaction::RestoreState;
+use crate::transaction::UseTransaction;
 
 use super::IndexerStateRestorer;
 

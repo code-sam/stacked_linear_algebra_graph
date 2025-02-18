@@ -6,7 +6,7 @@ use crate::graph::indexing::{
 use crate::graph::value_type::{
     implement_1_type_macro_with_typed_indentifier_for_all_value_types, ValueType,
 };
-use crate::operators::transaction::in_memory::SparseVectorStateReverter;
+use crate::transaction::in_memory::SparseVectorStateReverter;
 
 pub(crate) struct VertexVectorsStateRestorer {
     pub(super) vertex_vector_length_to_restore: Option<ElementCount>,

@@ -2,7 +2,7 @@ use std::mem;
 
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::{EdgeStore, GetEdgeTypeIndicer};
-use crate::operators::transaction::{RestoreState, UseTransaction};
+use crate::transaction::{RestoreState, UseTransaction};
 
 use super::EdgeStoreStateRestorer;
 
