@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::{is_valid_index, try_index_validity, CheckIndex};
+use crate::graph::indexing::traits::{is_valid_index, try_index_validity, CheckIndex};
 use crate::graph::indexing::Index;
 use crate::graph::indexing::Indexer;
 
@@ -18,7 +18,7 @@ mod tests {
     use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
     use crate::graph::indexing::{
-        operations::{CheckIndex, FreeIndex, GenerateIndex},
+        traits::{CheckIndex, FreeIndex, GenerateIndex},
         Indexer,
     };
 

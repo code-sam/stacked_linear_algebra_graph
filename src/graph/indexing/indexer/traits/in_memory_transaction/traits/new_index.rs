@@ -1,6 +1,6 @@
-use crate::graph::indexing::indexer::operations::operations::new_index as new_index_in_memory;
-use crate::graph::indexing::operations::in_memory_transaction::RegisterNewIndexToRevert;
-use crate::graph::indexing::operations::SetIndexCapacity;
+use crate::graph::indexing::indexer::traits::traits::new_index as new_index_in_memory;
+use crate::graph::indexing::traits::in_memory_transaction::RegisterNewIndexToRevert;
+use crate::graph::indexing::traits::SetIndexCapacity;
 use crate::graph::indexing::{GetIndexCapacity, GetIndexMask, GetIndicesAvailableForReuse};
 use crate::{error::GraphComputingError, graph::indexing::AssignedIndex};
 

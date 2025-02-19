@@ -11,6 +11,5 @@ pub trait DropVertexTypeVersioned {
     ) -> Result<(), GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

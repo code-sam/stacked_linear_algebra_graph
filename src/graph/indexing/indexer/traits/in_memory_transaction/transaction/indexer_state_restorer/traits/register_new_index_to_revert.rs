@@ -1,7 +1,7 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::indexer::operations::in_memory_transaction::transaction::indexer_state_restorer::indexer_state_restorer::GetIndexerStateReverters;
+use crate::graph::indexing::indexer::traits::in_memory_transaction::transaction::indexer_state_restorer::indexer_state_restorer::GetIndexerStateReverters;
 use crate::graph::indexing::GetAssignedIndexData;
-use crate::graph::indexing::operations::in_memory_transaction::transaction::indexer_state_restorer::IndexerStateRestorer;
+use crate::graph::indexing::traits::in_memory_transaction::transaction::indexer_state_restorer::IndexerStateRestorer;
 use crate::transaction::in_memory::{RegisterQueueChangeToRevert, RegisterSparseVectorChangeToRevert};
 
 pub(crate) trait RegisterNewIndexToRevert {

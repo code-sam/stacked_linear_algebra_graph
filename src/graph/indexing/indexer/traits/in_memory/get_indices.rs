@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::VectorElementIndexIterator;
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
-use crate::graph::indexing::operations::{
+use crate::graph::indexing::traits::{
     iter_valid_indices, mask_with_valid_indices_ref, valid_indices, GetValidIndices,
 };
 use crate::graph::indexing::ElementIndex;
@@ -29,7 +29,7 @@ impl GetValidIndices for Indexer {
 mod tests {
     use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
-    use crate::graph::indexing::operations::{FreeIndex, GenerateIndex};
+    use crate::graph::indexing::traits::{FreeIndex, GenerateIndex};
     use crate::graph::indexing::Indexer;
 
     #[test]
@@ -58,7 +58,7 @@ mod tests {
         indexer.new_index().unwrap();
 
         assert_eq!(
-            crate::graph::indexing::operations::GetValidIndices::valid_indices(&indexer).unwrap(),
+            crate::graph::indexing::traits::GetValidIndices::valid_indices(&indexer).unwrap(),
             vec![0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 15, 16, 17, 18, 19]
         )
     }

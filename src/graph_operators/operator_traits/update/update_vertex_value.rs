@@ -3,7 +3,6 @@ use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::versioned_graph::indexing::{GetVersionedVertexIndexIndex, GetVersionedVertexTypeIndex};
 
-
 pub trait UpdateVertexValue<T: ValueType> {
     fn update_vertex_value(
         &mut self,

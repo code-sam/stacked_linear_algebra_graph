@@ -1,7 +1,7 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::SetSparseVectorElementTyped;
 
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::CheckIndex;
+use crate::graph::indexing::traits::CheckIndex;
 use crate::graph::indexing::AssignedIndex;
 use crate::graph::indexing::GetAssignedIndexData;
 use crate::graph::indexing::GetVertexIndexIndex;

@@ -2,7 +2,10 @@ use crate::graph::indexing::{
     GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex,
 };
 use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixArgument;
-use crate::versioned_graph::indexing::{GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex, GetVersionedVertexTypeIndex, VersionedVertexTypeIndex};
+use crate::versioned_graph::indexing::{
+    GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex, GetVersionedVertexTypeIndex,
+    VersionedVertexTypeIndex,
+};
 use graphblas_sparse_linear_algebra::{
     collections::sparse_matrix::SparseMatrix,
     operators::{binary_operator::AccumulatorBinaryOperator, mask::MatrixMask},
@@ -25,7 +28,6 @@ where
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }
-
 
 #[cfg(test)]
 mod tests {}

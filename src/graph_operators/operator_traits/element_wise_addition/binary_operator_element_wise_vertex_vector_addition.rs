@@ -7,7 +7,6 @@ use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::versioned_graph::indexing::{GetVersionedVertexTypeIndex, VersionedVertexTypeIndex};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 pub trait BinaryOperatorElementWiseVertexVectorAddition<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

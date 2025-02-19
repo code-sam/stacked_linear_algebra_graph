@@ -21,6 +21,5 @@ pub trait UpdateEdgeWeightVersioned<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

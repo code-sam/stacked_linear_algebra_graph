@@ -13,7 +13,6 @@ use graphblas_sparse_linear_algebra::{
 
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 pub trait SelectEdgesWithHeadVertex<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

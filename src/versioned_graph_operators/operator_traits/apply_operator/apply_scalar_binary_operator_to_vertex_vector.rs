@@ -6,9 +6,7 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::versioned_graph::indexing::{
-    GetVersionedVertexTypeIndex, VersionedVertexTypeIndex,
-};
+use crate::versioned_graph::indexing::{GetVersionedVertexTypeIndex, VersionedVertexTypeIndex};
 
 pub trait ApplyScalarBinaryOperatorToVersionedVertexVector<EvaluationDomain>
 where

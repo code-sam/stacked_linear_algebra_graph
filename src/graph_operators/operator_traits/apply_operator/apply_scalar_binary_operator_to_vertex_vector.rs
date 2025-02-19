@@ -8,7 +8,6 @@ use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
 use crate::versioned_graph::indexing::{GetVersionedVertexTypeIndex, VersionedVertexTypeIndex};
 
-
 pub trait ApplyScalarBinaryOperatorToVertexVector<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::in_memory_transaction::{
+use crate::graph::indexing::traits::in_memory_transaction::{
     GetIndexerUnderTransaction, InMemoryIndexerTransaction,
 };
-use crate::graph::indexing::operations::GetIndexerStatus;
+use crate::graph::indexing::traits::GetIndexerStatus;
 use crate::graph::indexing::ElementCount;
 
 impl<'t> GetIndexerStatus for InMemoryIndexerTransaction<'t> {

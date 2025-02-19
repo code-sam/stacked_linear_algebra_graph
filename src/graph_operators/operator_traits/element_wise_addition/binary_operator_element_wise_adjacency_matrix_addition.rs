@@ -7,7 +7,6 @@ use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixArguments;
 use crate::versioned_graph::indexing::{GetVersionedEdgeTypeIndex, VersionedEdgeTypeIndex};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 pub trait BinaryOperatorElementWiseAdjacencyMatrixAddition<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

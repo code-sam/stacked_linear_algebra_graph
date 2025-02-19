@@ -5,7 +5,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::GetGraphblasSpa
 
 use crate::error::GraphComputingError;
 use crate::error::{LogicError, LogicErrorType};
-use crate::graph::indexing::operations::CheckIndex;
+use crate::graph::indexing::traits::CheckIndex;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::{
     GetValueTypeIdentifierRef, IntoValueType, ValueType, ValueTypeIdentifier,

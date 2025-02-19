@@ -1,9 +1,9 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::indexer::GetIndicesAvailableForReuse;
-use crate::graph::indexing::operations::free_index_unchecked as free_index_unchecked_in_memory;
-use crate::graph::indexing::operations::in_memory_transaction::RegisterFreedIndexToRestore;
-use crate::graph::indexing::operations::try_index_validity;
-use crate::graph::indexing::operations::CheckIndex;
+use crate::graph::indexing::traits::free_index_unchecked as free_index_unchecked_in_memory;
+use crate::graph::indexing::traits::in_memory_transaction::RegisterFreedIndexToRestore;
+use crate::graph::indexing::traits::try_index_validity;
+use crate::graph::indexing::traits::CheckIndex;
 use crate::graph::indexing::GetIndexMask;
 use crate::graph::indexing::Index;
 

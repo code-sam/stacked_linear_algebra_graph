@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 use crate::graph::edge_store::operations::in_memory_transaction::{
     EdgeStoreStateRestorer, GetEdgeStoreStateReverters,
 };
-use crate::graph::indexing::operations::in_memory_transaction::RegisterNewIndexToRevert;
+use crate::graph::indexing::traits::in_memory_transaction::RegisterNewIndexToRevert;
 use crate::graph::indexing::GetAssignedIndexData;
 
 pub(crate) trait RegisterNewEdgeTypeToRevert {

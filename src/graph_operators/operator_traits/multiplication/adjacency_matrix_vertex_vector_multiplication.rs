@@ -10,7 +10,6 @@ use crate::versioned_graph::indexing::GetVersionedVertexTypeIndex;
 use crate::versioned_graph::indexing::VersionedVertexTypeIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 pub trait AdjacencyMatrixVertexVectorMultiplication<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

@@ -5,7 +5,7 @@ use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
 use crate::graph::edge_store::operations::operations::edge_type::add_edge_type::AddEdgeType;
 use crate::graph::edge_store::{GetAdjacencyMatrices, GetEdgeTypeIndicer};
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::indexing::operations::GenerateIndex;
+use crate::graph::indexing::traits::GenerateIndex;
 use crate::graph::indexing::{AssignedIndex, EdgeTypeIndex, GetAssignedIndexData};
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};

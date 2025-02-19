@@ -2,10 +2,10 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Vec
 use graphblas_sparse_linear_algebra::collections::sparse_vector::SparseVector;
 
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::in_memory_transaction::{
+use crate::graph::indexing::traits::in_memory_transaction::{
     GetIndexerUnderTransaction, InMemoryIndexerTransaction,
 };
-use crate::graph::indexing::operations::GetValidIndices;
+use crate::graph::indexing::traits::GetValidIndices;
 use crate::graph::indexing::ElementIndex;
 
 impl<'t> GetValidIndices for InMemoryIndexerTransaction<'t> {

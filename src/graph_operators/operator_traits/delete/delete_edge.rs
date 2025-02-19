@@ -6,7 +6,6 @@ use crate::graph::indexing::GetVertexIndexIndex;
 use crate::versioned_graph::indexing::GetVersionedEdgeTypeIndex;
 use crate::versioned_graph::indexing::GetVersionedVertexIndexIndex;
 
-
 pub trait DeleteEdge {
     fn delete_edge(
         &mut self,

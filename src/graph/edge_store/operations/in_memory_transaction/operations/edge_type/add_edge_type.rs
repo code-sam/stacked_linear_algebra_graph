@@ -5,7 +5,7 @@ use crate::graph::edge_store::operations::in_memory_transaction::{
 };
 use crate::graph::edge_store::operations::operations::edge_type::add_edge_type::AddEdgeType;
 use crate::graph::edge_store::GetEdgeTypeIndicer;
-use crate::graph::indexing::operations::GenerateIndex;
+use crate::graph::indexing::traits::GenerateIndex;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 

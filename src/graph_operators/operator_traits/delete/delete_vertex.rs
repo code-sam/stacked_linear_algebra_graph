@@ -4,7 +4,6 @@ use crate::{
     versioned_graph::indexing::GetVersionedVertexIndexIndex,
 };
 
-
 pub trait DropVertexIndex {
     fn drop_vertex_index_and_connected_edges(
         &mut self,

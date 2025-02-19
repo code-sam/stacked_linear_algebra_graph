@@ -6,7 +6,7 @@ use crate::graph::edge_store::operations::operations::edge_type::map::{
     MapAdjacencyMatricesWithCachedAttributes, MapMutableAdjacencyMatrices,
 };
 use crate::graph::edge_store::{EdgeStore, GetAdjacencyMatrices, GetEdgeTypeIndicer};
-use crate::graph::indexing::operations::GetValidIndices;
+use crate::graph::indexing::traits::GetValidIndices;
 use crate::graph::indexing::EdgeTypeIndex;
 
 impl<MappingFunction> MapAdjacencyMatricesWithCachedAttributes<MappingFunction> for EdgeStore

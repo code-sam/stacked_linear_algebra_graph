@@ -3,7 +3,7 @@ use crate::graph::edge_store::{
     operations::operations::edge_type::indexing::Indexing, EdgeStore, GetEdgeTypeIndicer,
 };
 use crate::graph::indexing::EdgeTypeIndex;
-use crate::graph::indexing::{operations::CheckIndex, GetEdgeTypeIndex};
+use crate::graph::indexing::{traits::CheckIndex, GetEdgeTypeIndex};
 
 impl Indexing for EdgeStore {
     fn is_valid_edge_type_index(

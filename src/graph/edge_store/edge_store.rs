@@ -9,7 +9,7 @@ use graphblas_sparse_linear_algebra::context::Context as GraphblasContext;
 use crate::error::GraphComputingError;
 
 use crate::graph::graph::GetGraphblasContext;
-use crate::graph::indexing::operations::GetValidIndices;
+use crate::graph::indexing::traits::GetValidIndices;
 use crate::graph::indexing::{EdgeTypeIndex, ElementCount, Index, Indexer as EdgeTypeIndexer};
 
 #[derive(Clone, Debug)]

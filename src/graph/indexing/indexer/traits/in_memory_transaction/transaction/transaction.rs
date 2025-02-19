@@ -1,10 +1,10 @@
 use std::mem;
 
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::in_memory_transaction::indexer_operations::{
+use crate::graph::indexing::traits::in_memory_transaction::traits::{
     free_index, free_index_unchecked, new_index, set_index_capacity,
 };
-use crate::graph::indexing::operations::{FreeIndex, GenerateIndex, SetIndexCapacity};
+use crate::graph::indexing::traits::{FreeIndex, GenerateIndex, SetIndexCapacity};
 use crate::graph::indexing::Indexer;
 use crate::graph::indexing::{AssignedIndex, ElementCount, Index};
 use crate::transaction::RestoreState;
@@ -43,13 +43,13 @@ impl<'t> Drop for InMemoryIndexerTransaction<'t> {
     }
 }
 
-pub(in crate::graph::indexing::indexer::operations::in_memory_transaction) trait GetIndexerUnderTransaction
+pub(in crate::graph::indexing::indexer::traits::in_memory_transaction) trait GetIndexerUnderTransaction
 {
     fn indexer_ref(&self) -> &Indexer;
     fn indexer_mut_ref(&mut self) -> &mut Indexer;
 }
 
-pub(in crate::graph::indexing::indexer::operations::in_memory_transaction) trait GetIndexerStateRestorer
+pub(in crate::graph::indexing::indexer::traits::in_memory_transaction) trait GetIndexerStateRestorer
 {
     fn indexer_state_restorer_ref(&self) -> &IndexerStateRestorer;
     fn indexer_state_restorer_mut_ref(&mut self) -> &mut IndexerStateRestorer;

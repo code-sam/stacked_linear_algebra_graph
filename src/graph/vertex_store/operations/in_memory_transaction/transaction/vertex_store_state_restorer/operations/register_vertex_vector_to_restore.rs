@@ -1,4 +1,4 @@
-use crate::graph::indexing::operations::in_memory_transaction::RegisterFreedIndexToRestore;
+use crate::graph::indexing::traits::in_memory_transaction::RegisterFreedIndexToRestore;
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{InMemoryVertexStoreTransaction, VertexStoreStateRestorer};
 use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
 use crate::graph::vertex_store::vertex_vector::ToSparseVector;

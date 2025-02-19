@@ -20,6 +20,5 @@ pub trait DeleteEdgeVersioned {
     ) -> Result<(), GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::in_memory_transaction::IndexerStateRestorer;
+use crate::graph::indexing::traits::in_memory_transaction::IndexerStateRestorer;
 use crate::graph::indexing::{GetIndexCapacity, Indexer};
 use crate::graph::vertex_store::{
     GetVertexElementIndexer, GetVertexTypeIndexer, GetVertexVectors, VertexStore,

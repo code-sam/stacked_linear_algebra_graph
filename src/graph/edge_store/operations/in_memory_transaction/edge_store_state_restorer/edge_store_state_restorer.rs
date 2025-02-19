@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 use crate::graph::edge_store::{EdgeStore, GetAdjacencyMatrices, GetEdgeTypeIndicer};
-use crate::graph::indexing::operations::in_memory_transaction::IndexerStateRestorer;
+use crate::graph::indexing::traits::in_memory_transaction::IndexerStateRestorer;
 use crate::graph::indexing::{GetIndexCapacity, Indexer};
 use crate::transaction::RestoreState;
 

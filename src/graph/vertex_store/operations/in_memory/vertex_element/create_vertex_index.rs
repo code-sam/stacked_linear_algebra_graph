@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::GenerateIndex;
+use crate::graph::indexing::traits::GenerateIndex;
 use crate::graph::indexing::{AssignedIndex, GetAssignedIndexData};
 use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex;
 use crate::graph::vertex_store::operations::vertex_type::ResizeVertexVectors;

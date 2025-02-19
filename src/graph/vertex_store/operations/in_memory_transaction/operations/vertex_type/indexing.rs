@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 use crate::graph::indexing::VertexTypeIndex;
-use crate::graph::indexing::{operations::CheckIndex, GetVertexTypeIndex};
+use crate::graph::indexing::{traits::CheckIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::in_memory_transaction::transaction::{
     GetVertexStore, InMemoryVertexStoreTransaction,
 };

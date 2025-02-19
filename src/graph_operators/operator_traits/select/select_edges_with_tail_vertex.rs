@@ -13,7 +13,6 @@ use crate::{
     },
 };
 
-
 pub trait SelectEdgesWithTailVertex<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

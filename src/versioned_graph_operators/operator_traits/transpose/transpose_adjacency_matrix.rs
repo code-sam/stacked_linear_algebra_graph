@@ -21,6 +21,5 @@ where
     ) -> Result<(), GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

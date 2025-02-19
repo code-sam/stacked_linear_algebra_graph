@@ -1,8 +1,8 @@
 use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::drop_sparse_vector_element;
 
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::CheckIndex;
-use crate::graph::indexing::{operations::FreeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
+use crate::graph::indexing::traits::CheckIndex;
+use crate::graph::indexing::{traits::FreeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_element::{
     DeleteVertexForAllTypes, DeleteVertexValue,
 };

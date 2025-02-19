@@ -1,6 +1,6 @@
 use crate::graph::edge_store::operations::operations::edge_type::delete_edge_type::DropEdgeType;
 use crate::graph::edge_store::GetEdgeTypeIndicer;
-use crate::graph::indexing::operations::{CheckIndex, FreeIndex};
+use crate::graph::indexing::traits::{CheckIndex, FreeIndex};
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::{error::GraphComputingError, graph::edge_store::EdgeStore};
 

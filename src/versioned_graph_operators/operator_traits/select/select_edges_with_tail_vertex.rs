@@ -3,11 +3,15 @@ use graphblas_sparse_linear_algebra::{
     operators::{binary_operator::AccumulatorBinaryOperator, mask::MatrixMask},
 };
 
-use crate::{graph::indexing::{
-    GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex,
-}, versioned_graph::indexing::{GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex, GetVersionedVertexTypeIndex, VersionedVertexTypeIndex}};
 use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
+use crate::{
+    graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex},
+    versioned_graph::indexing::{
+        GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex, GetVersionedVertexTypeIndex,
+        VersionedVertexTypeIndex,
+    },
+};
 
 pub trait SelectEdgesWithTailVertexVersioned<EvaluationDomain>
 where
@@ -24,7 +28,6 @@ where
         options: &OptionsForOperatorWithAdjacencyMatrixArgument,
     ) -> Result<(), GraphComputingError>;
 }
-
 
 #[cfg(test)]
 mod tests {}

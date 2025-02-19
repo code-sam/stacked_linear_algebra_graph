@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::{set_index_capacity, SetIndexCapacity};
+use crate::graph::indexing::traits::{set_index_capacity, SetIndexCapacity};
 use crate::graph::indexing::{ElementCount, Indexer};
 
 impl SetIndexCapacity for Indexer {

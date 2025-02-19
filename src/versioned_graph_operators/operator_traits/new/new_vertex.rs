@@ -12,6 +12,5 @@ pub trait NewVertexVersioned<T: ValueType> {
     ) -> Result<VersionedVertexIndex, GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

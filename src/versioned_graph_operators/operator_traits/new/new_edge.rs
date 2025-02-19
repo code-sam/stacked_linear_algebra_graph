@@ -20,6 +20,5 @@ pub trait NewEdgeVersioned<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

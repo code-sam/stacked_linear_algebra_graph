@@ -3,7 +3,9 @@ use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexTypeIndex, VertexTypeIndex};
 use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
-use crate::versioned_graph::indexing::{GetVersionedEdgeTypeIndex, GetVersionedVertexTypeIndex, VersionedVertexTypeIndex};
+use crate::versioned_graph::indexing::{
+    GetVersionedEdgeTypeIndex, GetVersionedVertexTypeIndex, VersionedVertexTypeIndex,
+};
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 pub trait VertexVectorAdjacencyMatrixMultiplicationVersioned<EvaluationDomain>
@@ -21,7 +23,6 @@ where
         options: &OptionsForOperatorWithAdjacencyMatrixAsRightArgument,
     ) -> Result<(), GraphComputingError>;
 }
-
 
 #[cfg(test)]
 mod tests {}

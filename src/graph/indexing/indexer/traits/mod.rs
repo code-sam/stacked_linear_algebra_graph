@@ -1,5 +1,5 @@
 pub(crate) mod in_memory;
 pub(crate) mod in_memory_transaction;
-mod operations;
+mod traits;
 
-pub(crate) use operations::*;
+pub(crate) use traits::*;

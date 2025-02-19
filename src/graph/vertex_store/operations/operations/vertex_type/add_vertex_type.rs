@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Get
 use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasContext;
 use crate::graph::indexing::{
-    operations::{GenerateIndex, GetValidIndices},
+    traits::{GenerateIndex, GetValidIndices},
     AssignedIndex, GetAssignedIndexData, VertexTypeIndex,
 };
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};

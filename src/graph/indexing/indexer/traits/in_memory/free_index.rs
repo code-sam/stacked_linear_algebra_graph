@@ -1,6 +1,6 @@
-use crate::graph::indexing::operations::free_index_unchecked;
-use crate::graph::indexing::operations::free_valid_index;
-use crate::graph::indexing::operations::FreeIndex;
+use crate::graph::indexing::traits::free_index_unchecked;
+use crate::graph::indexing::traits::free_valid_index;
+use crate::graph::indexing::traits::FreeIndex;
 use crate::graph::indexing::Index;
 use crate::{error::GraphComputingError, graph::indexing::Indexer};
 
@@ -19,7 +19,7 @@ impl FreeIndex for Indexer {
 mod tests {
     use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
-    use crate::graph::indexing::operations::{CheckIndex, FreeIndex, GenerateIndex};
+    use crate::graph::indexing::traits::{CheckIndex, FreeIndex, GenerateIndex};
     use crate::graph::indexing::GetAssignedIndexData;
 
     use super::*;

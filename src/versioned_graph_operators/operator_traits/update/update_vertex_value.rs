@@ -12,6 +12,5 @@ pub trait UpdateVertexValueVersioned<T: ValueType> {
     ) -> Result<(), GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

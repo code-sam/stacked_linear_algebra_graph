@@ -13,14 +13,12 @@ pub trait GetSparseAdjacencyMatrixVersioned<T: ValueType> {
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
 
-
 pub trait GetTransposedSparseAdjacencyMatrixVersioned<T: ValueType> {
     fn transposed_sparse_adjacency_matrix(
         &mut self,
         edge_type_index: &impl GetVersionedEdgeTypeIndex,
     ) -> Result<SparseMatrix<T>, GraphComputingError>;
 }
-
 
 pub trait GetAdjacencyMatrixElementListVersioned<T: ValueType> {
     fn adjacency_matrix_element_list(
@@ -29,11 +27,9 @@ pub trait GetAdjacencyMatrixElementListVersioned<T: ValueType> {
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
 
-
 pub trait GetTransposedAdjacencyMatrixElementListVersioned<T: ValueType> {
     fn transposed_adjacency_matrix_element_list(
         &mut self,
         edge_type_index: &impl GetVersionedEdgeTypeIndex,
     ) -> Result<AdjacencyMatrixElementList<T>, GraphComputingError>;
 }
-

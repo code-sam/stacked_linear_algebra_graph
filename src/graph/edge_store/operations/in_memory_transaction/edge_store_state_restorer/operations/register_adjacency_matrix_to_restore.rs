@@ -9,7 +9,7 @@ use crate::graph::edge_store::operations::in_memory_transaction::{
     EdgeStoreStateRestorer, GetEdgeStoreStateReverters, InMemoryEdgeStoreTransaction
 };
 use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::indexing::operations::in_memory_transaction::RegisterFreedIndexToRestore;
+use crate::graph::indexing::traits::in_memory_transaction::RegisterFreedIndexToRestore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::value_type::{
     GetValueTypeIdentifierRef, ValueType, ValueTypeIdentifier

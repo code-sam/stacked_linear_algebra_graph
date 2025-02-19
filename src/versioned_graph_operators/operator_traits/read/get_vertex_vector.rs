@@ -13,7 +13,6 @@ pub trait GetSparseVertexVectorVersioned<T: ValueType> {
     ) -> Result<SparseVector<T>, GraphComputingError>;
 }
 
-
 pub trait GetVersionedVertexVectorElementListVersioned<T: ValueType> {
     fn sparse_vector_element_list(
         &self,

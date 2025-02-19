@@ -11,7 +11,6 @@ use crate::operator_options::{
 };
 use crate::versioned_graph::indexing::{GetVersionedEdgeTypeIndex, VersionedEdgeTypeIndex};
 
-
 pub trait ApplyScalarBinaryOperatorToAdjacencyMatrix<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

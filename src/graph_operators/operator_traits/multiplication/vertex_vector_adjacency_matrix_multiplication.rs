@@ -8,7 +8,6 @@ use crate::versioned_graph::indexing::{
 };
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 pub trait VertexVectorAdjacencyMatrixMultiplication<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

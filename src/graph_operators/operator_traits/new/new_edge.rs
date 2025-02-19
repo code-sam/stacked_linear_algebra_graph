@@ -5,7 +5,6 @@ use crate::graph::value_type::ValueType;
 use crate::versioned_graph::indexing::{GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex};
 use crate::versioned_graph::versioned_edge::GetVersionedDirectedEdgeCoordinateIndex;
 
-
 pub trait NewEdge<T: ValueType> {
     fn new_edge_from_edge(
         &mut self,

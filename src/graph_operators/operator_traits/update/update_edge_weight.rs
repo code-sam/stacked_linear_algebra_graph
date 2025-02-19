@@ -6,7 +6,6 @@ use crate::graph::value_type::ValueType;
 use crate::versioned_graph::indexing::{GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex};
 use crate::versioned_graph::versioned_edge::GetVersionedDirectedEdgeCoordinateIndex;
 
-
 pub trait UpdateEdgeWeight<T: ValueType> {
     fn update_edge_weight_from_edge(
         &mut self,

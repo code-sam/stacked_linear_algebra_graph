@@ -1,4 +1,4 @@
-pub(crate) mod indexer_operations;
+pub(crate) mod traits;
 mod transaction;
 
 pub(crate) use transaction::*;

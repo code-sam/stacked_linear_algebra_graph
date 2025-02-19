@@ -1,6 +1,7 @@
 use crate::{
     error::GraphComputingError,
-    graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex}, versioned_graph::indexing::GetVersionedVertexIndexIndex,
+    graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex},
+    versioned_graph::indexing::GetVersionedVertexIndexIndex,
 };
 
 pub trait DropVertexIndexVersioned {

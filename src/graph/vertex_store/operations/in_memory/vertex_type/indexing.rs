@@ -1,5 +1,5 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::{operations::CheckIndex, GetVertexTypeIndex};
+use crate::graph::indexing::{traits::CheckIndex, GetVertexTypeIndex};
 use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
 use crate::graph::vertex_store::{GetVertexTypeIndexer, VertexStore};
 

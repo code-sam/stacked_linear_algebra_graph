@@ -3,7 +3,7 @@ use crate::graph::edge_store::operations::in_memory_transaction::{
     GetEdgeStore, InMemoryEdgeStoreTransaction,
 };
 use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing;
-use crate::graph::indexing::operations::try_index_validity;
+use crate::graph::indexing::traits::try_index_validity;
 use crate::graph::indexing::{EdgeTypeIndex, GetEdgeTypeIndex};
 
 impl<'s> Indexing for InMemoryEdgeStoreTransaction<'s> {

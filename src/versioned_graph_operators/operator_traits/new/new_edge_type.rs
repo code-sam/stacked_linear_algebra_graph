@@ -8,6 +8,5 @@ pub trait NewEdgeTypeVersioned<T: ValueType> {
     fn apply(&mut self) -> Result<VersionedEdgeTypeIndex, GraphComputingError>;
 }
 
-
 #[cfg(test)]
 mod tests {}

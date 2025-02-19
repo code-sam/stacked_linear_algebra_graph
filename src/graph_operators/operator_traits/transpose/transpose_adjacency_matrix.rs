@@ -7,7 +7,6 @@ use crate::versioned_graph::indexing::GetVersionedEdgeTypeIndex;
 use crate::versioned_graph::indexing::VersionedEdgeTypeIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
-
 pub trait TransposeAdjacencyMatrix<EvaluationDomain>
 where
     EvaluationDomain: ValueType,

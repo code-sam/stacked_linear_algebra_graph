@@ -1,7 +1,9 @@
 use crate::error::GraphComputingError;
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
-use crate::versioned_graph::indexing::{GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex, GetVersionedVertexTypeIndex};
+use crate::versioned_graph::indexing::{
+    GetVersionedEdgeTypeIndex, GetVersionedVertexIndexIndex, GetVersionedVertexTypeIndex,
+};
 use crate::versioned_graph::versioned_edge::GetVersionedDirectedEdgeCoordinateIndex;
 
 pub trait CheckVersionedIndex {

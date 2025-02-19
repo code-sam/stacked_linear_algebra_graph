@@ -48,12 +48,14 @@ use graphblas_sparse_linear_algebra::operators::semiring::PlusTimes;
 use stacked_linear_algebra_graph::graph::edge::{DirectedEdgeCoordinate, WeightedDirectedEdge};
 use stacked_linear_algebra_graph::graph::graph::Graph;
 use stacked_linear_algebra_graph::graph::indexing::{VertexIndex, VertexTypeIndex};
-use stacked_linear_algebra_graph::operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
-use stacked_linear_algebra_graph::operators::operator_traits::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
-use stacked_linear_algebra_graph::operators::operator_traits::multiplication::VertexVectorAdjacencyMatrixMultiplication;
-use stacked_linear_algebra_graph::operators::operator_traits::new::{NewEdge, NewEdgeType, NewVertex, NewVertexType};
-use stacked_linear_algebra_graph::operators::operator_traits::read::GetVertexValue;
-use stacked_linear_algebra_graph::operators::options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
+use stacked_linear_algebra_graph::graph_operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
+use stacked_linear_algebra_graph::graph_operators::operator_traits::element_wise_multiplication::BinaryOperatorElementWiseVertexVectorMultiplication;
+use stacked_linear_algebra_graph::graph_operators::operator_traits::multiplication::VertexVectorAdjacencyMatrixMultiplication;
+use stacked_linear_algebra_graph::graph_operators::operator_traits::new::{
+    NewEdge, NewEdgeType, NewVertex, NewVertexType,
+};
+use stacked_linear_algebra_graph::graph_operators::operator_traits::read::GetVertexValue;
+use stacked_linear_algebra_graph::operator_options::OptionsForOperatorWithAdjacencyMatrixAsRightArgument;
 
 fn main() {
     let mut graph = Graph::with_initial_capacity(5, 5, 5).unwrap();

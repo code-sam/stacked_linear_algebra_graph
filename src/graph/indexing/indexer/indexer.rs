@@ -120,9 +120,9 @@ impl Indexer {
 mod tests {
     use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::GetSparseVectorElementValue;
 
-    use crate::graph::indexing::indexer::operations::GetIndexerStatus;
+    use crate::graph::indexing::indexer::traits::GetIndexerStatus;
     use crate::graph::indexing::{
-        operations::{CheckIndex, FreeIndex, GenerateIndex},
+        traits::{CheckIndex, FreeIndex, GenerateIndex},
         GetAssignedIndexData,
     };
 
@@ -365,7 +365,7 @@ mod tests {
         indexer.new_index().unwrap();
 
         assert_eq!(
-            crate::graph::indexing::operations::GetValidIndices::valid_indices(&indexer).unwrap(),
+            crate::graph::indexing::traits::GetValidIndices::valid_indices(&indexer).unwrap(),
             vec![0, 1, 2, 5, 6, 7, 8, 9]
         )
     }

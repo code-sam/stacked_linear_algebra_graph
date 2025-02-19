@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
-use crate::graph::indexing::operations::in_memory_transaction::{
+use crate::graph::indexing::traits::in_memory_transaction::{
     GetIndexerUnderTransaction, InMemoryIndexerTransaction,
 };
-use crate::graph::indexing::operations::CheckIndex;
+use crate::graph::indexing::traits::CheckIndex;
 use crate::graph::indexing::Index;
 
 impl<'t> CheckIndex for InMemoryIndexerTransaction<'t> {

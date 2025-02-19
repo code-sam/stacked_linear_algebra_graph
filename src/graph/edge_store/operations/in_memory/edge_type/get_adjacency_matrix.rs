@@ -10,7 +10,7 @@ use crate::graph::edge_store::{
     weighted_adjacency_matrix::WeightedAdjacencyMatrix, EdgeStore, GetAdjacencyMatrices,
     GetEdgeTypeIndicer,
 };
-use crate::graph::indexing::{operations::CheckIndex, ElementCount, GetEdgeTypeIndex};
+use crate::graph::indexing::{traits::CheckIndex, ElementCount, GetEdgeTypeIndex};
 
 impl GetAdjacencyMatrix for EdgeStore {
     fn adjacency_matrix_ref(
