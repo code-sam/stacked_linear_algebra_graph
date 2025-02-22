@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::{
     MatrixElementList as AdjacencyMatrixElementList, SparseMatrix,
 };
 
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
 use crate::graph::graph::GetEdgeStore;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::weighted_adjacency_matrix::{ToSparseMatrix, ToSparseMatrixForValueType};
@@ -11,7 +11,7 @@ use crate::graph_operators::operator_traits::indexing::CheckIndex;
 use crate::graph_operators::operator_traits::read::{GetAdjacencyMatrixElementList, GetSparseAdjacencyMatrix, GetTransposedAdjacencyMatrixElementList, GetTransposedSparseAdjacencyMatrix};
 use crate::graph::value_type::ValueType;
 use crate::graph::graph::Graph;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
 use crate::error::GraphComputingError;
 
 impl<T> GetSparseAdjacencyMatrix<T> for Graph

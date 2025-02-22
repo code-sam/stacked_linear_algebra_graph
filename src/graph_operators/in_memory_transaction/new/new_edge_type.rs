@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 
-use crate::graph::edge_store::operations::operations::edge_type::add_edge_type::AddEdgeType as AddEdgeTypeToEdgeStore;
+use crate::graph::edge_store::traits::traits::edge_type::add_edge_type::AddEdgeType as AddEdgeTypeToEdgeStore;
 use crate::graph::indexing::EdgeTypeIndex;
 use crate::graph::value_type::{GetValueTypeIdentifier, ValueType};
 use crate::graph_operators::operator_traits::new::NewEdgeType;

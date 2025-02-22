@@ -11,8 +11,8 @@ use crate::graph::graph::Graph;
 use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
+use crate::graph::vertex_store::traits::vertex_type::CheckVertexTypeIndex;
+use crate::graph::vertex_store::traits::vertex_type::GetVertexVector;
 use crate::graph_operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVector;
 use crate::graph_operators::operator_traits::apply_operator::ApplyIndexUnaryOperatorToVertexVectorUnchecked;
 

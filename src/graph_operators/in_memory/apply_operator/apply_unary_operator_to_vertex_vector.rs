@@ -7,7 +7,7 @@ use crate::error::GraphComputingError;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
+use crate::graph::vertex_store::traits::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::graph::{graph::Graph, value_type::ValueType};
 use crate::graph_operators::operator_traits::apply_operator::ApplyUnaryOperatorToVertexVector;
 use crate::graph_operators::operator_traits::apply_operator::ApplyUnaryOperatorToVertexVectorUnchecked;

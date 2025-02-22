@@ -3,9 +3,9 @@ use graphblas_sparse_linear_algebra::operators::element_wise_addition::ApplyElem
 use graphblas_sparse_linear_algebra::operators::element_wise_multiplication::ApplyElementWiseMatrixMultiplicationSemiring;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::ArgumentsForAdjacencyMatricesOperator;
 use crate::graph::edge_store::CreateArgumentsForAdjacencyMatricesOperator;
 use crate::graph::edge_store::GetArgumentsForAdjacencyMatricesOperator;

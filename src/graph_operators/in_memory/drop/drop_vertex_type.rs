@@ -2,7 +2,7 @@ use crate::error::GraphComputingError;
 
 use crate::graph::graph::{GetVertexStore, Graph};
 use crate::graph::indexing::GetVertexTypeIndex;
-use crate::graph::vertex_store::operations::vertex_type::DeleteVertexType;
+use crate::graph::vertex_store::traits::vertex_type::DeleteVertexType;
 use crate::graph_operators::operator_traits::drop::DropVertexType;
 
 impl DropVertexType for Graph {

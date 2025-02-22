@@ -31,7 +31,7 @@ use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixArgument;
 use graphblas_sparse_linear_algebra::collections::sparse_matrix::{Size, SparseMatrix};
 use graphblas_sparse_linear_algebra::context::Context as GraphBLASContext;
 
-use super::operations::GetMatrixSize;
+use super::traits::GetMatrixSize;
 
 static DEFAULT_OPERATOR_OPTIONS: Lazy<OptionsForOperatorWithAdjacencyMatrixArgument> =
     Lazy::new(|| OptionsForOperatorWithAdjacencyMatrixArgument::new_default());

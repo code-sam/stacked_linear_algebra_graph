@@ -3,7 +3,7 @@ use crate::graph::graph::GetVertexStore;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
+use crate::graph::vertex_store::traits::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::VertexStore;
 use crate::graph_operators::operator_traits::update::UpdateVertexValue;
 

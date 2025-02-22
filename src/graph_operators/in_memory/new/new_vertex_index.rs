@@ -1,8 +1,8 @@
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::operations::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::edge_store::traits::traits::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetAssignedIndexData, VertexIndex};
-use crate::graph::vertex_store::operations::vertex_element::CreateVertexIndex as CreateVertexIndexInVertexStore;
+use crate::graph::vertex_store::traits::vertex_element::CreateVertexIndex as CreateVertexIndexInVertexStore;
 use crate::graph_operators::operator_traits::new::NewVertexIndex;
 
 impl NewVertexIndex for Graph {

@@ -105,7 +105,7 @@ mod tests {
     use graphblas_sparse_linear_algebra::context::Context;
 
     use crate::graph::{
-        edge_store::weighted_adjacency_matrix::operations::{GetEdgeWeight, SetEdge},
+        edge_store::weighted_adjacency_matrix::traits::{GetEdgeWeight, SetEdge},
         indexing::VertexIndex,
     };
 

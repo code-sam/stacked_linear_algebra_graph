@@ -3,13 +3,13 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::{
 };
 
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::operations::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::edge_store::traits::traits::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 
 use crate::graph::indexing::{GetAssignedIndexData, GetVertexTypeIndex, VertexIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
-use crate::graph::vertex_store::operations::vertex_element::AddVertex as AddVertexToVertexVector;
+use crate::graph::vertex_store::traits::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
+use crate::graph::vertex_store::traits::vertex_element::AddVertex as AddVertexToVertexVector;
 use crate::graph_operators::operator_traits::new::NewVertex;
 
 impl<T> NewVertex<T> for Graph

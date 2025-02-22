@@ -4,8 +4,8 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::{
 
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
 
-use crate::graph::edge_store::operations::in_memory_transaction::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::GetAdjacencyMatrixStateRevertersByEdgeTypeMap;
-use crate::graph::edge_store::operations::operations::edge_element::SetEdge;
+use crate::graph::edge_store::traits::in_memory_transaction::adjacency_matrices_state_restorer::adjacency_matrices_state_restorer::GetAdjacencyMatrixStateRevertersByEdgeTypeMap;
+use crate::graph::edge_store::traits::traits::edge_element::SetEdge;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;
 use crate::transaction::in_memory::InMemoryGraphTransaction;

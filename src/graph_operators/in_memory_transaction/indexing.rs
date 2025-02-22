@@ -1,9 +1,9 @@
 use crate::error::GraphComputingError;
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeStoreIndexing;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing as EdgeStoreIndexing;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
-use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
+use crate::graph::vertex_store::traits::vertex_element::CheckVertexIndex;
+use crate::graph::vertex_store::traits::vertex_type::CheckVertexTypeIndex;
 use crate::graph_operators::operator_traits::indexing::CheckIndex;
 use crate::transaction::in_memory::InMemoryGraphTransaction;
 

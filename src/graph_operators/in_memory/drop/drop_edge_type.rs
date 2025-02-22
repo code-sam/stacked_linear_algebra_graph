@@ -1,6 +1,6 @@
 use crate::error::GraphComputingError;
 
-use crate::graph::edge_store::operations::operations::edge_type::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
+use crate::graph::edge_store::traits::traits::edge_type::delete_edge_type::DropEdgeType as DropEdgeTypeFromEdgeStore;
 use crate::graph::graph::{GetEdgeStore, Graph};
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph_operators::operator_traits::drop::DropEdgeType;

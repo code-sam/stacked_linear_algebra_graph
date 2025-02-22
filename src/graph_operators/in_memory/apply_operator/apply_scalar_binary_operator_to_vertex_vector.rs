@@ -8,14 +8,14 @@ use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
+use crate::graph::vertex_store::traits::vertex_type::GetVertexVector;
 use crate::graph_operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToVertexVector;
 use crate::graph_operators::operator_traits::apply_operator::ApplyScalarBinaryOperatorToVertexVectorUnchecked;
 use crate::{
     error::GraphComputingError,
     graph::{
         graph::GraphblasOperatorApplierCollection,
-        vertex_store::operations::vertex_type::CheckVertexTypeIndex,
+        vertex_store::traits::vertex_type::CheckVertexTypeIndex,
     },
 };
 

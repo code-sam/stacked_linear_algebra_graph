@@ -5,7 +5,7 @@ use crate::graph::graph::GetVertexStore;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::vertex_element::SetVertex;
+use crate::graph::vertex_store::traits::vertex_element::SetVertex;
 use crate::graph_operators::operator_traits::set::SetVertexValue;
 
 impl<T> SetVertexValue<T> for Graph

@@ -3,7 +3,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Set
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::vertex_element::UpdateVertex;
+use crate::graph::vertex_store::traits::vertex_element::UpdateVertex;
 use crate::graph::vertex_store::VertexStore;
 use crate::graph_operators::operator_traits::update::UpdateVertexValue;
 use crate::transaction::in_memory::InMemoryGraphTransaction;

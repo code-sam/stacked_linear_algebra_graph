@@ -8,7 +8,7 @@ use graphblas_sparse_linear_algebra::operators::options::OperatorOptions;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollection};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
+use crate::graph::vertex_store::traits::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::graph_operators::operator_traits::element_wise_multiplication::{
     BinaryOperatorElementWiseVertexVectorMultiplication,
     BinaryOperatorElementWiseVertexVectorMultiplicationUnchecked,

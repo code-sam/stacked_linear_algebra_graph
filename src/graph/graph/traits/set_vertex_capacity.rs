@@ -1,10 +1,10 @@
 use crate::error::GraphComputingError;
-use crate::graph::edge_store::operations::operations::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
+use crate::graph::edge_store::traits::traits::edge_type::resize_adjacency_matrices::ResizeAdjacencyMatrices;
 use crate::graph::edge_store::GetEdgeTypeIndicer;
 use crate::graph::graph::{GetEdgeStore, GetVertexStore, Graph};
 use crate::graph::indexing::traits::SetIndexCapacity;
 use crate::graph::indexing::ElementCount;
-use crate::graph::vertex_store::operations::vertex_type::ResizeVertexVectors;
+use crate::graph::vertex_store::traits::vertex_type::ResizeVertexVectors;
 use crate::graph::vertex_store::GetVertexElementIndexer;
 
 pub(crate) trait SetVertexCapacity {

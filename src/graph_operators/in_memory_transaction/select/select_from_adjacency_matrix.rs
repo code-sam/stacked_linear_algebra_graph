@@ -82,7 +82,7 @@ mod tests {
     use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
         GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
     };
-    use crate::graph::edge_store::operations::operations::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
+    use crate::graph::edge_store::traits::traits::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
     use crate::graph::graph::{GetEdgeStore, Graph};
     use crate::graph_operators::operator_traits::new::{
         NewEdge, NewEdgeType, NewVertex, NewVertexType,

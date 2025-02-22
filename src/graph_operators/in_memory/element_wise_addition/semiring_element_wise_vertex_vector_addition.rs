@@ -6,7 +6,7 @@ use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollection};
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
+use crate::graph::vertex_store::traits::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::graph_operators::operator_traits::element_wise_addition::{
     SemiringElementWiseVertexVectorAddition, SemiringElementWiseVertexVectorAdditionUnchecked,
 };

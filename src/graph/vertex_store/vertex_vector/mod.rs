@@ -1,5 +1,5 @@
-mod operations;
+mod traits;
 mod vertex_vector;
 
-pub(crate) use operations::*;
+pub(crate) use traits::*;
 pub(crate) use vertex_vector::*;

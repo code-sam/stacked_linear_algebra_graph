@@ -1,7 +1,7 @@
 use crate::error::GraphComputingError;
 
 use crate::graph::edge::GetDirectedEdgeCoordinateIndex;
-use crate::graph::edge_store::operations::operations::edge_element::DeleteEdge as DeleteEdgeFromEdgeStore;
+use crate::graph::edge_store::traits::traits::edge_element::DeleteEdge as DeleteEdgeFromEdgeStore;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexIndexIndex;

@@ -83,7 +83,7 @@ mod tests {
 
     use crate::graph::{
         edge_store::weighted_adjacency_matrix::{
-            operations::{GetEdgeWeight, SetEdge},
+            traits::{GetEdgeWeight, SetEdge},
             CreateWeightedAdjacencyMatrix, WeightedAdjacencyMatrix,
         },
         indexing::VertexIndex,

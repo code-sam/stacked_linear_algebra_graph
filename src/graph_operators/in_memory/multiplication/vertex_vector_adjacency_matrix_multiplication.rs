@@ -2,9 +2,9 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBina
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyVectorByMatrix;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::{
     ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument,
     CreateArgumentsForOperatorWithAdjacencyMatrixAsRightArgument,
@@ -16,7 +16,7 @@ use crate::graph::graph::{
 };
 
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
+use crate::graph::vertex_store::traits::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::graph_operators::operator_traits::indexing::CheckIndex;
 use crate::graph_operators::operator_traits::multiplication::{
     VertexVectorAdjacencyMatrixMultiplication, VertexVectorAdjacencyMatrixMultiplicationUnchecked,

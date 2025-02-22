@@ -1,12 +1,12 @@
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::{
     ArgumentsForAdjacencyMatrixOperator, CreateArgumentsForAdjacencyMatrixOperator,
     GetArgumentsForAdjacencyMatrixOperator,
 };
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex, GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
+use crate::graph::vertex_store::traits::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::graph_operators::operator_traits::select::{
     SelectEdgesWithHeadVertex, SelectEdgesWithHeadVertexUnchecked,
 };
@@ -17,7 +17,7 @@ use graphblas_sparse_linear_algebra::operators::extract::ExtractMatrixColumn;
 
 use crate::graph::graph::GetGraphblasOperatorAppliers;
 use crate::graph::graph::{Graph, GraphblasOperatorApplierCollection};
-use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
+use crate::graph::vertex_store::traits::vertex_element::CheckVertexIndex;
 use crate::{error::GraphComputingError, graph::value_type::ValueType};
 
 impl<EvaluationDomain> SelectEdgesWithHeadVertex<EvaluationDomain> for Graph

@@ -8,7 +8,7 @@ use crate::graph::graph::{
     GetGraphblasOperatorApplierCollection, GetGraphblasOperatorAppliers, GetVertexStore,
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
+use crate::graph::vertex_store::traits::vertex_type::GetVertexVector;
 use crate::graph_operators::in_memory::element_wise_addition::{
     apply_monoid_element_wise_vertex_vector_addition,
     apply_monoid_element_wise_vertex_vector_addition_unchecked,

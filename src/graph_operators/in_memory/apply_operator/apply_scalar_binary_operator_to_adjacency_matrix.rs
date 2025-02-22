@@ -3,10 +3,10 @@ use graphblas_sparse_linear_algebra::operators::{
     binary_operator::{AccumulatorBinaryOperator, BinaryOperator},
 };
 
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::{
-    operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix,
+    traits::traits::edge_type::get_adjacency_matrix::GetAdjacencyMatrix,
     ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
     ArgumentsForOperatorWithAdjacencyMatrixAsSecondArgument,
     CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument,
@@ -26,7 +26,7 @@ use crate::operator_options::{
 use crate::{
     error::GraphComputingError,
     graph::{
-        edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes,
+        edge_store::traits::traits::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes,
         graph::GraphblasOperatorApplierCollection,
     },
 };

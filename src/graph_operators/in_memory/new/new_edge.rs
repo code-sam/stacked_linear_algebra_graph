@@ -2,7 +2,7 @@ use graphblas_sparse_linear_algebra::collections::sparse_matrix::operations::Set
 
 use crate::error::GraphComputingError;
 use crate::graph::edge::{GetDirectedEdgeCoordinateIndex, GetEdgeWeight};
-use crate::graph::edge_store::operations::operations::edge_element::NewEdge as NewEdgeInEdgeStore;
+use crate::graph::edge_store::traits::traits::edge_element::NewEdge as NewEdgeInEdgeStore;
 use crate::graph::graph::Graph;
 use crate::graph::indexing::{GetEdgeTypeIndex, GetVertexIndexIndex};
 use crate::graph::value_type::ValueType;

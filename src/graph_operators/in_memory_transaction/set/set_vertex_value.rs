@@ -4,8 +4,8 @@ use graphblas_sparse_linear_algebra::collections::sparse_vector::operations::Set
 use crate::error::GraphComputingError;
 use crate::graph::indexing::{GetVertexIndexIndex, GetVertexTypeIndex};
 use crate::graph::value_type::ValueType;
-use crate::graph::vertex_store::operations::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
-use crate::graph::vertex_store::operations::vertex_element::SetVertex;
+use crate::graph::vertex_store::traits::in_memory_transaction::transaction::GetSparseVectorStateRevertersByVertexTypeMap;
+use crate::graph::vertex_store::traits::vertex_element::SetVertex;
 use crate::graph_operators::operator_traits::set::SetVertexValue;
 use crate::transaction::in_memory::InMemoryGraphTransaction;
 

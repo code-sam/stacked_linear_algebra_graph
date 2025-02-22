@@ -2,9 +2,9 @@ use graphblas_sparse_linear_algebra::operators::binary_operator::AccumulatorBina
 use graphblas_sparse_linear_algebra::operators::multiplication::MultiplyMatrixByVector;
 use graphblas_sparse_linear_algebra::operators::semiring::Semiring;
 
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::ArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument;
 use crate::graph::edge_store::CreateArgumentsForOperatorWithAdjacencyMatrixAsLeftArgument;
 use crate::graph::edge_store::GetArgumentForOperatorWithAdjacencyMatrixAsLeftArgument;
@@ -14,8 +14,8 @@ use crate::graph::graph::GraphblasOperatorApplierCollection;
 use crate::graph::indexing::GetEdgeTypeIndex;
 use crate::graph::indexing::GetVertexTypeIndex;
 use crate::graph::indexing::VertexTypeIndex;
-use crate::graph::vertex_store::operations::vertex_type::CheckVertexTypeIndex;
-use crate::graph::vertex_store::operations::vertex_type::GetVertexVector;
+use crate::graph::vertex_store::traits::vertex_type::CheckVertexTypeIndex;
+use crate::graph::vertex_store::traits::vertex_type::GetVertexVector;
 use crate::graph_operators::operator_traits::multiplication::AdjacencyMatrixVertexVectorMultiplication;
 use crate::graph_operators::operator_traits::multiplication::AdjacencyMatrixVertexVectorMultiplicationUnchecked;
 use crate::operator_options::OptionsForOperatorWithAdjacencyMatrixAsLeftArgument;

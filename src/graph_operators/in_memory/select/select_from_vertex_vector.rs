@@ -7,8 +7,8 @@ use crate::graph::graph::{
     GetGraphblasOperatorAppliers, Graph, GraphblasOperatorApplierCollection,
 };
 use crate::graph::indexing::{GetVertexTypeIndex, VertexTypeIndex};
-use crate::graph::vertex_store::operations::vertex_element::CheckVertexIndex;
-use crate::graph::vertex_store::operations::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
+use crate::graph::vertex_store::traits::vertex_element::CheckVertexIndex;
+use crate::graph::vertex_store::traits::vertex_type::{CheckVertexTypeIndex, GetVertexVector};
 use crate::graph_operators::operator_traits::select::{
     SelectFromVertexVector, SelectFromVertexVectorUnchecked,
 };

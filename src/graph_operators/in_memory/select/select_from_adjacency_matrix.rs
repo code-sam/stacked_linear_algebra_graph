@@ -3,9 +3,9 @@ use graphblas_sparse_linear_algebra::operators::index_unary_operator::IndexUnary
 use graphblas_sparse_linear_algebra::operators::select::MatrixSelector;
 use graphblas_sparse_linear_algebra::operators::select::SelectFromMatrix;
 
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
-use crate::graph::edge_store::operations::operations::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
-use crate::graph::edge_store::operations::operations::edge_type::indexing::Indexing as EdgeTypeIndexing;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix::GetAdjacencyMatrix;
+use crate::graph::edge_store::traits::traits::edge_type::get_adjacency_matrix_cached_attributes::GetAdjacencyMatrixCachedAttributes;
+use crate::graph::edge_store::traits::traits::edge_type::indexing::Indexing as EdgeTypeIndexing;
 use crate::graph::edge_store::ArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::CreateArgumentsForAdjacencyMatrixOperator;
 use crate::graph::edge_store::GetArgumentsForAdjacencyMatrixOperator;
@@ -175,7 +175,7 @@ mod tests {
     use crate::graph::edge_store::adjacency_matrix_with_cached_attributes::{
         GetWeightedAdjacencyMatrix, WeightedAdjacencyMatrixWithCachedAttributes,
     };
-    use crate::graph::edge_store::operations::operations::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
+    use crate::graph::edge_store::traits::traits::edge_type::map::MapAdjacencyMatricesWithCachedAttributes;
     use crate::graph::graph::GetEdgeStore;
     use crate::graph_operators::operator_traits::new::{
         NewEdge, NewEdgeType, NewVertex, NewVertexType,

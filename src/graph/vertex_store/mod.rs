@@ -1,4 +1,4 @@
-pub(crate) mod operations;
+pub(crate) mod traits;
 mod vertex_store;
 mod vertex_vector;
 
